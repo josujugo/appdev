@@ -1,0 +1,797 @@
+\chapter{\index{58383: LOCALTITLE: Chapter 8 Record And Device Support}Record Support}
+
+\section{Overview}
+
+The purpose of this chapter is to describe record support in sufficient detail such that a C programmer can write new 
+record support modules. Before attempting to write new support modules, you should carefully study a few of the existing 
+support modules. If an existing support module is similar to the desired module most of the work will already be done.
+
+From previous chapters, it should be clear that many things happen as a result of record processing. The details of what 
+happens are dependent on the record type. In order to allow new record types and new device types without impacting the 
+core IOC system, the concept of record support and device support has been created. For each record type, a record 
+support module exists. It is responsible for all record specific details. In order to allow a record support module to be 
+independent of device specific details, the concept of device support has been created.
+
+A record support module consists of a standard set of routines which are called by database access routines. These 
+routines implement record specific code. Each record type can define a standard set of device support routines specific to 
+that record type.
+
+By far the most important record support routine is \verb|process|, which \verb|dbProcess| calls when it wants to process a record. 
+This routine is responsible for the details of record processing. In many cases it calls a device support I/O routine. The 
+next section gives an overview of what must be done in order to process a record. Next is a description of the entry tables 
+that must be provided by record and device support modules. The remaining sections give example record and device 
+support modules and describe some global routines useful to record support modules.
+
+The record and device support modules are the only modules that are allowed to include the record specific include files 
+as defined in \verb|base/rec|. Thus they are the only routines that access record specific fields without going through database 
+access.
+
+\section{Overview of Record Processing}
+
+\index{Overview of Record Processing}The most important record support routine is \verb|process|. This routine determines what record processing means. Before 
+the record specific "\verb|process|" routine is called, the following has already been done:
+
+\begin{itemize}\item Decision to process a record.
+
+\item Check that record is not active, i.e. \verb|pact| must be FALSE.
+
+\item Check that the record is not disabled.
+
+\end{itemize}The \verb|process| routine, together with its associated device support, is responsible for the following tasks:
+
+\begin{itemize}\item Set record active while it is being processed
+
+\item Perform I/O (with aid of device support)
+
+\item Check for record specific alarm conditions
+
+\item Raise database monitors
+
+\item Request processing of forward links
+
+\end{itemize}A complication of record processing is that some devices are intrinsically asynchronous. It is NEVER permissible to wait 
+for a slow device to complete. Asynchronous records perform the following steps:
+
+\begin{enumerate}\item Initiate the I/O operation and set \verb|pact| \verb|TRUE|
+
+\item Determine a method for again calling process when the operation completes
+
+\item Return immediately without completing record processing
+
+\item When process is called after the I/O operation complete record processing
+
+\item Set \verb|pact| \verb|FALSE| and return
+
+\end{enumerate}The examples given below show how this can be done.
+
+\section{Record Support and Device Support Entry Tables}
+
+Each record type has an associated set of record support routines. These routines are located via the data structures 
+defined in \verb|epics/share/epicsH/recSup.h|. The concept of record support routines isolates the \verb|iocCore| software 
+from the details of each record type. Thus new records can be defined and supported without affecting the IOC core 
+software.
+
+Each record type also has zero or more sets of device support routines. Record types without associated hardware, e.g. 
+calculation records, normally do not have any associated device support. Record types with associated hardware normally 
+have a  device support module for each device type. The concept of device support isolates IOC core software and even 
+record support from device specific details.
+
+Corresponding to each record type is a set of record support routines. The set of routines is the same for every record type. 
+These routines are located via a Record Support Entry Table (\index{RSET}\index{Record Support Entry Table}RSET), which has the following structure
+
+\begin{verbatim}rset {   /* record support entry table */
+long     number;       /* number of support routine */
+RECSUPFUN   report;       /* print report */
+RECSUPFUN   init;         /* init support */
+RECSUPFUN   init_record;  /* init record */
+RECSUPFUN   process;      /* process record */
+RECSUPFUN   special;     /* special processing */
+RECSUPFUN   get_value;   /* OBSOLETE: Just leave NULL */
+RECSUPFUN   cvt_dbaddr;   /* cvt  dbAddr */
+RECSUPFUN   get_array_info;
+RECSUPFUN   put_array_info;
+RECSUPFUN   get_units;
+RECSUPFUN   get_precision;
+RECSUPFUN   get_enum_str;   /* get string from enum */
+RECSUPFUN   get_enum_strs;   /* get all enum strings */
+RECSUPFUN   put_enum_str;   /* put enum from string */
+RECSUPFUN   get_graphic_double;
+RECSUPFUN   get_control_double;
+RECSUPFUN   get_alarm_double;
+};
+\end{verbatim}Each record support module must define its RSET. The external name must be of the form:
+
+\begin{verbatim}<record_type>RSET
+\end{verbatim}Any routines not needed for the particular record type should be initialized to the value \verb|NULL|. Look at the example below 
+for details.
+
+Device support routines are located via a Device Support Entry Table (\index{DSET}\index{Device Support Entry Table}DSET), which has the following structure:
+
+\begin{verbatim}struct dset {   /* device support entry table */
+long         number;   /* number of support routines */
+DEVSUPFUN   report;   /* print report */
+DEVSUPFUN   init;   /* init support */
+DEVSUPFUN   init_record;/* init record instance*/
+DEVSUPFUN    get_ioint_info;   /* get io interrupt info*/
+/* other functions are record dependent*/
+};
+\end{verbatim}Each device support module must define its associated DSET. The external name must be the same as the name which 
+appears in \verb|devSup.ascii|.
+
+Any record support module which has associated device support must also include definitions for accessing its associated 
+device support modules. The field"\verb|dset|", which is located in \verb|dbCommon|, contains the address of the DSET. It is given a 
+value by \verb|iocInit|.
+
+\section{Example Record Support Module}
+
+This section contains the skeleton of a record support package. The record type is \verb|xxx| and the record has the following 
+fields in addition to the \verb|dbCommon| fields: \verb|VAL|, \verb|PREC|, \verb|EGU|, \verb|HOPR|, \verb|LOPR|, \verb|HIHI|, \verb|LOLO|, \verb|HIGH|, \verb|LOW|, \verb|HHSV|, \verb|LLSV|, \verb|HSV|, 
+\verb|LSV|, \verb|HYST|, \verb|ADEL|, \verb|MDEL|, \verb|LALM|, \verb|ALST|, \verb|MLST|. These fields will have the same meaning as they have for the \verb|ai| record. 
+Consult the Record Reference manual for a description. 
+
+\subsection{Declarations}
+
+\begin{verbatim}/* Create RSET - Record Support Entry Table*/
+#define report NULL
+#define initialize NULL
+static long init_record();
+static long process();
+#define special NULL
+#define get_value NULL
+#define cvt_dbaddr NULL
+#define get_array_info NULL
+#define put_array_info NULL
+static long get_units();
+static long get_precision();
+#define get_enum_str NULL
+#define get_enum_strs NULL
+#define put_enum_str NULL
+static long get_graphic_double();
+static long get_control_double();
+static long get_alarm_double();
+
+rset xxxRSET={
+RSETNUMBER,
+report,
+initialize,
+init_record,
+process,
+special,
+get_value,
+cvt_dbaddr,
+get_array_info,
+put_array_info,
+get_units,
+get_precision,
+get_enum_str,
+get_enum_strs,
+put_enum_str,
+get_graphic_double,
+get_control_double,
+get_alarm_double
+};
+epicsExportAddress(rset,xxxRSET);
+
+/* declarations for associated DSET */
+typedef struct xxxdset { /* analog input dset */
+long   number;
+DEVSUPFUN   dev_report;
+DEVSUPFUN   init;
+DEVSUPFUN   init_record; /* returns: (1,0)=> (failure, success)*/
+DEVSUPFUN   get_ioint_info;
+DEVSUPFUN   read_xxx;
+}xxxdset;
+
+/* forward declaration for internal routines*/
+static void checkAlarams(xxxRecord *pxxx);
+static void monitor(xxxRecord *pxxx);
+\end{verbatim}\index{RSET - example}The above declarations define the Record Support Entry Table (RSET), a template for the associated Device Support 
+Entry Table (DSET), and forward declarations to private routines.
+
+The RSET must be declared with an external name of \verb|xxxRSET|. It defines the record support routines supplied for this 
+record type. Note that forward declarations are given for all routines supported and a \verb|NULL| declaration for any routine not 
+supported.
+
+The template for the DSET is declared for use by this module. 
+
+\subsection{init\_record}
+
+\index{init\_record - example}\begin{verbatim}static long init_record(void *precord, int  pass)
+{
+xxxRecord*pxxx = (xxxRecord *)precord;
+xxxdset*pdset;
+longstatus;
+
+if(pass==0) return(0); 
+
+if((pdset = (xxxdset *)(pxxx->dset)) == NULL) {
+recGblRecordError(S_dev_noDSET,pxxx,"xxx: init_record");
+return(S_dev_noDSET);
+}
+/* must have read_xxx function defined */
+if( (pdset->number < 5) || (pdset->read_xxx == NULL) ) {
+recGblRecordError(S_dev_missingSup,pxxx,
+"xxx: init_record");
+return(S_dev_missingSup);
+}
+if( pdset->init_record ) {
+if((status=(*pdset->init_record)(pxxx))) return(status);
+}
+return(0);
+}
+\end{verbatim}This routine, which is called by \verb|iocInit| twice for each record of type \verb|xxx|, checks to see if it has a proper set of device 
+support routines and, if present, calls the \verb|init_record| entry of the DSET.
+
+During the first call to \verb|init_record| (pass=0) only initializations relating to this record can be performed. During the 
+second call (pass=1) initializations that may refer to other records can be performed. Note also that during the second 
+pass, other records may refer to fields within this record. A good example of where these rules are important is a 
+waveform record. The \verb|VAL| field of a waveform record actually refers to an array. The waveform record support module 
+must allocate storage for the array. If another record has a database link referring to the waveform \verb|VAL| field then the 
+storage must be allocated before the link is resolved. This is accomplished by having the waveform record support 
+allocate the array during the first pass (pass=0) and having the link reference resolved during the second pass (pass=1).
+
+\subsection{process}
+
+\index{process - example}\begin{verbatim}static long process(void *precord)
+{
+xxxRecord*pxxx = (xxxRecord *)precord;
+   xxxdset*pdset = (xxxdset *)pxxx->dset;
+longstatus;
+unsigned char pact=pxxx->pact;
+
+if( (pdset==NULL) || (pdset->read_xxx==NULL) ) {
+/* leave pact true so that dbProcess doesnt call again*/
+pxxx->pact=TRUE;
+recGblRecordError(S_dev_missingSup,pxxx,"read_xxx");
+return(S_dev_missingSup);
+}
+
+/* pact must not be set true until read_xxx completes*/
+status=(*pdset->read_xxx)(pxxx); /* read the new value */
+ /* return if beginning of asynch processing*/
+if(!pact && pxxx->pact) return(0);
+pxxx->pact = TRUE;
+recGblGetTimeStamp(pxxx);
+
+/* check for alarms */
+alarm(pxxx);
+/* check event list */
+monitor(pxxx);
+/* process the forward scan link record */
+recGblFwdLink(pxxx);
+
+pxxx->pact=FALSE;
+return(status);
+}
+\end{verbatim}The record processing routines are the heart of the IOC software. The record specific process routine is called by 
+\verb|dbProcess| whenever it decides that a record should be processed. Process decides what record processing really means. 
+The above is a good example of what should be done. In addition to being called by \verb|dbProcess| the process routine may 
+also be called by asynchronous record completion routines.
+
+The above model supports both synchronous and asynchronous device support routines. For example, if \verb|read_xxx| is an 
+asynchronous routine, the following sequence of events will occur:
+
+\begin{itemize}\item \verb|process| is called with \verb|pact| \verb|FALSE|
+
+\item \verb|read_xxx| is called. Since \verb|pact| is \verb|FALSE| it starts I/O, arranges callback, and sets \verb|pact| \verb|TRUE|
+
+\item \verb|read_xxx| returns
+
+\item because \verb|pact| went from \verb|FALSE| to \verb|TRUE| process just returns
+
+\item Any new call to \verb|dbProcess| is ignored because it finds \verb|pact| \verb|TRUE|
+
+\item Sometime later the callback occurs and \verb|process| is called again.
+
+\item \verb|read_xxx| is called. Since \verb|pact| is \verb|TRUE| it knows that it is a completion request.
+
+\item \verb|read_xxx| returns
+
+\item \verb|process| completes record processing
+
+\item \verb|pact| is set \verb|FALSE|
+
+\item \verb|process| returns
+
+\end{itemize}At this point the record has been completely processed. The next time \verb|process| is called everything starts all over from 
+the beginning.
+
+\subsection{Miscellaneous Utility Routines}
+
+\begin{verbatim}static long get_units(DBADDR *paddr, char *units)
+{
+xxxRecord  *pxxx=(xxxRecord *)paddr->precord;
+
+strncpy(units,pxxx->egu,sizeof(pxxx->egu));
+return(0);
+}
+
+static long get_graphic_double(DBADDR *paddr,
+
+struct dbr_grDouble *pgd)
+{
+xxxRecord  *pxxx=(xxxRecord *)paddr->precord;
+int   fieldIndex = dbGetFieldIndex(paddr);
+
+if(fieldIndex == xxxRecordVAL) {
+pgd->upper_disp_limit = pxxx->hopr;
+pgd->lower_disp_limit = pxxx->lopr;
+} else recGblGetGraphicDouble(paddr,pgd);
+return(0);
+}
+/* similar routines would be provided for */
+/* get_control_double and get_alarm_double*/
+\end{verbatim}\index{get\_units - .example}
+\index{get\_graphic\_double - example}These are a few examples of various routines supplied by a typical record support package. The functions that must be 
+performed by the remaining routines are described in the next section.
+
+\subsection{Alarm Processing}
+
+\begin{verbatim}static void checkAlarms(xxxRecord *pxxx)
+{
+double        val;
+float         hyst,lalm,hihi,high,low,lolo;
+unsigned short hhsv,llsv,hsv,lsv;
+
+if(pxxx->udf == TRUE ){
+recGblSetSevr(pxxx,UDF_ALARM,VALID_ALARM);
+return;
+}
+
+hihi=pxxx->hihi; lolo=pxxx->lolo;
+high=pxxx->high; low=pxxx->low;
+hhsv=pxxx->hhsv; llsv=pxxx->llsv;
+hsv=pxxx->hsv; lsv=pxxx->lsv;
+val=pxxx->val; hyst=pxxx->hyst; lalm=pxxx->lalm;
+
+/* alarm condition hihi */
+if (hhsv && (val >= hihi 
+|| ((lalm==hihi) && (val >= hihi-hyst)))) {
+if(recGblSetSevr(pxxx,HIHI_ALARM,pxxx->hhsv)
+ pxxx->lalm = hihi;
+return;
+}
+/* alarm condition lolo */
+if (llsv && (val <= lolo 
+|| ((lalm==lolo) && (val <= lolo+hyst)))) {
+if(recGblSetSevr(pxxx,LOLO_ALARM,pxxx->llsv))
+pxxx->lalm = lolo;
+return;
+}
+/* alarm condition high */
+if (hsv && (val >= high 
+|| ((lalm==high) && (val >= high-hyst)))) {
+if(recGblSetSevr(pxxx,HIGH_ALARM,pxxx->hsv))
+pxxx->lalm = high;
+return;
+}
+/* alarm condition low */
+if (lsv && (val <= low 
+|| (lalm==low) && (val <= low+hyst)))) {
+if(recGblSetSevr(pxxx,LOW_ALARM,pxxx->lsv))
+pxxx->lalm = low;
+return;
+}
+/*we get here only if val is out of alarm by at least hyst*/
+pxxx->lalm=val;
+return;
+}
+\end{verbatim}\index{checkAlarms}This is a typical set of code for checking alarms conditions for an analog type record. The actual set of code can be very 
+record specific. Note also that other parts of the system can raise alarms. The algorithm is to always maximize alarm 
+severity, i.e. the highest severity outstanding alarm will be reported.
+
+The above algorithm also honors a hysteresis factor for the alarm. This is to prevent alarm storms from occurring in the 
+event that the current value is very near an alarm limit and noise makes it continually cross the limit. It honors the 
+hysteresis only when the value is going to a lower alarm severity.
+
+Note the test:
+
+\begin{verbatim}if(pxxx->udf == TRUE ){
+recGblSetSevr(pxxx,UDF_ALARM,VALID_ALARM);
+return;
+}
+\end{verbatim}\index{udf}Database common defines the field \index{UDF}UDF, which means that field VAL is undefined. The STAT and SEVR fields are 
+initialized as though \verb|recGblSetSevr(pxxx,UDF_ALARM,VALID_ALARM)|was called. Thus if the record is never 
+processed the record will be in an INVALID UNDEFINED alarm state. Field UDF is initialized to the value 1, i.e. TRUE. 
+Thus the above code will keep the record in the INVALID UNDEFINED alarm state as long as UDF is not given the 
+value 0.
+
+The UDF field means Undefined, i.e. the VAL field has never been given a value. When records are loaded into an ioc this 
+is the initial state of records. Whevever code gives a value to the VAL field it is also supposed to set UDF false. Unless a 
+particular record type has unusual semantics no code should set UDF true. UDF normally means that the field was never 
+given a value.
+
+For input records device support is responsible for obtaining an input value. If no input value can be obtained neither 
+record support nor device support sets UDF false. If device support reads a raw value it returns a value telling record 
+support to perform a conversion. After the record support sets VAL equal to the converted value, it sets UDF false. If 
+device support obtains a converted value that it writes to VAL, it sets UDF false.
+
+For output records either something outside record/device support writes to the VAL field or else VAL is given a value 
+because record support obtains a value via the OMSL field. In either case the code that writes to the VAL field sets UDF 
+false.
+
+Whenever database access writes to the VAL field it sets UDF false.
+
+Routine recGblSetSevr is called to raise alarms. It can be called by iocCore, record support, or device support. The code 
+that detects an alarm is responsible for raising the alarm.
+
+\subsection{Raising Monitors}
+
+\begin{verbatim}static void monitor(xxxRecord *pxxx)
+{
+unsigned short   monitor_mask;
+float            delta;
+
+monitor_mask = recGblResetAlarms(pxxx);
+/* check for value change */
+delta = pxxx->mlst - pxxx->val;
+if(delta<0.0) delta = -delta;
+if (delta > pxxx->mdel) {
+/* post events for value change */
+monitor_mask |= DBE_VALUE;
+/* update last value monitored */
+pxxx->mlst = pxxx->val;
+}
+/* check for archive change */
+delta = pxxx->alst - pxxx->val;
+if(delta<0.0) delta = 0.0;
+if (delta > pxxx->adel) {
+/* post events on value field for archive change */
+monitor_mask |= DBE_LOG;
+/* update last archive value monitored */
+pxxx->alst = pxxx->val;
+}
+/* send out monitors connected to the value field */
+if (monitor_mask){
+db_post_events(pxxx,&pxxx->val,monitor_mask);
+}
+return;
+}
+\end{verbatim}\index{monitor - example}All record types should call \verb|recGblResetAlarms| as shown. Note that \verb|nsta| and \verb|nsev| will have the value 0 after this 
+routine completes. This is necessary to ensure that alarm checking starts fresh after processing completes. The code also 
+takes care of raising alarm monitors when a record changes from an alarm state to the no alarm state. It is essential that 
+record support routines follow the above model or else alarm processing will not follow the rules.
+
+Analog type records should also provide monitor and archive hysteresis fields as shown by this example.
+
+\verb|db_post_events| results in channel access issuing monitors for clients attached to the record and field. The call is
+
+\begin{verbatim}int db_post_events(void *precord, void *pfield,
+
+      unsigned int monitor_mask)
+\end{verbatim}
+
+where:
+
+\begin{description}\item \verb|precord| - The address of the record
+
+\item \verb|pfield| - The address of the field
+
+\item \verb|monitor_mask| - A bit mask that can be any combinations of the following:
+
+\end{description}\index{DBE\_ALARM}DBE\_ALARM - A change of alarm state has occured. This is set by \verb|recGblResetAlarms|.
+
+\index{DBE\_LOG}DBE\_LOG - Archive change of state.
+
+\index{DBE\_VAL}DBE\_VAL - Value change of state
+
+IMPORTANT: The record support module is responsible for calling \verb|db_post_event| for any fields that change as a 
+result of record processing. Also it should NOT call \verb|db_post_event| for fields that do not change.
+
+\section{Record Support Routines}
+
+This section describes the routines defined in the RSET. Any routine that does not apply to a specific record type must be 
+declared \verb|NULL|.
+
+\subsection{Generate Report of Each Field in Record}
+
+\begin{verbatim}report(void *precord);   /* addr of record*/
+\end{verbatim}\index{report - Record Support Routine}This routine is not used by most record types. Any action is record type specific.
+
+\subsection{Initialize Record Processing}
+
+\begin{verbatim}initialize(void);
+\end{verbatim}\index{init - Record Support Routine}This routine is called once at IOC initialization time. Any action is record type specific. Most record types do not need 
+this routine.
+
+\subsection{Initialize Specific Record}
+
+\begin{verbatim}init_record(
+void *precord,   /* addr of record*/
+int     pass);
+\end{verbatim}\index{init\_record - record support routine}\verb|iocInit| calls this routine twice (pass=0 and pass=1) for each database record of the type handled by this routine. It must 
+perform the following functions:
+
+\begin{itemize}\item Check and/or issue initialization calls for the associated device support routines.
+
+\item Perform any record type specific initialization.
+
+\item During the first pass it can only perform initializations that affect the record referenced by precord. 
+
+\item During the second pass it can perform initializations that affect other records.
+
+\end{itemize}\subsection{Process Record}
+
+\begin{verbatim}process(void *precord);   /* addr of record*/
+\end{verbatim}\index{process - Record Support Routine}This routine must follow the guidelines specified previously.
+
+\subsection{Special Processing}
+
+\begin{verbatim}special(
+struct dbAddr   *paddr,
+int   after);/*(FALSE,TRUE)=>(Before,After)Processing*/
+\end{verbatim}\index{special - Record Support Routine}This routine implements the record type specific special processing for the field referred to by \verb|dbAddr|. Note that it is 
+called twice. Once before any changes are made to the associated field and once after. File \verb|special.h| defines special 
+types. This routine is only called for user special fields, i.e. fields with \verb|SPC_xxx| \textgreater{}= 100. A field is declared special in the 
+ASCII record definition file. New values should not by added to \verb|special.h|, instead use \verb|SPC_MOD|.
+
+The database access routine, \verb|dbGetFieldIndex| can be used to determine which field is being modified.
+
+\subsection{Get Value}
+
+This routine is no longer used. It should be left as a NULL procedure in the record support entry table.
+
+\subsection{Convert dbAddr Definitions}
+
+\begin{verbatim}cvt_dbaddr(struct dbAddr *paddr);
+\end{verbatim}\index{cvt\_dbaddr - Record Support Routine}This routine is called by \verb|dbNameToAddr| if the field has special set equal to \verb|SPC_DBADDR|. A typical use is when a field 
+refers to an array. This routine can change any combination of the \verb|dbAddr| fields: \verb|no_elements|, \verb|field_type|, 
+\verb|field_size|, \verb|special,pfield, |and\verb| dbr_type|. For example if the \verb|VAL| field of a waveform record is passed to 
+\verb|dbNameToAddr|, \verb|cvt_dbaddr| would change \verb|dbAddr| so that it refers to the actual array rather then \verb|VAL|.
+
+The database access routine, \verb|dbGetFieldIndex| can be used to determine which field is being modified.
+
+NOTES:
+
+\begin{itemize}\item Channel access calls db\_name\_to\_addr, which is part of old database access. Db\_name\_to\_addr calls 
+dbNameToAddr. This is done when a client connects to the record.
+
+\item no\_elements must be set to the maximum number of elements that will ever be stored in the array.
+
+\end{itemize}\subsection{Get Array Information}
+
+\begin{verbatim}get_array_info(
+struct dbAddr  *paddr,
+long   *no_elements,
+long   *offset);
+\end{verbatim}\index{get\_array\_info - Record Support Routine}This routine returns the current number of elements and the offset of the first value of the specified array. The offset field 
+is meaningful if the array is actually a circular buffer.
+
+The database access routine, \verb|dbGetFieldIndex| can be used to determine which field is being modified. It is 
+permissible for \verb|get_array_info| to change \verb|pfield|. This feature can be used to implement double buffering.
+
+\index{get\_array\_info - Record Support Routine}When an array field is being written \verb|get_array_info| is called before the field values are changed.
+
+\subsection{Put Array Information}
+
+\begin{verbatim}put_array_info(
+struct dbAddr   *paddr,
+long   nNew);
+\end{verbatim}\index{put\_array\_info - Record Support Routine}This routine is called after new values have been placed in the specified array.
+
+The database access routine, \verb|dbGetFieldIndex| can be used to determine which field is being modified.
+
+\subsection{Get Units}
+
+\begin{verbatim}get_units(
+struct dbAddr  *paddr,
+char  *punits);
+\end{verbatim}\index{get\_units - Record Support Routine}This routine sets units equal to the engineering units for the field.
+
+The database access routine, \verb|dbGetFieldIndex| can be used to determine which field is being modified.
+
+\subsection{Get Precision}
+
+\begin{verbatim}get_precision(
+struct dbAddr  *paddr,
+long   *precision);
+\end{verbatim}\index{get\_precision - Record Support Routine}This routine gets the precision, i.e. number of decimal places, which should be used to convert the field value to an ASCII 
+string. \verb|recGblGetPrec| should be called for fields not directly related to the value field.
+
+The database access routine, \verb|dbGetFieldIndex| can be used to determine which field is being modified.
+
+\subsection{Get Enumerated String}
+
+\begin{verbatim}get_enum_str(
+struct dbAddr  *paddr,
+char  *p);
+\end{verbatim}\index{get\_enum\_str - record Support Routine}This routine sets \verb|*p| equal to the ASCII string for the field value. The field must have type \verb|DBF_ENUM|.
+
+Look at the code for the \verb|bi| or \verb|mbbi| records for examples.
+
+The database access routine, \verb|dbGetFieldIndex| can be used to determine which field is being modified.
+
+\subsection{Get Strings for Enumerated Field}
+
+\begin{verbatim}get_enum_strs(
+struct dbAddr   *paddr,
+struct dbr_enumStrs  *p);
+\end{verbatim}\index{get\_enum\_strs - record Support Routine}This routine gives values to all fields of structure \verb|dbr_enumStrs|.
+
+Look at the code for the \verb|bi| or \verb|mbbi| records for examples.
+
+The database access routine, \verb|dbGetFieldIndex| can be used to determine which field is being modified.
+
+\subsection{Put Enumerated String}
+
+\begin{verbatim}put_enum_str(
+struct dbAddr  *paddr,
+char  *p);
+\end{verbatim}\index{put\_enum\_str - Record Support Routine}Given an ASCII string, this routine updates the database field. It compares the string with the string values associated with 
+each enumerated value and if it finds a match sets the database field equal to the index of the string which matched.
+
+Look at the code for the \verb|bi| or \verb|mbbi| records for examples.
+
+The database access routine, \verb|dbGetFieldIndex| can be used to determine which field is being modified.
+
+\subsection{Get Graphic Double Information}
+
+\begin{verbatim}get_graphic_double(
+struct dbAddr  *paddr,
+struct dbr_grDouble  *p);   /* addr of return info*/
+\end{verbatim}\index{get\_graphic\_double - Record Support Routine}This routine fills in the graphics related fields of structure \verb|dbr_grDouble|. \verb|recGblGetGraphicDouble| should be 
+called for fields not directly related to the value field.
+
+The database access routine, \verb|dbGetFieldIndex| can be used to determine which field is being modified.
+
+\subsection{Get Control Double Information}
+
+\begin{verbatim}get_control_double(
+struct dbAddr  *paddr,
+struct dbr_ctrlDouble  *p);  /* addr of return info*/
+\end{verbatim}\index{get\_control\_double - Record Support Routine}This routine gives values to all fields of structure \verb|dbr_ctrlDouble|. \verb|recGblGetControlDouble| should be called 
+for fields not directly related to the value field.
+
+The database access routine, \verb|dbGetFieldIndex| can be used to determine which field is being modified.
+
+\subsection{Get Alarm Double Information}
+
+\begin{verbatim}get_alarm_double(
+struct dbAddr  *paddr,
+struct dbr_alDouble  *p);  /* addr of return info*/
+\end{verbatim}\index{get\_alarm\_double Record Support Routine}This routine gives values to all fields of structure \verb|dbr_alDouble|.
+
+The database access routine, \verb|dbGetFieldIndex| can be used to determine which field is being modified.
+
+\section{Global Record Support Routines}
+
+\index{69681: HEADING1: 5. Global Record Support Routines}A number of global record support routines are available. These routines are intended for use by the record specific 
+processing routines but can be called by any routine that wishes to use their services.
+
+The name of each of these routines begins with "\verb|recGbl|".
+
+\subsection{Alarm Status and Severity}
+
+Alarms may be raised in many different places during the course of record processing. The algorithm is to maximize the 
+alarm severity, i.e. the highest severity outstanding alarm is raised. If more than one alarm of the same severity is found 
+then the first one is reported. This means that whenever a code fragment wants to raise an alarm, it does so only if the 
+alarm severity it will declare is greater then that already existing. Four fields (in database common) are used to implement 
+alarms: \verb|sevr|, \verb|stat|, \verb|nsev|, and \verb|nsta|. The first two are the status and severity after the record is completely processed. 
+The last two fields (\verb|nsta| and \verb|nsev|) are the status and severity values to set during record processing. Two routines are 
+used for handling alarms. Whenever a routine wants to raise an alarm it calls \verb|recGblSetSevr|. This routine will only 
+change \verb|nsta| and \verb|nsev| if it will result in the alarm severity being increased. At the end of processing, the record support 
+module must call \verb|recGblResetAlarms|. This routine sets \verb|stat|=\verb|nsta|, \verb|sevr|=\verb|nsev|, \verb|nsta|=0, and \verb|nsev|=0. If \verb|stat| 
+or \verb|sevr| has changed value since the last call it calls \verb|db_post_event| for \verb|stat| and \verb|sevr| and returns a value of 
+\verb|DBE_ALARM|. If no change occured it returns 0. Thus after calling \verb|recGblResetAlarms| everything is ready for raising 
+alarms the next time the record is processed. The example record support module presented above shows how these 
+macros are used.
+
+\begin{verbatim}recGblSetSevr(
+void   *precord,
+short   nsta,
+short   nsevr);
+\end{verbatim}\index{recGblSetSevr}Returns: (\verb|TRUE|, \verb|FALSE|) if (did, did not) change \verb|nsta| and \verb|nsev|.
+
+\begin{verbatim}unsigned short recGblResetAlarms(void  *precord);
+\end{verbatim}\index{recGblResetAlarms}Returns: Initial value for \verb|monitor_mask|
+
+\subsection{Alarm Acknowledgment}
+
+Database common contains two additional alarm related fields: \verb|acks| (Highest severity unacknowledged alarm) and 
+\verb|ackt| (does transient alarm need to be acknowledged). These field are handled by \verb|iocCore| and \verb|recGblResetAlarms| 
+and are not the responsibility of record support. These fields are intended for use by the alarm handler.
+
+\subsection{Generate Error: Process Variable Name, Caller, Message}
+
+SUGGESTION: use \index{errlogPrintf}\verb|errlogPrintf| instead of this for new code.
+
+\begin{verbatim}recGblDbaddrError(
+long   status,
+struct dbAddr  *paddr,
+char   *pcaller_name); /* calling routine name */
+\end{verbatim}\index{recGblDbaddrError}This routine interfaces with the system wide error handling system to display the following information: Status 
+information, process variable name, calling routine.
+
+\subsection{Generate Error: Status String, Record Name, Caller}
+
+\begin{verbatim}SUGGESTION: use errlogPrintf instead of this for new code.
+recGblRecordError(
+long   status,
+void   *precord,   /* addr of record  */
+char   *pcaller_name);   /* calling routine name */
+\end{verbatim}\index{errlogPrintf}
+\index{recGblRecordError}This routine interfaces with the system wide error handling system to display the following information: Status 
+information, record name, calling routine.
+
+\subsection{Generate Error: Record Name, Caller, Record Support Message}
+
+\begin{verbatim}SUGGESTION: use errlogPrintf instead of this for new code.
+recGblRecsupError(
+long   status,
+struct   dbAddr   *paddr,
+char   *pcaller_name,   /* calling routine name */
+char   *psupport_name);   /* support routine name*/
+\end{verbatim}\index{errlogPrintf}
+\index{recGblRecsupError}This routine interfaces with the system wide error handling system to display the following information: Status 
+information, record name, calling routine, record support entry name.
+
+\subsection{Get Graphics Double}
+
+\begin{verbatim}recGblGetGraphicDouble(
+struct dbAddr  *paddr,
+struct dbr_grDouble  *pgd);
+\end{verbatim}\index{recGblGetGraphicDouble}This routine can be used by the \verb|get_graphic_double| record support routine to obtain graphics values for fields that 
+it doesn't know how to set.
+
+\subsection{Get Control Double}
+
+\begin{verbatim}recGblGetControlDouble(
+struct dbAddr  *paddr,
+struct dbr_ctrlDouble   *pcd);
+\end{verbatim}\index{recGblGetControlDouble}This routine can be used by the \verb|get_control_double| record support routine to obtain control values for fields that it 
+doesn't know how to set.
+
+\subsection{Get Alarm Double}
+
+\begin{verbatim}recGblGetAlarmDouble(
+struct dbAddr  *paddr,
+struct dbr_alDouble  *pcd);
+\end{verbatim}\index{recGblGetAlarmDouble}This routine can be used by the \verb|get_alarm_double| record support routine to obtain control values for fields that it 
+doesn't know how to set.
+
+\subsection{Get Precision}
+
+\begin{verbatim}recGblGetPrec(
+struct dbAddr  *paddr,
+long  *pprecision);
+\end{verbatim}\index{recGblGetPrec}This routine can be used by the \verb|get_precision| record support routine to obtain the precision for fields that it doesn't 
+know how to set the precision.
+
+\subsection{Get Time Stamp}
+
+\begin{verbatim}recGblGetTimeStamp(void *precord)
+\end{verbatim}\index{recGblGetTimeStamp}This routine gets the current time stamp and puts it in the record It does the following:
+
+\begin{itemize}\item If TSEL is not a constant link and TSEL refers to the TIME field of a record, the time is obtained from the record 
+reference by TSEL and this put in field TIME. The routine then returns.
+
+\item If TSEL is not a constant link dbGetLink is called and the value put in field TSE.
+
+\item If TSE is equal to \verb|epicsTimeEventDeviceTime|  (-2) then noting is done, i.e. the routine just returns.
+
+\item \verb|epicsTimeGetEvent| is called.
+
+\end{itemize}\subsection{Forward link}
+
+\begin{verbatim}recGblFwdLink(
+void *precord);
+\end{verbatim}\index{recGblFwdLink}This routine can be used by process to request processing of forward links.
+
+\subsection{Initialize Constant Link}
+
+\begin{verbatim} int recGblInitConstantLink(
+struct link  *plink,
+short  dbfType,
+void   *pdest);
+\end{verbatim}\index{recGblInitConstantLink}Initialize a constant link. This routine is usually called by \verb|init_record| (or by associated device support) to initialize 
+the field associated with a constant link. It returns(FALSE, TRUE) if it (did not, did) modify the destination.
+
+
+
+
+
+
+
+
+
+

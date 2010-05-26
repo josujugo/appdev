@@ -1,0 +1,1370 @@
+
+
+
+
+
+
+\chapter{libCom}
+
+This chapter and the next describe the facilities provided in \verb|<base>/src/libCom|. This chapter describes facilities 
+which are platform independent. The next chapter describes facilities which have different implementations on different 
+platforms.
+
+\section{bucketLib}
+
+\verb|bucketLib.h| describes a hash facility for integers, pointers, and strings. It is used by the Channel Access Server. It is 
+currently undocumented.
+
+\index{bucketLib.h}\section{calc}
+
+\verb|postfix.h| defines several macros and the routines used by the calculation record type calcRecord, access security, and 
+other code, to compile and evaluate mathematical expressions. The syntax of the infix expressions accepted is described 
+in Section19.2.1 on page258 below.
+
+\index{postfix.h}\begin{verbatim}long postfix(const char *psrc, char *ppostfix, short *perror);
+long calcArgUsage(const char *ppostfix, unsigned long *pinputs, 
+
+unsigned long *pstores);
+const char * calcErrorStr(short error);
+long calcPerform(double *parg, double *presult, const char *ppostfix);
+\end{verbatim}\index{postfix}
+\index{calcArgUsage}
+\index{calcErrorStr}
+\index{calcPerform}The postfix() routine converts an expression from infix to postfix notation. It is the callers's responsibility to make sure 
+that \emph{ppostfix} points to sufficient storage to hold the postfix expression; the macro \index{INFIX\_TO\_POSTFIX\_SIZE}\verb|INFIX_TO_POSTFIX_SIZE(n)| can 
+be used to calculate an appropriate buffer from the length of the infix string. There is no longer a maximum length to the 
+input expression that can be accepted, although there are internal limits to the complexity of the expressions that can be 
+converted and evaluated. If postfix() returns a non-zero value it will have placed an error code at the location pointed to 
+by \emph{perror}. The error codes used are defined in \verb|postfix.h| as a series of macros with names starting \verb|CALC_ERR_|, but a 
+string representation of the error code is more useful and can be obtained by passing the value to the calcErrorStr() 
+routine, which returns a static error message string explaining the error.
+
+\index{CALC\_ERR\_}Software using the calc subsystem may need to know what expression arguments are used and/or modified by a particular 
+expression. It can now discover this from the postfix string by calling calcArgUsage(), which takes two pointers \emph{pinputs} 
+and \emph{pstores} to a pair of unsigned long bitmaps which return that information to the caller (passing a NULL value for either 
+of these pointers is legal). The least signficant bit (bit 0) of the bitmap at *\emph{pinputs} will be set if the expression depends on 
+the argument A, and so on through bit 11 for the argument L. Similarly, bit 0 of the bitmap at *\emph{pstores} will be set if the 
+expression assigns a value to the argument A. An argument that is not used until after a value has been assigned to it will 
+not be set in the \emph{pinputs} bitmap, thus the bits can be used to determine whether a value needs to be supplied for their 
+associated argument or not (for the purposes of evaluating the expression at least; other considerations make it desirable 
+to still fetch all input values in the case of the CALC record). The return value from calcArgUsage() will be non-zero if 
+the \emph{ppostfix} expression was illegal, otherwise 0.
+
+The postfix expression is evaluated by calling the calcPerform() routine, which returns the status values 0 for OK, or non-
+zero if an error is discovered during the evaluation process.
+
+The arguments to calcPerform() are:
+
+\begin{description}\item \emph{parg} - Pointer to an array of double values for the arguments A-L that can appear in the expression. Note that the 
+argument values may be modified if the expression uses the assignment operator.
+
+\item \emph{presult} - Where to put the calculated result, which may be a NaN or Infinity.
+
+\item \emph{ppostfix} - The postfix expression created by postfix().
+
+\end{description}\subsection{Infix Expression Syntax}
+
+\index{31483: HEADING2: 19.2.1 Expression Syntax}The infix expressions that can be used are very similar to the C expression syntax, but with some additions and subtle 
+differences in operator meaning and precedence. The string may contain a series of expressions separated by a semi-colon 
+character '\verb|;|' any one of which may actually provide the calculation result; however all of the other expressions included 
+must assign their result to a variable. All alphabetic elements described below are case independent, so upper and lower 
+case letters may be used and mixed in the variable and function names as desired. Spaces may be used anywhere within an 
+expression except between the characters that make up a single expression element.
+
+\subsubsection{Numeric Literals}
+
+The simplest expression element is a numeric literal, any (positive) number expressed using the standard floating point 
+syntax that can be stored as a double precision value. This now includes the values \verb|Infinity| and \verb|NaN| (not a number). 
+Note that negative numbers are actually encoded as a positive literal to which the unary negate operator is applied.
+
+Examples:
+
+\begin{verbatim}1
+2.718281828459
+Inf
+\end{verbatim}\subsubsection{Constants}
+
+There are three trigonometric constants available to any expression which return a value:
+
+\begin{itemize}\item \verb|pi| returns the value of the mathematical constant p.
+
+\item \verb|D2R| evaluates to p/180 which, when used as a multiplier, converts an angle from degrees to radians.
+
+\item \verb|R2D| evaluates to 180/p which as a multiplier converts an angle from radians to degrees.
+
+\end{itemize}\subsubsection{Variables}
+
+Variables are used to provide inputs to an expression, and are named using the single letters \verb|A| through \verb|L| inclusive or now 
+the keyword \verb|VAL| which refers to the previous result of this calculation. The software that makes use of the expression 
+evaluation code should document how the individual variables are given values; for the calc record type the input links 
+INPA through INPL can be used to obtain these from other record fields, and \verb|VAL| refers to the the VAL field (which can 
+be overwritten from outside the record via Channel Access or a database link).
+
+\subsubsection{Variable Assignment Operator}
+
+Recently added is the ability to assign the result of a sub-expression to any of the single letter variables, which can then be 
+used in another sub-expression. The variable assignment operator is the character pair \verb|:=| and must immediately follow 
+the name of the variable to receive the expression value. Since the infix string must return exactly one value, every 
+expression string must have exactly one sub-expression that is not an assignment, which can appear anywhere in the 
+string. Sub-expressions within the string are separated by a semi-colon character.
+
+Examples:
+
+\begin{verbatim}B; B:=A
+i:=i+1; a*sin(i*D2R)
+\end{verbatim}\subsubsection{Arithmetic Operators}
+
+The usual binary arithmetic operators are provided: \verb|+ - *| and \verb|/| with their usual relative precedence and left-to-right 
+associativity, and \verb|-| may also be used as a unary negate operator where it has a higher precedence and associates from 
+right to left. There is no unary plus operator, so numeric literals cannot begin with a + sign.
+
+Examples:
+
+\begin{verbatim}a*b + c
+a/-4 - b
+\end{verbatim}Three other binary operators are also provided: \verb|%| is the integer modulo operator, and the synonymous operators \verb|**| and \verb|^| 
+raise their left operand to the power of the right operand. \verb|%| has the same precedence and associativity as \verb|*| and \verb|/|, while 
+the power operators associate left-to-right and have a precedence in between \verb|*| and unary minus.
+
+Examples:
+
+\begin{verbatim}e:=a%10; d:=a/10%10; c:=a/100%10; b:=a/1000%10; b*4096+c*256+d*16+e
+sqrt(a**2 + b**2)
+\end{verbatim}\subsubsection{Algebraic Functions}
+
+Various algebraic functions are available which take parameters inside parentheses. The parameter seperator is a comma.\emph{}
+
+\begin{itemize}\item Absolute value: \verb|abs(a)|
+
+\item Exponential ea: \verb|exp(a)|
+
+\item Logarithm, base 10: \verb|log(a)|
+
+\item Natural logarithm (base e): \verb|ln(a)| \emph{or} \verb|loge(a)|
+
+\item \emph{n} parameter maximum value: \verb|max(a, b, ...)|
+
+\item \emph{n} parameter minimum value: \verb|min(a, b, ...)|
+
+\item Square root: \verb|sqr(a)| \emph{or} \verb|sqrt(a)|
+
+\end{itemize}\subsubsection{Trigonometric Functions}
+
+Standard circular trigonometric functions, with angles expressed in radians:
+
+\begin{itemize}\item Sine: \verb|sin(a)|
+
+\item Cosine: \verb|cos(a)|
+
+\item Tangent: \verb|tan(a)|
+
+\item Arcsine: \verb|asin(a)|
+
+\item Arccosine: \verb|acos(a)|
+
+\item Arctangent: \verb|atan(a)|
+
+\item 2 parameter arctangent: \verb|atan2(a, b)|\emph{ - Note that these arguments are the reverse of the ANSI C function, so }
+while C would return arctan(a/b)\emph{ the calc expression engine returns }arctan(b/a)
+
+\end{itemize}\subsubsection{Hyperbolic Trigonometry}
+
+The basic hyperbolic functions are provided, but no inverse functions (which are not provided by the ANSI C math library 
+either).
+
+\begin{itemize}\item Hyperbolic sine: \verb|sinh(a)|
+
+\item Hyperbolic cosine: \verb|cosh(a)|
+
+\item Hyperbolic tangent: \verb|tanh(a)|
+
+\end{itemize}\subsubsection{Numeric Functions}
+
+The numeric functions perform operations related to the floating point numeric representation and truncation or rounding.
+
+\begin{itemize}\item Round up to next integer: \verb|ceil(a)|
+
+\item Round down to next integer: \verb|floor(a)|
+
+\item Round to nearest integer: \verb|nint(a)|
+
+\item Test for infinite result: \verb|isinf(a)|
+
+\item Test for any non-numeric values: \verb|isnan(a, ...)|
+
+\item Test for all finite, numeric values: \verb|finite(a, ...)|
+
+\item Random number between 0 and 1: \verb|rndm|
+
+\end{itemize}\subsubsection{Boolean Operators}
+
+These operators regard their arguments as true or false, where 0.0 is false and any other value is true.
+
+\begin{itemize}\item Boolean and: \verb|a && b|
+
+\item Boolean or: \verb|a |\verb+|+\verb||\verb+|+\verb| b|
+
+\item Boolean not: \verb|!a|
+
+\end{itemize}\subsubsection{Bitwise Operators}
+
+The bitwise operators convert their arguments to an integer (by truncation), perform the appropriate bitwise operation and 
+convert back to a floating point value. Note that unlike in C, \verb|^| is \emph{not} a bitwise exclusive-or operator.
+
+\begin{itemize}\item Bitwise and: \verb|a & b| \emph{or} \verb|a and b|
+
+\item Bitwise or: \verb|a |\verb+|+\verb| b| \emph{or} \verb|a or b|
+
+\item Bitwise exclusive or: \verb|a xor b|
+
+\item Bitwise not (ones complement): \verb|~a| \emph{or} \verb|not a|
+
+\item Bitwise left shift: \verb|a << b|
+
+\item Bitwise right shift: \verb|a >> b|
+
+\end{itemize}\subsubsection{Relational Operators}
+
+Standard numeric comparisons between two values:
+
+\begin{itemize}\item Less than: \verb|a < b|
+
+\item Less than or equal to: \verb|a <= b|
+
+\item Equal to: \verb|a = b| \emph{or} \verb|a == b|
+
+\item Greater than or equal to: \verb|a >= b|
+
+\item Greater than: \verb|a > b|
+
+\item Not equal to: \verb|a != b| \emph{or} \verb|a # b|
+
+\end{itemize}\subsubsection{Conditional Operator}
+
+Expressions can use the C conditional operator, which has a lower precedence than all of the other operators except for the 
+assignment operator.
+
+\begin{itemize}\item \emph{condition} \verb|?| \emph{true result} \verb|:| \emph{false result}
+
+\end{itemize}Example:
+
+\begin{verbatim}a < 360 ? a+1 : 0
+\end{verbatim}\subsubsection{Parentheses}
+
+Sub-expressions can be placed within parentheses to override operator precence rules. Parentheses can be nested to any 
+depth, but the intermediate value stack used by the expression evaluation engine is limited to 80 results (which would 
+require an expression at least 321 characters long to reach).
+
+\section{cppStd}
+
+This subdirectory of libCom is intended for facilities such as \index{class templates}class and \index{function templates}function \index{templates}templates that implement parts of the \index{ISO C++}ISO 
+\index{standard C++ library}standard \index{C++ library}C++ library where such facilities are not available or not efficient on all the target platforms on which EPICS is 
+supported. EPICS does not make use of the C++ container templates because the large number of memory allocation and 
+deletion operations that these use causes memory pool fragmentation on some platforms, threatening the lifetime of an 
+individual IOC.
+
+\subsection{epicsAlgorithm}
+
+\verb|epicsAlgorithm.h| contains a few templates that are also available in the C++ standard header \verb|algorithm|, but are 
+provided here in a much smaller file - \verb|algorithm| contains many templates for sorting and searching.  If all you need 
+from there is \index{std::min}std::min(), \index{std::max}std::max() and/or \index{std::swap}std::swap() your code will compile faster if you include \verb|epicsAlgorithm.h| 
+and use \index{epicsMin}epicsMin(), \index{epicsMax}epicsMax() and \index{epicsSwap}epicsSwap() instead.\index{epicsAlgorithm.h}
+\index{algorithm}
+\begin{center}\begin{longtable}{lp{0.7\linewidth}}
+template \textless{}class T\textgreater{} & Meaning\\
+\hline
+const T\& epicsMin(const T\& a, const T\& b) & Returns the smaller of a or b compared using a\textless{}b. Handles NaNs correctly.\\
+const T\& epicsMax(const T\& a, const T\& b) & Returns the larger of a or b compared using a\textless{}b. Handles NaNa correctly.\\
+void epicsSwap(T\& a, T\& b) & Swaps the values of a and b; T must have a copy-constructor and operator=.
+\end{longtable}\end{center}
+
+
+\section{epicsExit}
+
+\index{epicsExit}\begin{verbatim}void epicsExit(int status);
+void epicsExitCallAtExits(void);
+void epicsAtExit(void (*epicsExitFunc)(void *arg), void *arg);
+void epicsExitCallAtThreadExits(void);
+int  epicsAtThreadExit(void (*epicsExitFunc)(void *arg), void *arg);
+\end{verbatim}\index{epicsExit}
+\index{epicsExitCallAtExits}
+\index{epicsAtExit}
+\index{epicsExitCallAtThreadExits}
+\index{epicsAtThreadExit}This is an extended replacement for the Posix \verb|exit| and \verb|atexit| routines, which also provides a pointer argument to pass 
+to the exit handlers. This facility was created because of problems on vxWorks and windows with the implementation of 
+\verb|atexit|, i.e. neither of these systems implement \verb|exit| and \verb|atexit| according to the POSIX standard.
+\begin{center}\begin{longtable}{lp{0.7\linewidth}}
+Method & Meaning\\
+\hline
+epicsExit & This calls epicsExitCallAtExits and then passes status on to exit.\\
+epicsExitCallAtExits & This calls each of the functions registered by prior calls to epicsAtExit, in reverse order of their registration.  Most applications will not call this routine directly.\\
+epicsAtExit & Register a function and an associated context parameter, to be called with the given parameter when epicsExitCallAtExits is invoked.\\
+epicsExitCallAtThreadExits & This calls each of the functions that were registered by the current thread calling epicsAtThreadExit, in reverse order of the function registration.  This routine is called automatically when an epicsThread's main entry method returns, but will not be run if the thread is stopped by other means.\\
+epicsAtThreadExit & Register a function and an associated context parameter. The function will be called with the given parameter when epicsExitCallAtThreadExits is invoked by the current thread ending normally, i.e. when the thread function returns.
+\end{longtable}\end{center}
+
+
+\section{cvtFast}
+
+\verb|cvtFast.h |provides routines for converting various numeric types into an ascii string. They offer a combination of 
+speed and convenience not available with sprintf().
+
+\index{cvtFast.h}\begin{verbatim}/* These functions return the number of ASCII characters generated */
+int cvtFloatToString(float value, char *pstr, unsigned short precision);
+int cvtDoubleToString(double value, char *pstr, unsigned short prec);
+int cvtFloatToExpString(float value, char *pstr, unsigned short prec);
+int cvtDoubleToExpString(double value, char *pstr, unsigned short prec);
+int cvtFloatToCompactString(float value, char *pstr, unsigned short prec);
+int cvtDoubleToCompactString(double value, char *pstr, unsigned short prec);
+int cvtCharToString(char value, char *pstring);
+int cvtUcharToString(unsigned char value, char *pstr);
+int cvtShortToString(short value, char *pstr);
+int cvtUshortToString(unsigned short value, char *pstr);
+int cvtLongToString(epicsInt32 value, char *pstr);
+int cvtUlongToString(epicsUInt32 value, char *pstr);
+int cvtLongToHexString(epicsInt32 value, char *pstr);
+int cvtLongToOctalString(epicsInt32 value, char *pstr);
+unsigned long cvtBitsToUlong(
+        epicsUInt32 src,
+        unsigned bitFieldOffset,
+        unsigned bitFieldLength);
+unsigned long cvtUlongToBits(
+        epicsUInt32 src,
+        epicsUInt32 dest,
+        unsigned bitFieldOffset,
+        unsigned bitFieldLength);
+\end{verbatim}\index{cvtFloatToString}
+\index{cvtDoubleToString}
+\index{cvtFloatToExpString}
+\index{cvtDoubleToExpString}
+\index{cvtFloatToCompactString}
+\index{cvtDoubleToCompactString}
+\index{cvtCharToString}
+\index{cvtUcharToString}
+\index{cvtShortToString}
+\index{cvtUshortToString}
+\index{cvtLongToString}
+\index{cvtUlongToString}
+\index{cvtLongToHexString}
+\index{cvtLongToOctalString}
+\index{cvtBitsToUlong}
+\index{cvtUlongToBits}\section{cxxTemplates}
+
+This directory contains the following C++ template headers:
+
+\begin{itemize}\item \verb|resourceLib.h| - A C++ hash facility that implements the same functionality as bucketLib
+
+\item \verb|tsBTree.h| - Binary tree.
+
+\item \verb|tsDLList.h| - Double Linked List
+
+\item \verb|tsFreeList.h| - Free List for efficient new/delete
+
+\item \verb|tsMinMax.h| - min and max.
+
+\item \verb|tsSLList.h| - Single Linked List
+
+\end{itemize}\index{resourceLib.h}
+\index{tsBTree.h}
+\index{tsDLList.h}
+\index{tsFreeList.h}
+\index{tsMinMax.h}
+\index{tsSLList.h}Currently these are only being used by Channel Access Clients and the portable Channel Access Server. It has not been 
+decided if any of these will remain in libCom.
+
+\section{dbmf}
+
+ \verb|dbmf.h| ( Database Macro/Free) describes a facility that prevents memory fragmentation when memory is allocated and 
+then freed a short time later.
+
+\index{dbmf.h}Routines within iocCore like dbLoadDatabase() have the following attributes:
+
+\begin{itemize}\item They repeatedly call malloc() followed soon afterwards by a call to free() the temporarily allocated storage.
+
+\item Between those calls to malloc() and free(), an additional call to malloc() is made that does NOT have an associated 
+free().
+
+\end{itemize}In some environments, e.g. vxWorks, this behavior causes severe memory fragmentation.
+
+The dbmf facility stops the memory fragmentation. It should NOT be used by code that allocates storage and then keeps it 
+for a considerable period of time before releasing. Such code can use the freeList library described below.
+
+\begin{verbatim}int dbmfInit(size_t size, int chunkItems);
+void *dbmfMalloc(size_t bytes);
+void dbmfFree(void* bytes);
+void dbmfFreeChunks(void);
+int dbmfShow(int level);
+\end{verbatim}\index{dbmfInit}
+\index{dbmfMalloc}
+\index{dbmfFree}
+\index{dbmfFreeChunks}
+\index{dbmfShow}
+\begin{center}\begin{longtable}{lp{0.7\linewidth}}
+Routine & Meaning\\
+\hline
+dbmfInit() & Initialize the facility. Each time malloc() must be called size*chunkItems bytes are allocated. size is the maximum size request from dbmfMalloc() that will be allocated from the dbmf pool. If dbmfInit() was not called before one of the other routines then it is automatically called with size=64 and chuckItems=10.\\
+dbmfMalloc() & Allocate memory. If bytes is \textgreater{} size then malloc() is used to allocate the memory.\\
+dbmfFree() & Free the memory allocated by dbmfMalloc().\\
+dbmfFreeChunks() & Free all chunks that have contain only free items.\\
+dbmfShow() & Show the status of the dbmf memory pool.
+\end{longtable}\end{center}
+
+
+\section{ellLib}
+
+\verb|ellLib.h| describes a double linked list library. It provides functionality similar to the vxWorks lstLib library. See the 
+vxWorks documentation for details. There is an ellXXX() routine to replace most vxWorks lstXXX() routines.
+
+\index{ellLib.h}\begin{verbatim}typedef struct ELLNODE {
+  struct ELLNODE  *next;
+  struct ELLNODE  *previous;
+}ELLNODE;
+
+typedef void (*FREEFUNC)(void *);
+
+typedef struct ELLLIST {
+  ELLNODE  node;
+  int   count;
+void ellInit (ELLLIST *pList);
+int ellCount (ELLLIST *pList);
+ELLNODE *ellFirst (ELLLIST *pList);
+ELLNODE *ellLast (ELLLIST *pList);
+ELLNODE *ellNext (ELLNODE *pNode);
+ELLNODE *ellPrevious (ELLNODE *pNode);
+void ellAdd (ELLLIST *pList, ELLNODE *pNode);
+void ellConcat (ELLLIST *pDstList, ELLLIST *pAddList);
+void ellDelete (ELLLIST *pList, ELLNODE *pNode);
+void ellExtract (ELLLIST *pSrcList, ELLNODE *pStartNode,
+    ELLNODE *pEndNode, ELLLIST *pDstList);
+ELLNODE *ellGet (ELLLIST *pList);
+void ellInsert (ELLLIST *plist, ELLNODE *pPrev, ELLNODE *pNode);
+ELLNODE *ellNth (ELLLIST *pList, int nodeNum);
+ELLNODE *ellNStep (ELLNODE *pNode, int nStep);
+int ellFind (ELLLIST *pList, ELLNODE *pNode);
+void ellFree2 (ELLLIST *pList, FREEFUNC freeFunc);
+void ellFree (ELLLIST *pList);    // Use only if freeFunc is free()
+void ellVerify (ELLLIST *pList);
+\end{verbatim}\index{ELLNODE}
+\index{ELLLIST}
+\index{ellInit}
+\index{ellCount}
+\index{ellFirst}
+\index{ellLast}
+\index{ellNext}
+\index{ellPrevious}
+\index{ellAdd}
+\index{ellConcat}
+\index{ellDelete}
+\index{ellExtract}
+\index{ellGet}
+\index{ellInsert}
+\index{ellNth}
+\index{ellNStep}
+\index{ellFind}
+\index{ellFree2}
+\index{ellFree}
+\index{ellVerify}\section{epicsRingBytes}
+
+\verb|epicsRingBytes.h| contains
+
+\index{epicsRingBytes.h}\begin{verbatim}epicsRingBytesId epicsRingBytesCreate(int nbytes);
+void epicsRingBytesDelete(epicsRingBytesId id);
+int epicsRingBytesGet(epicsRingBytesId id, char *value,int nbytes);
+int epicsRingBytesPut(epicsRingBytesId id, char *value,int nbytes);
+void epicsRingBytesFlush(epicsRingBytesId id);
+int epicsRingBytesFreeBytes(epicsRingBytesId id);
+int epicsRingBytesUsedBytes(epicsRingBytesId id);
+int epicsRingBytesSize(epicsRingBytesId id);
+int epicsRingBytesIsEmpty(epicsRingBytesId id);
+int epicsRingBytesIsFull(epicsRingBytesId id);
+\end{verbatim}\index{epicsRingBytesId}
+\index{epicsRingBytesCreate}
+\index{epicsRingBytesDelete}
+\index{epicsRingBytesGet}
+\index{epicsRingBytesPut}
+\index{epicsRingBytesFlush}
+\index{epicsRingBytesFreeBytes}
+\index{epicsRingBytesUsedBytes}
+\index{epicsRingBytesSize}
+\index{epicsRingBytesIsEmpty}
+\index{epicsRingBytesIsFull}
+\begin{center}\begin{longtable}{lp{0.7\linewidth}}
+Method & Meaning\\
+\hline
+epicsRingBytesCreate() & Create a new ring buffer of size nbytes. The returned epicsRingBytesId is passed to the other ring methods.\\
+epicsRingBytesDelete() & Delete the ring buffer and free any associated memory.\\
+epicsRingBytesGet() & Move up to nbytes from the ring buffer to value. The number of bytes actually moved is returned.\\
+epicsRingBytesPut() & Move nbytes from value to the ring buffer if there is enough free space available to hold them. The number of bytes actually moved is returned, which will be zero if insufficient space exists.\\
+epicsRingBytesFlush() & Make the ring buffer empty.\\
+epicsRingBytesFreeBytes() & Return the number of free bytes in the ring buffer.\\
+epicsRingBytesUsedBytes() & Return the number of bytes currently stored in the ring buffer.\\
+epicsRingBytesSize() & Return the size of the ring buffer, i.e., nbytes specified in the call to epicsRingBytesCreate().\\
+epicsRingBytesIsEmpty() & Return (true, false) if the ring buffer is currently empty.\\
+epicsRingBytesIsFull() & Return (true, false) if the ring buffer is currently empty.
+\end{longtable}\end{center}
+
+
+epicsRingBytes has the following properties:
+
+\begin{itemize}\item For a ring buffer with a single writer it is not necessary to lock epicsRingBytesPut() calls.
+
+\item For a ring buffer with a single reader it is not necessary to lock epicsRingBytesGet() calls.
+
+\item epicsRingBytesFlush() should only be used when both gets and puts are locked out.
+
+\end{itemize}\section{epicsRingPointer}
+
+\index{epicsRingPointer}\index{epicsRingPointer.h}\verb|epicsRingPointer.h| describes a C++ and a C facility for a commonly used type of ring buffer.
+
+\subsection{C++ Interface}
+
+EpicsRingPointer provides methods for creating and using ring buffers (first in first out circular buffers) that store 
+pointers. It is designed so that a writer thread and reader thread can access the ring simultaneously without requiring 
+mutual exclusion.
+
+\begin{verbatim}template <class T>
+class epicsRingPointer {
+public:
+    epicsRingPointer(int size);
+    ~epicsRingPointer();
+    bool push(T *p);
+    T* pop();
+    void flush();
+    int getFree() const;
+    int getUsed() const;
+    int getSize() const;
+    bool isEmpty() const;
+    bool isFull() const;
+
+private: // Prevent compiler-generated member functions
+    // default constructor, copy constructor, assignment operator
+    epicsRingPointer();
+    epicsRingPointer(const epicsRingPointer &);
+    epicsRingPointer& operator=(const epicsRingPointer &);
+
+private: // Data
+    ...
+};
+\end{verbatim}\index{ringPointer}An epicsRingPointer cannot be assigned to, copy-constructed, or constructed without giving the \emph{size} argument. The C++ 
+compiler will object to some of the statements below:
+
+\begin{verbatim}epicsRingPointer rp0();   // Error: default constructor is private
+epicsRingPointer rp1(10); // OK
+epicsRingPointer rp2(t1); // Error: copy constructor is private
+epicsRingPointer *prp;    // OK, pointer
+*prp = rp1;               // Error: assignment operator is private
+prp = &rp1;               // OK, pointer assignment and address-of
+\end{verbatim}
+\begin{center}\begin{longtable}{lp{0.7\linewidth}}
+Method & Meaning\\
+\hline
+epicsRingPointer() & Constructor. The size is the maximum number of elements (pointers) that can be stored in the ring.\\
+\~{}epicsRingPointer() & Destructor.\\
+push() & Push a new entry on the ring. It returns (false,true) is (failure, success). Failure means the ring was full. If a single writer is present it does not have to use a lock while performing the push. If multiple writers are present they must use a common lock while issuing the push. \\
+pop() & Take a element off the ring. It returns 0 (null) if the ring was empty. If a single reader is present it does not have to lock while issuing the pop. If multiple readers are present they must use a common lock while issuing the pop.\\
+flush() & Remove all elements from the ring. If this operation is performed then all access to the ring should be locked.\\
+getFree() & Return the amount of empty space in the ring, i.e. how many additional elements it can hold.\\
+getUsed() & Return the number of elements stored on the ring\\
+getSize() & Return the size of the ring, i.e. the value of size specified when the ring was created.\\
+isEmpty() & Returns true if the ring is empty, else false.\\
+isFull() & Returns true if the ring is full, else false.
+\end{longtable}\end{center}
+
+
+\subsection{C interface}
+
+\begin{verbatim}typedef void *epicsRingPointerId;
+    epicsRingPointerId epicsRingPointerCreate(int size);
+    void epicsRingPointerDelete(epicsRingPointerId id);
+    /*epicsRingPointerPop returns 0 if the ring was empty */
+    void * epicsRingPointerPop(epicsRingPointerId id) ;
+    /*epicsRingPointerPush returns (0,1) if p (was not, was) put on ring*/
+    int epicsRingPointerPush(epicsRingPointerId id,void *p);
+    void epicsRingPointerFlush(epicsRingPointerId id);
+    int epicsRingPointerGetFree(epicsRingPointerId id);
+    int epicsRingPointerGetUsed(epicsRingPointerId id);
+    int epicsRingPointerGetSize(epicsRingPointerId id);
+    int epicsRingPointerIsEmpty(epicsRingPointerId id);
+    int epicsRingPointerIsFull(epicsRingPointerId id);
+\end{verbatim}\index{ringPointerId}
+\index{ringPointerCreate}
+\index{ringPointerDelete}
+\index{ringPointerPop}
+\index{ringPointerPush}
+\index{ringPointerFlush}
+\index{ringPointerGetFree}
+\index{ringPointerGetUsed}
+\index{ringPointerGetSize}
+\index{ringPointerIsEmpty}
+\index{ringPointerIsFull}Each C function corresponds to one of the C++ methods.
+
+\section{epicsTimer}
+
+\index{epicsTimer}\index{epicsTimer.h}\verb|epicsTimer.h| describes a C++ and a C timer facility.
+
+\subsection{C++ Interface}
+
+\subsubsection{epicsTimerNotify and epicsTimer}
+
+\begin{verbatim}class epicsTimerNotify {
+public:
+    enum restart_t { noRestart, restart };
+    class expireStatus {
+    public:
+        expireStatus ( restart_t );
+        expireStatus ( restart_t, const double &expireDelaySec );
+        bool restart () const;
+        double expirationDelay () const;
+    private:
+        double delay;
+    };
+    virtual ~epicsTimerNotify ();
+    // return noRestart OR return expireStatus ( restart, 30.0 /* sec */ );
+    virtual expireStatus expire ( const epicsTime & currentTime ) = 0;
+    virtual void show ( unsigned int level ) const;
+};
+
+class epicsTimer {
+public:
+    virtual void destroy () = 0; // requires existence of timer queue
+    virtual void start ( epicsTimerNotify &, const epicsTime & ) = 0;
+    virtual void start ( epicsTimerNotify &, double delaySeconds ) = 0;
+    virtual void cancel () = 0;
+    struct expireInfo {
+        expireInfo ( bool active, const epicsTime & expireTime );
+        bool active;
+        epicsTime expireTime;
+    };
+    virtual expireInfo getExpireInfo () const = 0;
+    double getExpireDelay ();
+    virtual void show ( unsigned int level ) const = 0;
+protected:
+    virtual ~epicsTimer () = 0; // use destroy
+};
+\end{verbatim}
+\begin{center}\begin{longtable}{lp{0.7\linewidth}}
+Method & Meaning\\
+\hline
+epicsTimerNotifyexpire() & Code using an epicsTimer must include a class that inherits from epicsTimerNotify. The derived class must implement the method expire(), which is called by the epicsTimer when the associated timer expires. epicsTimerNotify defines a class expireStatus which makes it easy to implement both one shot and periodic timers. A one-shot expire() returns with the statement:    return(noRestart);A periodic timer returns with a statement like:    return(restart,10.0);where is second argument is the delay until the next callback.\\
+epicsTimer & epicsTimer is an abstract base class. An epics timer can only be created by calling createTimer, which is a method of epicsTimerQueue.\\
+destroy & This is provided instead of a destructor. This will automatically call cancel before freeing all resources used by the timer.\\
+start() & Starts the timer to expire either at the specified time or the specified number of seconds in the future. If the timer is already active when start is called, it is first canceled.\\
+cancel() & If the timer is scheduled, cancel it. If it is not scheduled do nothing. Note that if the expire() method is already running, this call delays until the expire() completes.\\
+getExpireInfo & Get expireInfo, which says if timer is active and if so when it expires.\\
+getExpireDelay() & Return the number of seconds until the timer will expire. If the timer is not active it returns DBL\_MAX\\
+show() & Display info about object.
+\end{longtable}\end{center}
+
+
+\subsubsection{epicsTimerQueue}
+
+\begin{verbatim}class epicsTimerQueue {
+public:
+    virtual epicsTimer & createTimer () = 0;
+    virtual void show ( unsigned int level ) const = 0;
+protected:
+    virtual ~epicsTimerQueue () = 0;
+};\end{verbatim}
+\begin{center}\begin{longtable}{lp{0.7\linewidth}}
+Method & Meaning\\
+\hline
+createTimer() & This is a "factory" method to create timers which use this queue.\\
+show() & Display info about object
+\end{longtable}\end{center}
+
+
+\subsubsection{epicsTimerQueueActive}
+
+\begin{verbatim}class epicsTimerQueueActive : public epicsTimerQueue {
+public:
+    static epicsTimerQueueActive & allocate (
+        bool okToShare, unsigned threadPriority = epicsThreadPriorityMin + 10 );
+    virtual void release () = 0;
+protected:
+    virtual ~epicsTimerQueueActive () = 0;
+};
+\end{verbatim}\index{epicsTimerQueueActive}
+\begin{center}\begin{longtable}{lp{0.7\linewidth}}
+Method & Meaning\\
+\hline
+allocate() & This is a "factory" method to create a timer queue. If okToShare is (true,false) then a (shared, separate) thread will manage the timer requests.If the okToShare constructor parameter is true then if a timer queue is already running at the specified priority then it will be referenced for shared use by the application, and an independent timer queue will not be created.This method should not be called from within a C++ static constructor, since the queue thread requires that a current time provider be available and the last-resort time provider is not guaranteed to have been registered until all constructors have run.Editorial note: It is useful for two independent timer queues to run at the same priority if there are multiple processors, or if there is an application with well behaved timer expire functions that needs to be independent of applications with computationally intensive, mutex locking, or IO blocking timer expire functions. \\
+release() & Release the queue, i.e. the calling facility will no longer use the queue. The caller MUST ensure that it does not own any active timers. When the last facility using the queue calls release, all resources used by the queue are freed.
+\end{longtable}\end{center}
+
+
+\subsubsection{epicsTimerQueueNotify and epicsTimerQueuePassive}
+
+These two classes manage a timer queue for single threaded applications. Since it is single threaded, the application is 
+responsible for requesting that the queue be processed.
+
+\begin{verbatim}class epicsTimerQueueNotify {
+public:
+    // called when a new timer is inserted into the queue and the
+    // delay to the next expire has changed
+    virtual void reschedule () = 0;
+    // if there is a quantum in the scheduling of timer intervals
+    // return this quantum in seconds. If unknown then return zero.
+    virtual double quantum () = 0;
+ protected:
+    virtual ~epicsTimerQueueNotify () = 0;
+   };
+
+class epicsTimerQueuePassive {
+public:
+    static epicsTimerQueuePassive & create ( epicsTimerQueueNotify & );
+    virtual ~epicsTimerQueuePassive () = 0;
+    // process returns the delay to the next expire
+    virtual double process (const epicsTime & currentTime) = 0;
+};
+\end{verbatim}\index{epicsTimerQueueNotify}
+\index{epicsTimerQueuePassive}
+\begin{center}\begin{longtable}{lp{0.7\linewidth}}
+Method & Meaning\\
+\hline
+epicsTimerQueueNotifyreschedule() & The virtual function epicsTimerQueueNotify::reschedule() is called when the delay to the next timer to expire on the timer queue changes.\\
+epicsTimerQueueNotifyquantum & The virtual function epicsTimerQueueNotify::quantum() returns the timer expire interval scheduling quantum in seconds. This allows different types of timer queues to use application specific timer expire delay scheduling policies. The implementation of epicsTimerQueueActive employs epicsThreadSleep() for this purpose, and therefore epicsTimerQueueActive::quantum() returns the returned value from epicsThreadSleepQuantum(). Other types of timer queues might choose to schedule timer expiration using specialized hardware interrupts. In this case epicsTimerQueueNotify::quantum() might return a value reflecting the precision of a hardware timer. If unknown, then epicsTimerQueueNotify::quantum() should return zero.\\
+epicsTimerQueuePassive & epicsTimerQueuePassive is an abstract base class so cannot be instantiated directly, but contains a static member function to create a concrete passive timer queue object of a (hidden) derived class.\\
+create() & A "factory" method to create a non-threaded timer queue. The calling software also passes an object derived from epicsTimerQueueNotify to receive reschedule() callbacks.\\
+\~{}epicsTimerQueuePassive() & Destructor. The caller MUST ensure that it does not own any active timers, i.e. it must cancel any active timers before deleting the epicsTimerQueuePassive object.\\
+process() & This calls expire() for all timers that have expired. The facility that creates the queue MUST call this. It returns the delay until the next timer will expire.
+\end{longtable}\end{center}
+
+
+\subsection{C Interface}
+
+\index{epicsTimerId}
+\index{epicsTimerQueueId}\begin{verbatim}typedef struct epicsTimerForC * epicsTimerId;
+typedef void ( *epicsTimerCallback ) ( void *pPrivate );
+
+/* thread managed timer queue */
+typedef struct epicsTimerQueueActiveForC * epicsTimerQueueId;
+epicsTimerQueueId epicsTimerQueueAllocate(
+    int okToShare, unsigned int threadPriority );
+void epicsTimerQueueRelease ( epicsTimerQueueId );
+epicsTimerId epicsTimerQueueCreateTimer ( epicsTimerQueueId queueid,
+        epicsTimerCallback callback, void *arg );
+void epicsTimerQueueDestroyTimer ( epicsTimerQueueId queueid, epicsTimerId id );
+void epicsTimerQueueShow ( epicsTimerQueueId id, unsigned int level );
+
+/* passive timer queue */
+typedef struct epicsTimerQueuePassiveForC * epicsTimerQueuePassiveId;
+typedef void ( *epicsTimerQueueNotifyReschedule ) ( void *pPrivate );
+typedef double ( * epicsTimerQueueNotifyQuantum ) ( void * pPrivate );
+epicsTimerQueuePassiveId epicsTimerQueuePassiveCreate(
+    epicsTimerQueueNotifyReschedule,epicsTimerQueueNotifyQuantum,
+    void *pPrivate );
+void epicsTimerQueuePassiveDestroy ( epicsTimerQueuePassiveId );
+epicsTimerId epicsTimerQueuePassiveCreateTimer (epicsTimerQueuePassiveId queueid,
+     epicsTimerCallback pCallback, void *pArg );
+void epicsTimerQueuePassiveDestroyTimer (
+    epicsTimerQueuePassiveId queueid,epicsTimerId id );
+double epicsTimerQueuePassiveProcess ( epicsTimerQueuePassiveId );
+void epicsTimerQueuePassiveShow(epicsTimerQueuePassiveId id,unsigned int level);
+/* timer */
+void epicsTimerStartTime(epicsTimerId id, const epicsTimeStamp *pTime);
+void epicsTimerStartDelay(epicsTimerId id, double delaySeconds);
+void epicsTimerCancel ( epicsTimerId id );
+double epicsTimerGetExpireDelay ( epicsTimerId id );
+void epicsTimerShow ( epicsTimerId id, unsigned int level );
+\end{verbatim}The C interface provides most of the facilities as the C++ interface. It does not support the periodic timer features. The 
+typedefs epicsTimerQueueNotifyReschedule and epicsTimerQueueNotifyQuantum are the "C" interface equivalents to 
+epicsTimerQueueNotify:: reschedule() and epicsTimerQueueNotify::quantum().
+
+\subsection{Example}
+
+This example allocates a timer queue and two objects which have a timer that uses the queue. Each object is requested to 
+schedule itself. The expire() callback just prints the name of the object. After scheduling each object the main thread just 
+sleeps long enough for each expire to occur and then just returns after releasing the queue.
+
+\begin{verbatim}#include <stdio.h>
+#include "epicsTimer.h"
+
+class something : public epicsTimerNotify {
+public:
+    something(const char* nm,epicsTimerQueueActive &queue)
+    : name(nm), timer(queue.createTimer()) {}
+    virtual ~something() { timer.destroy();}
+    void start(double delay) {timer.start(*this,delay);}
+    virtual expireStatus expire(const epicsTime & currentTime) {
+        printf("%s\n",name);
+        currentTime.show(1);
+        return(noRestart);
+    }
+private:
+    const char* name;
+    epicsTimer &timer;
+};
+
+void epicsTimerExample()
+{
+    epicsTimerQueueActive &queue = epicsTimerQueueActive::allocate(true);
+    {
+        something first("first",queue);
+        something second("second",queue);
+
+        first.start(1.0);
+        second.start(1.5);
+        epicsThreadSleep(2.0);
+    }
+    queue.release();
+}
+\end{verbatim}\subsection{C Example}
+
+This example shows how C programs can use EPICS timers.
+
+\begin{verbatim}#include <stdio.h>
+#include <epicsTimer.h>
+#include <epicsThread.h>
+
+static void
+handler (void *arg)
+{
+    printf ("%s timer tripped.\n", (char *)arg);
+}
+
+int
+main(int argc, char **argv)
+{
+    epicsTimerQueueId timerQueue;
+    epicsTimerId first, second;
+
+    /*
+     * Create the queue of timer requests
+     */
+    timerQueue = epicsTimerQueueAllocate(1,epicsThreadPriorityScanHigh);
+
+    /*
+     * Create the timers
+     */
+    first = epicsTimerQueueCreateTimer(timerQueue, handler, "First");
+    second = epicsTimerQueueCreateTimer(timerQueue, handler, "Second");
+
+    /*
+     * Start a timer
+     */
+    printf("First timer should trip in 3 seconds.\n");
+    epicsTimerStartDelay(first, 3.0);
+    epicsThreadSleep(5.0);
+    printf("First timer should have tripped by now.\n");
+
+    /*
+     * Try starting and then cancelling a request
+     */
+    printf("Second timer should trip in 3 seconds.\n");
+    epicsTimerStartDelay(first, 3.0);
+    epicsTimerStartDelay(second, 3.0);
+    epicsThreadSleep(1.0);
+    epicsTimerCancel(first);
+    epicsThreadSleep(5.0);
+    printf("Second timer should have tripped, first timer should not have 
+tripped.\n");
+
+    /*
+     * Clean up a single timer
+     */
+    epicsTimerQueueDestroyTimer(timerQueue, first);
+
+    /*
+     *  Clean up an entire queue of timers
+     */
+    epicsTimerQueueRelease(timerQueue);
+    return 0;
+\end{verbatim}\section{  fdmgr}
+
+File Descriptor Manager. \verb|fdManager.h| describes a C++ implementation. \verb|fdmgr.h| describes a C implementation. 
+Neither is currently documented.
+
+\section{freeList}
+
+\verb|freeList.h |describes routines to allocate and free fixed size memory elements.   Free elements are maintained on a 
+free list rather then being returned to the heap via calls to free. When it is necessary to call malloc(), memory is allocated 
+in multiples of the element size.
+
+\index{freeList.h}\begin{verbatim}void freeListInitPvt(void **ppvt, int size, int nmalloc);
+void *freeListCalloc(void *pvt);
+void *freeListMalloc(void *pvt);
+void freeListFree(void *pvt, void*pmem);
+void freeListCleanup(void *pvt);
+size_t freeListItemsAvail(void *pvt);
+\end{verbatim}\index{freeListInitPvt}
+\index{freeListCalloc}
+\index{freeListMalloc}
+\index{freeListFree}
+\index{freeListCleanup}
+\index{freeListItemsAvail}where
+
+\begin{description}\item \emph{pvt}  - For internal use by the freelist library. Caller must provide storage for a "void *pvt"
+
+\item \emph{size} - Size in bytes of each element. Note that all elements must be same size
+
+\item \emph{nmalloc} - Number of elements to allocate when regular malloc() must be called.
+
+\end{description}\section{gpHash}
+
+\verb|gpHash.h| describes a general purpose hash table for character strings. The hash table contains \emph{tableSize} entries. Each 
+entry is a list of members that hash to the same value. The user can maintain separate directories which share the same 
+table by having a different \emph{pvt} value for each directory.
+
+\index{gpHash.h}\begin{verbatim}typedef struct{
+    ELLNODE     node;
+    const char  *name;          /*address of name placed in directory*/
+    void        *pvtid;         /*private name for subsystem user*/
+    void        *userPvt;       /*private for user*/
+} GPHENTRY;
+
+struct gphPvt;
+
+/*tableSize must be power of 2 in range 256 to 65536*/
+void gphInitPvt(struct gphPvt **ppvt, int tableSize);
+GPHENTRY *gphFind(struct gphPvt *pvt, const char *name, void *pvtid);
+GPHENTRY *gphAdd(struct gphPvt *pvt, const char *name, void *pvtid);
+void gphDelete(struct gphPvt *pvt, const char *name, void *pvtid);
+void gphFreeMem(struct gphPvt *pvt);
+void gphDump(struct gphPvt *pvt);
+void gphDumpFP(FILE *fp, struct gphPvt *pvt);
+\end{verbatim}\index{GPHENTRY}
+\index{gphInitPvt}
+\index{gphFind}
+\index{gphAdd}
+\index{gphDelete}
+\index{gphFreeMem}
+\index{gphDump}
+\index{gphDumpFP}where
+
+\begin{description}\item \emph{pvt} - For internal use by the gpHash library. Caller must provide storage for a \verb|struct gphPvt *pvt|
+
+\item \emph{name} - The character string that will be hashed and added to table.
+
+\item \emph{pvtid} - The name plus the value of this pointer constitute a unique entry.
+
+\end{description}\section{logClient}
+
+Together with the program iocLogServer this provides generic support for logging text messages from an IOC or other 
+program to a file on the log server host machine.
+
+A log client runs on the IOC. It accepts string messages and forwards them over a TCP connection to its designated log 
+server (normally running on a host machine).
+
+A log server accepts connections from multiple clients and writes the messages it receives into a rotating file. A log server 
+program ('iocLogServer') is also part of EPICS base.
+
+Configuration of the iocLogServer, as well as the standard iocLogClient that internally uses this library, are described in 
+Section10.7 on page167.
+
+The header file logClient.h exports the following types and routines:
+
+\begin{verbatim}typedef void *logClientId;
+\end{verbatim}\index{logClientId}    An abstract data type, representing a log client.
+
+\begin{verbatim}logClientId logClientCreate (
+
+      struct in_addr server_addr, unsigned short server_port);
+\end{verbatim}\index{logClientCreate}    Create a new log client. Will block the calling task for a maximum of 2 seconds trying to connect to a server with the 
+given ip address and port. If a connection cannot be established, an error message is printed on the console, but the log 
+client will keep trying to connect in the background. This is done by a background task, that will also periodically (every 
+5 seconds) flush pending messages out to the server.
+
+\begin{verbatim}void logClientSend (logClientId id, const char *message);
+\end{verbatim}\index{logClientSend}Send the given message to the given log client. Messages are not immediately sent to the log server. Instead they are sent 
+whenever the cache overflows, or logClientFlush() is called.
+
+\begin{verbatim}void logClientFlush (logClientId id);
+\end{verbatim}\index{logClientFlush}    Immediately send all outstanding messages to the server.
+
+\begin{verbatim}void logClientShow (logClientId id, unsigned level);
+\end{verbatim}\index{logClientShow}    Print information about the log clients internal state to stdout.
+
+For backward compatibility with older versions of the logClient library, the header file also includes iocLog.h, which 
+exports the definitions for the standard iocLogClient for error logging. See Chapter 10.7.2.
+
+Also for backward compatibility, the following deprecated routines are exported.
+
+\begin{verbatim}logClientId logClientInit (void);
+\end{verbatim}\index{logClientInit}   Create a log client that uses the standard ioc log client environment variables (EPICS\_IOC\_LOG\_INET and 
+EPICS\_IOC\_LOG\_PORT) as input to logClientCreate and also registers the log client with the errlog task using 
+errlogAddListener.
+
+\begin{verbatim}void logClientSendMessage (logClientId id, const char *message);
+\end{verbatim}\index{logClientSendMessage}    Check the global variable iocLogDisable before calling logClientSend.
+
+\section{macLib}
+
+\verb|macLib.h| describes a general purpose macro substitution library. It is used for all macro substitution in base.
+
+\index{macLib.h}\begin{verbatim}long macCreateHandle(
+    MAC_HANDLE  **handle,       /* address of variable to receive pointer */
+                                /* to new macro substitution context */
+    char        *pairs[]        /* pointer to NULL-terminated array of */
+                                /* {name,value} pair strings; a NULL */
+                                /* value implies undefined; a NULL */
+                                /* argument implies no macros */
+);
+
+void macSuppressWarning(
+    MAC_HANDLE  *handle,        /* opaque handle */
+    int         falseTrue       /*0 means ussue, 1 means suppress*/
+);
+
+/*following returns #chars copied, <0 if any macros are undefined*/
+long macExpandString(
+    MAC_HANDLE  *handle,        /* opaque handle */
+    char        *src,           /* source string */
+    char        *dest,          /* destination string */
+    long        maxlen          /* maximum number of characters to copy */
+                                /* to destination string */
+);
+
+
+/*following returns length of value */
+long macPutValue(
+    MAC_HANDLE  *handle,        /* opaque handle */
+    char        *name,          /* macro name */
+    char        *value          /* macro value */
+);
+
+/*following returns #chars copied (<0 if undefined) */
+long macGetValue(
+    MAC_HANDLE  *handle,        /* opaque handle */
+    char        *name,          /* macro name or reference */
+    char        *value,         /* string to receive macro value or name */
+                                /* argument if macro is undefined */
+    long        maxlen          /* maximum number of characters to copy */
+                                /* to value */
+);
+
+long macDeleteHandle(MAC_HANDLE *handle);
+long macPushScope(MAC_HANDLE *handle);
+long macPopScope(MAC_HANDLE *handle);
+long macReportMacros(MAC_HANDLE *handle);
+
+/* Function prototypes (utility library) */
+
+/*following returns #defns encountered; <0 = ERROR */
+long macParseDefns(
+     MAC_HANDLE *handle,        /* opaque handle; can be NULL if default */
+                                /* special characters are to be used */
+    char        *defns,         /* macro definitions in "a=xxx,b=yyy" */
+                                /* format */
+    char        **pairs[]       /* address of variable to receive pointer */
+                                /* to NULL-terminated array of {name, */
+                                /* value} pair strings; all storage is */
+                                /* allocated contiguously */
+);
+
+/*following returns #macros defined; <0 = ERROR */
+long macInstallMacros(MAC_HANDLE *handle,
+    char        *pairs[]        /* pointer to NULL-terminated array of */
+                                /* {name,value} pair strings; a NULL */
+                                /* value implies undefined; a NULL */
+                                /* argument implies no macros */
+);
+
+/*Expand string using environment variables as macro definitions */
+epicsShareFunc char *         /* expanded string; NULL if any undefined macros */
+epicsShareAPI macEnvExpand(
+    char *str                   /* string to be expanded */
+);
+\end{verbatim}\index{macCreateHandle}
+\index{macSuppressWarning}
+\index{macExpandString}
+\index{macPutValue}
+\index{macGetValue}
+\index{macDeleteHandle}
+\index{macPushScope}
+\index{macPopScope}
+\index{macReportMacros}
+\index{macParseDefns}
+\index{macInstallMacros}
+\index{macEnvExpand}
+\index{macInstallMacros}NOTE: The directory \textless{}base\textgreater{}/src/libCom/macLib contains two files \verb|macLibNOTES| and \verb|macLibREADME| that explain 
+this library.
+
+\section{misc}
+
+\subsection{aToIPAddr}
+
+The function prototype for this routine appears in \verb|osiSock.h|
+
+\index{osiSock.h}\begin{verbatim}int aToIPAddr(const char *pAddrString, unsigned short defaultPort,
+              struct sockaddr_in *pIP);
+\end{verbatim}\index{aToIPAddr}aToIPAddr() fills in the structure pointed to by the \emph{pIP} argument with the Internet address and port number specified by 
+the \emph{pAddrString} argument. 
+
+Three forms of \emph{pAddrString} are accepted: 
+
+\begin{enumerate}\item n.n.n.n:p 
+
+The Internet address of the host, specified as four numbers separated by periods. 
+
+\item xxxxxxxx:p 
+
+The Internet address number of the host, specified as a single number. 
+
+\item hostname:p 
+
+The Internet host name of the host.
+
+\end{enumerate}In all cases the ':p' may be omitted in which case the port number is set to the value of the \emph{defaultPort} argument. All 
+numbers are read in base 16 if they begin with '0x' or '0X', in base 8 if they begin with '0', and in base 10 otherwise. 
+
+\subsection{adjustment}
+
+\verb|adjustment.h |describes a single function:
+
+\index{adjustment.h}\begin{verbatim}size_t adjustToWorstCaseAlignment(size_t size);
+\end{verbatim}\index{adjustToWorstCaseAlignment}adjustToWorstCaseAlignment() returns a value \textgreater{}= \emph{size} that an exact multiple of the worst case alignment for the 
+architecture on which the routine is executed.
+
+\subsection{cantProceed}
+
+\verb|cantProceed.h| describes routines that are provided for code that can't proceed when an error occurs.
+
+\index{cantProceed.h}\begin{verbatim}void cantProceed(const char *errorMessage);
+void *callocMustSucceed(size_t count, size_t size,const char *errorMessage);
+void *mallocMustSucceed(size_t size, const char *errorMessage);
+\end{verbatim}\index{cantProceed}
+\index{callocMustSucceed}
+\index{mallocMustSucceed}cantProceed() issues the error message and suspends the current task - it will never return. callocMustSucceed() and 
+mallocMustSucceed() can be used in place of \verb|calloc()| and \verb|malloc()|. If size or count are zero, or the memory 
+allocation fails, they output a message and call cantProceed().
+
+\index{calloc}
+\index{malloc}\subsection{dbDefs}
+
+\index{dbDefs.h}\verb|dbDefs.h| contains definitions that are still used in base but should not be. Hopefully these all go away some day. This 
+has been the hope for about ten years.
+
+\subsection{epicsConvert}
+
+\verb|epicsConvert.h| currently describes:
+
+\index{epicsConvert.h}\begin{verbatim}float epicsConvertDoubleToFloat(double value);
+\end{verbatim}\index{epicsConvertDoubleToFloat}\verb|epicsConvertDoubleToFloat| converts a double to a float. If the double value can not be represented as a float 
+then the assigned value is +-FLTMIN or +- FLT\_MAX. A floating exception is never raised.
+
+\subsection{epicsString}
+
+\verb|epicsString.h| currently describes:
+
+\index{epicsString.h}\begin{verbatim}int epicsStrnRawFromEscaped(char *outbuf, size_t outsize, const char *inbuf,
+    size_t inlen);
+int epicsStrnEscapedFromRaw(char *outbuf, size_t outsize, const char *inbuf,
+    size_t inlen);
+size_t epicsStrnEscapedFromRawSize(const char *inbuf, size_t inlen);
+int epicsStrCaseCmp(const char *s1, const char *s2);
+int epicsStrnCaseCmp(const char *s1, const char *s2, int n);
+char *epicsStrDup(const char *s);
+int epicsStrPrintEscaped(FILE *fp, const char *s, int n);
+int epicsStrGlobMatch(const char *str, const char *pattern);
+char *epicsStrtok_r(char *s, const char *delim, char **lasts);
+unsigned int epicsStrHash(const char *str, unsigned int seed);
+unsigned int epicsMemHash(const char *str, size_t length,
+    unsigned int seed);
+\end{verbatim}\index{epicsStrnRawFromEscaped}
+\index{epicsStrnEscapedFromRaw}
+\index{epicsStrnEscapedFromRawSize}
+\index{epicsStrCaseCmp}
+\index{epicsStrnCaseCmp}
+\index{epicsStrDup}
+\index{epicsStrPrintEscaped}
+\index{epicsStrGlobMatch}
+\index{epicsStrtok\_r}
+\index{epicsStrHash}
+\index{epicsMemHash}\verb|epicsStrnRawFromEscaped| copies the string \emph{inbuf} to \emph{outbuf} while substituting C-style escape sequences. It returns 
+the length of the resultant string (which may contain null bytes). It will never write more than \emph{outsize} characters into 
+\emph{outbuf} or read more than \emph{inlen} characters from \emph{inbuf}. Since the destination string can never be longer than the source, it is 
+legal for \emph{inbuf} and \emph{outbuf} to point to the same location and \emph{inlen} and \emph{outsize} to have the same value, thus performing the 
+translation in-place.
+
+\verb|epicsStrnEscapedFromRaw| does the opposite of \verb|epicsStrnRawFromEscaped|: non-printable characters are 
+converted into escape sequences. It returns the number of characters stored in the output buffer, or a value greater than or 
+equal to \emph{outsize} if the output has been truncated to fit in the specified size. As the destination string might be larger than 
+the source, in-place translations are not allowed.
+
+The following C-style escaped character constants are output:
+
+\begin{verbatim}    \a  \b  \f  \n  \r  \t  \v  \\  \'  \"
+\end{verbatim}All other non-printable characters appear as:
+
+\begin{verbatim}    \ooo
+\end{verbatim}where \verb|ooo| comprises three octal digits (0-7).  
+
+\verb|epicsStrnEscapedFromRawSize| scans a string that may contain non-printable characters and returns the number of 
+characters needed for the escaped destination buffer.
+
+\verb|epicsStrPrintEscaped| prints the contents of its input buffer, substituting escape sequences for non-printable 
+characters.
+
+\verb|epicsStrCaseCmp| and \verb|epicsStrnCaseCmp| implement \verb|strcasecmp| and \verb|strncasecmp|, respectively, which 
+are not available on all operating systems. They operate like \verb|strcmp| and \verb|strncmp|, but are case insensitive.
+
+\verb|epicsStrDup| implements \verb|strdup|, which is not available on all operating systems.  It allocates sufficient memory for 
+a copy of the string s, does the copy, and returns a pointer to it.  The pointer may subsequently be used as an argument to 
+the function free().  If insufficient memory is available cantProceed() is called.
+
+\verb|epicsStrGlobMatch| returns non-zero if the str matches the shell wild-card pattern.
+
+\verb|epicsStrtok_r| implements \verb|strtok_r|, which is not available on all operating systems.
+
+\verb|epicsStrHash| calculates a hash of a zero-terminated string \emph{str}, while \verb|epicsMemHash| uses the same algorithm on a 
+fixed-length memory buffer that may contain zero bytes. In both cases an initial \emph{seed} value may be provided which 
+permits multiple strings or buffers to be combined into a single hash result. The final result should be masked to achieve 
+the desired number of bits in the hash value.
+
+\subsection{epicsTypes}
+
+\index{epicsTypes.h}\index{epicsTypes.h}\verb|epicsTypes.h| provides typedefs for architecture independent data types.
+
+\begin{verbatim}typedef char            epicsInt8;
+typedef unsigned char   epicsUInt8;
+typedef short           epicsInt16;
+typedef unsigned short  epicsUInt16;
+typedef epicsUInt16     epicsEnum16;
+typedef int             epicsInt32;
+typedef unsigned        epicsUInt32;
+typedef float           epicsFloat32;
+typedef double          epicsFloat64;
+typedef unsigned long   epicsIndex;
+typedef epicsInt32      epicsStatus;
+\end{verbatim}So far the definitions provided in this header file have worked on all architectures. In addition to the above definitions 
+\verb|epicsTypes.h| has a number of definitions for displaying the types and other useful definitions. See the header file for 
+details.
+
+\subsection{locationException}
+
+A C++ template for use as an exception object, used inside Channel Access. Not documented here.
+
+\subsection{shareLib.h}
+
+\index{shareLib.h}This is the header file for the "decorated names" that appear in header files, e.g.
+
+\begin{verbatim}#define epicsExportSharedSymbols
+epicsShareFunc int epicsShareAPI a_func(int arg);
+\end{verbatim}\index{epicsShareFunc}
+\index{epicsShareAPI}Thse are needed to properly create DLLs on windows. Read the comments in the shareLib.h file for a detailed description 
+of where they should be used. Note that the \verb|epicsShareAPI| decorator is deprecated for all new EPICS APIs and is 
+being removed from APIs that are only used within the IOC.
+
+\subsection{truncateFile.h}
+
+\index{truncateFile.h}\begin{verbatim}enum TF_RETURN {TF_OK=0, TF_ERROR=1};
+TF_RETURN truncateFile (const char *pFileName, unsigned size);
+\end{verbatim}\index{truncateFile}where
+
+\begin{description}\item \emph{pFileName} - name (and optionally path) of file
+
+\end{description}truncateFile() truncates the file to the specified size. truncate() is not used because it is not portable. It returns TF\_OK if 
+the file is less than size bytes or if it was successfully truncated. It returns TF\_ERROR if the file could not be truncated.
+
+\subsection{unixFileName.h}
+
+Defines macros \index{OSI\_PATH\_LIST\_SEPARATOR}OSI\_PATH\_LIST\_SEPARATOR and \index{OSI\_PATH\_SEPARATOR}OSI\_PATH\_SEPARATOR
+
+\subsection{epicsUnitTest.h}
+
+\index{epicsUnitTest.h}The unit test routines make it easy for a test program to generate output that is compatible with the Test Anything Protocol 
+and can thus be used with Perl's automated \index{Test::Harness}Test::Harness as well as generating human-readable output. The routines 
+detect whether they are being run automatically and print a summary of the results at the end if not.
+
+\begin{verbatim}void testPlan(int tests);
+int  testOk(int pass, const char *fmt, ...);
+#define testOk1(cond) testOk(cond, "%s", #cond)
+void testPass(const char *fmt, ...);
+void testFail(const char *fmt, ...);
+int  testOkV(int pass, const char *fmt, va_list pvar);
+void testSkip(int skip, const char *why)
+void testTodoBegin(const char *why);
+void testTodoEnd();
+int  testDiag(const char *fmt, ...);
+void testAbort(const char *fmt, ...);
+int  testDone(void);
+
+typedef int (*TESTFUNC)(void);
+epicsShareFunc void testHarness(void);
+epicsShareFunc void runTestFunc(const char *name, TESTFUNC func);
+
+#define runTest(func) runTestFunc(#func, func)
+\end{verbatim}\index{testPlan}
+\index{testOk}
+\index{testOk1}
+\index{testPass}
+\index{testFail}
+\index{testOkV}
+\index{testSkip}
+\index{testTodoBegin}
+\index{testTodoEnd}
+\index{testDiag}
+\index{testAbort}
+\index{testDone}
+\index{testHarness}
+\index{runTestFunc}
+\index{runTest}A test program starts with a call to testPlan(), announcing how many tests are to be conducted.  If this number is not 
+known a value of zero can be used during development, but it is recommended that the correct value be substituted after 
+the test program has been completed.
+
+Individual test results are reported using any of testOk(), testOk1(), testOkV(), testPass() or testFail(). The testOk() call 
+takes and also returns a logical pass/fail result (zero means failure, any other value is success) and a printf-like format 
+string and arguments which describe the test. The convenience macro testOk1() is provided which stringifies its single 
+condition argument, reducing the effort needed to write test programs. The individual testPass() and testFail() routines can 
+be used when the test program takes a different path on success than on failure. The testOkV() routine is a varargs form of 
+testOk() included for internal purposes which may prove useful in some cases.
+
+If some program condition or failure makes it impossible to run some tests, the testSkip() routine can be used to indicate 
+how many tests are being omitted from the run, thus keeping the test counts correct; the constant string why is displayed 
+as an explanation to the user (this string is not printf-like).
+
+If some tests are expected to fail because functionality in the module under test has not yet been implemented, these tests 
+should still be executed, wrapped between calls to testTodoBegin() (which takes a constant string indicating why these 
+tests are not expected to succeed) and testTodoEnd(). This modifies the counting of the results so these tests will not be 
+recorded as failures.
+
+Additional information can be supplied using the testDiag() routine, which displays the relevent information as a 
+comment in the result output. None of the strings passed to any testXxx() routine should contain a newline '\textbackslash{}n' character, 
+newlines will be added by the test routines as part of the Test Anything Protocol.  For multiple lines of diagnostic output, 
+call testDiag() as many times as necessary.
+
+If at any time the test program is unable to continue for some catastrophic reason, calling testAbort() with an appropriate 
+message will ensure that the test harness understands this; testAbort() does not return, but calls the ANSI C routine abort() 
+to cause the program to stop immediately.
+
+After all of the tests have been completed, the return value from testDone() can be used as the return status code from the 
+program's main() routine.
+
+On vxWorks and RTEMS, an alternative test harness can be used to run a series of tests in order and summarize the results 
+from them all at the end just like the Perl harness does. The routine testHarness() is called once a the beginning of the test 
+harness program. Each test program is run by passing its main routine name to the runTest() macro which expands into a 
+call to the runTestFunc() routine. The last test program or the harness program itself must finish by calling epicsExit() 
+which triggers the test summary mechanism to generate its result outputs (from an epicsAtExit callback routine).
+
+To make it easier to create a single test program that can be built for both the embedded and workstation operating system 
+harnesses, the header file \verb|testMain.h| provides a convenience macro MAIN() that adjusts the name of the test program 
+according to the platform it is running on, main() on workstations and a regular function name on embedded systems.
+
+\index{testMain.h}The following is a simple example of a test program using the epicsUnitTest routines:
+
+\begin{verbatim}#include <math.h>
+#include "epicsUnitTest.h"
+#include "testMain.h"
+
+MAIN(mathTest)
+{
+    testPlan(3);
+    testOk(sin(0.0) == 0.0, "Sine starts");
+    testOk(cos(0.0) == 1.0, "Cosine continues");
+    if (!testOk1(M_PI == 4.0*atan(1.0)))
+        testDiag("4*atan(1) = %g", 4.0*atan(1.0));
+    return testDone();
+}
+\end{verbatim}The output from running the above program looks like this:
+
+\begin{verbatim}1..3
+ok  1 - Sine starts
+ok  2 - Cosine continues
+ok  3 - M_PI == 4.0*atan(1.0)
+
+    Results
+    =======
+       Tests: 3
+      Passed:  3 = 100%
+
+\end{verbatim}

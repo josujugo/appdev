@@ -1,8 +1,12 @@
-MIFX:=$(PWD)/mifx2tex.py
-VPATH=AppDevGuideMIF
-DEST=tex
+# requires:
+# latex2html and pdflatex
+# XML output of mif2xml-0.3 in SRC
 
-TARGETS = \
+MIFX:=$(PWD)/mifx2tex.py
+DEST=tex
+SRC=/home/jr76/mif/AppDevGuideMIF
+
+TEXS = \
 $(DEST)/titlepage.tex \
 $(DEST)/introduction.tex \
 $(DEST)/gettingStarted.tex \
@@ -27,9 +31,21 @@ $(DEST)/libComOsi.tex \
 $(DEST)/registry.tex \
 $(DEST)/databaseStructures.tex
 
-all: $(DEST) $(TARGETS)
-$(DEST):
-	mkdir -p $@
+all: AppDevGuide.pdf AppDevGuide
 
-$(DEST)/%.tex: %.mif.xml $(MIFX)
+AppDevGuide.pdf: AppDevGuide.tex $(TEXS)
+	./build_latex AppDevGuide
+
+AppDevGuide: AppDevGuide.tex $(TEXS)
+	latex2html $< -split +1
+
+$(DEST)/%.tex: $(SRC)/%.mif.xml $(MIFX)
+	mkdir -p $(DEST)
 	$(MIFX) $< > $@
+
+.PHONY: clean
+clean:
+	rm -rf AppDevGuide
+	rm -f *.idx *.ind *.ilg *.log *.out *.pdf *.toc *.aux
+
+

@@ -1,0 +1,2900 @@
+\chapter{\index{28570: LOCALTITLE: Chapter 4: IOC Initialization}EPICS \index{Build Facility}Build Facility}
+
+Janet Anderson is the author of this chapter.
+
+\section{Overview}
+
+This chapter describes the EPICS build facility including directory structure, environment and system requirements, 
+configuration files, Makefiles, and related build tools. 
+
+\subsection{\textless{}top\textgreater{} Directory structure}
+
+\index{top}
+\index{Directory structure}EPICS software can be divided into multiple \textless{}top\textgreater{} areas. Examples of \textless{}top\textgreater{} areas are EPICS base itself, EPICS 
+extensions, and simple or complicated IOC applications. Each \textless{}top\textgreater{} may be maintained separately. Different \textless{}top\textgreater{} areas 
+can be on different releases of external software such as EPICS base releases.
+
+A \textless{}top\textgreater{} directory has the following directory structure:
+
+\begin{verbatim}        <top>/
+            Makefile
+            configure/
+            dir1/
+            dir2/
+            ...
+\end{verbatim}where configure is a directory containing build configuration files and a Makefile and where dir1, dir2, ... are user created 
+subdirectory trees with Makefiles and source files to be built. Because the build rules allow make commands like "make 
+install.vxWorks-68040", subdirectory names within a \textless{}top\textgreater{} directory structure may not contain a period"." character.
+
+\subsection{Install Directories}
+
+\index{Install Directories}Files installed during the build are installed into subdirectories of an installation directory which defaults to \$(TOP), the 
+\textless{}top\textgreater{} directory. For base, extensions, and ioc applications,  the default value can be changed in the configure/
+CONFIG\_SITE file. The installation directory for the EPICS components is:
+
+\begin{itemize}\item \index{INSTALL\_LOCATION}INSTALL\_LOCATION
+
+\end{itemize}The following subdirectories may exist in the installation directory. They are created by the build and contain the installed 
+build components.
+
+\begin{itemize}\item \index{dbd directory}dbd - Directory into which Database Definition files are installed.
+
+\item \index{include directory}include - The directory into which C header files are installed. These header files may be generated from menu and 
+record type definitions.
+
+\item \index{bin directory}bin - This directory contains a subdirectory for each host architecture and for each target architecture. These are the 
+directories into which executables, binaries, etc. are installed.
+
+\item \index{lib directory}lib - This directory contains a subdirectory for each host architecture. These are the directories into which libraries 
+are installed.
+
+\item \index{db directory}db - This is the directory into which database record instance, template, and substitution files are installed.
+
+\item \index{html directory}html - This is the directory into which html documentation is installed.
+
+\item \index{templates directory}templates - This is the directory into which template files are installed.
+
+\item \index{javalib directory}javalib - This is the directory into which java class files and jar files are installed.
+
+\item \index{configure directory}configure - The directory into which configure files are installed (if INSTALL\_LOCATION not equal TOP).
+
+\item \index{cfg directory}cfg - The directory into which user created configure files are installed 
+
+\end{itemize}\subsection{Elements of build system}
+
+\index{Elements of build system}The main ingredients of the build system are:
+
+\begin{itemize}\item A set of configuration files and tools provided in the EPICS base/configure directory
+
+\item A corresponding set of configuration files in the \textless{}top\textgreater{}/configure directory of a non-base \textless{}top\textgreater{} directory structure 
+to be built. The makeBaseApp.pl and makeBaseExt.pl scripts create these configuration files. Many of these files 
+just include a file of the same name from the base/configure directory.
+
+\item Makefiles in each directory of the \textless{}top\textgreater{} directory structure to be built
+
+\item User created configuration files in build created \$(INSTALL\_LOCATION)/cfg directories.
+
+\end{itemize}\subsection{Features}
+
+\index{Features of build system}The principal features of the build system are:
+
+\begin{itemize}\item Requires a single Makefile in each directory of a \textless{}top\textgreater{} directory structure
+
+\item Supports both host os vendor's native compiler and GNU compiler
+
+\item Supports building multiple types of software (libraries, executables, databases, java class files, etc.) stored in a 
+single directory tree.
+
+\item Supports building EPICS base, extensions, and IOC applications.
+
+\item Supports multiple host and target operating system - architecture combinations.
+
+\item Allows builds for all hosts and targets within a single \textless{}top\textgreater{} source directory tree.
+
+\item Allows sharing of components such as special record/device/drivers across \textless{}top\textgreater{} areas.
+
+\item gnumake is the only command used to build a \textless{}top\textgreater{} area.
+
+\end{itemize}\subsection{Multiple host and target systems}
+
+\index{Multiple host}You can build on multiple host systems and for multiple \index{cross target}cross target systems using a single EPICS directory structure. 
+The intermediate and binary files generated by the build will be created in separate O.* subdirectories and installed into 
+the appropriate separate host or target install directories. EPICS executables and scripts are installed into the 
+\$(INSTALL\_LOCATION)/bin/\textless{}arch\textgreater{} directories. Libraries are installed into \$(INSTALL\_LOCATION)/lib/\textless{}arch\textgreater{}. The 
+default definition for \$(INSTALL\_LOCATION) is \$(TOP) which is the root directory in the directory structure. 
+Architecture dependant created files (e.g. object files) are stored in O.\textless{}arch\textgreater{} source subdirectories, and architecture 
+independent created files are stored in O.Common source subdirectories. This allows objects for multiple cross target 
+architectures to be maintained at the same time. 
+
+To build EPICS base for a specific host/target combination you must have the proper host/target c/c++ cross compiler and 
+target header files, \index{CROSS\_COMPILER\_HOST\_ARCHS}CROSS\_COMPILER\_HOST\_ARCHS must empty or include the host architecture in its list value, the 
+\index{CROSS\_COMPILER\_TARGET\_ARCHS}CROSS\_COMPILER\_TARGET\_ARCHS variable must include the target to be cross-compiled, and the base/configure/
+os directory must have the appropriate configure files.
+
+\section{Build Requirements}
+
+\index{Build Requirements}\subsection{Host Environment Variable}
+
+\index{Environment Prerequisites}Only one environment variable, \verb|EPICS_HOST_ARCH|, is required to build EPICS \textless{}top\textgreater{} areas. This variable should be 
+set to be your workstation\textbackslash{}qs operating system - architecture combination to use the os vendor's c/c++ compiler for native 
+builds or set to the operating system - architecture - alternate compiler combination to use an alternate compiler for native 
+builds if an alternate compiler is supported on your system. The filenames of the \verb|CONFIG.*.Common |files in base/
+configure/os show the currently supported EPICS\_HOST\_ARCH values. Examples are \verb|solaris-sparc, |
+solaris-sparc-gnu, linux-x86, win32-x86, and\verb| cygwin-x86|. 
+
+\index{EPICS\_HOST\_ARCH}\subsection{Software Prerequisites}
+
+\index{Build software prerequisites}Before you can build EPICS components your host system must have the following software installed: 
+
+\begin{itemize}\item \index{Perl}Perl version 5.8 or greater
+
+\item \index{GNU make}GNU make, version 3.81 or greater
+
+\item C++ compiler (host operating system vendor\textbackslash{}qs compiler or GNU compiler)
+
+\end{itemize}If you will be building EPICS components for \index{vxWorks}vxWorks targets you will also need:
+
+\begin{itemize}\item \index{Tornado }Tornado II and one or more board support packages. Consult the vxWorks documentation for details.
+
+\end{itemize}If you will be building EPICS components for \index{vxWorks}RTEMS targets you will also need:
+
+\begin{itemize}\item \index{RTEMS}RTEMS development tools and libraries required to run EPICS IOC applications.
+
+\end{itemize}\subsection{Path requirements}
+
+\index{Path requirements}You must have the perl executable in your path and you may need C and C++ compilers in your search path. Check 
+definitions of CC and CCC in base/configure/os/CONFIG.\textless{}host\textgreater{}.\textless{}host\textgreater{} or the definitions for GCC and G++ if 
+ANSI=GCC and CPLUSPLUS=GCC are specified in CONFIG\_SITE. For building base you also must have echo in your 
+search path. You can \index{override}override the default settings by defining PERL, CC and CCC, GCC and G++, GNU\_DIR ... in the 
+appropriate file (usually configure/os/CONFIG\_SITE.\$EPICS\_HOST\_ARCH.Common)
+
+\subsubsection{Unix path}
+
+For Unix host builds you also need touch, cpp, cp, rm, mv, and mkdir in your search path and /bin/chmod must exist. On 
+some Unix systems you may also need ar and ranlib in your path, and the c compiler may require ld in your path.
+
+\subsubsection{Win32 PATH}
+
+On WIN32 systems, building shared libraries is the default setting and you will need to add fullpathname to 
+\$(INSTALL\_LOCATION)/bin/\$(EPICS\_HOST\_ARCH) to your path so the shared libraries, dlls, can be found during 
+the build.. Building shared libraries is determined by the value of the macro \index{SHARED\_LIBRARIES}SHARED\_LIBRARIES in CONFIG\_SITE or 
+os/CONFIG.Common.\textless{}host\textgreater{} (either YES or NO).
+
+\subsection{Directory names}
+
+\index{Directory names restriction}Because the build rules allow make commands like "make \textless{}dir\textgreater{}.\textless{}action\textgreater{},\textless{}arch\textgreater{}", subdirectory names within a \textless{}top\textgreater{} 
+directory structure may not contain a period"." character.
+
+\subsection{EPICS\_HOST\_ARCH environment variable}
+
+\index{EPICS\_HOST\_ARCH}The startup directory in EPICS base contains a perl script, \verb|EpicsHostArch.pl|, which can be used to define 
+EPICS\_HOST\_ARCH. This script can be invoked with a command line parameter defining the alternate compiler (e.g. if 
+invoking "\verb|EpicsHostArch.pl|" yields solaris-sparc, then invoking "\verb|EpicsHostArch.pl gnu|" will yield solaris-
+sparc-gnu).
+
+\index{EpicsHostArch.pl}The startup directory also contains scripts to help users set the path and other environment variables
+
+\section{Configuration Definitions}
+
+\subsection{Site-specific EPICS Base Configuration}
+
+\index{Site specific Configuration}\subsubsection{Site configuration}
+
+To configure EPICS base for your site, you may want to modify the default definitions in the following files:
+
+\begin{description}\item configure/\index{CONFIG\_SITE}CONFIG\_SITE          Build choices. Specify target archs.
+
+\item configure/\index{CONFIG\_SITE\_ENV}CONFIG\_SITE\_ENV Environment variable defaults
+
+\end{description}\subsubsection{Host configuration}
+
+To configure each host system for your site, you may \index{override}override the default definitions in the configure/os directory by 
+adding a new file with override definitions. The new file should have the same name as the distribution file to be 
+overridden except CONFIG in the name is changed to CONFIG\_SITE.
+
+\begin{description}\item configure/os/\index{CONFIG\_SITE.host.host}CONFIG\_SITE.\textless{}host\textgreater{}.\textless{}host\textgreater{}    - Host build settings
+
+\item configure/os/\index{CONFIG\_SITE.host.Common}CONFIG\_SITE.\textless{}host\textgreater{}.Common - Host build settings for all target systems
+
+\end{description}\subsubsection{Target configuration}
+
+To configure each target system, you may \index{override}override the default definitions in the configure/os directory by adding a new 
+file with override definitions. The new file should have the same name as the distribution file to be overridden except 
+CONFIG in the name is replaced by CONFIG\_SITE.
+
+\begin{description}\item configure/os/\index{CONFIG\_SITE.Common.target}CONFIG\_SITE.Common.\textless{}target\textgreater{} - Target cross settings
+
+\item configure/os/\index{CONFIG\_SITE.host.target}CONFIG\_SITE.\textless{}host\textgreater{}.\textless{}target\textgreater{} - Host-target settings
+
+\item configure/os/\index{CONFIG\_SITE.Common.vxWorksCommon}CONFIG\_SITE.Common.vxWorksCommon - vxWorks full paths
+
+\end{description}\subsubsection{R3.13 compatibility configuration}
+
+\index{compatibility configuration}To configure EPICS base for building with R3.13 extensions and ioc applications, you must modify the default definitions 
+in the base/config/CONFIG\_SITE* files to agree with site definitions you made in base/configure and base/configure/os 
+files.You must also modify the following tow macros in the base/configure/CONFIG\_SITE file:
+
+\begin{description}\item \index{COMPAT\_TOOLS\_313}COMPAT\_TOOLS\_313 - Set to YES to build R3.13 extensions with this base.
+
+\item \index{COMPAT\_313}COMPAT\_313 - Set to YES to build R3.13 ioc applications and extensions with this base.
+
+\end{description}\subsection{Directory definitions}
+
+\index{Install Directory definitions}The configure files contain definitions for locations in which to install various components. These are all relative to 
+\verb|INSTALL_LOCATION|. The default value for \verb|INSTALL_LOCATION| is \$(TOP), and \$(T\_A) is the current build's target 
+architecture. The default value for INSTALL\_LOCATION can be overridden in the configure/CONFIG\_SITE file. 
+
+\index{INSTALL\_LOCATION}INSTALL\_LOCATION\_LIB      = \$(INSTALL\_LOCATION)/lib
+
+INSTALL\_LOCATION\_BIN      = \$(INSTALL\_LOCATION)/bin
+
+
+
+INSTALL\_HOST\_BIN            = \$(INSTALL\_LOCATION\_BIN)/\$(EPICS\_HOST\_ARCH)
+
+INSTALL\_HOST\_LIB            = \$(INSTALL\_LOCATION\_LIB)/\$(EPICS\_HOST\_ARCH)
+
+
+
+INSTALL\_INCLUDE           = \$(INSTALL\_LOCATION)/include
+
+INSTALL\_DOC               = \$(INSTALL\_LOCATION)/doc
+
+INSTALL\_HTML              = \$(INSTALL\_LOCATION)/html
+
+INSTALL\_TEMPLATES         = \$(INSTALL\_LOCATION)/templates
+
+INSTALL\_DBD               = \$(INSTALL\_LOCATION)/dbd
+
+INSTALL\_DB                = \$(INSTALL\_LOCATION)/db
+
+INSTALL\_CONFIG            = \$(INSTALL\_LOCATION)/configure
+
+INSTALL\_JAVA              = \$(INSTALL\_LOCATION)/javalib
+
+
+
+INSTALL\_LIB               = \$(INSTALL\_LOCATION\_LIB)/\$(T\_A)
+
+INSTALL\_SHRLIB            = \$(INSTALL\_LOCATION\_LIB)/\$(T\_A)
+
+INSTALL\_TCLLIB            = \$(INSTALL\_LOCATION\_LIB)/\$(T\_A)
+
+INSTALL\_BIN               = \$(INSTALL\_LOCATION\_BIN)/\$(T\_A)
+
+\subsection{Extension and Application Specific Configuration}
+
+\index{Extension cnfiguration}
+\index{Application Specific Configuration}The base/configure directory contains files with the default build definitions and site specific build definitions. The 
+extensions/configure directory contains extension specific build definitions (e.g. location of X11 and Motif libraries) and 
+"include \textless{}filename\textgreater{}" lines for the base/configure files. Likewise, the \textless{}application\textgreater{}/configure directory contains 
+application specific build definitions and includes for the base/configure files. Build definitions such a 
+\index{CROSS\_COMPILER\_TARGET\_ARCHS}CROSS\_COMPILER\_TARGET\_ARCHS can be overridden in an extension or application by placing an \index{override}override 
+definition in the \textless{}top\textgreater{}/configure/CONFIG\_SITE file.
+
+\subsection{RELEASE file}
+
+\index{RELEASE}Every \textless{}top\textgreater{}/configure directory contains a RELEASE file. RELEASE contains a user specified list of other \textless{}top\textgreater{} 
+directory structures containing files needed by the current \textless{}top\textgreater{}, and may also include other files to take those definitions 
+from elsewhere. The macros defined in the RELEASE file (or its includes) may reference other defined macros, but 
+cannot rely on environment variables to provide definitions.
+
+When make is executed, macro definitions for include, bin, and library directories are automatically generated for each 
+external \textless{}top\textgreater{} definition given in the RELEASE file. Also generated are include statements for any existing 
+RULES\_BUILD files, cfg/RULES* files, and cfg/CONFIG* files from each external \textless{}top\textgreater{} listed in the RELEASE file.
+
+For example, if configure/RELEASE contains the definition
+
+C\verb|AMAC = /home/epics/modules/bus/camac|
+
+then the generated macros will be:
+
+CAMAC\_HOST\_BIN = /home/epics/modules/bus/camac/bin/\$(EPICS\_HOST\_ARCH)
+
+CAMAC\_HOST\_LIB = /home/epics/modules/bus/camac/lib/\$(EPICS\_HOST\_ARCH
+
+CAMAC\_BIN = /home/epics/modules/bus/camac/bin/\$(T\_A)
+
+CAMAC\_LIB = /home/epics/modules/bus/camac/lib/\$(T\_A)
+
+\index{RELEASE\_INCLUDES}RELEASE\_INCLUDES += -I/home/epics/modules/bus/camac/include/os
+
+\index{RELEASE\_INCLUDES}RELEASE\_INCLUDES += -I/home/epics/modules/bus/camac/include
+
+\index{RELEASE\_DBDFLAGS}RELEASE\_DBDFLAGS += -I /home/epics/modules/bus/camac/dbd
+
+RELEASE\_DBFLAGS += -I/home/epics/modules/bus/camac/db
+
+RELEASE\_PERL\_MODULE\_DIRS += /home/epics/modules/bus/camac/lib/perl
+
+RELEASE\_DBDFLAGS will appear on the command lines for the dbToRecordTypeH, mkmf.pl, and dbExpand tools, 
+and RELEASE\_INCLUDES will appear on compiler command lines. CAMAC\_LIB and CAMAC\_BIN can be used in a 
+Makefile to define the location of needed scripts, executables, object files, libraries or other files.
+
+Definitions in configure/RELEASE can be overridden for a specific host and target architectures by providing the 
+appropriate file or files containing overriding definitions.
+
+configure/RELEASE.\textless{}epics\_host\_arch\textgreater{}.Common
+
+configure/RELEASE.Common.\textless{}targetarch\textgreater{}
+
+configure/RELEASE.\textless{}epics\_host\_arch\textgreater{}.\textless{}targetarch\textgreater{}
+
+For \textless{}top\textgreater{} directory structures created by makeBaseApp.pl, an EPICS base perl script, \index{convertRelease}convertRelease.pl can perform 
+consistency checks for the external \textless{}top\textgreater{} definitions in the RELEASE file and its includes as part of the \textless{}top\textgreater{} level 
+build. Consistancy checks are controlled by value of \index{CHECK\_RELEASE}CHECK\_RELEASE which is defined in \textless{}top\textgreater{}/configure/
+CONFIG\_SITE. CHECK\_RELEASE can be set to YES, NO or WARN, and if YES (the default value), consistency 
+checks will be performed. If CHECK\_RELEASE is set to WARN the build will continue even if conflicts are found.
+
+\subsection{Modifying configure/RELEASE* files}
+
+\index{RELEASE}You should always do a "\verb|gnumake clean uninstall|" in the \textless{}top\textgreater{} level directory BEFORE adding, changing, or 
+removing any definitions in the configure/RELEASE* files and then a "\verb|gnumake|" at the top level AFTER making the 
+changes.
+
+The file \textless{}top\textgreater{}/configure/RELEASE contains definitions for components obtained from outside \textless{}top\textgreater{}. If you want to link 
+to a new release of anything defined in the file do the following:
+
+cd \textless{}top\textgreater{}
+
+gnumake clean uninstall
+
+edit configure/RELEASE
+
+change the relevant line(s) to point to the new release
+
+gnumake
+
+All definitions in \textless{}top\textgreater{}/configure/RELEASE must result in complete path definitions, i.e. relative path names are not 
+permitted. If your site could have multiple releases of base and other support \textless{}top\textgreater{} components installed at once, these 
+path definitions should contain a release number as one of the components. However as the RELEASE file is read by 
+gnumake, it is permissible to use macro substitutions to define these pathnames, for example:
+
+SUPPORT = /usr/local/iocapps/R3.14.9 
+
+EPICS\_BASE = \$(SUPPORT)/base/3-14-9-asd1
+
+\subsection{Specifying osclass specific definitions}
+
+\index{osclass}Definitions in a Makefile will apply to the host system (the platform on which make is executed) and each system defined 
+by \index{CROSS\_COMPILER\_TARGET\_ARCHS}CROSS\_COMPILER\_TARGET\_ARCHS.
+
+It is possible to limit the systems for which a particular definition applies. Most Makefile definitions can be specified with 
+an appended underscore "\_" followed by an osclass specification. If an \_\textless{}osclass\textgreater{} is not specified, then the definition 
+applies to the host and all CROSS\_COMPILER\_TARGET\_ARCHS systems. If an \_\textless{}osclass\textgreater{} is specified, then the 
+definition applies only to systems with the specified os class. A Makefile definition can also have an appended 
+\_DEFAULT specification. If \_DEFAULT is appended, then the Makefile definition will apply to all systems that do not 
+have an \_\textless{}osclass\textgreater{} specification for that definition. If a \_DEFAULT is appended on a definition but the definition should 
+not apply to a particular system \textless{}osclass\textgreater{}, the value "-nil-" should be specified in the relevant Makefile definition.
+
+Each system has an \index{OS\_CLASS}OS\_CLASS definition in its configure/os/CONFIG.Common.\textless{}arch\textgreater{} file. A few examples are:
+
+\begin{description}\item For vxWorks-* targets \textless{}osclass\textgreater{} is vxWorks.
+
+\item For RTEMS-* targets \textless{}osclass\textgreater{} is RTEMS.
+
+\item For solaris-* targets \textless{}osclass\textgreater{} is solaris.
+
+\item For win32-* targets \textless{}osclass\textgreater{} is WIN32.
+
+\item For linux-* targets \textless{}osclass\textgreater{} is Linux.
+
+\item For hpux-* targets \textless{}osclass\textgreater{} is hpux.
+
+\item For darwin-* targets \textless{}osclass\textgreater{} is Darwin.
+
+\item For aix-* targets \textless{}osclass\textgreater{} is AIX.
+
+\end{description}For example the following Makefile lines specify that product aaa should be created for all systems. Product bbb should 
+be created for systems that do not have OS\_CLASS defined as solaris.
+
+\begin{description}\item PROD = aaa
+
+\item PROD\_solaris = -nil-
+
+\item PROD\_DEFAULT = bbb
+
+\end{description}\subsection{Specifying T\_A specific definitions}
+
+\index{T\_A specific definitions}It is possible for the user to limit the systems for which a particular definition applies to specific target systems. 
+
+For example the following Makefile lines specify that product aaa should be created for all target architecture which allow 
+IOC type products and product bbb should be created only for the vxWorks-68040 and vxWorks-ppc603 targets. 
+Remember T\_A is the build's current target architecture. so PROD\_IOC has the bbb value only when the current built 
+target architecture is vwWorks-68040 or vxWorks-ppc603
+
+\begin{description}\item PROD\_IOC = aaa
+
+\item VX\_PROD\_vxWorks-68040 = bbb
+
+\item VX\_PROD\_vxWorks-ppc603 = bbb
+
+\item PROD\_IOC += VX\_PROD\_\$(T\_A)
+
+\end{description}\subsection{Host and Ioc targets}
+
+\index{Host makefile targets}
+\index{Ioc makefile targets}Build creates two type of makefile targets: Host and Ioc. Host targets are executables, object files, libraries, and scripts 
+which are not part of iocCore. Ioc targets are components of ioc libraries, executables, object files, or iocsh scripts which 
+will be run on an ioc.
+
+Each supported target system has a \index{VALID\_BUILDS}VALID\_BUILDS definition which specifies the type of makefile targets it can 
+support. This definition appears in configure/os/CONFIG.Common.\textless{}arch\textgreater{} or configure/os/CONFIG.\textless{}arch\textgreater{}.\textless{}arch\textgreater{} files.
+
+For vxWorks systems VALID\_BUILDS is set to "Ioc".
+
+For Unix type systems, VALID\_BUILDS is set to "Host Ioc".
+
+For RTEMS systems, VALID\_BUILDS is set to "Ioc".
+
+For WIN32 systems, VALID\_BUILDS is set to "Host Ioc".
+
+In a Makefile it is possible to limit the systems for which a particular \index{PROD}PROD, \index{TESTPROD}TESTPROD, \index{LIBRARY, SCRIPTS}LIBRARY, SCRIPTS, and 
+\index{OBJS}OBJS is built. For example the following Makefile lines specify that product aaa should be created for systems that 
+support Host type builds. Product bbb should be created for systems that support Ioc type builds. Product ccc should be 
+created for all target systems.
+
+\begin{description}\item PROD\_HOST = aaa
+
+\item PROD\_IOC = bbb
+
+\item PROD = ccc
+
+\end{description}These definitions can be further limited by specifying an appended underscore "\_" followed by an osclass or DEFAULT 
+specification.
+
+\subsection{User specific override definitions}
+
+\index{User specific override}User specific override definitions are allowed in user created files in the user's \textless{}home\textgreater{}/configure subdirectory. These 
+override definitions will be used for builds in all \textless{}top\textgreater{} directory structures. The files must have the following names. 
+
+\textless{}home\textgreater{}/configure/\index{CONFIG\_USER}CONFIG\_USER
+
+\textless{}home\textgreater{}/configure/CONFIG\_USER.\textless{}epics\_host\_arch\textgreater{}
+
+\textless{}home\textgreater{}/configure/CONFIG\_USER.Common.\textless{}targetarch\textgreater{}
+
+\textless{}home\textgreater{}/configure/CONFIG\_USER.\textless{}epics\_host\_arch\textgreater{}.\textless{}targetarch\textgreater{}
+
+\section{Makefiles}
+
+\index{Makefiles}\subsection{Name}
+
+\index{Makefile name}The name of the makefile in each directory must be Makefile.
+
+\subsection{Included Files}
+
+Makefiles normally include files from \textless{}top\textgreater{}/configure. Thus the makefile "inherits" rules and definitions from configure. 
+The files in \textless{}top\textgreater{}/configure may in turn include files from another \textless{}top\textgreater{}/configure. This technique makes it possible to 
+share make variables and even rules across \textless{}top\textgreater{} directories.
+
+\subsection{Contents of Makefiles}
+
+\index{Makefile contents}\subsubsection{Makefiles in directories containing subdirectories}
+
+A Makefile in this type of directory must define where \textless{}top\textgreater{} is relative to this directory, include \textless{}top\textgreater{}/configure files, 
+and specify the subdirectories in the desired order of make execution. Running gnumake in a directory with the following 
+Makefile lines will cause gnumake to be executed in \textless{}dir1\textgreater{} first and then \textless{}dir2\textgreater{}. The build rules do not allow a Makefile 
+to specify both subdirectories and components to be built.
+
+\begin{verbatim}TOP=../..
+include $(TOP)/configure/CONFIG
+DIRS += <dir1> <dir2>
+include $(TOP)/configure/RULES_DIRS
+
+\end{verbatim}\subsubsection{Makefiles in directories where components are to be built}
+
+A Makefile in this type of directory must define where \textless{}top\textgreater{} is relative to this directory, include \textless{}top\textgreater{} configure files, 
+and specify the target component definitions. Optionally it may contain user defined rules. Running gnumake in a 
+directory with this type of Makefile will cause gnumake to create an O.\textless{}arch\textgreater{} subdirectory and then execute gnumake to 
+build the defined components in this subdirectory. It contains the following lines:
+
+\begin{verbatim}TOP=../../..
+include $(TOP)/configure/CONFIG
+<component definition lines>
+include $(TOP)/configure/RULES
+<optional rules definitions>
+\end{verbatim}\subsection{Simple Makefile examples}
+
+\index{Makefile examples}Create an IOC type library named asIoc from the source file asDbLib.c and install it into the 
+\verb|$(INSTALL_LOCATION)/lib/<arch> |directory.
+
+\begin{verbatim}TOP=../../..
+include $(TOP)/configure/CONFIG
+LIBRARY_IOC += asIoc
+asIoc_SRCS += asDbLib.c
+include $(TOP)/configure/RULES
+\end{verbatim}For each Host type target architecture, create an executable named catest from the catest1.c and catest2.c source files 
+linking with the existing EPICS base ca and Com libraries, and then install the catest executable into the 
+\verb|$(INSTALL_LOCATION)/bin/<arch> |directory.
+
+\begin{verbatim}TOP=../../..
+include $(TOP)/configure/CONFIG
+PROD_HOST = catest
+catest_SRCS += catest1.c catest2.c
+catest_LIBS = ca Com
+include $(TOP)/configure/RULES
+\end{verbatim}\section{Make}
+
+\index{Make}\subsection{Make vs. gnumake}
+
+\index{gnumake}EPICS provides an extensive set of make rules. These rules only work with the GNU version of make, gnumake, which is 
+supplied by the Free Software Foundation. Thus, on most Unix systems, the native make will not work. On some systems, 
+e.g. Linux, GNU make may be the default. This manual always uses gnumake in the examples. 
+
+\subsection{Frequently used Make commands }
+
+\index{Make commands}NOTE: It is possible to invoke the following commands for a single target architecture by appending \textless{}arch\textgreater{} to the target 
+in the command. 
+
+The most frequently used make commands are:
+
+\begin{verbatim}gnumake
+\end{verbatim}\index{gnumake}\begin{description}\item This rebuilds and installs everything that is not up to date.
+
+\item NOTE: Executing gnumake without arguments is the same as "gnumake install"
+
+\item 
+
+\end{description}\begin{verbatim}gnumake help
+\end{verbatim}\begin{description}\item This command can be executed from the \textless{}top\textgreater{} directory only. This command prints a page describing the most 
+frequently used make commands.
+
+\item 
+
+\end{description}\begin{verbatim}gnumake install
+\end{verbatim}\begin{description}\item This rebuilds and installs everything that is not up to date.
+
+\item 
+
+\end{description}\begin{verbatim}gnumake all
+\end{verbatim}\begin{description}\item This is the same as "gnumake install".
+
+\item 
+
+\end{description}\begin{verbatim}gnumake buildInstall
+\end{verbatim}\begin{description}\item This is the same as "gnumake install".
+
+\item 
+
+\end{description}\begin{verbatim}gnumake <arch>
+\end{verbatim}\begin{description}\item This rebuilds and installs everything that is not up to date first for the host arch and then (if different) for the 
+specified target arch.
+
+\item NOTE: This is the same as "gnumake install.\textless{}arch\textgreater{}"
+
+\item 
+
+\end{description}\begin{verbatim}gnumake clean
+\end{verbatim}\index{clean}\begin{description}\item This can be used to save disk space by deleting the O.\textless{}arch\textgreater{} directories that gnumake will create, but does not 
+remove any installed files from the bin, db, dbd etc. directories. "gnumake clean.\textless{}arch\textgreater{}" can be invoked to clean a 
+single architecture.
+
+\item 
+
+\end{description}\begin{verbatim}gnumake archclean
+\end{verbatim}\index{archclean}\begin{description}\item This command will remove the current build's O.\textless{}arch\textgreater{} directories but not O.Common directory.
+
+\item 
+
+\end{description}\begin{verbatim}gnumake realclean
+\end{verbatim}\index{realclean}\begin{description}\item This command will remove ALL the O.\textless{}arch\textgreater{} subdirectories (even those created by a gnumake from another 
+EPICS\_HOST\_ARCH).
+
+\item 
+
+\end{description}\begin{verbatim}gnumake rebuild 
+\end{verbatim}\index{rebuild}\begin{description}\item This is the same as "gnumake clean install". If you are unsure about the state of the generated files in an 
+application, just execute "gnumake rebuild".
+
+\item 
+
+\end{description}\begin{verbatim}gnumake uninstall
+\end{verbatim}\index{uninstall}\begin{description}\item This command can be executed from the \textless{}top\textgreater{} directory only. It will remove everything installed by gnumake in 
+the include, lib, bin, db, dbd, etc. directories.
+
+\item 
+
+\end{description}\begin{verbatim}gnumake realuninstall
+\end{verbatim}\index{realuninstall}\begin{description}\item This command can be executed from the \textless{}top\textgreater{} directory only. It will remove all the install directories, include, lib, 
+bin, db, dbd, etc.
+
+\item 
+
+\end{description}\begin{verbatim}gnumake distclean
+\end{verbatim}\index{distclean}\begin{description}\item This command can be executed from the \textless{}top\textgreater{} directory only. It is the same as issuing both the realclean and 
+realuninstall commands.
+
+\item 
+
+\end{description}\begin{verbatim}gnumake cvsclean
+\end{verbatim}\index{cvsclean}\begin{description}\item This command can be executed from the \textless{}top\textgreater{} directory only. It removes cvs .\#* files in the make directory tree.
+
+\end{description}\subsection{Make targets}
+
+\index{Make targets}The following is a summary of targets that can be specified for gnumake: 
+
+\begin{itemize}\item \textless{}action\textgreater{}
+
+\item \textless{}arch\textgreater{}
+
+\item \textless{}action\textgreater{}.\textless{}arch\textgreater{}
+
+\item \textless{}dir\textgreater{}
+
+\item \textless{}dir\textgreater{}.\textless{}action\textgreater{}
+
+\item  \textless{}dir\textgreater{}.\textless{}arch\textgreater{}
+
+\item \textless{}dir\textgreater{}.\textless{}action\textgreater{}.\textless{}arch\textgreater{}
+
+\end{itemize}where: 
+
+\begin{description}\item \textless{}arch\textgreater{} is an architecture such as solaris-sparc, vxWorks-68040, win32-x86, etc.
+
+\item \textless{}action\textgreater{} is help, clean, realclean, distclean, inc, install, build, rebuild, buildInstall, realuninstall, or uninstall
+
+\item NOTE: help, uninstall, distclean, cvsclean, and realuninstall can only be specified at \textless{}top\textgreater{}.
+
+\item NOTE: realclean cannot be specified in an *.\textless{}arch\textgreater{} subdirectory.
+
+\item \textless{}dir\textgreater{} is subdirectory name
+
+\end{description}Note: You can build using your os vendors' native compiler and also build using a supported alternate compiler in the 
+same directory structure because the executables and libraries will be created and installed into separate directories (e.g 
+bin/solaris-sparc and bin/solaris-sparc-gnu). You can do this by changing your \verb|EPICS_HOST_ARCH|, environment 
+variable between builds or by setting \verb|EPICS_HOST_ARCH| on the gnumake command line.
+
+From Base R3.14.11 the build system will always ensure the host architecture is up to date before building a cross-
+compiled target, thus Makefiles must be explicit in defining which architectures a componen should be built for.
+
+\subsection{Header file dependencies}
+
+\index{Header dependencies}All product, test product, and library source files which appear in one of the source file definitions (e.g. SRCS, 
+PROD\_SRCS, LIB\_SRCS, \textless{}prodname\textgreater{}\_SRCS) will have their header file dependencies automatically generated and 
+included as part of the Makefile if HDEPENDS is set to YES in the Makefile and/or in base/configure/CONFIG\_SITE.
+
+\section{Makefile definitions}
+
+The following components can be defined in a Makefile:
+
+\subsection{Source file directories}
+
+\index{Source file dirs}Normally all product, test product, and library source files reside in the same directory as the Makefile. OS specific source 
+files are allowed and should reside in subdirectories os/\textless{}os\_class\textgreater{} or os/posix or os/default. 
+
+The build rules also allow source files to reside in subdirectories of the current Makefile directory (src directory). For 
+each subdirectory \textless{}dir\textgreater{} containing source files add the SRC\_DIRS definition. 
+
+\begin{verbatim}SRC_DIRS += <dir>
+\end{verbatim}\index{SRC\_DIRS}where \textless{}dir\textgreater{} is a relative path definition. An example of SRC\_DIRS is
+
+\begin{verbatim}SRC_DIRS += ../dir1 ../dir2
+\end{verbatim}The directory search order for the above definition is 
+
+\begin{verbatim}. 
+../os/$(OS_CLASS) ../os/posix ../os/default
+../dir1/os/$(OS_CLASS) ../dir1/os/posix ../dir1/os/default 
+../dir2/os/$(OS_CLASS) ../dir2/os/posix ../dir2/os/default
+..
+../dir1 ../dir2
+\end{verbatim}where the build directory O.\textless{}os\_class\textgreater{} is . and the src directory is ... 
+
+\subsection{Posix C source code}
+
+\index{Posix C source code}The epics base config files assume posix source code and define \index{POSIX}POSIX to be YES as the default. Individual Makefiles 
+can override this by setting POSIX to NO. Source code files may have the suffix .c, .cc, .cpp, or .C.
+
+\subsection{Breakpoint Tables}
+
+\index{Breakpoint Tables}For each breakpoint table dbd file, bpt\textless{}table name\textgreater{}.dbd, to be created from an existing bpt\textless{}table name\textgreater{}.data file, add the 
+definition
+
+\begin{verbatim}DBD += bpt<table name>.dbd
+\end{verbatim}\index{DBD}to the Makefile. The following Makefile will create a bptTypeJdegC.dbd file from an existing bptTypeJdegC.data file 
+using the EPICS base utility program makeBpt and install the new dbd file into the \$(INSTALL\_LOCATION)/dbd 
+directory.
+
+\begin{verbatim}TOP=../../..
+include $(TOP)/configure/CONFIG
+DBD += bptTypeJdegC.dbd
+include $(TOP)/configure/RULES
+\end{verbatim}\subsection{Record Type Definitions}
+
+\index{Record Type Definitions}For each new record type, the following definition should be added to the makefile:
+
+\begin{verbatim}DBDINC += <rectype>Record
+\end{verbatim}\index{DBDINC}A \textless{}rectype\textgreater{}Record.h header file will be created from an existing \textless{}rectype\textgreater{}Record.dbd file using the EPICS base utility 
+program dbToRecordTypeH. This header will be installed into the \$(INSTALL\_LOCATION)/include directory and the 
+dbd file will be installed into the \$(INSTALL\_LOCATION)/dbd directory.
+
+The following Makefile will create xxxRecord.h from an existing xxxRecord.dbd file, install xxxRecord.h into 
+\$(INSTALL\_LOCATION)/include, and install xxxRecord.dbd into \$(INSTALL\_LOCATION)/dbd.
+
+\begin{verbatim}TOP=../../..
+include $(TOP)/configure/CONFIG
+DBDINC += xxxRecord
+include $(TOP)/configure/RULES
+\end{verbatim}\subsection{Menus}
+
+\index{Menus}If a menu menu\textless{}name\textgreater{}.dbd file is present, then add the following definition:
+
+\begin{verbatim}DBDINC += menu<name>.h
+\end{verbatim}\index{DBDINC}The header file, menu\textless{}name\textgreater{}.h will be created from the existing menu\textless{}name\textgreater{}.dbd file using the EPICS base utility 
+program dbToMenuH and installed into the \$(INSTALL\_LOCATION)/include directory and the menu dbd file will be 
+installed into \$(INSTALL\_LOCATION)/dbd.
+
+The following Makefile will create a menuConvert.h file from an existing menuConvert.dbd file and install 
+menuConvert.h into \$(INSTALL\_LOCATION)/include and menuConvert.dbd into \$(INSTALL\_LOCATION)/dbd.
+
+\begin{verbatim}TOP=../../..
+include $(TOP)/configure/CONFIG
+DBDINC = menuConvert.h
+include $(TOP)/configure/RULES
+\end{verbatim}\subsection{Expanded Database Definition Files}
+
+\index{Expanded DBD files}
+\index{Database Definition}Database definition include files named \textless{}name\textgreater{}Include.dbd containing includes for other database definition files can be 
+expanded by the EPICS base utility program \verb|dbExpand| into a created \textless{}name\textgreater{}.dbd file and the \textless{}name\textgreater{}.dbd file installed 
+into \$(INSTALL\_LOCATION)/dbd. The following variables control the process:
+
+\index{dbExpand}\begin{verbatim}DBD += <name>.dbd
+USR_DBDFLAGS += -I <include path>
+USR_DBDFLAGS += -S <macro substitutions>
+<name>_DBD += <file1>.dbd <file2>.dbd ...
+\end{verbatim}\index{DBD}
+\index{USER\_DBDFLAGS}where 
+
+\begin{verbatim}DBD += <name>.dbd
+\end{verbatim}is the name of the output dbd file to contain the expanded definitions. It is created by expanding an existing or build          
+created \textless{}name\textgreater{}Include.dbd file and then copied into \$(INSTALL\_LOCATION)/dbd.
+
+An example of a file to be expanded is exampleInclude.dbd containing the following lines
+
+\begin{verbatim}include "base.dbd"
+include "xxxRecord.dbd"
+device(xxx,CONSTANT,devXxxSoft,"SoftChannel")
+\end{verbatim}\index{base.dbd}\verb|USR_DBDFLAGS| defines optional flags for dbExpand. Currently only an include path (-I \textless{}path\textgreater{}) and macro substitution 
+(-S \textless{}substitution\textgreater{}) are supported. The include paths for EPICS base/dbd, and other \textless{}top\textgreater{}/dbd directories will 
+automatically be added during the build if the \textless{}top\textgreater{} names are specified in the configure/RELEASE file.
+
+A database definition include file named  \textless{}name\textgreater{}Include.dbd containing includes for other database definition files can 
+be created from a \textless{}name\textgreater{}\_DBD definition. The lines
+
+\begin{verbatim}DBD += <name>.dbd
+<name>_DBD += <file1>.dbd <file2>.dbd ...
+\end{verbatim}\index{DBD}will create an expanded dbd file \textless{}name\textgreater{}.dbd by first creating a \textless{}name\textgreater{}Include.dbd. For each filename in the 
+\textless{}name\textgreater{}\_DBD definition, the created \textless{}name\textgreater{}Include.dbd will contain an include statement for that filename. Then   the 
+expanded DBD file is generated from the created \textless{}name\textgreater{}Include.dbd file and installed into \$(INSTALL\_LOCATION)/
+dbd. 
+
+The following Makefile will create an expanded dbd file named example.dbd from an existing exampleInclude.dbd file 
+and then install example.dbd into the \$(INSTALL\_LOCATION)/dbd directory.
+
+\begin{verbatim}TOP=../../..
+include $(TOP)/configure/CONFIG
+DBD += exampleApp.dbd
+include $(TOP)/configure/RULES
+\end{verbatim}The following Makefile will create an exampleInclude.dbd file from the example\_DBD definition then expand it to create 
+an expanded dbd file, example.dbd, and install example.dbd into the \$(INSTALL\_LOCATION)/dbd directory.
+
+\begin{verbatim}TOP=../../..
+include $(TOP)/configure/CONFIG
+DBD += example.dbd
+example_DBD += base.dbd xxxRecord.dbd xxxSupport.dbd
+include $(TOP)/configure/RULES
+\end{verbatim}The created exampleInclude.dbd file will contain the following lines
+
+\begin{verbatim}include "base.dbd"
+include "xxxRecord.dbd"
+include "xxxSupport.dbd"
+\end{verbatim}\subsection{Registering Support Routines for Expanded Database Definition Files}
+
+\index{Registering routines for DBD files}
+\index{Registering support routines}
+\index{Expanded Database Definition Files}A source file which registers simple static variables and record/device/driver support routines with iocsh can be created. 
+The list of variables and routines to register is obtained from lines in an existing \verb|dbd |file.
+
+The following line in a Makefile will result in \verb|<name>_registerRecordDeviceDriver.cpp| being created, 
+compiled, and linked into \verb|<prodname>|. It requires that the file \verb|<name>.dbd |exist.
+
+\begin{verbatim}<prodname>_SRCS += <name>_registerRecordDeviceDriver.cpp
+\end{verbatim}An example of registering the variable mySubDebug and the routines mySubInit and mySubProcess is \textless{}name\textgreater{}.dbd 
+containg the following lines
+
+\begin{verbatim}variable(mySubDebug)
+function(mySubInit)
+function(mySubProcess)
+\end{verbatim}\subsection{Database Definition Files}
+
+\index{Database Definition}The following line installs the existing named dbd files into \$(INSTALL\_LOCATION)/dbd without expansion.
+
+\begin{verbatim}DBD += <name>.dbd
+\end{verbatim}\index{DBD}\subsection{DBD install files}
+
+\index{DBD install files}Definitions of the form:
+
+\begin{verbatim}DBD_INSTALLS += <name>
+\end{verbatim}\index{DBD\_INSTALLS}result in files being installed to the \$(INSTALL\_LOCATION/dbd directory. The file \textless{}name\textgreater{} can appear with or without 
+a directory prefix. If the file has a directory prefix e.g. \$(APPNAME)/dbd/, it is copied from the specified location. If a 
+directory prefix is not present, make will look in the current source directory for the file.
+
+\subsection{Database Files}
+
+\index{Database Files}For most databases just the name of the database has to be specified. Make will figure out how to generate the file: 
+
+\begin{verbatim}DB += xxx.db
+\end{verbatim}\index{DB}generates xxx.db depending on which source files exist and installs it into \$(INSTALL\_LOCATION)/db.
+
+A \textless{}name\textgreater{}.db database file will be created from an optional \textless{}name\textgreater{}.template file and/or an optional 
+\textless{}name\textgreater{}.substitutions file, If the \index{substitution file}substitution file exists but the \index{template file}template file is not named \textless{}name\textgreater{}.template, the template 
+file name can be specified as
+
+\begin{verbatim}<name>_TEMPLATE = <template file name>
+\end{verbatim}A *\textless{}nn\textgreater{}.db database file will be created from a *.template and a *\textless{}nn\textgreater{}.substitutions file, (where nn is an optional index 
+number).
+
+If a \textless{}name\textgreater{} substitutions file contains "file" references to other input files, these referenced files are  made dependencies 
+of the created \textless{}name\textgreater{}.db by the \index{makeDbDepends.pl}makeDbDepends.pl perl tool.
+
+The \index{Macro Substitutions and Include tool}Macro Substitutions and Include tool, msi, will be used to generate the database, and msi must either be in your path 
+or you must redefine \index{MSI}MSI as the full path name to the msi binary in a RELEASE file or Makefile. An example MSI 
+definition is
+
+\begin{verbatim}MSI = /usr/local/epics/extensions/bin/${EPICS_HOST_ARCH}/msi
+\end{verbatim}\index{msi}
+\index{msi}Template files \textless{}name\textgreater{}.template, and db files, \textless{}name\textgreater{}.db, will be created from an edf file \textless{}name\textgreater{}.edf and an 
+\textless{}name\textgreater{}.edf file will be created from a \textless{}name\textgreater{}.sch file.
+
+Template and substitution files can be installed.
+
+\begin{verbatim}DB += xxx.template xxx.substitutions
+\end{verbatim}\index{template file}
+\index{substitutions file}generates and installs these files. If one or more xxx.substitutions files are to be created by script, the script name must be 
+placed in the CREATESUBSTITUTIONS variable (e.g. CREATESUBSTITUTIONS=mySubst.pl). This script will be 
+executed by gnumake with the prefix of the substitution file name to be generated as its argument. If (and only if) there 
+are script generated substitutions files, the prefix of any inflated database\textbackslash{}qs name may not equal the prefix of the name of 
+any template used within the directory.
+
+\subsection{DB install files}
+
+\index{DB install files}Definitions of the form:
+
+\begin{verbatim}DB_INSTALLS += <name>
+\end{verbatim}\index{DB\_INSTALLS}result in files being installed to the \$(INSTALL\_LOCATION/db directory. The file \textless{}name\textgreater{} can appear with or without a 
+directory prefix. If the file has a directory prefix e.g. \$(APPNAME)/db/, it is copied from the specified location. If a 
+directory prefix is not present, make will look in the current source directory for the file.
+
+\subsection{Compile and link command options}
+
+\index{Compiler options}
+\index{link options}Any of the following can be specified:
+
+\subsubsection{Options for all compile/link commands.}
+
+These definitions will apply to all compiler and linker targets.
+
+\begin{description}\item \index{USR\_INCLUDES}USR\_INCLUDES += -I\textless{}name\textgreater{}
+
+\end{description}header file directories each prefixed by a "-I".
+
+\begin{description}\item USR\_INCLUDES\_\textless{}osclass\textgreater{} += -I\textless{}name\textgreater{}
+
+\end{description}os specific header file directories each prefixed by a "-I".
+
+\begin{description}\item USR\_INCLUDES\_DEFAULT += -I\textless{}name\textgreater{}
+
+\end{description}header file directories each prefixed by a "-I" for any arch that does not have a USR\_INCLUDE\_\textless{}osclass\textgreater{} 
+definition
+
+\begin{description}\item \index{USR\_CFLAGS}USR\_CFLAGS += \textless{}c flags\textgreater{}
+
+\end{description}c compiler options.
+
+\begin{description}\item USR\_CFLAGS\_\textless{}osclass\textgreater{} += \textless{}c flags\textgreater{}
+
+\end{description}os specific c compiler options.
+
+\begin{description}\item USR\_CFLAGS\_\textless{}T\_A\textgreater{} += \textless{}c flags\textgreater{}
+
+\end{description}target architecture specific c compiler options.
+
+\begin{description}\item USR\_CFLAGS\_DEFAULT += \textless{}c flags\textgreater{}
+
+\end{description}c compiler options for any arch that does not have a USR\_CFLAGS\_\textless{}osclass\textgreater{} definition
+
+\begin{description}\item \index{USR\_CXXFLAG}USR\_CXXFLAGS += \textless{}c++ flags\textgreater{}
+
+\end{description}c++ compiler options.
+
+\begin{description}\item USR\_CXXFLAGS\_\textless{}osclass\textgreater{} += \textless{}c++ flags\textgreater{}
+
+\end{description}c++ compiler options for the specified osclass.
+
+\begin{description}\item USR\_CXXFLAGS\_\textless{}T\_A\textgreater{} += \textless{}c++ flags\textgreater{}
+
+\end{description}c++ compiler options for the specified target architecture.
+
+\begin{description}\item USR\_CXXFLAGS\_DEFAULT += \textless{}c++ flags\textgreater{}
+
+\end{description}c++ compiler options for any arch that does not have a USR\_CXXFLAGS\_\textless{}osclass\textgreater{} definition
+
+\begin{description}\item \index{USR\_CPPFLAGS}USR\_CPPFLAGS += \textless{}preprocessor flags\textgreater{}
+
+\end{description}c preprocessor options.
+
+\begin{description}\item USR\_CPPFLAGS\_\textless{}osclass\textgreater{} += \textless{}preprocessor flags\textgreater{}
+
+\end{description}os specific c preprocessor options.
+
+\begin{description}\item USR\_CPPFLAGS\_\textless{}T\_A\textgreater{} += \textless{}preprocessor flags\textgreater{}
+
+\end{description}target architecture specific c preprocessor options.
+
+\begin{description}\item USR\_CPPFLAGS\_DEFAULT += \textless{}preprocessor flags\textgreater{}
+
+\end{description}c preprocessor options for any arch that does not have a USR\_CPPFLAGS\_\textless{}osclass\textgreater{} definition
+
+\begin{description}\item \index{USR\_LDFLAGS}USR\_LDFLAGS += \textless{}linker flags\textgreater{}
+
+\end{description}linker options.
+
+\begin{description}\item USR\_LDFLAGS\_\textless{}osclass\textgreater{} += \textless{}linker flags\textgreater{}
+
+\end{description}os specific linker options.
+
+\begin{description}\item USR\_LDFLAGS\_DEFAULT += \textless{}linker flags\textgreater{}
+
+\end{description}linker options for any arch that does not have a USR\_LDFLAGS\_\textless{}osclass\textgreater{} definition
+
+\subsubsection{Options for a target specific compile/link command.}
+
+\begin{description}\item \textless{}\index{name\_INCLUDES}name\textgreater{}\_INCLUDES += -I\textless{}name\textgreater{}
+
+\end{description}header file directories each prefixed by a "-I".
+
+\begin{description}\item \textless{}name\textgreater{}\_INCLUDES\_\textless{}osclass\textgreater{} += -I\textless{}name\textgreater{}
+
+\end{description}os specific header file directories each prefixed by a "-I".
+
+\begin{description}\item \textless{}name\textgreater{}\_INCLUDES\_\textless{}T\_A\textgreater{} += -I\textless{}name\textgreater{}
+
+\end{description}target architecture specific header file directories each prefixed by a "-I".
+
+\begin{description}\item \textless{}\index{name\_CFLAGS}name\textgreater{}\_CFLAGS += \textless{}c flags\textgreater{}
+
+\end{description}c compiler options.
+
+\begin{description}\item \textless{}name\textgreater{}\_CFLAGS\_\textless{}osclass\textgreater{} += \textless{}c flags\textgreater{}
+
+\end{description}os specific c compiler options.
+
+\begin{description}\item \textless{}name\textgreater{}\_CFLAGS\_\textless{}T\_A\textgreater{} += \textless{}c flags\textgreater{}
+
+\end{description}target architecture specific c compiler options.
+
+\begin{description}\item \textless{}\index{name\_CXXFLAGS}name\textgreater{}\_CXXFLAGS += \textless{}c++ flags\textgreater{}
+
+\end{description}c++ compiler options.
+
+\begin{description}\item \textless{}name\textgreater{}\_CXXFLAGS\_\textless{}osclass\textgreater{} += \textless{}c++ flags\textgreater{}
+
+\end{description}c++ compiler options for the specified osclass.
+
+\begin{description}\item \textless{}name\textgreater{}\_CXXFLAGS\_\textless{}T\_A\textgreater{} += \textless{}c++ flags\textgreater{}
+
+\end{description}c++ compiler options for the specified target architecture.
+
+\begin{description}\item \textless{}\index{name\_CPPFLAGS}name\textgreater{}\_CPPFLAGS += \textless{}preprocessor flags\textgreater{}
+
+\end{description}c preprocessor options.
+
+\begin{description}\item \textless{}name\textgreater{}\_CPPFLAGS\_\textless{}osclass\textgreater{} += \textless{}preprocessor flags\textgreater{}
+
+\end{description}os specific c preprocessor options.
+
+\begin{description}\item \textless{}name\textgreater{}\_CPPFLAGS\_\textless{}T\_A\textgreater{} += \textless{}preprocessor flags\textgreater{}
+
+\end{description}target architecture specific c preprocessor options.
+
+\begin{description}\item \textless{}\index{name\_LDFLAGS}name\textgreater{}\_LDFLAGS += \textless{}linker flags\textgreater{}
+
+\end{description}linker options.
+
+\begin{description}\item \textless{}name\textgreater{}\_LDFLAGS\_\textless{}osclass\textgreater{} += \textless{}linker flags\textgreater{}
+
+\end{description}os specific linker options.
+
+\subsection{Libraries}
+
+\index{Libraries}A library is created and installed into \$(INSTALL\_LOCATION)/lib/\textless{}arch\textgreater{} by specifying its name and the name of the 
+object and/or source files containing code for the library. An object or source file name can appear with or without a 
+directory prefix. If the file name has a directory prefix e.g. \$(EPICS\_BASE\_BIN), it is taken from the specified location. 
+If a directory prefix is not present, make will first look in the source directories for a file with the specified name and next 
+try to create the file using existing configure rules. A library filename prefix may be prepended to the library name when 
+the file is created. For Unix type systems and vxWorks the library prefix is lib and there is no prefix for WIN32. Also a 
+library suffix appropriate for the library type and target arch (e.g. .a, .so, .lib, .dll) will be appended to the filename when 
+the file is created.
+
+vxWorks and RTEMS Note: Only archive libraries are created.
+
+Shared libraries Note: Shared libraries can be built for any or all HOST type architectures. The definition of 
+\index{SHARED\_LIBRARIES}SHARED\_LIBRARIES (YES/NO) in base/configure/CONFIG\_SITE determines whether shared or archive libraries will 
+be built. When SHARED\_LIBRARIES is YES, both archive and shared libraries are built. This definition can be 
+overridden for a specific arch in an configure/os/CONFIG\_SITE.\textless{}arch\textgreater{}.Common file.,The default definition for 
+SHARED\_LIBRARIES in the EPICS base distribution file is YES for all host systems.
+
+win32 Note: An object library file is created when \index{SHARED\_LIBRARIES}SHARED\_LIBRARIES=NO, \textless{}name\textgreater{}.lib which is installed into 
+\$(INSTALL\_LOCATION)/lib/\textless{}arch\textgreater{}. Two library files are created when SHARED\_LIBRARIES=YES, \textless{}name\textgreater{}.lib, an 
+import library for DLLs, which is installed into \$(INSTALL\_LOCATION)/lib/\textless{}arch\textgreater{}, and \textless{}name\textgreater{}.dll which is installed 
+into \$(INSTALL\_LOCATION)/bin/\textless{}arch\textgreater{}. (Warning: The file \textless{}name\textgreater{}.lib will only be created by the build if there are 
+exported symbols from the library.) If SHARED\_LIBRARIES=YES, the directory \$(INSTALL\_LOCATION)/bin/\textless{}arch\textgreater{} 
+must be in the user's path during builds to allow invoking executables which were linked with shared libraries. NOTE: the 
+\textless{}name\textgreater{}.lib files are different for shared and nonshared builds.
+
+\subsubsection{Specifying the library name.}
+
+\index{library name}Any of the following can be specified:
+
+\begin{description}\item \index{LIBRARY\_IOC}LIBRARY += \textless{}name\textgreater{}
+
+\end{description}A library will be created for every target arch.
+
+\begin{description}\item LIBRARY\_\textless{}osclass\textgreater{} += \textless{}name\textgreater{}
+
+\end{description}Library \textless{}name\textgreater{} will be created for all archs of the specified osclass.
+
+\begin{description}\item LIBRARY\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}Library \textless{}name\textgreater{} will be created for any arch that does not have a LIBRARY\_\textless{}osclass\textgreater{} definition
+
+\begin{description}\item \index{LIBRARY\_IOC}LIBRARY\_IOC += \textless{}name\textgreater{}
+
+\end{description}Library \textless{}name\textgreater{} will be created for IOC type archs.
+
+\begin{description}\item LIBRARY\_IOC\_\textless{}osclass\textgreater{} += \textless{}name\textgreater{}
+
+\end{description}Library \textless{}name\textgreater{} will be created for all IOC type archs of the specified osclass.
+
+\begin{description}\item LIBRARY\_IOC\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}Library \textless{}name\textgreater{} will be created for any IOC type arch that does not have a LIBRARY\_IOC\_\textless{}osclass\textgreater{} 
+definition
+
+\begin{description}\item \index{LIBRARY\_HOST}LIBRARY\_HOST += \textless{}name\textgreater{}
+
+\end{description}Library \textless{}name\textgreater{} will be created for HOST type archs.
+
+\begin{description}\item LIBRARY\_HOST\_\textless{}osclass\textgreater{} += \textless{}name\textgreater{}
+
+\end{description}Library \textless{}name\textgreater{} will be created for all HOST type archs of the specified osclass.
+
+\begin{description}\item LIBRARY\_HOST\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}Library \textless{}name\textgreater{} will be created for any HOST type arch that does not have a LIBRARY\_HOST\_\textless{}osclass\textgreater{} 
+definition
+
+\subsubsection{Specifying library source file names}
+
+\index{Library Source file}Source file names, which must have a suffix, are defined as follows:
+
+\begin{description}\item \index{SRCS}SRCS += \textless{}name\textgreater{}
+
+\end{description}Source files will be used for all defined libraries and products.
+
+\begin{description}\item SRCS\_\textless{}osclass\textgreater{} += \textless{}name\textgreater{}
+
+\end{description}Source files will be used for all defined libraries and products for all archs of the specified osclass.
+
+\begin{description}\item SRCS\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}Source files will be used for all defined libraries and products for any arch that does not have a 
+SRCS\_\textless{}osclass\textgreater{} definition
+
+LIBSRCS and LIB\_SRCS have the same meaning. LIBSRCS is deprecated, but retained for R3.13 compatibility.
+
+\begin{description}\item \index{LIBSRCS}LIBSRCS += \textless{}name\textgreater{}
+
+\end{description}Source files will be used for all defined libraries.
+
+\begin{description}\item LIBSRCS\_\textless{}osclass\textgreater{} += \textless{}name\textgreater{}
+
+\end{description}Source files will be used for all defined libraries for all archs of the specified osclass.
+
+\begin{description}\item LIBSRCS\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}Source files will be used for all defined libraries for any arch that does not have a LIBSRCS\_\textless{}osclass\textgreater{} 
+definition
+
+
+
+\begin{description}\item \index{USR\_SRCS}USR\_SRCS += \textless{}name\textgreater{}
+
+\end{description}Source files will be used for all defined products and libraries.
+
+\begin{description}\item USR\_SRCS\_\textless{}osclass\textgreater{} += \textless{}name\textgreater{}
+
+\end{description}Source files will be used for all defined products and libraries for all archs of the specified osclass.
+
+\begin{description}\item USR\_SRCS\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}Source files will be used for all defined products and libraries for any arch that does not have a 
+USR\_SRCS\_\textless{}osclass\textgreater{} definition
+
+
+
+\begin{description}\item \index{LIB\_SRCS}LIB\_SRCS += \textless{}name\textgreater{}
+
+\end{description}Source files will be used for all libraries.
+
+\begin{description}\item LIB\_SRCS\_\textless{}osclass\textgreater{} += \textless{}name\textgreater{}
+
+\end{description}Source files will be used for all defined libraries for all archs of the specified osclass.
+
+\begin{description}\item LIB\_SRCS\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}Source files will be used for all defined libraries for any arch that does not have a LIB\_SRCS\_\textless{}osclass\textgreater{} 
+definition
+
+
+
+\begin{description}\item \textless{}\index{name\_SRCS}libname\textgreater{}\_SRCS += \textless{}name\textgreater{}
+
+\end{description}Source files will be used for the named library.
+
+\begin{description}\item \textless{}libname\textgreater{}\_SRCS\_\textless{}osclass\textgreater{} += \textless{}name\textgreater{}
+
+\end{description}Source files will be used for named library for all archs of the specified osclass.
+
+\begin{description}\item \textless{}libname\textgreater{}\_SRCS\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}Source files will be used for named library for any arch that does not have a \textless{}libname\textgreater{}\_SRCS\_\textless{}osclass\textgreater{} 
+definition
+
+\subsubsection{Specifying library object file names}
+
+\index{Library object file}Library object file names should only be specified for object files which will not be built in the current directory. For 
+object files built in the current directory, library source file names should be specified. See Specifying Library Source File 
+Names above.
+
+Object files which have filename with a ".o" or ".obj" suffix are defined as follows and can be specified without the suffix 
+but should have the directory prefix 
+
+\begin{description}\item \index{USR\_OBJS}USR\_OBJS += \textless{}name\textgreater{}
+
+\end{description}Object files will be used in builds of all products and libraries
+
+\begin{description}\item \verb|USR_OBJS_<osclass> += <name|\textgreater{}
+
+\end{description}Object files will be used in builds of all products and libraries for archs with the specified osclass.
+
+\begin{description}\item \verb|USR_OBJS_DEFAULT| += \textless{}name\textgreater{}
+
+\end{description}Object files will be used in builds of all products and libraries for archs without a USR\_OBJS\_\textless{}osclass\textgreater{} 
+definition specified.
+
+\begin{description}\item \index{LIB\_OBJS}LIB\_OBJS += \textless{}name\textgreater{}
+
+\end{description}Object files will be used in builds of all libraries.
+
+\begin{description}\item \verb|LIB_OBJS_<osclass> += <name|\textgreater{}
+
+\end{description}Object files will be used in builds of all libraries for archs of the specified osclass.
+
+\begin{description}\item \verb|LIB_OBJS_DEFAULT| += \textless{}name\textgreater{}
+
+\end{description}Object files will be used in builds of all libraries for archs without a LIB\_OBJS\_\textless{}osclass\textgreater{} definition 
+specified.
+
+\begin{description}\item \textless{}\index{name\_OBJS}libname\textgreater{}\_OBJS += \textless{}name\textgreater{}
+
+\end{description}Object files will be used for all builds of the named library)
+
+\begin{description}\item \verb|<libname>_OBJS_<osclass> += <name>| 
+
+\end{description}Object files will be used in builds of the library for archs with the specified osclass.
+
+\begin{description}\item \textless{}libname\textgreater{}\_OBJS\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}Object files will be used in builds of the library for archs without a \textless{}libname\textgreater{}\_OBJS\_\textless{}osclass\textgreater{} definition 
+specified.
+
+
+
+Combined object files, from R3.13 built modules and applications which have file names that do not include a ".o" or 
+".obj" suffix (e.g. xyzLib) are defined as follows:
+
+\begin{description}\item \index{USR\_OBJLIBS}USR\_OBJLIBS += \textless{}name\textgreater{}
+
+\end{description}Combined object files will be used in builds of all libraries and products.
+
+\begin{description}\item \verb|USR_OBJLIBS_<osclass> += <name|\textgreater{}
+
+\end{description}Combined object files will be used in builds of all libraries and products for archs of the specified osclass.
+
+\begin{description}\item \verb|USR_OBJLIBS_DEFAULT| += \textless{}name\textgreater{}
+
+\end{description}Combined object files will be used in builds of all libraries and products for archs without a 
+USR\_OBJLIBS\_\textless{}osclass\textgreater{} definition specified.
+
+
+
+\begin{description}\item \index{LIB\_OBJLIBS}LIB\_OBJLIBS += \textless{}name\textgreater{}
+
+\end{description}Combined object files will be used in builds of all libraries.
+
+\begin{description}\item \verb|LIB_OBJLIBS_<osclass> += <name|\textgreater{}
+
+\end{description}Combined object files will be used in builds of all libraries for archs of the specified osclass.
+
+\begin{description}\item \verb|LIB_OBJLIBS_DEFAULT| += \textless{}name\textgreater{}
+
+\end{description}Combined object files will be used in builds of all libraries for archs without a LIB\_OBJLIBS\_\textless{}osclass\textgreater{} 
+definition specified.
+
+
+
+\begin{description}\item \textless{}\index{name\_OBJLIBS}libname\textgreater{}\_OBJLIBS += \textless{}name\textgreater{}
+
+\end{description}Combined object files will be used for all builds of the named library.
+
+\begin{description}\item \verb|<libname>_OBJLIBS_<osclass> += <name>| 
+
+\end{description}Combined object files will be used in builds of the library for archs with the specified osclass.
+
+\begin{description}\item \textless{}libname\textgreater{}\_OBJLIBS\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}Combined object files will be used in builds of the library for archs without a 
+\textless{}libname\textgreater{}\_OBJLIBS\_\textless{}osclass\textgreater{} definition specified.
+
+
+
+\begin{description}\item \textless{}\index{name\_LDOBJS}libname\textgreater{}\_LDOBJS += \textless{}name\textgreater{}
+
+\end{description}Combined object files will be used for all builds of the named library. (deprecated)
+
+\begin{description}\item \verb|<libname>_LDOBJS_<osclass> += <name>| 
+
+\end{description}Combined object files will be used in builds of the library for archs with the specified osclass. (deprecated)
+
+\begin{description}\item \textless{}libname\textgreater{}\_LDOBJS\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}Combined object files will be used in builds of the library for archs without a \textless{}libname\textgreater{}\_OBJS\_\textless{}osclass\textgreater{} 
+definition specified. (deprecated)
+
+\subsubsection{ LIBOBJS definitions}
+
+\index{LIBOBJS}Previous versions of epics (3.13 and before) accepted definitions like:
+
+\begin{description}\item LIBOBJS += \$(\textless{}support\textgreater{}\_BIN)/xxx.o
+
+\end{description}These are gathered together in files such as baseLIBOBJS. To use such definitions include the lines:
+
+\begin{description}\item -include ../baseLIBOBJS
+
+\item \textless{}libname\textgreater{}\_OBJS += \$(LIBOBJS)
+
+\end{description}Note: vxWorks applications created by makeBaseApp.pl from base release R3.14.0alpha3 and later no longer have a file 
+named baseLIBOBJS. Base record and device support now exists in archive libraries.
+
+\subsubsection{Specifying dependant libraries to be linked when creating a library}
+
+\index{Specifying libraries dependancies}
+\index{product libraries}
+\index{libraries}For each library name specified which is not a system library nor a library from an EPICS top defined in the configure/
+RELEASE file, a \textless{}name\textgreater{}\_DIR definition must be present in the Makefile to specify the location of the library. 
+
+Library names, which must not have a directory and "lib" prefix nor a suffix, are defined as follows:
+
+\begin{description}\item \index{LIB\_LIBS}LIB\_LIBS += \textless{}name\textgreater{}
+
+\end{description}Libraries to be used when linking all defined libraries.
+
+\begin{description}\item LIB\_LIBS\_\textless{}osclass\textgreater{} += \textless{}name\textgreater{}
+
+\end{description}Libraries to be used or all archs of the specified osclass when linking all defined libraries.
+
+\begin{description}\item LIB\_LIBS\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}Libraries to be used for any arch that does not have a LIB\_LIBS\_\textless{}osclass\textgreater{} definition when linking all 
+defined libraries.
+
+
+
+\begin{description}\item \index{USR\_LIBS}USR\_LIBS += \textless{}name\textgreater{}
+
+\end{description}Libraries to be used when linking all defined products and libraries.
+
+\begin{description}\item USR\_LIBS\_\textless{}osclass\textgreater{} += \textless{}name\textgreater{}
+
+\end{description}Libraries to be used or all archs of the specified osclasswhen linking all defined products and libraries.
+
+\begin{description}\item USR\_LIBS\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}Libraries to be used for any arch that does not have a USR\_LIBS\_\textless{}osclass\textgreater{} definition when linking all 
+defined products and libraries.
+
+
+
+\begin{description}\item \textless{}\index{name\_LIBS}libname\textgreater{}\_LIBS += \textless{}name\textgreater{}
+
+\end{description}Libraries to be used for linking the named library.
+
+\begin{description}\item \textless{}libname\textgreater{}\_LIBS\_\textless{}osclass\textgreater{} += \textless{}name\textgreater{}
+
+\end{description}Libraries will be used for all archs of the specified osclass for linking named library.
+
+\begin{description}\item \verb|<libname>|\_LIBS\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}Libraries to be used for any arch that does not have a \textless{}libname\textgreater{}\_LIBS\_\textless{}osclass\textgreater{} definition when linking 
+named library.
+
+
+
+\begin{description}\item \textless{}\index{name\_SYS\_LIBS}libname\textgreater{}\_SYS\_LIBS += \textless{}name\textgreater{}
+
+\end{description}System libraries to be used for linking the named library.
+
+\begin{description}\item \textless{}libname\textgreater{}\_SYS\_LIBS\_\textless{}osclass\textgreater{} += \textless{}name\textgreater{}
+
+\end{description}System libraries will be used for all archs of the specified osclass for linking named library.
+
+\begin{description}\item \textless{}libname\textgreater{}\_SYS\_LIBS\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}System libraries to be used for any arch that does not have a \textless{}libname\textgreater{}\_LIBS\_\textless{}osclass\textgreater{} definition when 
+linking named library.
+
+\subsubsection{The order of dependant libraries}
+
+\index{Library link order}Dependant library names appear in the following order on a library link line:
+
+\begin{enumerate}\item \textless{}\index{name\_LIBS}libname\textgreater{}\_LIBS
+
+\item \textless{}libname\textgreater{}\_LIBS\_\textless{}osclass\textgreater{} or \textless{}libname\textgreater{}\_LIBS\_DEFAULT
+
+\item \index{LIB\_LIBS}LIB\_LIBS
+
+\item LIB\_LIBS\_\textless{}osclass\textgreater{} or LIB\_LIBS\_DEFAULT
+
+\item \index{USR\_LIBS}USR\_LIBS
+
+\item USR\_LIBS\_\textless{}osclass\textgreater{} or USR\_LIBS\_DEFAULT
+
+\item \textless{}\index{name\_SYS\_LIBS}libname\textgreater{}\_SYS\_LIBS
+
+\item \textless{}libname\textgreater{}\_SYS\_LIBS\_\textless{}osclass\textgreater{} or \textless{}libname\textgreater{}\_SYS\_LIBS\_DEFAULT
+
+\item \index{LIB\_SYS\_LIBS}LIB\_SYS\_LIBS
+
+\item LIB\_SYS\_LIBS\_\textless{}osclass\textgreater{} or LIB\_SYS\_LIBS\_DEFAULT
+
+\item \index{USR\_SYS\_LIBS}USR\_SYS\_LIBS
+
+\item USR\_SYS\_LIBS\_\textless{}osclass\textgreater{} or USR\_SYS\_LIBS\_DEFAULT
+
+\end{enumerate}\subsubsection{Specifying library DLL file names (deprecated)}
+
+WIN32 libraries require all external references to be resolved, so if a library contains references to items in other DLL 
+libraries, these DLL library names must be specified (without directory prefix and without ".dll" suffix) as follows:
+
+\begin{description}\item \index{DLL\_LIBS}DLL\_LIBS += \textless{}name\textgreater{}
+
+\end{description}These DLLs will be used for all libraries.
+
+\begin{description}\item \textless{}\index{name\_DLL\_LIBS}libname\textgreater{}\_DLL\_LIBS += \textless{}name\textgreater{}
+
+\end{description}These DLLs will be used for the named library.
+
+Each \textless{}name\textgreater{} must have a corresponding \textless{}name\textgreater{}\_DIR definition specifying its directory location.
+
+\subsubsection{Specifying shared library version number}
+
+\index{Library version number}A library version number can be specified when creating a shared library as follows:
+
+\begin{description}\item \index{SHRLIB\_VERSION}SHRLIB\_VERSION += \textless{}version\textgreater{}
+
+\end{description}On WIN32 this results in "/version:\$(SHRLIB\_VERSION)" link option. On Unix type hosts ".\$(SHRLIB\_VERSION)" is 
+appended to the shared library name and a symbolic link is created for the unversioned library name.  
+\$(EPICS\_VERSION).\$(EPICS\_REVISION) is the default value for SHRLIB\_VERSION.
+
+\subsubsection{Library example:}
+
+\index{Library example}\begin{description}\item LIBRARY\_vxWorks += vxWorksOnly
+
+\item LIBRARY\_IOC += iocOnly
+
+\item LIBRARY\_HOST += hostOnly
+
+\item LIBRARY += all
+
+\item 
+
+\item vxWorksOnly\_OBJS += \$(LINAC\_BIN)/vxOnly1
+
+\item vxWorksOnly\_SRCS += vxOnly2.c
+
+\item iocOnly\_OBJS += \$(LINAC\_BIN)/iocOnly1
+
+\item iocOnly\_SRCS += iocOnly2.cpp
+
+\item hostOnly\_OBJS +=  \$(LINAC\_BIN)/host1
+
+\item all\_OBJS += \$(LINAC\_BIN)/all1
+
+\item all\_SRCS += all2.cpp
+
+\end{description}If the architectures defined in \textless{}top\textgreater{}/configure are solaris-sparc and vxWorks-68040 and LINAC is defined in the \textless{}top\textgreater{}/
+CONFIGURE/RELEASE file, then the following libraries will be created:
+
+\begin{itemize}\item \$(INSTALL\_LOCATION)/bin/vxWork-68040/libvxWorksOnly.a : \$(LINAC\_BIN)/vxOnly1.o vxOnly2.o
+
+\item \$(INSTALL\_LOCATION)/bin/vxWork-68040/libiocOnly.a : \$(LINAC\_BIN/iocOnly1.o iocOnly2.o
+
+\item \$(INSTALL\_LOCATION)/lib/solaris-sparc/libiocOnly.a : \$(LINAC\_BIN)/iocOnly1.o iocOnly2.o
+
+\item \$(INSTALL\_LOCATION)/lib/solaris-sparc/libhostOnly.a : \$(LINAC\_BIN)/host1.o
+
+\item \$(INSTALL\_LOCATION)/bin/vxWork-68040/liball.a : \$(LINAC\_BIN)/all1.o all2.o
+
+\item \$(INSTALL\_LOCATION)/lib/solaris-sparc/liball.a : \$(LINAC\_BIN)/all1.o all2.o
+
+\end{itemize}\subsection{ Loadable libraries}
+
+\index{Loadable libraries}Loadable libraries are regular libraries which are not required to have all symbols resolved during the build. The intent is 
+to create dynamic plugins so no archive library is created. Source file, object files, and dependant libraries are specified in 
+exactly the same way as for regular libraries.
+
+Any of the following can be specified:
+
+\begin{description}\item \index{LOADABLE\_LIBRARY}LOADABLE\_LIBRARY += \textless{}name\textgreater{}
+
+\end{description}The \textless{}name\textgreater{} loadable library will be created for every target arch.
+
+\begin{description}\item LOADABLE\_LIBRARY\_\textless{}osclass\textgreater{} += \textless{}name\textgreater{}
+
+\end{description}Loadable library \textless{}name\textgreater{} will be created for all archs of the specified osclass.
+
+\begin{description}\item LOADABLE\_LIBRARY\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}Loadable library \textless{}name\textgreater{} will be created for any arch that does not have a 
+LOADABLE\_LIBRARY\_\textless{}osclass\textgreater{} definition
+
+
+
+\begin{description}\item \index{LOADABLE\_LIBRARY\_HOST}LOADABLE\_LIBRARY\_HOST += \textless{}name\textgreater{}
+
+\end{description}Loadable library \textless{}name\textgreater{} will be created for HOST type archs.
+
+\begin{description}\item LOADABLE\_LIBRARY\_HOST\_\textless{}osclass\textgreater{} += \textless{}name\textgreater{}
+
+\end{description}Loadable library \textless{}name\textgreater{} will be created for all HOST type archs of the specified osclass.
+
+\begin{description}\item LOADABLE\_LIBRARY\_HOST\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}Loadable library \textless{}name\textgreater{} will be created for any HOST type arch that does not have a 
+LOADABLE\_LIBRARY\_HOST\_\textless{}osclass\textgreater{} definition
+
+\subsection{ Combined object libraries (VxWorks only)}
+
+\index{Loadable libraries}Combined object libraries are regular combined object files which have been created by linking together multiple object 
+files. OBJLIB specifications in the Makefile create a combined object file and a corresponding munch file for vxWorks 
+target architectures only. Combined object libraries have a Library.o suffix. It is possible to generate and install combined 
+object libraries by using definitions:
+
+\begin{verbatim}OBJLIB += <name>
+OBJLIB_vxWorks += <name>
+OBJLIB_SRCS += <srcname1> <srcname2> ...
+OBJLIB_OBJS += <objname1> <objname2> ...
+\end{verbatim}\index{OBJLIB}
+\index{OBJLIB\_SRCS}
+\index{OBJLIB\_OBJS}These definitions result in the combined object file \textless{}name\textgreater{}Library.o and its corresponding \textless{}name\textgreater{}Library.munch munch 
+file being built for each vxWorks architecture from source/object files in the OBJLIB\_SRCS/OBJLIB\_OBJS definitions. 
+The combined object file and the munch file are installed into the \$(INSTALL\_LOCATION)/bin/\textless{}arch\textgreater{} directory. 
+
+\subsection{Object Files}
+
+\index{Object Files}It is possible to generate and install object files by using definitions:
+
+\begin{description}\item \index{OBJS}OBJS += \textless{}name\textgreater{}
+
+\item OBJS\_\textless{}osclass\textgreater{} += \textless{}name\textgreater{}
+
+\item OBJS\_DEFAULT += \textless{}name\textgreater{}
+
+\item \index{OBJS\_IOC}OBJS\_IOC += \textless{}name\textgreater{}
+
+\item OBJS\_IOC\_\textless{}osclass\textgreater{} += \textless{}name\textgreater{}
+
+\item OBJS\_IOC\_DEFAULT += \textless{}name\textgreater{}
+
+\item \index{OBJS\_HOST}OBJS\_HOST += \textless{}name\textgreater{}
+
+\item OBJS\_HOST\_\textless{}osclass\textgreater{} += \textless{}name\textgreater{}
+
+\item OBJS\_HOST\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}These will cause the specified file to be generated from an existing source file for the appropriate target arch and installed 
+into \$(INSTALL\_LOCATION)/bin/\textless{}target\_arch\textgreater{}. 
+
+The following Makefile will create the abc object file for all target architectures, the def object file for all target archs 
+except vxWorks, and the xyz object file only for the vxWorks target architecture and install them into the appropriate 
+\$(INSTALL\_LOCATION)/bin/\textless{}arch\textgreater{} directory.
+
+\begin{verbatim}TOP=../../..
+include $(TOP)/configure/CONFIG
+OBJS += abc
+OBJS_vxWorks += xyz
+OBJS_DEFAULT += def
+include $(TOP)/configure/RULES
+\end{verbatim}\subsection{State Notation Programs}
+
+\index{State Notation Programs}A state notation program file can be specified as a source file in any SRC definition. For example:
+
+\begin{verbatim}<prodname>_SRCS += <name>.stt
+\end{verbatim}\index{name\_SRCS}The state notation compiler \verb|snc| will generate the file \verb|<name>.c| from the state notation program file \verb|<name>.stt|. 
+This C file is compiled and the resulting object file is linked into the \verb|<prodname>| product.
+
+A state notation source file must have the extension \verb|.st |or \verb|.stt|. The \verb|.st| file is passed through the C preprocessor 
+before it is processed by \verb|snc|.
+
+If you have state notation language source files (\verb|.stt| and \verb|.st| files),  the module seq must be built and SNCSEQ defined 
+in the RELEASE file. If the state notation language source files require c preprocessing before conversion to c source 
+(\verb|.st| files), gcc must be in your path.
+
+\subsection{Scripts, etc.}
+
+\index{Scripts}Any of the following can be specified:
+
+\begin{description}\item \index{SCRIPT}SCRIPTS += \textless{}name\textgreater{}
+
+\end{description}A script will be installed from the src directory to the \$(INSTALL\_LOCATION)/bin/\textless{}arch\textgreater{} directories.
+
+\begin{description}\item SCRIPTS\_\textless{}osclass\textgreater{} += \textless{}name\textgreater{}
+
+\end{description}Script \textless{}name\textgreater{} will be installed for all archs of the specified osclass.
+
+\begin{description}\item SCRIPTS\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}Script \textless{}name\textgreater{} will be installed for any arch that does not have a SCRIPTS\_\textless{}osclass\textgreater{} definition
+
+\begin{description}\item \index{SCRIPT\_IOC}SCRIPTS\_IOC += \textless{}name\textgreater{}
+
+\end{description}Script \textless{}name\textgreater{} will be installed for IOC type archs.
+
+\begin{description}\item SCRIPTS\_IOC\_\textless{}osclass\textgreater{} += \textless{}name\textgreater{}
+
+\end{description}Script \textless{}name\textgreater{} will be installed for all IOC type archs of the specified osclass.
+
+\begin{description}\item SCRIPTS\_IOC\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}Script \textless{}name\textgreater{} will be installed for any IOC type arch that does not have a SCRIPTS\_IOC\_\textless{}osclass\textgreater{} 
+definition
+
+\begin{description}\item \index{SCRIPT\_HOST}SCRIPTS\_HOST += \textless{}name\textgreater{}
+
+\end{description}Script \textless{}name\textgreater{} will be installed for HOST type archs.
+
+\begin{description}\item SCRIPTS\_HOST\_\textless{}osclass\textgreater{} += \textless{}name\textgreater{}
+
+\end{description}Script \textless{}name\textgreater{} will be installed for all HOST type archs of the specified osclass.
+
+\begin{description}\item SCRIPTS\_HOST\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}Script \textless{}name\textgreater{} will be installed for any HOST type arch that does not have a SCRIPTS\_HOST\_\textless{}osclass\textgreater{} 
+definition
+
+Definitions of the form:
+
+\begin{verbatim}SCRIPTS_<osclass> += <name1>
+SCRIPTS_DEFAULT += <name2>
+\end{verbatim}results in the \textless{}name1\textgreater{} script being installed from the src directory to the \$(INSTALL\_LOCATION)/bin/\textless{}arch\textgreater{} 
+directories for all target archs of the specified os class \textless{}osclass\textgreater{} and the \textless{}name2\textgreater{} script installed into the 
+\$(INSTALL\_LOCATION)/bin/\textless{}arch\textgreater{} directories of all other target archs.
+
+\subsection{Include files}
+
+\index{Include files}A definition of the form:
+
+\begin{verbatim}INC += <name>.h
+\end{verbatim}\index{INC}results in file \textless{}name\textgreater{}.h being installed or created and installed to the \$(INSTALL\_LOCATION)/include directory. 
+
+Definitions of the form:
+
+\begin{verbatim}INC_DEFAULT += <name>.h
+INC_<osclass> += <name>.h
+\end{verbatim}results in file \textless{}name\textgreater{}.h being installed or created and installed into the appropriate \$(INSTALL\_LOCATION)/include/
+os/\textless{}osclass\textgreater{} directory.
+
+\subsection{Html and Doc files}
+
+\index{Html}
+\index{Doc file}A definition of the form:
+
+\begin{verbatim}HTMLS_DIR = <dirname>
+HTMLS += <name>
+\end{verbatim}\index{HTMLS}results in file \textless{}name\textgreater{} being installed from the src directory to the \$(INSTALL\_LOCATION)/html/\textless{}dirname\textgreater{} directory. 
+
+A definition of the form:
+
+\begin{verbatim}DOCS += <name>
+\end{verbatim}\index{DOCS}results in file \textless{}name\textgreater{} being installed from the src directory to the \$(INSTALL\_LOCATION)/doc directory. 
+
+\subsection{Templates}
+
+\index{Templates}Adding definitions of the form
+
+\begin{verbatim}TEMPLATES_DIR = <dirname>
+TEMPLATES += <name>
+\end{verbatim}\index{TEMPLATES}results in the file \textless{}name\textgreater{} being installed from the src directory to the \$(INSTALL\_LOCATION)/templates/\textless{}dirname\textgreater{} 
+directory. If a directory structure of template files is to be installed, the template file names may include a directory prefix.
+
+\subsection{Lex and yac}
+
+\index{Lex and yac}If a \textless{}name\textgreater{}.c source file specified in a Makefile definition is not found in the source directory, gnumake will try to build 
+it from \textless{}name\textgreater{}.y and \textless{}name\textgreater{}\_lex.l files in the source directory. Lex converts a \textless{}name\textgreater{}.l Lex code file to a lex.yy.c file 
+which the build rules renames to \textless{}name\textgreater{}.c. Yacc converts a \textless{}name\textgreater{}.y yacc code file to a y.tab.c file, which the build 
+rules renames to \textless{}name\textgreater{}.c. Optionally yacc can create a y.tab.h file which the build rules renames to \textless{}name\textgreater{}.h.
+
+\subsection{Products}
+
+\index{Products}A product executable is created for each \textless{}arch\textgreater{} and installed into \$(INSTALL\_LOCATION)/bin/\textless{}arch\textgreater{} by specifying its 
+name and the name of either the object or source files containing code for the product. An object or source file name can 
+appear with or without a directory prefix. Object files should contain a directory prefix. If the file has a directory prefix 
+e.g. \$(EPICS\_BASE\_BIN), the file is taken from the specified location. If a directory prefix is not present, make will look 
+in the source directories for a file with the specified name or try build it using existing rules. An executable filename 
+suffix appropriate for the target arch (e.g. .exe) may be appended to the filename when the file is created.
+
+PROD specifications in the Makefile for vxWorks target architectures create a combined object file with library 
+references resolved and a corresponding .munch file.
+
+\begin{verbatim}PROD_HOST += <name>
+<name>_SRC += <srcname>.c
+\end{verbatim}results in the executable \textless{}name\textgreater{} being built for each HOST architecture,  \textless{}arch\textgreater{}, from a \textless{}srcname\textgreater{}.c file. Then \textless{}name\textgreater{} 
+is installed into the \$(INSTALL\_LOCATION)/bin/\textless{}arch\textgreater{} directory. 
+
+\subsubsection{Specifying the product name.}
+
+\index{product name}Any of the following can be specified:
+
+\begin{description}\item \index{PROD}PROD += \textless{}name\textgreater{}
+
+\end{description}Product \textless{}name\textgreater{} will be created for every target arch.
+
+\begin{description}\item PROD\_\textless{}osclass\textgreater{} += \textless{}name\textgreater{}
+
+\end{description}Product \textless{}name\textgreater{} will be created for all archs of the specified osclass.
+
+\begin{description}\item PROD\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}Product \textless{}name\textgreater{} will be created for any arch that does not have a PROD\_\textless{}osclass\textgreater{} definition
+
+
+
+\begin{description}\item \index{PROD\_IOC}PROD\_IOC += \textless{}name\textgreater{}
+
+\end{description}Product \textless{}name\textgreater{} will be created for IOC type archs.
+
+\begin{description}\item PROD\_IOC\_\textless{}osclass\textgreater{} += \textless{}name\textgreater{}
+
+\end{description}Product \textless{}name\textgreater{} will be created for all IOC type archs of the specified osclass.
+
+\begin{description}\item PROD\_IOC\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}Product \textless{}name\textgreater{} will be created for any IOC type arch that does not have a PROD\_IOC\_\textless{}osclass\textgreater{} 
+definition
+
+
+
+\begin{description}\item \index{PROD\_HOST}PROD\_HOST += \textless{}name\textgreater{}
+
+\end{description}Product \textless{}name\textgreater{} will be created for HOST type archs.
+
+\begin{description}\item PROD\_HOST\_\textless{}osclass\textgreater{} += \textless{}name\textgreater{}
+
+\end{description}Product \textless{}name\textgreater{} will be created for all HOST type archs of the specified osclass.
+
+\begin{description}\item PROD\_HOST\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}Product \textless{}name\textgreater{} will be created for any HOST type arch that does not have a PROD\_HOST\_\textless{}osclass\textgreater{} 
+definition
+
+\subsubsection{Specifying product object file names}
+
+\index{product object file}Object files which have filenames with a ".o" or ".obj" suffix are defined as follows and can be specified without the 
+suffix but should have the directory prefix 
+
+\begin{description}\item \index{USR\_OBJS}USR\_OBJS += \textless{}name\textgreater{}
+
+\end{description}Object files will be used in builds of all products and libraries
+
+\begin{description}\item \verb|USR_OBJS_<osclass> += <name|\textgreater{}
+
+\end{description}Object files will be used in builds of all products and libraries for archs with the specified osclass.
+
+\begin{description}\item \verb|USR_OBJS_DEFAULT| += \textless{}name\textgreater{}
+
+\end{description}Object files will be used in builds of all products and libraries for archs without a USR\_OBJS\_\textless{}osclass\textgreater{} 
+definition specified.
+
+\begin{description}\item \index{PROD\_OBJS}PROD\_OBJS += \textless{}name\textgreater{}
+
+\end{description}Object files will be used in builds of all products
+
+\begin{description}\item \verb|PROD_OBJS_<osclass> += <name|\textgreater{}
+
+\end{description}Object files will be used in builds of all products for archs with the specified osclass.
+
+\begin{description}\item \verb|PROD_OBJS_DEFAULT| += \textless{}name\textgreater{}
+
+\end{description}Object files will be used in builds of all products for archs without a PROD\_OBJS\_\textless{}osclass\textgreater{} definition 
+specified.
+
+\begin{description}\item \textless{}\index{name\_OBJS}prodname\textgreater{}\_OBJS += \textless{}name\textgreater{}
+
+\end{description}Object files will be used for all builds of the named product
+
+\begin{description}\item \verb|<prodname>_OBJS_<osclass> += <name>| 
+
+\end{description}Object files will be used in builds of the named product for archs with the specified osclass.
+
+\begin{description}\item \textless{}prodname\textgreater{}\_OBJS\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}Object files will be used in builds of the named product for archs without a \textless{}prodname\textgreater{}\_OBJS\_\textless{}osclass\textgreater{} 
+definition specified.
+
+Combined object files, from R3.13 built modules and applications which have file names that do not include a ".o" or 
+".obj" suffix (e.g. xyzLib) are defined as follows:
+
+\begin{description}\item \index{USR\_OBJLIBS}USR\_OBJLIBS += \textless{}name\textgreater{}
+
+\end{description}Combined object files will be used in builds of all libraries and products.
+
+\begin{description}\item \verb|USR_OBJLIBS_<osclass> += <name|\textgreater{}
+
+\end{description}Combined object files will be used in builds of all libraries and products for archs of the specified osclass.
+
+\begin{description}\item \verb|USR_OBJLIBS_DEFAULT| += \textless{}name\textgreater{}
+
+\end{description}Combined object files will be used in builds of all libraries and products for archs without a 
+USR\_OBJLIBS\_\textless{}osclass\textgreater{} definition specified.
+
+
+
+\begin{description}\item \index{PROD\_OBJLIBS}PROD\_OBJLIBS += \textless{}name\textgreater{}
+
+\end{description}Combined object files will be used in builds of all products.
+
+\begin{description}\item \verb|PROD_OBJLIBS_<osclass> += <name|\textgreater{}
+
+\end{description}Combined object files will be used in builds of all products for archs of the specified osclass.
+
+\begin{description}\item \verb|PROD_OBJLIBS_DEFAULT| += \textless{}name\textgreater{}
+
+\end{description}Combined object files will be used in builds of all products for archs without a PROD\_OBJLIBS\_\textless{}osclass\textgreater{} 
+definition specified.
+
+
+
+\begin{description}\item \textless{}\index{name\_OBJLIBS}prodname\textgreater{}\_OBJLIBS += \textless{}name\textgreater{}
+
+\end{description}Combined object files will be used for all builds of the named product.
+
+\begin{description}\item \verb|<prodname>_OBJLIBS_<osclass> += <name>| 
+
+\end{description}Combined object files will be used in builds of the named product for archs with the specified osclass.
+
+\begin{description}\item \textless{}prodname\textgreater{}\_OBJLIBS\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}Combined object files will be used in builds of the named product for archs without a 
+\textless{}prodname\textgreater{}\_OBJLIBS\_\textless{}osclass\textgreater{} definition specified.
+
+
+
+\begin{description}\item \textless{}\index{name\_LDOBJS}prodname\textgreater{}\_LDOBJS += \textless{}name\textgreater{}
+
+\end{description}Object files will be used for all builds of the named product. (deprecated)
+
+\begin{description}\item \verb|<prodname>_LDOBJS_<osclass> += <name>| 
+
+\end{description}Object files will be used in builds of the name product for archs with the specified osclass. (deprecated)
+
+\begin{description}\item \textless{}prodname\textgreater{}\_LDOBJS\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}Object files will be used in builds of the product for archs without a \textless{}prodname\textgreater{}\_LDOBJS\_\textless{}osclass\textgreater{} 
+definition specified. (deprecated)
+
+\subsubsection{Specifying product source file names}
+
+\index{product source file}Source file names, which must have a suffix, are defined as follows:
+
+\begin{description}\item \index{SRCS}SRCS += \textless{}name\textgreater{}
+
+\end{description}Source files will be used for all defined libraries and products.
+
+\begin{description}\item SRCS\_\textless{}osclass\textgreater{} += \textless{}name\textgreater{}
+
+\end{description}Source files will be used for all defined libraries and products for all archs of the specified osclass.
+
+\begin{description}\item SRCS\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}Source files will be used for all defined libraries and products for any arch that does not have a 
+SRCS\_\textless{}osclass\textgreater{} definition
+
+
+
+\begin{description}\item \index{USR\_SRCS}USR\_SRCS += \textless{}name\textgreater{}
+
+\end{description}Source files will be used for all products and libraries.
+
+\begin{description}\item USR\_SRCS\_\textless{}osclass\textgreater{} += \textless{}name\textgreater{}
+
+\end{description}Source files will be used for all defined products and libraries for all archs of the specified osclass.
+
+\begin{description}\item USR\_SRCS\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}Source files will be used for all defined products and libraries for any arch that does not have a 
+USR\_SRCS\_\textless{}osclass\textgreater{} definition
+
+
+
+\begin{description}\item \index{PROD\_SRCS}PROD\_SRCS += \textless{}name\textgreater{}
+
+\end{description}Source files will be used for all products.
+
+\begin{description}\item PROD\_SRCS\_\textless{}osclass\textgreater{} += \textless{}name\textgreater{}
+
+\end{description}Source files will be used for all defined products for all archs of the specified osclass.
+
+\begin{description}\item PROD\_SRCS\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}Source files will be used for all defined products for any arch that does not have a PROD\_SRCS\_\textless{}osclass\textgreater{} 
+definition
+
+
+
+\begin{description}\item \textless{}\index{name\_SRCS}prodname\textgreater{}\_SRCS += \textless{}name\textgreater{}
+
+\end{description}Source file will be used for the named product.
+
+\begin{description}\item \textless{}prodname\textgreater{}\_SRCS\_\textless{}osclass\textgreater{} += \textless{}name\textgreater{}
+
+\end{description}Source files will be used for named product for all archs of the specified osclass.
+
+\begin{description}\item \verb|<prodname>|\_SRCS\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}Source files will be used for named product for any arch that does not have a \textless{}prodname\textgreater{}\_SRCS\_\textless{}osclass\textgreater{} 
+definition
+
+\subsubsection{Specifying libraries to be linked when creating the product}
+
+\index{Specifying libraries}
+\index{product libraries}For each library name specified which is not a system library nor a library from EPICS\_BASE, a \textless{}name\textgreater{}\_DIR definition 
+must be present in the Makefile to specify the location of the library. 
+
+Library names, which must not have a directory and "lib" prefix nor a suffix, are defined as follows:
+
+\begin{description}\item \index{PROD\_LIBS}\index{PROD\_LIBS}PROD\_LIBS += \textless{}name\textgreater{}
+
+\end{description}Libraries to be used when linking all defined products.
+
+\begin{description}\item PROD\_LIBS\_\textless{}osclass\textgreater{} += \textless{}name\textgreater{}
+
+\end{description}Libraries to be used or all archs of the specified osclass when linking all defined products.
+
+\begin{description}\item PROD\_LIBS\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}Libraries to be used for any arch that does not have a PROD\_LIBS\_\textless{}osclass\textgreater{} definition when linking all 
+defined products.
+
+
+
+\begin{description}\item \index{USR\_LIBS}USR\_LIBS += \textless{}name\textgreater{}
+
+\end{description}Libraries to be used when linking all defined products.
+
+\begin{description}\item USR\_LIBS\_\textless{}osclass\textgreater{} += \textless{}name\textgreater{}
+
+\end{description}Libraries to be used or all archs of the specified osclasswhen linking all defined products.
+
+\begin{description}\item USR\_LIBS\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}Libraries to be used for any arch that does not have a USR\_LIBS\_\textless{}osclass\textgreater{} definition when linking all 
+defined products.
+
+
+
+\begin{description}\item \textless{}\index{name\_LIBS}prodname\textgreater{}\_LIBS += \textless{}name\textgreater{}
+
+\end{description}Libraries to be used for linking the named product.
+
+\begin{description}\item \textless{}prodname\textgreater{}\_LIBS\_\textless{}osclass\textgreater{} += \textless{}name\textgreater{}
+
+\end{description}Libraries will be used for all archs of the specified osclass for linking named product.
+
+\begin{description}\item \verb|<prodname>|\_LIBS\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}Libraries to be used for any arch that does not have a \textless{}prodname\textgreater{}\_LIBS\_\textless{}osclass\textgreater{} definition when linking 
+named product.
+
+
+
+\begin{description}\item \index{SYS\_PROD\_LIBS}\index{SYS\_PROD\_LIBS}SYS\_PROD\_LIBS += \textless{}name\textgreater{}
+
+\end{description}System libraries to be used when linking all defined products.
+
+\begin{description}\item SYS\_PROD\_LIBS\_\textless{}osclass\textgreater{} += \textless{}name\textgreater{}
+
+\end{description}System libraries to be used for all archs of the specified osclass when linking all defined products.
+
+\begin{description}\item SYS\_PROD\_LIBS\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}System libraries to be used for any arch that does not have a PROD\_LIBS\_\textless{}osclass\textgreater{} definition when 
+linking all defined products.
+
+
+
+\begin{description}\item \textless{}\index{name\_SYS\_LIBS}prodname\textgreater{}\_SYS\_LIBS += \textless{}name\textgreater{}
+
+\end{description}System libraries to be used for linking the named product.
+
+\begin{description}\item \textless{}prodname\textgreater{}\_SYS\_LIBS\_\textless{}osclass\textgreater{} += \textless{}name\textgreater{}
+
+\end{description}System libraries will be used for all archs of the specified osclass for linking named product.
+
+\begin{description}\item \textless{}prodname\textgreater{}\_SYS\_LIBS\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}System libraries to be used for any arch that does not have a \textless{}prodname\textgreater{}\_LIBS\_\textless{}osclass\textgreater{} definition when 
+linking named product.
+
+\subsubsection{The order of dependant libraries}
+
+\index{Product link order}Dependant library names appear in the following order on a product link line:
+
+\begin{enumerate}\item \textless{}\index{name\_LIBS}prodname\textgreater{}\_LIBS
+
+\item \textless{}prodname\textgreater{}\_LIBS\_\textless{}osclass\textgreater{} or \textless{}prodname\textgreater{}\_LIBS\_DEFAULT
+
+\item \index{PROD\_LIBS}PROD\_LIBS
+
+\item PROD\_LIBS\_\textless{}osclass\textgreater{} or PROD\_LIBS\_DEFAULT
+
+\item \index{USR\_LIBS}USR\_LIBS
+
+\item USR\_LIBS\_\textless{}osclass\textgreater{} or USR\_LIBS\_DEFAULT
+
+\item \textless{}\index{name\_SYS\_LIBS}prodname\textgreater{}\_SYS\_LIBS
+
+\item \textless{}prodname\textgreater{}\_SYS\_LIBS\_\textless{}osclass\textgreater{} or \textless{}prodname\textgreater{}\_SYS\_LIBS\_DEFAULT
+
+\item \index{PROD\_SYS\_LIBS}PROD\_SYS\_LIBS
+
+\item PROD\_SYS\_LIBS\_\textless{}osclass\textgreater{} or PROD\_SYS\_LIBS\_DEFAULT
+
+\item \index{USR\_SYS\_LIBS}USR\_SYS\_LIBS
+
+\item USR\_SYS\_LIBS\_\textless{}osclass\textgreater{} or USR\_SYS\_LIBS\_DEFAULT
+
+\end{enumerate}\subsubsection{Specifying product version number}
+
+\index{product version number}On WIN32 only a product version number can be specified as follows:
+
+\begin{description}\item \index{PROD\_VERSION}PROD\_VERSION += \textless{}version\textgreater{}
+
+\end{description}This results in "/version:\$(PROD\_VERSION)" link option.
+
+\subsubsection{Product static builds}
+
+\index{static builds}
+\index{product version number}Product executables can be linked with either archive versions or shared versions of EPICS libraries. Shared versions of 
+system libraries will always be used in product linking. The definition of \index{STATIC\_BUILD}STATIC\_BUILD (YES/NO) in base/configure/
+CONFIG\_SITE determines which EPICS libraries to use. When STATIC\_BUILD is NO, shared libraries will be used.  
+(\index{SHARED\_LIBRARIES}SHARED\_LIBRARIES must be set to YES.) The default definition for STATIC\_BUILD in the EPICS base 
+CONFIG\_SITE distribution file is NO. A STATIC\_BUILD definition in a Makefile will \index{override}override the definition in 
+CONFIG\_SITE.Static builds may not be possible on all systems. For static builds, all nonsystem libraries must have an 
+archive version, and this may not be true form all libraries.
+
+\subsection{Test Products}
+
+\index{Test Products}Test products are product executables that are created but not installed into \$(INSTALL\_LOCATION)/bin/\textless{}arch\textgreater{} 
+directories. Test product libraries, source, and object files are specified in exactly the same way as regular products. 
+
+Any of the following can be specified:
+
+\begin{description}\item \index{TESTPROD}TESTPROD += \textless{}name\textgreater{}
+
+\end{description}Test product \textless{}name\textgreater{} will be created for every target arch.
+
+\begin{description}\item TESTPROD\_\textless{}osclass\textgreater{} += \textless{}name\textgreater{}
+
+\end{description}Test product \textless{}name\textgreater{} will be created for all archs of the specified osclass.
+
+\begin{description}\item TESTPROD\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}Test product \textless{}name\textgreater{} will be created for any arch that does not have a TESTPROD\_\textless{}osclass\textgreater{} definition
+
+\begin{description}\item 
+
+\item \index{TESTPROD\_IOC}TESTPROD\_IOC += \textless{}name\textgreater{}
+
+\end{description}Test product \textless{}name\textgreater{} will be created for IOC type archs.
+
+\begin{description}\item TESTPROD\_IOC\_\textless{}osclass\textgreater{} += \textless{}name\textgreater{}
+
+\end{description}Test product \textless{}name\textgreater{} will be created for all IOC type archs of the specified osclass.
+
+\begin{description}\item TESTPROD\_IOC\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}Test product \textless{}name\textgreater{} will be created for any IOC type arch that does not have a 
+TESTPROD\_IOC\_\textless{}osclass\textgreater{} definition
+
+
+
+\begin{description}\item \index{TESTPROD\_HOST}TESTPROD\_HOST += \textless{}name\textgreater{}
+
+\end{description}Test product \textless{}name\textgreater{} will be created for HOST type archs.
+
+\begin{description}\item TESTPROD\_HOST\_\textless{}osclass\textgreater{} += \textless{}name\textgreater{}
+
+\end{description}Test product \textless{}name\textgreater{} will be created for all HOST type archs of the specified osclass.
+
+\begin{description}\item TESTPROD\_HOST\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}Test product \textless{}name\textgreater{} will be created for any HOST type arch that does not have a 
+TESTPROD\_HOST\_\textless{}osclass\textgreater{} definition
+
+\subsection{Test Scripts}
+
+\index{Test Scripts}Test scripts are perl scripts whose names end in \verb|.t| that get executed to satisfy the \verb|runtests| make target. They are run 
+by the perl Test::Harness library, and should send output to stdout following the Test Anything Protocol. Any of the 
+following can be specified, although only TESTSCRIPTS\_HOST is currently useful:
+
+\begin{description}\item \index{TESTSCRIPTS}TESTSCRIPTS += \textless{}name\textgreater{}
+
+\end{description}Test script \textless{}name\textgreater{} will be created for every target arch.
+
+\begin{description}\item TESTSCRIPTS\_\textless{}osclass\textgreater{} += \textless{}name\textgreater{}
+
+\end{description}Test script \textless{}name\textgreater{} will be created for all archs of the specified osclass.
+
+\begin{description}\item TESTSCRIPTS\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}Test script \textless{}name\textgreater{} will be created for any arch that does not have a TESTSCRIPTS\_\textless{}osclass\textgreater{} definition
+
+\begin{description}\item 
+
+\item \index{TESTSCRIPTS\_IOC}TESTSCRIPTS\_IOC += \textless{}name\textgreater{}
+
+\end{description}Test script \textless{}name\textgreater{} will be created for IOC type archs.
+
+\begin{description}\item TESTSCRIPTS\_IOC\_\textless{}osclass\textgreater{} += \textless{}name\textgreater{}
+
+\end{description}Test script \textless{}name\textgreater{} will be created for all IOC type archs of the specified osclass.
+
+\begin{description}\item TESTSCRIPTS\_IOC\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}Test script \textless{}name\textgreater{} will be created for any IOC type arch that does not have a 
+TESTSCRIPTS\_IOC\_\textless{}osclass\textgreater{} definition
+
+
+
+\begin{description}\item \index{TESTSCRIPTS\_HOST}TESTSCRIPTS\_HOST += \textless{}name\textgreater{}
+
+\end{description}Test script \textless{}name\textgreater{} will be created for HOST type archs.
+
+\begin{description}\item TESTSCRIPTS\_HOST\_\textless{}osclass\textgreater{} += \textless{}name\textgreater{}
+
+\end{description}Test script \textless{}name\textgreater{} will be created for all HOST type archs of the specified osclass.
+
+\begin{description}\item TESTSCRIPTS\_HOST\_DEFAULT += \textless{}name\textgreater{}
+
+\end{description}Test script \textless{}name\textgreater{} will be created for any HOST type arch that does not have a 
+TESTSCRIPTS\_HOST\_\textless{}osclass\textgreater{} definition.
+
+If a name in one of the above variables matches a regular executable program name (normally generated as a test product) 
+with "\verb|.t|" appended, a suitable perl script will be generated that will execute that program directly; this makes it simple to 
+run programs that use the epicsUnitTest routines in libCom.  A test script written in Perl with a name ending \verb|.plt| will be 
+copied into the O.\textless{}arch\textgreater{} directory with the ending changed to \verb|.t|; such scripts will usually use the perl Test::Simple or 
+Test::More libraries.
+
+\subsection{Miscellaneous Targets}
+
+A definition of the form:
+
+\begin{verbatim}TARGETS += <name>
+\end{verbatim}\index{TARGETS}results in the file \textless{}name\textgreater{} being built in the O.\textless{}arch\textgreater{} directory from existing rules and files in the source directory. These 
+target files are not installed.
+
+\subsection{Installing Other Binaries}
+
+\index{Installing Other Binaries}Definitions of the form:
+
+\begin{verbatim}BIN_INSTALLS += <name>
+BIN_INSTALLS += <dir>/<name>
+BIN_INSTALLS_DEFAULT += <name>
+BIN_INSTALLS_<osclass> += <name>
+\end{verbatim}\index{BIN\_INSTALLS}will result in the named files being installed to the appropriate \$(INSTALL\_LOCATION)/bin/\textless{}arch\textgreater{} directory. The file 
+\textless{}name\textgreater{} can appear with or without a directory prefix. If the file has a directory prefix e.g. \$(EPICS\_BASE\_BIN), it is 
+copied from the specified location. If a directory prefix is not present, make will look in the source directory for the file.
+
+\subsection{Installing Other Libraries}
+
+\index{Installing Other Libraries}Definitions of the form:
+
+\begin{verbatim}LIB_INSTALLS += <name>
+LIB_INSTALLS += <dir>/<name>
+LIB_INSTALLS_DEFAULT += <name>
+LIB_INSTALLS_<osclass> += <name>
+\end{verbatim}\index{LIB\_INSTALLS}result in files being installed to the appropriate \$(INSTALL\_LOCATION)/lib/\textless{}arch\textgreater{} directory. The file \textless{}name\textgreater{} can 
+appear with or without a directory prefix. If the file has a directory prefix e.g. \$(EPICS\_BASE\_LIB), it is copied from the 
+specified location. If a directory prefix is not present, make will look in the source directory for the file.
+
+\subsection{Win32 resource files}
+
+\index{resource files}Definitions of the form:
+
+\begin{verbatim}RCS += <name>   Resource definition script files for all products and libraries.
+RCS_<osclass> += <name>
+
+PROD_RCS += <name> Resource definition script files for all products.
+PROD_RCS_<osclass> += <name>
+PROD_RCS_DEFAULT += <name>
+
+LIB_RCS += <name> Resource definition script files for all libraries.
+LIB_RCS_<osclass> += <name>
+LIB_RCS_DEFAULT += <name>
+
+<name>_RCS += <name> Resource definition script files for specified product or library.
+<name>_RCS_<osclass> += <name>
+<name>_RCS_DEFAULT += <name>
+
+\end{verbatim}\index{RCS}
+\index{PROD\_RCS}
+\index{LIB\_RCS}
+\index{name\_RCS}result in resource files (*.res files) being created from the specified *.rc resource definition script files and linked into the 
+prods and/or libraries.
+
+\subsection{TCL libraries}
+
+\index{TCL libraries}Definitions of the form:
+
+\begin{verbatim}TCLLIBNAME += <name>
+TCLINDEX += <name>
+\end{verbatim}\index{TCLLIBNAME}
+\index{TCLINDEX}result in the specified tcl files being installed to the \$(INSTALL\_LOCATION)/lib/\textless{}arch\textgreater{} directory.
+
+\subsection{Java class files}
+
+\index{Java class files}Java class files can be created by the javac tool into \$(INSTALL\_JAVA) or into the O.Common subdirectory, by 
+specifying the name of the java class file in the Makefile. Command line options for the javac tool can be specified. The 
+configuration files set the java c option "-sourcepath .:..:../..".
+
+Any of the following can be specified:
+
+\begin{description}\item \index{JAVA}JAVA += \textless{}name\textgreater{}.java
+
+\end{description}The \textless{}name\textgreater{}.java file will be used to create the \textless{}name\textgreater{}.class file in the \$(INSTALL\_JAVA) directory.
+
+\begin{description}\item \index{TESTJAVA}TESTJAVA += \textless{}name\textgreater{}.java
+
+\end{description}The \textless{}name\textgreater{}.java files will be used to create the \textless{}name\textgreater{}.class file in the O.Common subdirectory.
+
+\begin{description}\item \index{USR\_JAVACFLAGS}USR\_JAVACFLAGS += \textless{}name\textgreater{}
+
+\end{description}The javac option \textless{}name\textgreater{} will be used on the javac command lines.
+
+\subsubsection{Example 1}
+
+\index{Java Example}In this example, three class files are created in \$(INSTALL\_LOCATION)/javalib/mytest. The javac depreciation flag is 
+used to list the description of each use or override of a deprecated member or class.
+
+\begin{description}\item \index{JAVA}JAVA = mytest/one.java
+
+\item JAVA = mytest/two.java
+
+\item JAVA = mytest/three.java
+
+\item \index{USR\_JAVACFLAGS}USR\_JAVACFLAGS = -deprecation
+
+\end{description}\subsubsection{Example 2}
+
+In this example, the test.class file is created in the O.Common subdirectory.
+
+\begin{description}\item \index{TESTJAVA}TESTJAVA = test.java
+
+\end{description}\subsection{Java jar file}
+
+\index{Java jar file}A single java jar file can be created using the java jar tool and installed into \$(INSTALL\_JAVA) (i.e. 
+\$(INSTALL\_LOCATION)/javalib) by specifying its name, and the names of its input files to be included in the created jar 
+file. The jar input file names must appear with a directory prefix.
+
+Any of the following can be specified:
+
+\begin{description}\item \index{JAR}JAR += \textless{}name\textgreater{}
+
+\end{description}The \textless{}name\textgreater{} jar file will be created and installed into the \$(INSTALL\_JAVA) directory.
+
+\begin{description}\item \index{JAR\_INPUT}JAR\_INPUT += \textless{}name\textgreater{}
+
+\end{description}Names of images, audio files and classes files to be included in the jar file.
+
+\begin{description}\item \index{JAR\_MANIFEST}JAR\_MANIFEST += \textless{}name\textgreater{}
+
+\end{description}The preexisting manifest file will be used for the created jar file.
+
+\begin{description}\item JAR\_PACKAGES += \textless{}name\textgreater{}
+
+\end{description}Names of java packages to be installed and added to the created jar file.
+
+\subsubsection{Example 1}
+
+In this example, all the class files created by the current Makefile's "JAVA+=" definitions, are placed into a file named 
+mytest1.jar. A manifest file will be automatically generated for the jar. 
+
+Note: \$(INSTALL\_CLASSES) is set to \$(addprefix \$(INSTALL\_JAVA)/,\$(CLASSES)) in the EPICS base configure 
+files.
+
+\begin{description}\item \index{JAR}JAR = mytest1.jar
+
+\item \index{JAR\_INPUT}JAR\_INPUT = \$(INSTALL\_CLASSES)
+
+\end{description}\subsubsection{Example 2}
+
+In this example, three class files are created and placed into a new jar archive file named mytest2.jar. An existing manifest 
+file, mytest2.mf is put into the new jar file.
+
+\begin{description}\item JAR = mytest2.jar
+
+\item JAR\_INPUT = \$(INSTALL\_JAVA)/mytest/one.class
+
+\item JAR\_INPUT = \$(INSTALL\_JAVA)/mytest/two.class
+
+\item JAR\_INPUT = \$(INSTALL\_JAVA)/mytest/three.class
+
+\item JAR\_MANIFEST = mytest2.mf
+
+\end{description}\subsection{Java native method C header files}
+
+\index{Java native methods}A C header files for use with java native methods will be created by the javah tool in the O.Common subdirectory by 
+specifying the name of the header file to be created. The name of the java class file used to generate the header is derived 
+from the name of the header file. Underscores (\_) are used as a header file name delimiter. Command line options for the 
+javah tool can be specified.
+
+Any of the following can be specified:
+
+\begin{description}\item \index{JAVAINC}JAVAINC += \textless{}name\textgreater{}.h
+
+\end{description}    The \textless{}name\textgreater{}.h header file will be created in the O.Common subdirectory.
+
+\begin{description}\item \index{USR\_JAVAHFLAGS}USR\_JAVAHFLAGS += \textless{}name\textgreater{}
+
+\end{description}    The javah option \textless{}name\textgreater{} will be used on the javah tool command line.
+
+\subsubsection{Example}
+
+In this example, the C header xx\_yy\_zz.h will be created in the \$(COMMON\_DIR) subdirectory from the class xx.yy.zz 
+(i.e. the java class file \$(INSTALL\_JAVA)/xx/yy/zz.class)). The option "-old" will tell javah to create old JDK1.0 style 
+header files.
+
+\begin{description}\item JAVAINC = xx\_yy\_zz.h
+
+\item USR\_JAVAHFLAGS = -old
+
+\end{description}\subsection{User Created CONFIG* and RULES* files}
+
+\index{User created config files}
+\index{CONFIG files, user created}
+\index{RULES files, user created}Module developers can now create new CONFIG and RULES* files ia a \textless{}top\textgreater{} application source directory. These new 
+CONFIG* or RULES* files will be installed into the directory \$(INSTALL\_LOCATION)/cfg by including lines like the 
+following Makefile line:
+
+\begin{description}\item       \index{CFG}CFG += CONFIG\_MY1 RULES\_MY1
+
+\end{description}The build will install the new files CONFIG\_MY1 and RULES\_MY1 into the \$(INSTALL\_LOCATION)/cfg directory.
+
+Files in a \$(INSTALL\_LOCATION)/cfg directory are now included during a build by so that the definitions and rules in 
+them are available for use by later src directory Makefiles in the same module or by other modules with a RELEASE line 
+pointing to the TOP of this module.
+
+\subsection{User Created File Types}
+
+\index{File types, user created}
+\index{File Types}Module developers can now define a new type of file, e.g. ABC, so that files of type ABC will be installed into a directory 
+defined by INSTALL\_ABC. This is done by creating a new CONFIG\textless{}name\textgreater{} file, e.g. CONFIG\_ABC, with the 
+following lines:
+
+\begin{description}\item \index{FILE\_TYPE}FILE\_TYPE += ABC
+
+\item INSTALL\_ABC = \$(INSTALL\_LOCATION)/abc
+
+\end{description}The INSTALL\_ABC directory should be a subdirectory of \$(INSTALL\_LOCATION). The file type ABC should be 
+target architecture independent (alh files, medm files, edm files.
+
+Optional rules necessary for files of type ABC should be put in a RULES\_ABC file.
+
+The module developer installs new CONFIG\_ABC and RULES\_ABC files for the new file type into the directory 
+\$(INSTALL\_LOCATION)/cfg by including the following Makefile line:
+
+\begin{description}\item       \index{CFG}CFG += CONFIG\_ABC RULES\_ABC
+
+\end{description}Files of type ABC are installed into INSTALL\_ABC directory by adding a line like the following to a Makefile.
+
+\begin{description}\item       ABC += \textless{}filename1\textgreater{} \textless{}filename2\textgreater{} \textless{}filename3\textgreater{}
+
+\end{description}Since the files in \$(INSTALL\_LOCATION)/cfg directory are now included by the base config files, the ABC += 
+definition lines are available for use by later src directory Makefiles in the same module or by other modules with a 
+RELEASE line pointing to the TOP of this module.
+
+\section{Table of Makefile definitions}
+
+\index{Table of Makefile definitions}Definitions given below containing \textless{}osclass\textgreater{} are used when building for target archs of a specific \index{osclass}osclass, and the 
+\textless{}osclass\textgreater{} part of the name should be replaced by the desired osclass, e.g. solaris, vxWorks, etc. If a \_DEFAULT setting is 
+given but a particular \textless{}osclass\textgreater{} requires that the default not apply and there are no items in the definition that apply for 
+that \textless{}osclass\textgreater{}, the value "-nil-" should be specified in the relevant Makefile definition.
+\begin{center}\begin{longtable}{lp{0.7\linewidth}}
+Build Option & Description\\
+\hline
+Products to be built (host type archs only) & \\
+PROD & products (names without execution suffix) to build and install. Specify xyz to build executable xyz on Unix and xyz.exe on WIN32\\
+PROD\_\textless{}osclass\textgreater{} & os class specific products to build and install for \textless{}osclass\textgreater{} archs only\\
+PROD\_DEFAULT & products to build and install for archs with no PROD\_\textless{}osclass\textgreater{} specified\\
+PROD\_IOC & products to build and install for ioc type archs\\
+PROD\_IOC\_\textless{}osclass\textgreater{} & os specific products to build and install for ioc type archs\\
+PROD\_IOC\_DEFAULT & products to build and install for ioc type arch systems with no PROD\_IOC\_\textless{}osclass\textgreater{} specified\\
+PROD\_HOST & products to build and install for host type archs. \\
+PROD\_HOST\_\textless{}osclass\textgreater{} & os class specific products to build and install for \textless{}osclass\textgreater{} type archs\\
+PROD\_HOST\_DEFAULT & products to build and install for arch with no PROD\_HOST\_\textless{}osclass\textgreater{} specified\\
+Test products to be built & \\
+TESTPROD & test products (names without execution suffix) to build but not install \\
+TESTPROD\_\textless{}osclass\textgreater{} & os class specific test products to build but not install\\
+TESTPROD\_DEFAULT & test products to build but not install for archs with no TESTPROD\_\textless{}osclass\textgreater{} specified\\
+TESTPROD\_IOC & test products to build and install for ioc type archs\\
+TESTPROD\_IOC\_\textless{}osclass\textgreater{} & os specific test products to build and install for ioc type archs\\
+TESTPROD\_IOC\_DEFAULT & test products to build and install for ioc type arch systems with no TESTPROD\_IOC\_\textless{}osclass\textgreater{} specified\\
+TESTPROD\_HOST & testproducts to build and install for host type archs. \\
+TESTPROD\_HOST\_\textless{}osclass\textgreater{} & os class specific testproducts to build and install for \textless{}osclass\textgreater{} type archs\\
+TESTPROD\_HOST\_DEFAULT & test products to build and install for arch with no TESTPROD\_HOST\_\textless{}osclass\textgreater{} specified\\
+Test scripts to be built & \\
+TESTSCRIPTS & test scripts (names with .t suffix) to build but not install\\
+TESTSCRIPTS\_\textless{}osclass\textgreater{} & os class specific test scripts to build but not install\\
+TESTSCRIPTS\_DEFAULT & test scripts to build but not install for archs with no TESTSCRIPTS\_\textless{}osclass\textgreater{} specified\\
+TESTSCRIPTS\_IOC & test scripts to build and install for ioc type archs\\
+TESTSCRIPTS\_IOC\_\textless{}osclass\textgreater{} & os specific test scripts to build and install for ioc type archs\\
+TESTSCRIPTS\_IOC\_DEFAULT & test scripts to build and install for ioc type arch systems with no TESTSCRIPTS\_IOC\_\textless{}osclass\textgreater{} specified\\
+TESTSCRIPTS\_HOST & test scripts to build and install for host type archs. \\
+TESTSCRIPTS\_HOST\_\textless{}osclass\textgreater{} & os class specific testscripts to build and install for \textless{}osclass\textgreater{} type archs\\
+TESTSCRIPTS\_HOST\_DEFAULT & test scripts to build and install for arch with no TESTSCRIPTS\_HOST\_\textless{}osclass\textgreater{} specified\\
+Libraries to be built & \\
+LIBRARY & name of library to build and install. The name should NOT include a prefix or extension e.g. specify Ca to build libCa.a on Unix, Ca.lib or Ca.dll on WIN32\\
+LIBRARY\_\textless{}osclass\textgreater{} & os specific libraries to build and install\\
+LIBRARY\_DEFAULT & libraries to build and install for archs with no LIBRARY\_\textless{}osclass\textgreater{} specified\\
+LIBRARY\_IOC & name of library to build and install for ioc type archs. The name should NOT include a prefix or extension e.g. specify Ca to build libCa.a on Unix, Ca.lib or Ca.dll on WIN32\\
+LIBRARY\_IOC\_\textless{}osclass\textgreater{} & os specific libraries to build and install for ioc type archs\\
+LIBRARY\_IOC\_DEFAULT & libraries to build and install for ioc type arch systems with no LIBRARY\_IOC\_\textless{}osclass\textgreater{} specified\\
+LIBRARY\_HOST & name of library to build and install for host type archs. The name should NOT include a prefix or extension, e.g. specify Ca to build libCa.a on Unix, Ca.lib or Ca.dll on WIN32\\
+LIBRARY\_HOST\_\textless{}osclass\textgreater{} & os class specific libraries to build and install for host type archs\\
+LIBRARY\_HOST\_DEFAULT & libraries to build and install for host type arch systems with no LIBRARY\_HOST\_\textless{}osclass\textgreater{} specified\\
+SHARED\_LIBRARIES & build shared libraries? Must be YES or NO\\
+SHRLIB\_VERSION & shared library version number\\
+Loadable libraries to be built & \\
+LOADABLE\_LIBRARY & name of loadable library to build and install. The name should NOT include a prefix or extension e.g. specify Ca to build libCa.so on Unix and Ca.dll on WIN32\\
+LOADABLE\_LIBRARY\_\textless{}osclass\textgreater{} & os specific loadable libraries to build and install\\
+LOADABLE\_LIBRARY\_DEFAULT & loadable libraries to build and install for archs with no LOADABLE\_LIBRARY\_\textless{}osclass\textgreater{} specified\\
+LOADABLE\_LIBRARY\_HOST & name of loadable library to build and install for host type archs. The name should NOT include a prefix or extension, e.g. specify test to build libtest.so on Unix and test.dll on WIN32\\
+LOADABLE\_LIBRARY\_HOST\_\textless{}osclass\textgreater{} & os class specific loadable libraries to build and install for host type archs\\
+LOADABLE\_LIBRARY\_HOST\_DEFAULT & loadable libraries to build and install for host type arch systems with no LOADABLE\_LIBRARY\_HOST\_\textless{}osclass\textgreater{} specified\\
+Combined object files (vxWorks only) & \\
+OBJLIB & name of a combined object file library and corresponding munch file to build and install. The name will have a Library suffix appended\\
+OBJLIB\_vxWorks & same as OBJLIB\\
+OBJLIB\_SRCS & source files to build the OBJLIB\\
+OBJLIB\_OBJS & object files to include in OBJLIB\\
+Product and library source files & \\
+SRCS & source files to build all PRODs and LIBRARYs\\
+SRCS\_\textless{}osclass\textgreater{} & osclass specific source files to build all PRODs and LIBRARYs\\
+SRCS\_DEFAULT & source file to build all PRODs and LIBRARYs for archs with no SRCS\_\textless{}osclass\textgreater{} specified\\
+USR\_SRCS & source files to build all PRODs and LIBRARYs\\
+USR\_SRCS\_\textless{}osclass\textgreater{} & osclass specific source files to build all PRODs and LIBRARYs\\
+USR\_SRCS\_DEFAULT & source file to build all PRODs and LIBRARYs for archs with no SRCS\_\textless{}osclass\textgreater{} specified\\
+PROD\_SRCS & source files to build all PRODs\\
+PROD\_SRCS\_\textless{}osclass\textgreater{} & osclass specific source files to build all PRODs\\
+PROD\_SRCS\_DEFAULT & source files needed to build PRODs for archs with no SRCS\_\textless{}osclass\textgreater{} specified\\
+LIB\_SRCS & source files for building LIBRARY (e.g. LIB\_SRCS=la.c lb.c lc.c)\\
+LIB\_SRCS\_\textless{}osclass\textgreater{} & os-specific library source files\\
+LIB\_SRCS\_DEFAULT & library source files for archs with no LIB\_SRCS\_\textless{}osclass\textgreater{} specified\\
+LIBSRCS & source files for building LIBRARY (deprecated)\\
+LIBSRCS\_\textless{}osclass\textgreater{} & os-specific library source files (deprecated)\\
+LIBSRCS\_DEFAULT & library source files for archs with no LIBSRCS\_\textless{}osclass\textgreater{} specified (deprecated)\\
+\textless{}name\textgreater{}\_SRCS & source files to build a specific PROD or LIBRARY\\
+\textless{}name\textgreater{}\_SRCS\_\textless{}osclass\textgreater{} & os specific source files to build a specific PROD or LIBRARY\\
+\textless{}name\textgreater{}\_SRCS\_DEFAULT & source files needed to build a specific PROD or LIBRARY for archs with no \textless{}prod\textgreater{}\_SRCS\_\textless{}osclass\textgreater{} specified\\
+Product and library object files & \\
+USR\_OBJS & object files, specified without suffix, to build all PRODs and LIBRARYs\\
+USR\_OBJS\_\textless{}osclass\textgreater{} & osclass specific object files, specified without suffix, to build all PRODs and LIBRARYs\\
+USR\_OBJS\_DEFAULT & object files, specified without suffix, needed to build PRODs and LIBRARYs for archs with no OBJS\_\textless{}osclass\textgreater{} specified\\
+PROD\_OBJS & object files, specified without suffix, to build all PRODs\\
+PROD\_OBJS\_\textless{}osclass\textgreater{} & osclass specific object files, specified without suffix, to build all PRODs\\
+PROD\_OBJS\_DEFAULT & object files, specified without suffix, needed to build PRODs for archs with no OBJS\_\textless{}osclass\textgreater{} specified\\
+LIB\_OBJS & object files, specified without suffix, for building all LIBRARYs (e.g. LIB\_OBJS+=\$(AB\_BIN)/la \$(AB\_BIN)/lb)\\
+LIB\_OBJS\_\textless{}osclass\textgreater{} & os-specific library object files, specify without suffix,\\
+LIB\_OBJS\_DEFAULT & library object files, specified without suffix, for archs with no LIB\_OBJS\_\textless{}osclass\textgreater{} specified\\
+\textless{}name\textgreater{}\_OBJS & object files, specified without suffix, to build a specific PROD or LIBRARY\\
+\textless{}name\textgreater{}\_OBJS\_\textless{}osclass\textgreater{} & os specific object files, specified without suffix, to build a specific PROD or LI\textbar{}BRARY\\
+\textless{}name\textgreater{}\_OBJS\_DEFAULT & object files, without suffix, needed to build a specific PROD or LIBRARY for archs with no \textless{}prod\textgreater{}\_OBJS\_\textless{}osclass\textgreater{} specified\\
+Product and library R3.13 combined object files & \\
+USR\_OBJLIBS & combined object files with filenames that do not have a suffix, needed for building all PRODs and LIBRARYs (e.g. USR\_OBJLIBS+=\$(XYZ\_BIN)/xyzLib)\\
+USR\_OBJLIBS\_\textless{}osclass\textgreater{} & os-specific combined object files with filenames that do not have a suffix for building all PRODs and LIBRARYs\\
+USR\_OBJLIBS\_DEFAULT & combined object files with filenames that do not have a suffix, for archs with no USR\_OBJLIBS\_\textless{}osclass\textgreater{} specified for building all PRODs and LIBRARYs\\
+PROD\_OBJLIBS & combined object files with filenames that do not have a suffix, needed for building all PRODs (e.g. PROD\_OBJLIBS+=\$(XYZ\_BIN)/xyzLib)\\
+PROD\_OBJLIBS\_\textless{}osclass\textgreater{} & os-specific combined object files with filenames that do not have a suffix for building all PRODs\\
+PROD\_OBJLIBS\_DEFAULT & combined object files with filenames that do not have a suffix, for archs with no PROD\_OBJLIBS\_\textless{}osclass\textgreater{} specified for building all PRODs\\
+LIB\_OBJLIBS & combined object files with filenames that do not have a suffix, needed for building all LIBRARYs (e.g. LIB\_OBJLIBS+=\$(XYZ\_BIN)/xyzLib)\\
+LIB\_OBJLIBS\_\textless{}osclass\textgreater{} & os-specific combined object files with filenames that do not have a suffix for building all LIBRARYs\\
+LIB\_OBJLIBS\_DEFAULT & combined object files with filenames that do not have a suffix, for archs with no LIB\_OBJLIBS\_\textless{}osclass\textgreater{} specified for building all LIBRARYs\\
+\textless{}name\textgreater{}\_OBJLIBS & combined object files with filenames that do not have a suffix, needed to build a specific PROD or LIBRARY\\
+\textless{}name\textgreater{}\_OBJLIBS\_\textless{}osclass\textgreater{} & os specific combined object files with filenames that do not have a suffix, to build a specific PROD or LI\textbar{}BRARY\\
+\textless{}name\textgreater{}\_OBJLIBS\_DEFAULT & combined object files with filenames that do not have a suffix, needed to build a specific PROD or LIBRARY for archs with no \textless{}name\textgreater{}\_OBJLIBS\_\textless{}osclass\textgreater{} specified\\
+\textless{}name\textgreater{}\_LDOBJS & combined object files with filenames that do not have a suffix, needed to build a specific PROD or LIBRARY (deprecated)\\
+\textless{}name\textgreater{}\_LDOBJS\_\textless{}osclass\textgreater{} & os specific combined object files with filenames that do not have a suffix, to build a specific PROD or LI\textbar{}BRARY (deprecated)\\
+\textless{}name\textgreater{}\_LDOBJS\_DEFAULT & combined object files with filenames that do not have a suffix, needed to build a specific PROD or LIBRARY for archs with no \textless{}name\textgreater{}\_LDOBJS\_\textless{}osclass\textgreater{} specified (deprecated)\\
+Product and library dependant libraries & \\
+\textless{}name\textgreater{}\_DIR & directory to search for the specified lib. (For libs listed in all PROD\_LIBS, LIB\_LIBS, \textless{}name\textgreater{}\_LIBS and USR\_LIBS listed below)System libraries do not need a \textless{}name\textgreater{}\_dir definition.\\
+USR\_LIBS & load libraries (e.g. Xt X11) for all products and libraries\\
+USR\_LIBS\_\textless{}osclass\textgreater{} & os specific load libraries for all makefile links\\
+USR\_LIBS\_DEFAULT & load libraries for systems with no USR\_LIBS\_\textless{}osclass\textgreater{} specified libs\\
+\textless{}name\textgreater{}\_LIBS & named prod or library specific ld libraries (e.g. probe\_LIBS=X11 Xt)\\
+\textless{}name\textgreater{}\_LIBS\_\textless{}osclass\textgreater{} & os-specific libs needed to link named prod or library\\
+\textless{}name\textgreater{}\_LIBS\_DEFAULT & libs needed to link named prod or library for systems with no \textless{}name\textgreater{}\_LIBS\_\textless{}osclass\textgreater{} specified\\
+PROD\_LIBS & libs needed to link every PROD\\
+PROD\_LIBS\_\textless{}osclass\textgreater{} & os-specific libs needed to link every PROD\\
+PROD\_LIBS\_DEFAULT & libs needed to link every PROD for archs with no PROD\_LIBS\_\textless{}osclass\textgreater{} specified\\
+LIB\_LIBS & libraries to be linked with every library being created\\
+LIB\_LIBS\_\textless{}osclass\textgreater{} & os class specific libraries to be linked with every library being created\\
+LIB\_LIBS\_DEFAULT & libraries to be linked with every library being created for archs with no LIB\_LIBS\_\textless{}osclass\textgreater{} specified\\
+USR\_SYS\_LIBS & system libraries (e.g. Xt X11) for all products and libraries\\
+USR\_SYS\_LIBS\_\textless{}osclass\textgreater{} & os class specific system libraries for all makefile links\\
+USR\_SYS\_LIBS\_DEFAULT & system libraries for archs with no USR\_SYS\_LIBS\_\textless{}osclass\textgreater{} specified\\
+\textless{}name\textgreater{}\_SYS\_LIBS & named prod or library specific system ld libraries\\
+\textless{}name\textgreater{}\_SYS\_LIBS\_\textless{}osclass\textgreater{} & os class specific system libs needed to link named prod or library\\
+\textless{}name\textgreater{}\_SYS\_LIBS\_DEFAULT & system libs needed to link named prod or library for systems with no \textless{}name\textgreater{}\_SYS\_LIBS\_\textless{}osclass\textgreater{} specified\\
+PROD\_SYS\_LIBS & system libs needed to link every PROD\\
+PROD\_SYS\_LIBS\_\textless{}osclass\textgreater{} & os class specific system libs needed to link every PROD\\
+PROD\_SYS\_LIBS\_DEFAULT & system libs needed to link every PROD for archs with no PROD\_SYS\_LIBS\_\textless{}osclass\textgreater{} specified\\
+LIB\_SYS\_LIBS & system libraries to be linked with every library being created\\
+LIB\_SYS\_LIBS\_\textless{}osclass\textgreater{} & os class specific system libraries to be linked with every library being created\\
+LIB\_SYS\_LIBS\_DEFAULT & system libraries to be linked with every library being created for archs with no LIB\_SYS\_LIBS\_\textless{}osclass\textgreater{} specified\\
+SYS\_PROD\_LIBS & system libs needed to link every PROD for all systems (deprecated)\\
+SYS\_PROD\_LIBS\_\textless{}osclass\textgreater{} & os class specific system libs needed to link every PROD (deprecated)\\
+SYS\_PROD\_LIBS\_DEFAULT & system libs needed to link every PROD for systems with no SYS\_PROD\_LIBS\_\textless{}osclass\textgreater{} specified (deprecated)\\
+Compiler flags & \\
+USR\_CFLAGS & C compiler flags for all systems\\
+USR\_CFLAGS\_\textless{}T\_A\textgreater{} & target architecture specific C compiler flags\\
+USR\_CFLAGS\_\textless{}osclass\textgreater{} & os class specific C compiler flags\\
+USR\_CFLAGS\_DEFAULT & C compiler flags for archs with no USR\_CFLAGS\_\textless{}osclass\textgreater{} specified\\
+\textless{}name\textgreater{}\_CFLAGS & file specific C compiler flags (e.g. xxxRecord\_CFLAGS=-g)\\
+\textless{}name\textgreater{}\_CFLAGS\_\textless{}T\_A\textgreater{} & file specific C compiler flags for a specific target architecture\\
+\textless{}name\textgreater{}\_CFLAGS\_\textless{}osclass\textgreater{} & file specific C compiler flags for a specific os class\\
+USR\_CXXFLAGS & C++ compiler flags for all systems (e.g. xyxMain\_CFLAGS=-DSDDS)\\
+USR\_CXXFLAGS\_\textless{}T\_A\textgreater{} & target architecture specific C++ compiler flags\\
+USR\_CXXFLAGS\_\textless{}osclass\textgreater{} & os-specific C++ compiler flags\\
+USR\_CXXFLAGS\_DEFAULT & C++ compiler flags for systems with no USR\_CXXFLAGS\_\textless{}osclass\textgreater{} specified\\
+\textless{}name\textgreater{}\_CXXFLAGS & file specific C++ compiler flags\\
+\textless{}name\textgreater{}\_CXXFLAGS\_\textless{}T\_A\textgreater{} & file specific C++ compiler flags for a specific target architecture\\
+\textless{}name\textgreater{}\_CXXFLAGS\_\textless{}osclass\textgreater{} & file specific C++ compiler flags for a specific osclass\\
+USR\_CPPFLAGS & C pre-processor flags (for all makefile compiles)\\
+USR\_CPPFLAGS\_\textless{}T\_A\textgreater{} & target architecture specific cpp flags\\
+USR\_CPPFLAGS\_\textless{}osclass\textgreater{} & os specific cpp flags\\
+USR\_CPPFLAGS\_DEFAULT & cpp flags for systems with no USR\_CPPFLAGS\_\textless{}osclass\textgreater{} specified\\
+\textless{}name\textgreater{}\_CPPFLAGS & file specific C pre-processor flags(e.g. xxxRecord\_CPPFLAGS=-DDEBUG)\\
+\textless{}name\textgreater{}\_CPPFLAGS\_\textless{}T\_A\textgreater{} & file specific cpp flags for a specific target architecture\\
+\textless{}name\textgreater{}\_CPPFLAGS\_\textless{}osclass\textgreater{} & file specific cpp flags for a specific os class\\
+USR\_INCLUDES & directories, with -I prefix, to search for include files(e.g. -I\$(EPICS\_EXTENSIONS\_INCLUDE))\\
+USR\_INCLUDES\_\textless{}osclass\textgreater{} & directories, with -I prefix, to search for include files for a specific os class\\
+USR\_INCLUDES\_DEFAULT & directories, with -I prefix, to search for include files for systems with no \textless{}name\textgreater{}\_INCLUDES\_\textless{}osclass\textgreater{} specified\\
+\textless{}name\textgreater{}\_INCLUDES & directories, with -I prefix, to search for include files when building a specific object file (e.g. -I\$(MOTIF\_INC))\\
+\textless{}name\textgreater{}\_INCLUDES\_\textless{}T\_A\textgreater{} & file specific directories, with -I prefix, to search for include files for a specific target architecture\\
+\textless{}name\textgreater{}\_INCLUDES\_\textless{}osclass\textgreater{} & file specific directories, with -I prefix, to search for include files for a specific os class\\
+HOST\_WARN & Are compiler warning messages desired for host type builds? (YES or NO) (default is YES)\\
+CROSS\_WARN & C cross-compiler warning messages desired (YES or NO) (default YES)\\
+HOST\_OPT & Is host build compiler optimization desired (default is NO optimization)\\
+CROSS\_OPT & Is cross-compiler optimization desired (YES or NO) (default is NO optimization)\\
+CMPLR & C compiler selection, TRAD, ANSI or STRICT (default is STRICT)\\
+CXXCMPLR & C++ compiler selection, NORMAL or STRICT (default is STRICT)\\
+Linker options &    \\
+USR\_LDFLAGS & linker options (for all makefile links)\\
+USR\_LDFLAGS\_\textless{}osclass\textgreater{} & os specific linker options (for all makefile links)\\
+USR\_LDFLAGS\_DEFAULT & linker options for systems with no USR\_LDFLAGS\_\textless{}osclass\textgreater{} specified\\
+PROD\_LDFLAGS & prod linker options\\
+PROD\_LDFLAGS\_\textless{}osclass\textgreater{} & os specific prod linker options\\
+PROD\_LDFLAGS\_DEFAULT & prod linker options for systems with no PROD\_LDFLAGS\_\textless{}osclass\textgreater{} specified\\
+LIB\_LDFLAGS & library linker options\\
+LIB\_LDFLAGS\_\textless{}osclass\textgreater{} & os specific library linker options\\
+LIB\_LDFLAGS\_DEFAULT & library linker options for systems with no LIB\_LDFLAGS\_\textless{}osclass\textgreater{} specified\\
+\textless{}name\textgreater{}\_LDFLAGS & prod or library specific linker options\\
+\textless{}name\textgreater{}\_LDFLAGS\_\textless{}osclass\textgreater{} & prod or library specific linker flags for a specific os class\\
+\textless{}name\textgreater{}\_LDFLAGS\_DEFAULT & linker options for systems with no \textless{}name\textgreater{}\_LDFLAGS\_\textless{}osclass\textgreater{} specified\\
+STATIC\_BUILD & Is static build desired (YES or NO) (default is NO). On win32 if STATIC\_BUILD=YES then set SHARED\_LIBRARIES=NO) \\
+Header files to be installed &    \\
+INC & list of include files to install into \$(INSTALL\_DIR)/include\\
+INC\_\textless{}osclass\textgreater{} & os specific includes to installed under \$(INSTALL\_DIR)/include/os/\textless{}osclass\textgreater{}\\
+INC\_DEFAULT & include files to install where no INC\_\textless{}osclass\textgreater{} is specified\\
+Perl, csh, tcl etc. script installation &    \\
+SCRIPTS & scripts to install for all systems\\
+SCRIPTS\_\textless{}osclass\textgreater{} & os-specific scripts to install\\
+SCRIPTS\_DEFAULT & scripts to install for systems with no SCRIPTS\_\textless{}osclass\textgreater{} specified\\
+SCRIPTS\_IOC & scripts to install for ioc type archs.\\
+SCRIPTS\_IOC\_\textless{}osclass\textgreater{} & os specific scripts to install for ioc type archs\\
+SCRIPTS\_IOC\_DEFAULT & scripts to install for ioc type arch systems with no SCRIPTS\_IOC\_\textless{}osclass\textgreater{} specified\\
+SCRIPTS\_HOST & scripts to install for host type archs. T\\
+SCRIPTS\_HOST\_\textless{}osclass\textgreater{} & os class specific scripts to install for host type archs\\
+SCRIPTS\_HOST\_DEFAULT & scripts to install for host type arch systems with no OBJS\_HOST\_\textless{}osclass\textgreater{} specified\\
+TCLLIBNAME & list of tcl scripts to install into \$(INSTALL\_DIR)/lib/\textless{}osclass\textgreater{} (Unix hosts only)\\
+TCLINDEX & name of tcl index file to create from TCLLIBNAME scripts\\
+Object files & The names in the following OBJS definitions should NOT include a suffix (.o or.obj).\\
+OBJS & object files to build and install for all system. \\
+OBJS\_\textless{}osclass\textgreater{} & os-specific object files to build and install. \\
+OBJS\_DEFAULT & object files to build and install for systems with no OBJS\_\textless{}osclass\textgreater{} specified.\\
+OBJS\_IOC & object files to build and install for ioc type archs.\\
+OBJS\_IOC\_\textless{}osclass\textgreater{} & os specific object files to build and install for ioc type archs\\
+OBJS\_IOC\_DEFAULT & object files to build and install for ioc type arch systems with no OBJS\_IOC\_\textless{}osclass\textgreater{} specified\\
+OBJS\_HOST & object files to build and install for host type archs. T\\
+OBJS\_HOST\_\textless{}osclass\textgreater{} & os class specific object files to build and install for host type archs\\
+OBJS\_HOST\_DEFAULT & object files to build and install for host type arch systems with no OBJS\_HOST\_\textless{}osclass\textgreater{} specified\\
+Documentation &    \\
+DOCS & text files to be installed into the \$(INSTALL\_DIR)/doc directory\\
+HTMLS\_DIR & name install Hypertext directory name i.e. \$(INSTALL\_DIR)/html/\$(HTMLS\_DIR)\\
+HTMLS & hypertext files to be installed into the \$(INSTALL\_DIR)/html/\$(HTMLS\_DIR) directory\\
+TEMPLATES\_DIR & template directory to be created as \$(INSTALL\_DIR)/templates/\$(TEMPLATE\_DIR)\\
+TEMPLATES & template files to be installed into \$(TEMPLATE\_DIR)\\
+Database Definition files & \\
+DBD & database definition files to be installed or created and installed into \$(INSTALL\_DBD).\\
+DBDINC & names, without suffix, of menus or record database definitions and headers to be installed or created and installed. \\
+USR\_DBDFLAGS & optional flags for dbExpand. Currently only include path (-I \textless{}path\textgreater{}) and macro substitution (-S \textless{}substitution\textgreater{}) are supported. \\
+DBD\_INSTALLS & files from specified directory to install into \$(INSTALL\_DBD) (e.g. DBD\_INSTALLS = \$(APPNAME)/dbd/test.dbd\\
+Database Files & \\
+DB & database files to be installed or created and installed into \$(INSTALL\_DB).\\
+DB\_INSTALLS & files from specified directory to install into \$(INSTALL\_DB) (e.g. DB\_INSTALLS = \$(APPNAME)/db/test.db\\
+USR\_DBFLAGS & optional flags for msi (EPICS Macro Substitution Tool)\\
+Options for other programs &    \\
+YACCOPT & yacc options\\
+LEXOPT & lex options\\
+SNCFLAGS & state notation language, snc, options\\
+\textless{}name\textgreater{}\_SNCFLAGS & product specific state notation language options\\
+E2DB\_FLAGS & e2db options\\
+SCH2EDIF\_FLAGS & sch2edif options\\
+RANLIBFLAGS & ranlib options\\
+USR\_ARFLAGS & ar options\\
+Facilities for building Java programs &    \\
+JAVA & names of Java source files to be built and installed\\
+TESTJAVA & names of Java source files to be built\\
+JAVAINC & names of C header file to be created in O.Common subdirectory\\
+JAR & name of Jar file to be built\\
+JAR\_INPUT & names of files to be included in JAR\\
+JAR\_MANIFEST & name of manifest file for JAR\\
+USR\_JAVACFLAGS & javac tool options\\
+USR\_JAVAHFLAGS & javah tool options\\
+Facilities for Windows 95/NT resource ( .rc) files &    \\
+RCS & resource files (\textless{}name\textgreater{}.rc) needed to build every PROD and LIBRARY\\
+RCS\_\textless{}osclass\textgreater{} & resource files (\textless{}name\textgreater{}.rc) needed to build every PROD and LIBRARY for ioc type archs\\
+RCS\_DEFAULT & resource files needed to build every PROD and LIBRARY for ioc type arch systems with no RCS\_\textless{}osclass\textgreater{} specified\\
+\textless{}name\textgreater{}\_RCS & resource files needed to build a specific PROD or LIBRARY\\
+\textless{}name\textgreater{}\_RCS\_\textless{}osclass\textgreater{} & os specific resource files to build a specific PROD or LIBRARY\\
+\textless{}name\textgreater{}\_RCS\_DEFAULT & resource files needed to build a specific PROD or LIBRARY for ioc type arch systems with no RCS\_\textless{}osclass\textgreater{} specified\\
+Other definitions:  &    \\
+USR\_VPATH & list of directories\\
+BIN\_INSTALLS & files from specified directories to be installed into \$(INSTALL\_BIN) (e.g. BIN\_INSTALLS = \$(EPICS\_BASE\_BIN)/aiRecord\$(OBJ))\\
+BIN\_INSTALLS\_\textless{}osclass\textgreater{} & os class specific files from specified directories to be installed into \$(INSTALL\_BIN)\\
+BIN\_INSTALLS\_DEFAULT & files from specified directories to be installed into \$(INSTALL\_BIN) for target archs with no BIN\_INSTALLS\_\textless{}osclass\textgreater{} specified\\
+LIB\_INSTALLS & files from specified directories to be installed into \$(INSTALL\_LIB)\\
+LIB\_INSTALLS\_\textless{}osclass\textgreater{} & os class specific files from specified directories to be installed into \$(INSTALL\_LIB)\\
+LIB\_INSTALLS\_DEFAULT & files from specified directories to be installed into \$(INSTALL\_LIB) for target archs with no LIB\_INSTALLS\_\textless{}osclass\textgreater{} specified\\
+TARGETS & files to create but not install\\
+INSTALL\_LOCATION & installation directory (defaults to \$(TOP))
+\end{longtable}\end{center}
+
+
+\section{Configuration Files}
+
+\subsection{Base Configure Directory}
+
+The base/configure directory has the following directory structure:
+
+\begin{verbatim}base/
+configure/
+os/
+tools/
+
+\end{verbatim}\subsection{Base Configure File Descriptions}
+
+\index{Configure files}The configure files contain definitions and make rules to be included in the various makefiles.
+
+\begin{verbatim}CONFIG.CrossCommon
+\end{verbatim}\index{CONFIG.CrossCommon}\begin{description}\item Definitions for all hosts and all targets for a cross build (host different than target).
+
+\end{description}\begin{verbatim}CONFIG.gnuCommon
+\end{verbatim}\index{CONFIG.gnuCommon}\begin{description}\item Definitions for all hosts and all targets for builds using the gnu compiler.
+
+\end{description}\begin{verbatim}CONFIG_ADDONS
+\end{verbatim}\index{CONFIG\_ADDONS}\begin{description}\item Definitions which setup the variables that have \textless{}osclass\textgreater{} and DEFAULT options.
+
+\end{description}\begin{verbatim}CONFIG_APP_INCLUDE
+\end{verbatim}\begin{description}\item Definitions to generate include, bin, lib, perl module, db, and dbd directory definitions for RELEASE \textless{}top\textgreater{}s.
+
+\end{description}\begin{verbatim}CONFIG_BASE
+\end{verbatim}\index{CONFIG\_BASE}\begin{description}\item EPICS base specific definitions.
+
+\end{description}\begin{verbatim}CONFIG_BASE_VERSION
+\end{verbatim}\index{CONFIG\_BASE\_VERSION}\begin{description}\item Definitions for the version number of EPICS base. This file is used for creating epicsVersion.h which is installed 
+into base/include.
+
+\end{description}\begin{verbatim}CONFIG_COMMON
+\end{verbatim}\index{CONFIG\_COMMON}\begin{description}\item Definitions common to all builds.
+
+\end{description}\begin{verbatim}CONFIG_ENV
+\end{verbatim}\index{CONFIG\_ENV}\begin{description}\item Default definitions of the EPICS environment variables. This file is used for creating envData.c which is included 
+in the Com library.
+
+\end{description}\begin{verbatim}CONFIG_FILE_TYPE
+\end{verbatim}\index{CONFIG\_FILE\_TYPE}\begin{description}\item Definitions to allow user created file types.
+
+\end{description}\begin{verbatim}CONFIG_SITE
+\end{verbatim}\index{CONFIG\_SITE}\begin{description}\item File in which you add to or modify make variables in EPICS base. A definition normally overridden is:
+
+\end{description}\begin{verbatim}CROSS_COMPILER_TARGET_ARCHS =
+CONFIG_SITE_ENV
+\end{verbatim}\index{CONFIG\_SITE\_ENV}\begin{description}\item Defaults for site specific definitions of EPICS environment variables. This file is used for creating envData.c 
+which is included in the Com library.
+
+\end{description}\begin{verbatim}CONFIG
+\end{verbatim}\index{CONFIG}\begin{description}\item Include statements for all the other configure files. You can \index{override}override any definitions in other CONFIG* files by 
+placing override definitions at the end of this file.
+
+\end{description}\begin{verbatim}RELEASE
+\end{verbatim}\index{RELEASE}\begin{description}\item Specifies the location of external products such as Tornado II and external \textless{}tops\textgreater{} such as EPICS base. 
+
+\end{description}\begin{verbatim}RULES
+\end{verbatim}\index{RULES}\begin{description}\item This file just includes the appropriate rules configuration file.
+
+\end{description}\begin{verbatim}RULES.Db
+\end{verbatim}\index{RULES.Db}\begin{description}\item Rules for building and installing database and database definition files. Databases generated from templates and/or 
+CapFast schematics are supported.
+
+\end{description}\begin{verbatim}RULES.ioc
+\end{verbatim}\index{RULES.ioc}\begin{description}\item Rules which allow building in the iocBoot/\textless{}iocname\textgreater{} directory of a makeBaseApp created ioc application.
+
+\end{description}\begin{verbatim}RULES_ARCHS
+\end{verbatim}\index{RULES\_ARCHS}\begin{description}\item Definitions and rules which allow building the make target for each target architecture.
+
+\end{description}\begin{verbatim}RULES_BUILD
+\end{verbatim}\index{RULES\_BUILD}\begin{description}\item Build rules for the Makefiles 
+
+\end{description}\begin{verbatim}RULES_DIRS
+\end{verbatim}\index{RULES\_DIRS}\begin{description}\item Definitions and rules which allow building the make targets in each subdirectory. This file is included by Makefiles 
+in directories with subdirectories to be built.
+
+\end{description}\begin{verbatim}RULES_EXPAND
+\end{verbatim}\index{RULES\_EXPAND}\begin{description}\item Definitions and rules to use \index{expandVars.pl}expandVars.pl to expand @VAR@ variables in a file.
+
+\end{description}\begin{verbatim}RULES_FILE_TYPE
+\end{verbatim}\index{RULES\_FILE\_TYPE}\begin{description}\item Definitions and rules to allow user created CONFIG* and RULES* files and rules to allow user created file types.
+
+\end{description}\begin{verbatim}RULES_JAVA
+\end{verbatim}\index{RULES\_JAVA}
+\index{RULES\_JAVA}\begin{description}\item Definitions and rules which allow building java class files and java jar files.
+
+\end{description}\begin{verbatim}RULES_TARGET
+\end{verbatim}\index{RULES\_TARGET}\begin{description}\item Makefile code to create target specific dependency lines for libraries and product targets.
+
+\end{description}\begin{verbatim}RULES_TOP
+\end{verbatim}\index{RULES\_TOP}\begin{description}\item Rules specific to a \textless{}top\textgreater{} level directory e.g. uninstall and tar. It also includes the RULES\_DIRS file.
+
+\end{description}\begin{verbatim}Makefile
+\end{verbatim}\index{Makefile}
+\index{Makefile}\begin{description}\item Definitions to allow creation of CONFIG\_APP\_INCLUDE and installation of the CONFIG* files into the 
+\$(INSTALL\_LOCATION) directory.
+
+\end{description}\subsection{Base configure/os File Descriptions}
+
+\index{configure/os File}The configure/os directory contains os specific make definitions. The naming convention for the files in this directory is 
+CONFIG.\textless{}host\textgreater{}.\textless{}target\textgreater{} where \textless{}host\textgreater{} is either the arch for a specific host system or Common for all supported host 
+systems and \textless{}target\textgreater{} is either the arch for a specific target system or Common for all supported target systems. 
+
+For example, the file CONFIG.Common.vxWorks-pentium will contain make definitions to be used for builds on all host 
+systems when building for a vxWorks-pentium target system.
+
+Also, if a group of host or target files have the same make definitions these common definitions can be moved to a new 
+file which is then included in each host or target file. An example of this is all Unix hosts which have common definitions 
+in a CONFIG.UnixCommon.Common file and all vxWorks targets with definitions in 
+CONFIG.Common.vxWorksCommon.
+
+The base/configure/os directory contains the following os-arch specific definitions
+
+\begin{verbatim}CONFIG.<host>.<target>
+\end{verbatim}\index{CONFIG.\textless{}host\textgreater{}.\textless{}target\textgreater{}}\begin{description}\item Specific host-target build definitions
+
+\end{description}\begin{verbatim}CONFIG.Common.<target>
+\end{verbatim}\index{CONFIG.Common.\textless{}target\textgreater{}}\begin{description}\item Specific target definitions for all hosts
+
+\end{description}\begin{verbatim}CONFIG.<host>.Common
+\end{verbatim}\index{CONFIG.\textless{}host\textgreater{}.Common}\begin{description}\item Specific host definitions for all targets
+
+\end{description}\begin{verbatim}CONFIG.UnixCommon.Common
+\end{verbatim}\index{CONFIG.UnixCommon.Common}\begin{description}\item Definitions for Unix hosts and all targets
+
+\end{description}\begin{verbatim}CONFIG.<host>.vxWorksCommon
+\end{verbatim}\index{CONFIG.\textless{}host\textgreater{}.vxWorksCommon}\begin{description}\item Specific host definitions for all vx targets
+
+\end{description}\begin{verbatim}CONFIG_COMPAT
+\end{verbatim}\index{CONFIG\_COMPAT}\begin{description}\item R3.13 arch compatibility definitions
+
+\end{description}\begin{verbatim}CONFIG_SITE.<host>.<target>
+\end{verbatim}\index{CONFIG\_SITE.\textless{}host\textgreater{}.\textless{}target\textgreater{}}\begin{description}\item Site specific host-target definitions
+
+\end{description}\begin{verbatim}CONFIG_SITE.Common.<target>
+\end{verbatim}\index{CONFIG\_SITE.Common.\textless{}target\textgreater{}}\begin{description}\item Site specific target definitions for all hosts
+
+\end{description}\begin{verbatim}CONFIG_SITE.<host>.Common
+\end{verbatim}\index{CONFIG\_SITE.\textless{}host\textgreater{}.Common}\begin{description}\item Site specific host definitions for all targets
+
+\end{description}\subsection{Base src/tool File Descriptions}
+
+\index{src/tool File}The src/tools directory contains Perl script tools used for the build. The are installed by the build into 
+\$(INSTALL\_LOCATION)/bin/\$(T\_A) for Host type target archs. The tools currently in this directory are:
+
+\begin{verbatim}convertRelease.pl
+\end{verbatim}\index{convertRelease.pl}
+\index{installEpics.pl}
+\index{makeConfigAppInclude.pl}\begin{description}\item This Perl script does consistency checks for the external \textless{}top\textgreater{} definitions in the RELEASE file. This script also 
+creates envPaths, cdCommands, and dllPath.bat files for vxWorks and other IOCs.
+
+\end{description}\begin{verbatim}cvsclean.pl
+\end{verbatim}\index{cvsclean.pl}\begin{description}\item This perl script finds and deletes cvs .\#* files in all directories of the directory tree.
+
+\end{description}\begin{verbatim}dos2unix.pl
+\end{verbatim}\index{dos2unix.pl}\begin{description}\item This perl script converts text file in DOS CR/LF format to unix ISO format.
+
+\end{description}\begin{verbatim}expandVars.pl
+\end{verbatim}\index{expanVars.pl}
+\index{expandVars.pl}\begin{description}\item This perl tool expands @VAR@ variables while copying a file.
+
+\end{description}\begin{verbatim}filterWarnings.pl
+\end{verbatim}\index{filterWarnings.pl}\begin{description}\item This is a perl script that filters compiler warning output (for HP-UX).
+
+\end{description}\begin{verbatim}fullpathname.pl
+\end{verbatim}\index{fullpathname.pl}\begin{description}\item This perl script returns the fullpathname of a file.
+
+\end{description}\begin{verbatim}installEpics.pl
+\end{verbatim}\index{installEpics.pl}\begin{description}\item This is a Perl script that installs build created files into the install directories.
+
+\end{description}\begin{verbatim}makeDbDepends.pl
+\end{verbatim}\index{makeDbDepends.pl}\begin{description}\item This perl script searches .substitutions and .template files for entries to create a DEPENDS file.
+
+\end{description}\begin{verbatim}makeIncludeDbd.pl
+\end{verbatim}\index{makeIncludeDbd.pl}\begin{description}\item This perl script creates an include dbd file from file names
+
+\end{description}\begin{verbatim}makeMakefile.pl
+\end{verbatim}\index{makeMakefile.pl}\begin{description}\item This is a perl script that creates a Makefile in the created O.\textless{}arch\textgreater{} directories.
+
+\end{description}\begin{verbatim}makeTestfile.pl
+\end{verbatim}\index{makeTestfile.pl}\begin{description}\item This perl script generates a file \$target.t which executes a real test program in the same directory.
+
+\end{description}\begin{verbatim}mkmf.pl
+\end{verbatim}\index{mkmf.pl}
+\index{mkmf.pl}\begin{description}\item This perl script generates include file dependencies for targets from source file include statements.
+
+\end{description}\begin{verbatim}munch.pl
+\end{verbatim}\index{munch.pl}\begin{description}\item This is a perl script that creates a ctdt.c file for vxWorks target arch builds which lists the c++ static constructors 
+and destructors. See munching in the vxWorks documentation for more information.
+
+\end{description}\begin{verbatim}replaceVAR.pl
+\end{verbatim}\index{mv.pl}
+\index{replaceVAR.pl}\begin{description}\item This is a perl script that changes VAR(xxx) style macros in CapFast generated databases into the \$(xxx) notation 
+used in EPICS databases.
+
+\end{description}\begin{verbatim}useManifestTool.pl
+\end{verbatim}\index{useManifestTool.pl}\begin{description}\item  This tools uses MS Visual C++ compiler version number to determine if we want to use the Manifest Tool 
+(status=1) or not (status=0).
+
+\end{description}\section{Build Documentation Files}
+
+\subsection{Base Documentation Directory}
+
+\index{Documentation Directory}The base/documentation directory contains README files to help users setup and build epics/base.
+
+\subsection{Base Documentation File Descriptions}
+
+\index{Documentation Files}The files currently in the base/documentation directory are:
+
+\begin{verbatim}README.1st
+\end{verbatim}\index{README.1st}\begin{description}\item Instructions for setup and building epics base
+
+\end{description}\begin{verbatim}README.html
+\end{verbatim}\index{README.html}\begin{description}\item html version of README.1st
+
+\end{description}\begin{verbatim}README.MS_WINDOWS
+\end{verbatim}\index{README.MS\_WINDOWS}\begin{description}\item Microsoft WIN32 specific instructions
+
+\end{description}\begin{verbatim}README.niCpu030
+\end{verbatim}\index{README.niCpu030}\begin{description}\item NI cpu030 specific instructions
+
+\end{description}\begin{verbatim}README.hpux
+\end{verbatim}\index{README.hpux}\begin{description}\item \index{hpux}HPUX 11 (hpux-parisc) specific instructions
+
+\end{description}\begin{verbatim}README.cris
+\end{verbatim}\index{README.cris}\begin{description}\item Cris architecture specific instructions
+
+\end{description}\begin{verbatim}README.tru64unix
+\end{verbatim}\index{README.tru64unix}
+\index{README.tru64unix}\begin{description}\item Tru64Unix/Alpha specific instructions
+
+\end{description}\begin{verbatim}README.darwin.html
+\end{verbatim}\index{README.darwin.html}\begin{description}\item Installation notes for Mac OS X (Darwin)
+
+\end{description}\begin{verbatim}BuildingR3.13AppsWithR3.14.html
+\end{verbatim}\index{BuildingR3.13AppsWithR3.14.html}\begin{description}\item Describes how to modify a R3.13 vxWorks application so that it builds with release R3.14.1.
+
+\end{description}\begin{verbatim}ConvertingR3.13AppsToR3.14.html
+\end{verbatim}\index{ConvertingR3.13AppsToR3.14.html}\begin{description}\item Describes how to convert a R3.13 vxWorks application so that it contains a R3.14 configure directory and R3.14 
+Makefiles and builds with R3.14.1.
+
+\end{description}\begin{verbatim}ConvertingR3.14.0alpha2AppsTobeta1.html
+\end{verbatim}\begin{description}\item Describes how to modify a R3.14.0alpha1 application so that it builds with release R3.14.0beta1.
+
+\end{description}\begin{verbatim}ConvertingR3.14.0beta1AppsTobeta2.html
+\end{verbatim}\begin{description}\item Describes how to modify a R3.14.0beta1 application so that it builds with release R3.14.0beta2.
+
+\end{description}\begin{verbatim}ConvertingR3.14.0beta2AppsToR3.14.1.html
+\end{verbatim}\begin{description}\item Describes how to modify a R3.14.0beta2 application so that it builds with release R3.14.1.
+
+\end{description}\begin{verbatim}ConvertingR3.14.*AppsToR3.14.*.html
+\end{verbatim}\begin{description}\item Describes how to modify a R3.14.* application so that it builds with next release after R3.14.*.
+
+\end{description}\begin{verbatim}BuildingR3.13ExtensionsWithR3.14.html
+\end{verbatim}\index{BuildingR3.13ExtensionsWithR3.14.html}\begin{description}\item Describes how to modify a R3.13 extension so that it builds with release R3.14.1.
+
+\end{description}\begin{verbatim}RELEASE_NOTES.html
+\end{verbatim}\index{RELEASE\_NOTES.html}\begin{description}\item Describes changes in the R3.14.1 release
+
+\end{description}\begin{verbatim}KnownProblems.html
+\end{verbatim}\index{KnownProblems.html}\begin{description}\item List of known problems in EPICS base R3.14.1.
+
+\end{description}\begin{verbatim}ReleaseChecklist.html
+\end{verbatim}\index{ReleaseChecklist.html}\begin{description}\item Checklist of things that must be done when creating a new release of EPICS Base.
+
+\end{description}\section{Startup Files}
+
+\index{Startup files}
+\index{Startup Files}\subsection{Base Startup Directory}
+
+The base/startup directory contains scripts to help users set the required environment variables and path. The appropriate 
+startup files should be executed before any EPICS builds.
+
+\subsection{Base Startup File Descriptions}
+
+\index{Startup File Descriptions}The scripts currently in the base/startup directory are:
+
+\begin{verbatim}EpicsHostArch
+\end{verbatim}\index{EpicsHostArch}\begin{description}\item c shell script to set EPICS\_HOST\_ARCH environment variable
+
+\end{description}\begin{verbatim}EpicsHostArch.pl
+\end{verbatim}\index{EpicsHostArch.pl}\begin{description}\item perl script to set EPICS\_HOST\_ARCH environment variable
+
+\end{description}\begin{verbatim}Site.profile
+\end{verbatim}\index{Site.profile}\begin{description}\item Unix bourne shell script to set path and environment variables
+
+\end{description}\begin{verbatim}Site.cshrc
+\end{verbatim}\index{Site.cshrc}\begin{description}\item Unix c shell script to set path and environment variables
+
+\end{description}\begin{verbatim}cygwin.bat
+\end{verbatim}\index{cygwin.bat}\begin{description}\item WIN32 bat file to set path and environment variables for building with cygwin gcc/g++ compilers
+
+\end{description}\begin{verbatim}win32.bat
+\end{verbatim}\index{win32.bat}\begin{description}\item WIN32 bat file to set path and environment variables for building with MS Visual C++ compilers
+
+\end{description}
+
+
+
+
+
+
+
+

@@ -1,0 +1,755 @@
+
+
+
+
+
+
+\chapter{IOC Test Facilities}
+
+\section{Overview}
+
+This chapter describes a number of IOC test routines that are of interest to both application developers and system 
+developers. The routines are available from either iocsh or the vxWorks shell. In both shells the parentheses around 
+arguments are optional. On vxWorks all character string arguments must be enclosed in double quote characters \verb|""| and 
+all arguments must be separated by commas. For \index{iocsh}iocsh single or double quotes must be used around string arguments that 
+contain spaces or commas but are otherwise optional, and arguments may be separated by either commas or spaces. For 
+example:
+
+\begin{verbatim}dbpf("aiTest","2")
+dbpf "aiTest","2"
+\end{verbatim}are both valid with both iocsh and with the vxWorks shell.
+
+\begin{verbatim}dbpf aiTest 2
+\end{verbatim}Is valid for iocsh but not for the vxWorks shell.
+
+Both iosch and vxWorks shells allow output redirection, i.e. the standard output of any command can be redirected to a 
+file. For example
+
+\begin{verbatim}dbl > dbl.lst
+\end{verbatim}will send the output of the \verb|dbl| command to the file \verb|dbl.lst|
+
+If iocsh is being used it provides help for all commands that have been registered. Just type
+
+\begin{verbatim}help
+\end{verbatim}or
+
+\begin{verbatim}help pattern*
+\end{verbatim}\section{Database List, Get, Put}
+
+\subsection{dbl}
+
+\index{dbl}Database List:
+
+\begin{verbatim}dbl("<record type>","<field list>")
+\end{verbatim}Examples
+
+\begin{verbatim}dbl
+dbl("ai")
+dbl("*")
+dbl("")
+
+\end{verbatim}This command prints the names of records in the run time database. If \verb|<record type>| is empty\verb|("")|, \verb|"*"|, or not 
+specified, all records are listed. If \verb|<record type>| is specified, then only the names of the records of that type are 
+listed.
+
+If  \verb|<field list> |is given and not empty then the values of the fields specified are also printed.
+
+\subsection{dbgrep}
+
+\index{dbgrep}List Record Names That Match a Pattern:
+
+\begin{verbatim}dbgrep("<pattern>")
+\end{verbatim}Examples
+
+\begin{verbatim}dbgrep("S0*")
+dbgrep("*gpibAi*")
+\end{verbatim}Lists all record names that match a pattern. The pattern can contain any characters that are legal in record names as well as 
+"*", which matches 0 or more characters.
+
+\subsection{dbla}
+
+\index{dbla}List Record Alias Names with optional pattern:
+
+\begin{verbatim}dbla
+dbla("<pattern>")
+\end{verbatim}Lists the names of all aliases (which match the pattern if given) and the records they refer to. Examples:
+
+\begin{verbatim}dbla
+dbla "alia*"
+\end{verbatim}\subsection{dba}
+
+\index{dba}Database Address:
+
+\begin{verbatim}dba("<record_name.field_name>")
+\end{verbatim}Example
+
+\begin{verbatim}dba("aitest")
+dba("aitest.VAL")
+\end{verbatim}This command calls \verb|dbNameToAddr| and then prints the value of each field in the \verb|dbAddr| structure describing the field. 
+If the field name is not specified then \verb|VAL| is assumed (the two examples above are equivalent).
+
+\subsection{dbgf}
+
+\index{dbgf}Get Field:
+
+\begin{verbatim}dbgf("<record_name.field_name>")
+\end{verbatim}Example:
+
+\begin{verbatim}dbgf("aitest")
+dbgf)"aitest.VAL")
+\end{verbatim}This performs a \verb|dbNameToAddr| and then a \verb|dbGetField|. It prints the field type and value. If the field name is not 
+specified then \verb|VAL| is assumed (the two examples above are equivalent). Note that \verb|dbGetField| locks the record lockset, 
+so \verb|dbgf| will not work on a record with a stuck lockset; use \verb|dbpr| instead in this case.
+
+\subsection{dbpf}
+
+\index{dbpf}Put Field:
+
+\begin{verbatim}dbpf("<record_name.field_name>","<value>")
+\end{verbatim}Example:
+
+\begin{verbatim}dbpf("aitest","5.0")
+\end{verbatim}This command performs a \verb|dbNameToAddr| followed by a \verb|dbPutField| and \verb|dbgf|. If \verb|<field_name>| is not specified 
+\verb|VAL| is assumed. 
+
+\subsection{dbpr}
+
+\index{dbpr}Print Record:
+
+\begin{verbatim}dbpr("<record_name>",<interest level>)
+\end{verbatim}Example
+
+\begin{verbatim}dbpr("aitest",2)
+\end{verbatim}This command prints all fields of the specified record up to and including those with the indicated interest level. Interest 
+level has one of the following values:
+
+\begin{itemize}\item 0:  Fields of interest to an Application developer and that can be changed as a result of record processing.
+
+\item 1:  Fields of interest to an Application developer and that do not change during record processing.
+
+\item 2: Fields of major interest to a System developer.
+
+\item 3: Fields of minor interest to a System developer.
+
+\item 4: Fields of no interest.
+
+\end{itemize}\subsection{ dbtr}
+
+\index{dbtr}Test Record:
+
+\begin{verbatim}dbtr("<record_name>")
+\end{verbatim}This calls \verb|dbNameToAddr|, then \verb|dbProcess| and finally \verb|dbpr| (interest level 3). Its purpose is to test record processing.
+
+\subsection{dbnr}
+
+\index{dbnr}Print number of records:
+
+\begin{verbatim}dbnr(<all_recordtypes>)
+\end{verbatim}This command displays the number of records of each type and the total number of records. If \verb|all_record_types| is 
+0 then only record types with record instances are displayed otherwise all record types are displayed.
+
+\section{Breakpoints}
+
+\index{Breakpoints}A breakpoint facility that allows the user to step through database processing on a per lockset basis. This facility has been 
+constructed in such a way that the execution of all locksets other than ones with breakpoints will not be interrupted. This 
+was done by executing the records in the context of a separate task.
+
+The breakpoint facility records all attempts to process records in a lockset containing breakpoints. A record that is 
+processed through external means, e.g.: a scan task, is called an entrypoint into that lockset. The \verb|dbstat| command 
+described below will list all detected entrypoints to a lockset, and at what rate they have been detected.
+
+\subsection{dbb}
+
+\index{dbb}Set Breakpoint:
+
+\begin{verbatim}dbb("<record_name>")
+\end{verbatim}Sets a breakpoint in a record. Automatically spawns the \verb|bkptCont|, or breakpoint continuation task (one per lockset). 
+Further record execution in this lockset is run within this task's context. This task will automatically quit if two conditions 
+are met, all breakpoints have been removed from records within the lockset, and all breakpoints within the lockset have 
+been continued.
+
+\subsection{dbd}
+
+\index{dbd}Remove Breakpoint:
+
+\begin{verbatim}dbd("<record_name>")
+\end{verbatim}Removes a breakpoint from a record.
+
+\subsection{dbs}
+
+\index{dbs}Single Step:
+
+\begin{verbatim}dbs("<record_name>")
+\end{verbatim}Steps through execution of records within a lockset. If this command is called without an argument, it will automatically 
+step starting with the last detected breakpoint.
+
+\subsection{dbc}
+
+\index{dbc}Continue:
+
+\begin{verbatim}dbc("<record_name>")
+\end{verbatim}Continues execution until another breakpoint is found. This command may also be called without an argument.
+
+\subsection{dbp }
+
+\index{dbp}Print Fields Of Suspended Record:
+
+\begin{verbatim}dbp("<record_name>,<interest_level>)
+\end{verbatim}Prints out the fields of the last record whose execution was suspended.
+
+\subsection{dbap}
+
+\index{dbap}Auto Print:
+
+\begin{verbatim}dbap("<record_name>")
+\end{verbatim}Toggles the automatic record printing feature. If this feature is enabled for a given record, it will automatically be printed 
+after the record is processed.
+
+\subsection{dbstat}
+
+\index{dbstat}Status:
+
+\begin{verbatim}dbstat
+\end{verbatim}Prints out the status of all locksets that are suspended or contain breakpoints. This lists all the records with breakpoints 
+set, what records have the autoprint feature set (by \verb|dbap|), and what entrypoints have been detected. It also displays the 
+vxWorks task ID of the breakpoint continuation task for the lockset. Here is an example output from this call:
+
+\begin{verbatim}LSet: 00009  Stopped at: so#B: 00001   T: 0x23cafac
+             Entrypoint: so#C: 00001   C/S:     0.1
+             Breakpoint: so(ap)
+LSet: 00008#B: 00001   T: 0x22fee4c
+             Breakpoint: output
+\end{verbatim}The above indicates that two locksets contain breakpoints. One lockset is stopped at record "\verb|so|." The other is not 
+currently stopped, but contains a breakpoint at record "\verb|output|." "\verb|LSet|:" is the lockset number that is being considered. 
+"\verb|#B:|" is the number of breakpoints set in records within that lockset. "\verb|T:|" is the vxWorks task ID of the continuation 
+task. "\verb|C:|" is the total number of calls to the entrypoint that have been detected. "\verb|C/S:|" is the number of those calls that 
+have been detected per second. \verb|(ap)| indicates that the autoprint feature has been turned on for record "\verb|so|."
+
+\section{Trace Processing}
+
+\index{Trace Processing}The user should also be aware of the field \verb|TPRO|, which is present in every database record. If it is set \verb|TRUE| then a 
+message is printed each time its record is processed and a message is printed for each record processed as a result of it 
+being processed.
+
+\index{TPRO}\section{Error Logging}
+
+\subsection{eltc}
+
+\index{eltc}Display error log messages on console:
+
+\begin{verbatim}eltc(int noYes)
+\end{verbatim}This determines if error messages are displayed on the IOC console. 0 means no and any other value means yes.
+
+\subsection{errlogInit, errlogInit2}
+
+Initialize error log client buffering
+
+\begin{verbatim}errlogInit(int bufSize)
+errlogInit2(int bufSize, int maxMsgSize)
+\end{verbatim}The error log client maintains a circular buffer of messages that are waiting to be sent to the log server.  If not set using 
+one or other of these routines the default value for bufSize is 1280 bytes and for maxMsgSize is 256 bytes.
+
+\subsection{errlog}
+
+Send a message to the log server
+
+\begin{verbatim}errlog("<message>")
+\end{verbatim}This command is provided for use from the ioc shell only.  It sends its string argument and a new-line to the log server, 
+without displaying it on the IOC console. Note that the iocsh will have expanded any environment variable macros in the 
+string (if it was double-quoted) before passing it to errlog.
+
+\section{Hardware Reports}
+
+\subsection{dbior}
+
+\index{dbior}I/O Report:
+
+\begin{verbatim}dbior ("<driver_name>",<interest level>)
+\end{verbatim}This command calls the report entry of the indicated driver. If \verb|<driver_name>| is "" or "*", then a report for all drivers 
+is generated. The command also calls the report entry of all device support modules. Interest level is one of the following:
+
+\begin{itemize}\item 0: Print a short report for each module.
+
+\item 1:  Print additional information.
+
+\item 2:  Print even more info. The user may be prompted for options.
+
+\end{itemize}\subsection{dbhcr}
+
+\index{dbhcr}Hardware Configuration Report:
+
+\begin{verbatim}dbhcr()
+\end{verbatim}This command produces a report of all hardware links. To use it on the IOC, issue the command:
+
+\begin{verbatim}dbhcr > report
+\end{verbatim}The report will probably not be in the sort order desired. The Unix command:
+
+\begin{verbatim}sort report > report.sort
+\end{verbatim}should produce the sort order you desire.
+
+\section{Scan Reports}
+
+\subsection{scanppl}
+
+\index{scanppl}Print Periodic Lists:
+
+\begin{verbatim}scanppl(double rate)
+\end{verbatim}This routine prints a list of all records in the periodic scan list of the specified rate. If rate is 0.0 all period lists are shown.
+
+\subsection{scanpel}
+
+\index{scanpel}Print Event Lists:
+
+\begin{verbatim}scanpel(int event_number)
+\end{verbatim}This routine prints a list of all records in the event scan list for the specified event nunber. If event\_number is 0 all event 
+scan lists are shown.
+
+\subsection{scanpiol}
+
+\index{scanpiol}Print I/O Event Lists:
+
+\begin{verbatim}scanpiol
+\end{verbatim}This routine prints a list of all records in the I/O event scan lists.
+
+\section{General Time}
+
+The built-in time providers depend on the IOC's target architecture, so some of the specific subsystem report commands 
+listed below are only available on the architectures that use that particular provider.
+
+\subsection{generalTimeReport}
+
+\index{generalTimeReport}Format:
+
+\begin{verbatim}generalTimeReport(int level)
+\end{verbatim}This routine displays the time providers and their priority levels that have registered with the General Time subsystem  for 
+both current and event times. At level 1 it also shows the current time as obtained from each provider.
+
+\subsection{installLastResortEventProvider}
+
+\index{installLastResortEventProvider}Format:
+
+\begin{verbatim}installLastResortEventProvider
+\end{verbatim}Installs the optional Last Resort event provider at priority 999, which returns the current time for every event number.
+
+\subsection{NTPTime\_Report}
+
+\index{NTPTime\_Report}Format:
+
+\begin{verbatim}NTPTime_Report(int level)
+\end{verbatim}Only vxWorks and RTEMS targets use this time provider. The report displays the provider's synchronization state, and at 
+interest level 1 it also gives the synchronization interval, when it last synchronized, the nominal and measured system tick 
+rates, and on vxWorks the NTP server address.
+
+\subsection{NTPTime\_Shutdown}
+
+Format:
+
+\begin{verbatim}NTPTime_Shutdown
+\end{verbatim}On vxWorks and RTEMS this command shuts down the NTP time synchronization thread. With the thread shut down, the 
+driver will no longer act as a current time provider.
+
+\subsection{ClockTime\_Report}
+
+\index{ClockTime\_Report}Format:
+
+\begin{verbatim}ClockTime_Report(int level)
+\end{verbatim}This time provider is used on several target architectures, registered as the time provider of last resort. On vxWorks and 
+RTEMS the report displays the synchronization state, when it last synchronized the system time with a higher priority 
+provider, and the synchronization interval. On workstation operating systems the synchronization task is not started on the 
+assumption that some other process is taking care of synchronzing the OS clock as appropriate, so the report is minimal.
+
+\subsection{ClockTime\_Shutdown}
+
+\index{ClockTime\_Shutdown}Format:
+
+\begin{verbatim}ClockTime_Shutdown
+\end{verbatim}Some sites may prefer to provide their own implementation of a system clock time provider to replace the built-in one. On 
+vxWorks and RTEMS this command stops the OS Clock synchronization thread, allowing the OS clock to free-run.  The 
+time provider \emph{will} continue to return the current system time after this command is used however.
+
+\section{Access Security Commands}
+
+\subsection{asSetSubstitutions}
+
+Format:
+
+\begin{verbatim}asSetSubstitutions("substitutions")
+\end{verbatim}Specifies macro substitutions used when access security is initialized.
+
+\subsection{asSetFilename}
+
+\index{asSetFilename}Format:
+
+\begin{verbatim}asSetFilename("<filename>")
+\end{verbatim}This command defines a new access security file.
+
+\subsection{asInit}
+
+\index{asInit}Format:
+
+\begin{verbatim}asInit
+\end{verbatim}This command reinitializes the access security system.  It rereads the access security file in order to create the new access 
+security database. This command is useful either because the \verb|asSetFilename| command was used to change the file or 
+because the file itself was modified.  Note that it is also possible to reinitialize the access security via a subroutine record.  
+See the access security document for details.
+
+\subsection{asdbdump}
+
+\index{asdbdump}Format:
+
+\begin{verbatim}asdbdump
+\end{verbatim}This provides a complete dump of the access security database.
+
+\subsection{aspuag}
+
+\index{aspuag}Format:
+
+\begin{verbatim}aspuag("<user access group>")
+\end{verbatim}Print the members of the user access group.  If no user access group is specified then the members of all user access 
+groups are displayed.
+
+\subsection{asphag}
+
+\index{asphag}Format:
+
+\begin{verbatim}asphag("<host access group>")
+\end{verbatim}Print the members of the host access group.  If no host access group is specified then the members of all host access 
+groups are displayed.
+
+\subsection{asprules}
+
+\index{asprules}Format:
+
+\begin{verbatim}asprules("<access security group>")
+\end{verbatim}Print the rules for the specified access security group or if no group is specified for all groups.
+
+\subsection{aspmem}
+
+\index{aspmem}Format:
+
+\begin{verbatim}aspmem("<access security group>", <print clients>)
+\end{verbatim}Print the members (records) that belong to the specified access security group, for all groups if no group is specified.  If 
+\verb|<print clients>| is (0, 1) then Channel Access clients attached to each member (are not, are) shown.
+
+\section{Channel Access Reports}
+
+\subsection{casr}
+
+\index{casr}Channel Access Server Report
+
+\begin{verbatim}casr(<level>)
+\end{verbatim}Level can have one of the following values:
+
+\begin{description}\item 0 
+
+\end{description}Prints server's protocol version level and a one line summary for each client attached. The summary lines 
+contain the client's login name, client's host name, client's protocol version number, and the number of 
+channel created within the server by the client.
+
+\begin{description}\item 1
+
+\end{description}Level one provides all information in level 0 and adds the task id used by the server for each client, the 
+client's IP protocol type, the file number used by the server for the client, the number of seconds elapsed 
+since the last request was received from the client, the number of seconds elapsed since the last response 
+was sent to the client, the number of unprocessed request bytes from the client, the number of response bytes 
+which have not been flushed to the client, the client's IP address, the client's port number, and the client's 
+state.
+
+\begin{description}\item 2
+
+\end{description}Level two provides all information in levels 0 and 1 and adds the number of bytes allocated by each client 
+and a list of channel names used by each client. Level 2 also provides information about the number of bytes 
+in the server's free memory pool, the distribution of entries in the server's resource hash table, and the list of 
+IP addresses to which the server is sending beacons. The channel names are shown in the form:
+
+\textless{}name\textgreater{}(nrw)
+
+
+
+where
+
+n is number of ca\_add\_events the client has on this channel
+
+r is (-,R) if client (does not, does) have read access to the channel.
+
+w is(-, W) if client (does not, does) have write access to the channel.
+
+\subsection{dbel}
+
+\index{dbel}Format:
+
+\begin{verbatim}dbel("<record_name>")
+\end{verbatim}This routine prints the Channel Access event list for the specified record.
+
+\subsection{dbcar}
+
+\index{dbcar}Database to Channel Access Report - See "Record Link Reports"
+
+\subsection{ascar}
+
+\index{ascar}Format:
+
+\begin{verbatim}ascar(level)
+\end{verbatim}Prints a report of the channel access links for the INP fields of the access security rules. Level 0 produces a summary 
+report. Level 1 produces a summary report plus details on any unconnect channels. Level 2 produces the summary nreport 
+plus a detail report on each channel.
+
+\section{Interrupt Vectors}
+
+\subsection{veclist}
+
+\index{veclist}Format:
+
+\begin{verbatim}veclist
+\end{verbatim}NOTE: This routine is only available on vxWorks. On PowerPC CPUs it requires BSP support to work, and even then it 
+cannot display chained interrupts using the same vector.
+
+Print Interrupt Vector List
+
+\section{Miscellaneous}
+
+\subsection{epicsParamShow}
+
+\index{epicsParamShow}Format:
+
+\begin{verbatim}epicsParamShow
+or
+epicsPrtEnvParams
+\end{verbatim}Print the environment variables that are created with epicsEnvSet. These are defined in \textless{}base\textgreater{}/config/CONFIG\_ENV 
+and \textless{}base\textgreater{}/config/CONFIG\_SITE\_ENV or else by user applications calling \verb|epicsEnvSet|.
+
+\subsection{epicsEnvShow}
+
+\index{epicsEnvShow}Format:
+
+\begin{verbatim}epicsEnvShow("<name>")
+\end{verbatim}Show Environment variables. On vxWorks it shows the variables created via calls to \verb|putenv|.
+
+\subsection{coreRelease}
+
+\index{coreRelease}Format:
+
+\begin{verbatim}coreRelease
+\end{verbatim}Print release information for iocCore.
+
+\section{Database System Test Routines}
+
+These routines are normally only of interest to EPICS system developers NOT to Application Developers.
+
+\subsection{dbtgf}
+
+\index{dbtgf}Test Get Field:
+
+\begin{verbatim}dbtgf("<record_name.field_name>")
+\end{verbatim}Example:
+
+\begin{verbatim}dbtgf("aitest")
+dbtgf)"aitest.VAL")
+\end{verbatim}This performs a \verb|dbNameToAddr| and then calls \verb|dbGetField| with all possible request types and options. It prints the 
+results of each call. This routine is of most interest to system developers for testing database access.
+
+\subsection{dbtpf}
+
+\index{dbtpf}Test Put Field:
+
+\begin{verbatim}dbtpf("<record_name.field_name>","<value>")
+\end{verbatim}Example:
+
+\begin{verbatim}dbtpf("aitest","5.0")
+\end{verbatim}This command performs a \verb|dbNameToAddr|, then calls \verb|dbPutField,| followed by \verb|dbgf| for each possible request type. 
+This routine is of interest to system developers for testing database access.
+
+\subsection{dbtpn}
+
+\index{dbtpn}Test Put Notify:
+
+\begin{verbatim}dbtpn("<record_name.field_name>","<value>")
+\end{verbatim}Example:
+
+\begin{verbatim}dbtpn("aitest","5.0")
+\end{verbatim}This command performs a \verb|dbNameToAddr|, then calls \verb|dbPutNotify| and has a callback routine that prints a message 
+when it is called. This routine is of interest to system developers for testing database access.
+
+\section{Record Link Reports}
+
+\subsection{dblsr}
+
+\index{dblsr}Lock Set Report:
+
+\begin{verbatim}dblsr(<recordname>,<level>)
+\end{verbatim}This command generates a report showing the lock set to which each record belongs. If \verb|recordname| is 0, "", or "*" all 
+records are shown, otherwise only records in the same lock set as \verb|recordname| are shown.
+
+\verb|level| can have the following values:
+
+\begin{description}\item 0 - Show lock set information only.
+
+\item 1 - Show each record in the lock set.
+
+\item 2 - Show each record and all database links in the lock set.
+
+\end{description}\subsection{dbLockShowLocked}
+
+\index{dbLockShowLocked}Show locked locksets:
+
+\begin{verbatim}dbLockShowLocked(<level>)
+\end{verbatim}This command generates a report showing all locked locksets, the records they contain, the lockset state and the thread 
+that currently owns the lockset. The \verb|level| argument is passed to \verb|epicsMutexShow| to adjust the information reported 
+about each locked epicsMutex.
+
+\subsection{dbcar}
+
+\index{dbcar}Database to channel access report
+
+\begin{verbatim}dbcar(<recordname>,<level>)
+\end{verbatim}This command generates a report showing database channel access links. If \verb|recordname| is "*" then information about 
+all records is shown otherwise only information about the specified record.
+
+\verb|level| can have the following values:
+
+\begin{description}\item 0 - Show summary information only.
+
+\item 1 - Show summary and each CA link that is not connected.
+
+\item 2 - Show summary and status of each CA link.
+
+\end{description}\subsection{dbhcr}
+
+\index{dbhcr}Report hardware links. See "Hardware Reports".
+
+\section{Old Database Access Testing}
+
+These routines are of interest to EPICS system developers. They are used to test the old database access interface, which 
+is still used by Channel Access.
+
+\subsection{gft}
+
+\index{gft}Get Field Test:
+
+\begin{verbatim}gft("<record_name.field_name>")
+\end{verbatim}Example:
+
+\begin{verbatim}gft("aitest")
+gft("aitest.VAL")
+\end{verbatim}This performs a \verb|db_name_to_addr| and then calls \verb|db_get_field| with all possible request types. It prints the results 
+of each call. This routine is of interest to system developers for testing database access.
+
+\subsection{pft}
+
+\index{pft}Put Field Test:
+
+\begin{verbatim}pft("<record_name.field_name>","<value>")
+\end{verbatim}Example:
+
+\begin{verbatim}pft("aitest","5.0")
+\end{verbatim}This command performs a \verb|db_name_to_addr|, \verb|db_put_field|, \verb|db_get_field| and prints the result for each 
+possible request type. This routine is of interest to system developers for testing database access.
+
+\subsection{tpn}
+
+\index{tpn}Test Put Notify:
+
+\begin{verbatim}tpn("<record_name.field_name>","<value>")
+\end{verbatim}Example:
+
+\begin{verbatim}tpn("aitest","5.0")
+\end{verbatim}This routine tests \verb|dbPutNotify| via the old database access interface.
+
+\section{Routines to dump database information}
+
+\subsection{dbDumpPath}
+
+\index{dbDumpMenu}Dump Path:
+
+\begin{verbatim}dbDumpPath(pdbbase)
+\end{verbatim}
+
+\begin{verbatim}   dbDumpPath(pdbbase)
+\end{verbatim}The current path for database includes is displayed.
+
+\subsection{dbDumpMenu}
+
+\index{dbDumpMenu}Dump Menu:
+
+\begin{verbatim}dbDumpMenu(pdbbase,"<menu>")
+\end{verbatim}
+
+\begin{verbatim}   dbDumpMenu(pdbbase,"menuScan")
+\end{verbatim}If the second argument is 0 then all menus are displayed.
+
+
+
+\subsection{dbDumpRecordType}
+
+\index{dbDumpRecordType}Dump Record Description:
+
+\begin{verbatim}dbDumpRecordType(pdbbase,"<record type>")
+\end{verbatim}
+
+\begin{verbatim}   dbDumpRecordType(pdbbase,"ai")
+\end{verbatim}If the second argument is 0 then all descriptions of all records are displayed.
+
+\subsection{dbDumpField}
+
+\index{dbDumpField}Dump Field Description:
+
+\begin{verbatim}dbDumpField(pdbbase,"<record type>","<field name>")
+\end{verbatim}
+
+\begin{verbatim}   dbDumpField(pdbbase,"ai","VAL")
+\end{verbatim}If the second argument is 0 then the field descriptions of all records are displayed. If the third argument is 0 then the 
+description of all fields are displayed.
+
+\subsection{dbDumpDevice}
+
+\index{dbDumpDevice}Dump Device Support:
+
+\begin{verbatim}dbDumpDevice(pdbbase,"<record type>")
+\end{verbatim}
+
+\begin{verbatim}   dbDumpDevice(pdbbase,"ai")
+\end{verbatim}If the second argument is 0 then the device support for all record types is displayed.
+
+\subsection{dbDumpDriver}
+
+\index{dbDumpDriver}Dump Driver Support:
+
+\begin{verbatim}dbDumpDriver(pdbbase)
+\end{verbatim}
+
+\begin{verbatim}   dbDumpDriver(pdbbase)
+\end{verbatim}\subsection{dbDumpRecord}
+
+\index{dbDumpRecords}Dump Record Instances:
+
+\begin{verbatim}dbDumpRecord(pdbbase,"<record type>",level)
+\end{verbatim}
+
+\begin{verbatim}   dbDumpRecords(pdbbase,"ai")
+\end{verbatim}If the second argument is 0 then the record instances for all record types are displayed. The third argument determines 
+which fields are displayed just like for the command \verb|dbpr.|
+
+\subsection{dbDumpBreaktable}
+
+Dump breakpoint table
+
+\begin{verbatim}dbDumpBreaktable(pdbbase,name)
+\end{verbatim}
+
+\begin{verbatim}   dbDumpBreaktable(pdbbase,"typeKdegF")
+\end{verbatim}This command dumps a breakpoint table. If the second argument is 0 all breakpoint tables are dumped.
+
+\subsection{dbPvdDump}
+
+\index{dbPvdDump}Dump the Process variable Directory:
+
+\begin{verbatim}dbPvdDump(pdbbase,verbose)
+\end{verbatim}
+
+\begin{verbatim}   dbPvdDump(pdbbase,0)
+\end{verbatim}This command shows how many records are mapped to each hash table entry of the process variable directory. If verbose 
+is not 0 then the command also displays the names which hash to each hash table entry.
+
+
+
+

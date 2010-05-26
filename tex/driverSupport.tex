@@ -1,0 +1,145 @@
+\chapter{\index{58383: LOCALTITLE: Chapter 8 Record And Device Support}Driver Support}
+
+\section{Overview}
+
+It is not necessary to create a driver support module in order to interface EPICS to hardware. For simple hardware device 
+support is sufficient. At the present time most hardware support has both. The reason for this is historical. Before EPICS 
+there was GTACS. During the change from GTACS to EPICS, record support was changed drastically. In order to 
+preserve all existing hardware support the GTACS drivers were used without change. The device support layer was 
+created just to shield the existing drivers form the record support changes.
+
+Since EPICS now has both device and driver support the question arises: When do I need driver support and when don't 
+I? Lets give a few reasons why drivers should be created.
+
+\begin{itemize}\item The hardware is actually a subnet, e.g. GPIB. In this case a driver should be provided for accessing the subnet. 
+There is no reason to make the driver aware of EPICS except possibly for issuing error messages.
+
+\item The hardware is complicated. In this case supplying driver support helps modularized the software. The Allen 
+Bradley driver, which is also an example of supporting a subnet, is a good example.
+
+\item An existing driver, maintained by others, is available. I don't know of any examples.
+
+\item The driver should be general purpose, i.e. not tied to EPICS. The CAMAC driver is a good example. It is used by 
+other systems, such as CODA. This is perhaps the most important reason for driver support.
+
+\item For common devices, e.g. GPIB, CAN, CAMAC, etc. a generic driver layer should be created. This generic layer 
+should be independent of EPICS and independent of low level interfaces. It should also define an inteface for low 
+level drivers. This allows low level interfaces to be replaced without impacting IOC records, record support, or 
+device support.
+
+\end{itemize}The only thing needed to interface a driver to EPICS is to provide a driver support module, which can be layered on top of 
+an existing driver, and provide a database definition for the driver. The driver support module is described in the next 
+section. The database definition is described in chapter "Database Definition".
+
+\section{Device Drivers}
+
+Device drivers are modules that interface directly with the hardware. They are provided to isolate device support routines 
+from details of how to interface to the hardware. Device drivers have no knowledge of the internals of database records. 
+Thus there is no necessary correspondence between record types and device drivers. For example the Allen Bradley driver 
+provides support for many different types of signals including analog inputs, analog outputs, binary inputs, and binary 
+outputs. 
+
+In general only device support routines know how to call device drivers. Since device support varies widely from device 
+to device, the set of routines provided by a device driver is almost completely driver dependent. The only requirement is 
+that routines \verb|report| and \verb|init| must be provided. Device support routines must, of course, know what routines are 
+provided by a driver.
+
+File \verb|drvSup.h| describes the format of a driver support entry table. The driver support module must supply a driver entry 
+table. An example definition is:
+
+\begin{verbatim}LOCAL long report();
+LOCAL long init();
+struct {
+        long    number;
+        DRVSUPFUN       report;
+        DRVSUPFUN       init;
+} drvAb={
+        2,
+        report,
+        init
+};
+epicsExportAddress(drvet,drvGpib);
+\end{verbatim}\index{Driver Support Entry Table Example}The above example is for the Allen Bradley driver. It has an associated ascii definition of:
+
+\begin{verbatim}driver(drvGpib)
+\end{verbatim}Thus it is seen that the driver support module should supply two EPICS callable routines: \verb|int| and \verb|report|.
+
+\subsubsection{init}
+
+This routine, which has no arguments, is called by \verb|iocInit|. The driver is expected to look for and initialize the 
+hardware it supports. As an example the init routine for Allen Bradley is:
+
+\begin{verbatim}LOCAL long init()
+{
+    return(ab_driver_init());
+}
+\end{verbatim}\subsubsection{report}
+
+The report routine is called by the \verb|dbior|, an IOC test routine. It is responsible for producing a report describing the 
+hardware it found at init time. It is passed one argument, level, which is a hint about how much information to display. An 
+example, taken from Allen Bradley, is:
+
+\begin{verbatim}LOCAL long report(int level)
+{
+   return(ab_io_report(level));
+}
+\end{verbatim}Guidelines for level are as follows:
+
+\begin{description}\item Level=0Display a one line summary for each device
+
+\item Level=1Display more information
+
+\item Level=2Display a lot of information. It is even permissible to
+
+\item prompt for what is wanted.
+
+\end{description}\subsubsection{Hardware Configuration}
+
+Hardware configuration includes the following:
+
+\begin{itemize}\item VME/VXI address space
+
+\item VME Interrupt Vectors and levels
+
+\item Device Specific Information
+
+\end{itemize}The information contained in hardware links supplies some but not all configuration information. In particular it does not 
+define the VME/VXI addresses and interrupt vectors. This additional information is what is meant by hardware 
+configuration in this chapter.
+
+The problem of defining hardware configuration information is an unsolved problem for EPICS. At one time 
+configuration information was defined in \verb|module_types|.\verb|h| Many existing device/driver support modules still uses this 
+method. It should NOT be used for any new support for the following reasons:
+
+\begin{itemize}\item There is no way to manage this file for the entire EPICS community.
+
+\item It does not allow arbitrary configuration information.
+
+\item It is hard for users to determine what the configuration information is.
+
+\end{itemize}The fact that it is now easy to include ASCII definitions for only the device/driver support used in each IOC makes the 
+configuration problem much more manageable than previously. Previously if you wanted to support a new VME modules 
+it was necessary to pick addresses that nothing in \verb|module_types|.\verb|h| was using. Now you only have to check modules 
+you are actually using.
+
+Since there are no EPICS defined rules for hardware configuration, the following minimal guidelines should be used:
+
+\begin{itemize}\item Never use \#\verb|define| to specify things like VME addresses. Instead use variables and assign default values. Allow 
+the default values to be changed before iocInit is executed. The best way is to supply a global routine that can be 
+invoked from the IOC startup file. Note that all arguments to such routines should be one of the following:
+
+\end{itemize}\verb|int|
+
+\verb|char| *
+
+\verb|double|
+
+\begin{itemize}\item Call the routines described in chapter "Device Support Library" whenever possible.
+
+\end{itemize}
+
+
+
+
+
+

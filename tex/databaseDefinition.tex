@@ -1,0 +1,1449 @@
+\chapter{\index{18142: LOCALTITLE: Chapter 4: Database Definition}Database Definition}
+
+\section{Overview}
+
+This chapter describes \index{database definitions}database definitions. The following definitions are described:
+
+\begin{itemize}\item Menu
+
+\item Record Type
+
+\item Device
+
+\item Driver
+
+\item Registrar
+
+\item Variable
+
+\item Function
+
+\item Breakpoint Table
+
+\item Record Instance
+
+\end{itemize}Record Instances are fundamentally different from the other definitions. A file containing record instances should never 
+contain any of the other definitions and vice-versa. Thus the following convention is followed:
+
+\begin{itemize}\item \index{Database Definition File}Database Definition File - A file that contains any type of definition except record instances.
+
+\item \index{Record Instance File}Record Instance File - A file that contains only record instance definitions.
+
+\end{itemize}This chapter also describes utility programs which operate on these definitions
+
+Any combination of definitions can appear in a single file or in a set of files related to each other via include files.
+
+\section{Summary of Database Syntax}
+
+\index{Database Format - Summary}The following summarizes the Database Definition syntax:
+
+\begin{verbatim}path "path"
+addpath "path"
+include "filename"
+#comment
+menu(name) {
+include "filename"
+choice(choice_name,"choice_value")
+...
+}
+
+recordtype(record_type) {
+include "filename"
+field(field_name,field_type) {
+asl(asl_level)
+initial("init_value")
+promptgroup(gui_group)
+prompt("prompt_value")
+special(special_value)
+pp(pp_value)
+interest(interest_level)
+base(base_type)
+size(size_value)
+extra("extra_info")
+menu(name)
+}
+...
+}
+
+device(record_type,link_type,dset_name,"choice_string")
+
+driver(drvet_name)
+
+registrar(function_name)
+
+variable(variable_name)
+
+breaktable(name) {
+raw_value eng_value
+...
+}
+\end{verbatim}The Following defines a Record Instance
+
+\begin{verbatim}record(record_type,record_name) {
+include "filename"
+field(field_name,"value")
+alias(alias_name)
+info(info_name,"value")
+...
+}
+alias(record_name,alias_name)
+\end{verbatim}\section{General Rules for Database Definition}
+
+\subsection{Keywords}
+
+\index{Keywords}The following are keywords, i.e. they may not be used as values unless they are enclosed in quotes:
+
+\begin{verbatim}path
+addpath
+include
+menu
+choice
+recordtype
+field
+device
+driver
+registrar
+function
+variable
+breaktable
+record
+grecord
+info
+alias
+\end{verbatim}\index{path}
+\index{addpath}
+\index{include}
+\index{menu}
+\index{choice}
+\index{recordtype}
+\index{field}
+\index{device}
+\index{driver}
+\index{registrar}
+\index{function}
+\index{variable}
+\index{breaktable}
+\index{record}
+\index{grecord}
+\index{info}
+\index{alias}\subsection{Unquoted Strings}
+
+\index{Unquoted String}In the summary section, some values are shown as quoted strings and some unquoted. The actual rule is that any string 
+consisting of only the following characters does not have to be quoted unless it contains one of the above keywords:
+
+\begin{verbatim}a-z A-Z 0-9 _ - : . [ ] < > ;
+\end{verbatim}These are also the legal characters for process variable names. Thus in many cases quotes are not needed.
+
+\subsection{Quoted Strings}
+
+\index{Quoted String}A quoted string can contain any ascii character except the quote character ". The quote character itself can given by using 
+\textbackslash{} as an escape. For example "\textbackslash{}"" is a quoted string containing the single character ".
+
+\subsection{Macro Substitution}
+
+\index{Macro Substitution}Macro substitutions are permitted inside quoted strings. Macro instances take the form:
+
+\begin{verbatim}$(name)
+\end{verbatim}or
+
+\begin{verbatim}${name}
+\end{verbatim}There is no distinction between the use of parentheses or braces for delimiters, although the two must match for a given 
+macro instance. The macro name can be made up from other macros, for example:
+
+\begin{verbatim}$(name_$(sel))
+\end{verbatim}A macro instance can also provide a default value that is used when no macro with the given name is defined. The default 
+value can be defined in terms of other macros if desired, but cannot contain any unescaped comma characters. The syntax 
+for specifying a default value is as follows:
+
+\begin{verbatim}$(name=default)
+\end{verbatim}Finally macro instances can also contain definitions of other macros, which can (temporarily) override any existing values 
+for those macros but are in scope only for the duration of the expansion of this macro instance. These definitions consist 
+of \verb|name=value| sequences separated by commas, for example:
+
+\begin{verbatim}$(abcd=$(a)$(b)$(c)$(d),a=A,b=B,c=C,d=D)
+\end{verbatim}\subsection{Escape Sequences}
+
+\index{Escape Sequence}The database routines translate standard C escape sequences inside database field value strings only. The standard C 
+escape sequences supported are:
+
+\begin{verbatim}\a \b \f \n \r \t \v \\ \? \' \" \ooo \xhh
+\end{verbatim}\verb|\ooo| represents an octal number with 1, 2, or 3 digits. \verb|\xhh| represents a hexadecimal number with 1 or 2 digits.
+
+\subsection{Define before referencing}
+
+No item can be referenced until it is defined. For example a \verb|recordtype| menu field can not reference a menu unless 
+that menu definition has already been defined. Another example is that a record instance can not appear until the 
+associated record type has been defined.
+
+\subsection{Multiple Definitions}
+
+\index{Multiple Definitions}If a menu, recordtype, device, driver, or breakpoint table is defined more than once, then only the first instance is used. 
+Record instance definitions however are (normally) cumulative, so multiple instances of the same record may be loaded 
+and each time a field value is encountered it replaces the previous value.
+
+\subsection{filename extension}
+
+\index{filename extension conventions}By convention:
+
+\begin{itemize}\item Record instances files have the extension "\verb|.db|"
+
+\item Database definition files have the extension "\verb|.dbd|"
+
+\end{itemize}\subsection{path addpath}
+
+\index{path - Database Definitions}
+\index{addpath - Database Definitions}The path follows the standard Unix convention, i.e. it is a list of directory names separated by colons (Unix) or 
+semicolons (windows).
+
+Format:
+
+\begin{verbatim}path "dir:dir...:dir"
+addpath "dir:dir...:dir
+\end{verbatim}NOTE: On windows the separator is \verb|;| instead of \verb|:|
+
+The \verb|path| command specifies the current path. The \verb|addpath| appends directory names to the current path. The path is 
+used to locate the initial database file and included files. An empty \verb|dir| at the beginning, middle, or end of a non-empty 
+path string means the current directory. For example:
+
+\begin{verbatim} nnn::mmm    # Current directory is between nnn and mmm
+ :nnn        # Current directory is first
+ nnn:        # Current directory is last
+\end{verbatim}Utilities which load database files (\verb|dbExpand|, \verb|dbLoadDatabase|, etc.) allow the user to specify an initial path. The 
+\verb|path| and \verb|addpath| commands can be used to change or extend the initial path.
+
+The initial path is determined as follows:
+
+\begin{description}\item If an initial path is specified, it is used. Else:
+
+\item If the environment variable \verb|EPICS_DB_INCLUDE_PATH| is defined, it is used. Else:
+
+\item the default path is ".", i.e. the current directory.
+
+\end{description}The path is used unless the filename contains a / or \textbackslash{}. The first directory containing the specified file is used.
+
+\subsection{include}
+
+\index{include - Database Definitions}Format:
+
+\begin{verbatim}include "filename"
+\end{verbatim}An include statement can appear at any place shown in the summary. It uses the path as specified above.
+
+\subsection{comment}
+
+\index{comment - Database Definitions}
+\index{comment - Database Definitions}
+\index{comment - Database Definitions}The comment symbol is "\#". Whenever the comment symbol appears, it and all characters through the end of the line are 
+ignored.
+
+\section{Menu}
+
+\index{menu - Database Definitions}Format:
+
+\begin{verbatim}menu(name) {
+choice(choice_name,"choice_value")
+...
+}
+\end{verbatim}Where:
+
+\begin{description}\item name - Name for menu. This is the unique name identifying the menu. If duplicate definitions are specified, only 
+the first is used.
+
+\item choice\_name - The name placed in the \verb|enum| generated by \verb|dbToMenuH| or \verb|dbToRecordtypeH|
+
+\item choice\_value - The value associated with the choice.
+
+\end{description}Example:
+
+\begin{verbatim}menu(menuYesNo) {
+choice(menuYesNoNO,"NO")
+choice(menuYesNoYES,"YES")
+}
+\end{verbatim}\section{Record Type}
+
+\index{record type - Database Definitions}\subsection{Format:}
+
+\begin{verbatim}recordtype(record_type) {
+field(field_name,field_type) {
+asl(asl_level)
+initial("init_value")
+promptgroup(gui_group)
+prompt("prompt_value")
+special(special_value)
+pp(pp_value)
+interest(interest_level)
+base(base_type)
+size(size_value)
+extra("extra_info")
+menu("name")
+}
+...
+}
+\end{verbatim}\subsection{rules}
+
+\index{field definition rules}\begin{itemize}\item \index{asl - field definition rules}asl - Access Security Level. The default is \verb|ASL1|. Access Security is discussed in a later chapter. Only two values 
+are permitted for this field (\verb|ASL0| and \verb|ASL1|). Fields which operators normally change are assigned \verb|ASL0|. Other 
+fields are assigned \verb|ASL1|. For example, the \verb|VAL| field of an analog output record is assigned \verb|ASL0| and all other 
+fields \verb|ASL1|. This is because only the \verb|VAL| field should be modified during normal operations.
+
+\item \index{initial - field definition rules}initial - Initial Value.
+
+\item \index{[promptgroup - field definition rules}promptgroup - Prompt group to which field belongs. This is for use by Database Configuration Tools. This is 
+defined only for fields that can be given values by database configuration tools. File \verb|guigroup|.\verb|h| contains all 
+possible definitions. The different groups allow database configuration tools to present the user with groups of 
+fields rather than all prompt fields. I don't know of any tool that currently uses groups.
+
+\item \index{prompt - field definition rules}prompt - A prompt string for database configuration tools. Optional if \verb|promptgroup| is not defined.
+
+\item \index{special - field definition rules}special - If specified, then special processing is required for this field at run time.
+
+\item \index{pp - field definition rules}pp - Should a passive record be processed when Channel Access writes to this field? The default is \verb|NO|.
+
+\item \index{interest - field definition rules}interest - Only used by the \verb|dbpr| shell command.
+
+\item \index{base - field definition rules}base - For integer fields, a base of \verb|DECIMAL| or \verb|HEX| can be specified. The default is \verb|DECIMAL|.
+
+\item \index{size - field definition rules}size - Must be specified for \verb|DBF_STRING| fields.
+
+\item \index{extra - field definition rules}extra - Must be specified for \verb|DBF_NOACCESS| fields.
+
+\item \index{menu - field definition rules}menu - Must be specified for \verb|DBF_MENU| fields. It is the name of the associated menu.
+
+\end{itemize}\subsection{definitions}
+
+\begin{itemize}\item \index{record\_type - record type definition}record\_type - The unique name of the record type. If duplicates are specified, only the first definition is used.
+
+\item \index{field\_name - field definition}field\_name - The field name, which must be a valid C identifier so must start with a letter or underscore and 
+thereafter may also contain digits. When include files are generated, the field name is converted to lower case. 
+Previous versions of EPICS required that field name be a maximum of four characters. Although this restriction  no 
+longer exists, problems may arise with some Channel Access clients if longer field names are chosen.
+
+\item \index{field\_type - field definition}field\_type - This must be one of the following values:
+
+\end{itemize}\verb|DBF_STRING|
+
+\verb|DBF_CHAR|
+
+\verb|DBF_UCHAR|
+
+\verb|DBF_SHORT|
+
+\verb|DBF_USHORT|
+
+\verb|DBF_LONG|
+
+\verb|DBF_ULONG|
+
+\verb|DBF_FLOAT|
+
+\verb|DBF_DOUBLE|
+
+\verb|DBF_ENUM|
+
+\verb|DBF_MENU|
+
+\verb|DBF_DEVICE|
+
+\verb|DBF_INLINK|
+
+\verb|DBF_OUTLINK|
+
+\verb|DBF_FWDLINK|
+
+\verb|DBF_NOACCESS|
+
+\begin{itemize}\item \index{asl\_level - field definition}asl\_level - This must be one of the following values:
+
+\end{itemize}\verb|ASL0|
+
+\verb|ASL1|  (default value)
+
+\begin{itemize}\item \index{init\_value - field definition}init\_value - A legal value for data type.
+
+\item \index{prompt\_value - field definition}prompt\_value - A prompt value for database configuration tools.
+
+\item \index{gui\_group - field definition}gui\_group - This must be one of the following:
+
+\end{itemize}\verb|GUI_COMMON|
+
+\verb|GUI_ALARMS|
+
+\verb|GUI_BITS1|
+
+\verb|GUI_BITS2|
+
+\verb|GUI_CALC|
+
+\verb|GUI_CLOCK|
+
+\verb|GUI_COMPRESS|
+
+\verb|GUI_CONVERT|
+
+\verb|GUI_DISPLAY|
+
+\verb|GUI_HIST|
+
+\verb|GUI_INPUTS|
+
+\verb|GUI_LINKS|
+
+\verb|GUI_MBB|
+
+\verb|GUI_MOTOR|
+
+\verb|GUI_OUTPUT|
+
+\verb|GUI_PID|
+
+\verb|GUI_PULSE|
+
+\verb|GUI_SELECT|
+
+\verb|GUI_SEQ1|
+
+\verb|GUI_SEQ2|
+
+\verb|GUI_SEQ3|
+
+\verb|GUI_SUB|
+
+\verb|GUI_TIMER|
+
+\verb|GUI_WAVE|
+
+\verb|GUI_SCAN|
+
+NOTE: \verb|GUI| types were invented with the intention of allowing database configuration tools to prompt for 
+groups of fields and when a user selects a group the fields within the group. Since this feature has seldom 
+been used, many record types have not assigned the correct GUI groups to some fields.
+
+\begin{itemize}\item \index{special\_value - field definition}special\_value must be one of the following:
+
+\end{itemize}An integer value greater than 103. In this case, the record support special routine is called whenever the field 
+is modified by database access. This feature is present only for compatibility. New support modules should 
+use \verb|SPC_MOD|.
+
+
+
+The following value disallows access to field.
+
+\verb|SPC_NOMOD| - This means that field can not be modified at runtime except by the record/device support 
+modules for the record type.
+
+\index{SPC\_NOMOD}
+
+The following values are used for database common. They must NOT be used for record specific fields.
+
+\verb|SPC_SCAN| - Scan related field.
+
+\index{SPC\_SCAN}\verb|SPC_ALARMACK| - Alarm acknowledgment field.
+
+\index{SPC\_ALARMACK}\verb|SPC_AS| - Access security field.
+
+\index{SPC\_AS}
+
+The following value is used if record support wants to trap \verb|dbNameToAddr| calls.
+
+\verb|SPC_DBADDR| - This is set if the record support \verb|cvt_dbaddr| routine should be called whenever 
+\verb|dbNameToAddr| is called, i.e. when code outside record/device support want to access the field.
+
+\index{SPC\_DBADDR}
+
+The following values all result in the record support special routine being called whenever database access 
+modifies the field. The only reason for multiple values is that originally it seemed like a good idea. New 
+support modules should only use \verb|SPC_MOD|.
+
+\verb|SPC_MOD| - Notify when modified, i.e. call the record support special routine whenever the field is modified 
+by database access.
+
+\index{SPC\_MOD}\verb|SPC_RESET| - a reset field is being modified.
+
+\index{SPC\_RESET}\verb|SPC_LINCONV| - A linear conversion field is being modified.
+
+\index{SPC\_LINCONV}\verb|SPC_CALC| - A calc field is being modified.
+
+\index{SPC\_CALC}\begin{itemize}\item \index{pp\_value - field definition}pp\_value - Should a passive record be processed when Channel Access writes to this field?  The allowed values 
+are:
+
+\end{itemize}\verb|NO| (default)
+
+\verb|YES|
+
+\begin{itemize}\item \index{interest\_level - field definition}interest\_level - An interest level for the \verb|dbpr| command.
+
+\item \index{base - field definition}base - For integer type fields, the default base. The legal values are:
+
+\end{itemize}\verb|DECIMAL| (Default)
+
+\verb|HEX|
+
+\begin{itemize}\item \index{size\_value - field definition}size\_value - The number of characters for a \verb|DBF_STRING| field.
+
+\item \index{extra\_info - field definition}extra\_info - For \verb|DBF_NOACCESS| fields, this is the C language definition for the field. The definition must end 
+with the fieldname in lower case.
+
+\end{itemize}\subsection{Example}
+
+The following is the definition of the binary input record.
+
+\begin{verbatim}recordtype(bi) {
+include "dbCommon.dbd" 
+field(INP,DBF_INLINK) {
+prompt("Input Specification")
+promptgroup(GUI_INPUTS)
+interest(1)
+}
+field(VAL,DBF_ENUM) {
+prompt("Current Value")
+promptgroup(GUI_INPUTS)
+asl(ASL0)
+pp(TRUE)
+}
+field(ZSV,DBF_MENU) {
+prompt("Zero Error Severity")
+promptgroup(GUI_ALARMS)
+pp(TRUE)
+interest(1)
+menu(menuAlarmSevr)
+}
+field(OSV,DBF_MENU) {
+prompt("One Error Severity")
+promptgroup(GUI_BITS1)
+pp(TRUE)
+interest(1)
+menu(menuAlarmSevr)
+}
+field(COSV,DBF_MENU) {
+prompt("Change of State Svr")
+promptgroup(GUI_BITS2)
+pp(TRUE)
+interest(1)
+menu(menuAlarmSevr)
+}
+field(ZNAM,DBF_STRING) {
+prompt("Zero Name")
+promptgroup(GUI_CALC)
+pp(TRUE)
+interest(1)
+size(20)
+}
+field(ONAM,DBF_STRING) {
+prompt("One Name")
+promptgroup(GUI_CLOCK)
+pp(TRUE)
+interest(1)
+size(20)
+}
+field(RVAL,DBF_ULONG) {
+prompt("Raw Value")
+pp(TRUE)
+}
+field(ORAW,DBF_ULONG) {
+prompt("prev Raw Value")
+special(SPC_NOMOD)
+interest(3)
+}
+field(MASK,DBF_ULONG) {
+prompt("Hardware Mask")
+special(SPC_NOMOD)
+interest(1)
+}
+field(LALM,DBF_USHORT) {
+prompt("Last Value Alarmed")
+special(SPC_NOMOD)
+interest(3)
+}
+field(MLST,DBF_USHORT) {
+prompt("Last Value Monitored")
+special(SPC_NOMOD)
+interest(3)
+}
+field(SIOL,DBF_INLINK) {
+prompt("Sim Input Specifctn")
+promptgroup(GUI_INPUTS)
+interest(1)
+}
+field(SVAL,DBF_USHORT) {
+prompt("Simulation Value")
+}
+field(SIML,DBF_INLINK) {
+prompt("Sim Mode Location")
+promptgroup(GUI_INPUTS)
+interest(1)
+}
+field(SIMM,DBF_MENU) {
+prompt("Simulation Mode")
+interest(1)
+menu(menuYesNo)
+}
+field(SIMS,DBF_MENU) {
+prompt("Sim mode Alarm Svrty")
+promptgroup(GUI_INPUTS)
+interest(2)
+menu(menuAlarmSevr)
+}
+}
+\end{verbatim}\section{Device}
+
+\index{device - Database Definitions}\subsection{Format:}
+
+\begin{verbatim}device(record_type,link_type,dset_name,"choice_string")
+\end{verbatim}\subsection{definitions}
+
+\begin{itemize}\item \index{record\_type - device definition}record\_type - Record type. The combination of \verb|record_type| and  \verb|choice_string| must be unique. If the 
+same combination appears multiple times, the first definition is used. 
+
+\item \index{link\_type - device definition}link\_type - Link type. This must be one of the following:
+
+\end{itemize}\verb|CONSTANT|
+
+\verb|PV_LINK|
+
+\verb|VME_IO|
+
+\verb|CAMAC_IO|
+
+\verb|AB_IO|
+
+\verb|GPIB_IO|
+
+\verb|BITBUS_IO|
+
+\verb|INST_IO|
+
+\verb|BBGPIB_IO|
+
+\verb|RF_IO|
+
+\verb|VXI_IO|
+
+\begin{itemize}\item \index{dset\_name - device definition}dset\_name -  The exact name of the device support entry table without the trailing "\verb|DSET|". Duplicates are not 
+allowed.
+
+\item \index{choice\_string - device definition}choice\_string  Choice string for database configuration tools. Note that it must be enclosed in "". Note that for a 
+given record type, each \verb|choice_string| must be unique.
+
+\end{itemize}\subsection{Examples}
+
+\begin{verbatim}device(ai,CONSTANT,devAiSoft,"Soft Channel")
+device(ai,VME_IO,devAiXy566Se,"XYCOM-566 SE Scanned")
+\end{verbatim}\section{Driver}
+
+\index{driver - database definition}\subsection{Format:}
+
+\begin{verbatim}driver(drvet_name)
+\end{verbatim}\subsection{Definitions}
+
+\begin{itemize}\item \index{drvet\_name - driver definition}drvet\_name - If duplicates are defined, only the first is used.
+
+\end{itemize}\subsection{Examples}
+
+\begin{verbatim}driver(drvVxi)
+driver(drvXy210)
+\end{verbatim}\section{Registrar Declaration}
+
+\index{registrar - Database Defintions}\subsection{Format:}
+
+\begin{verbatim}registrar(function_name)
+\end{verbatim}\subsection{Definitions}
+
+\begin{itemize}\item \index{function\_name - registrar definition}function\_name - The name of an C function that accepts no arguments, returns void and has been exported from 
+its source file with an \index{epicsExportRegistrar}epicsExportRegistrar declaration, e.g.
+
+\end{itemize}\begin{verbatim}
+static void myRegistrar(void);
+epicsExportRegistrar(myRegistrar);
+\end{verbatim}This can be used to register functions for use by subroutine records or that can be invoked from iocsh. The example 
+application described in Chapter 2.2, "Example IOC Application" on page11" provides an example of how to register 
+functions for subroutine records.
+
+\subsection{Example}
+
+\begin{verbatim}registrar(asSub)
+\end{verbatim}\section{Variable Declaration}
+
+\index{variable - Database Definitions}
+\index{57777: HEADING1: 6.9 Variable Declaration}\subsection{Format:}
+
+\begin{verbatim}variable(variable_name[, type])
+\end{verbatim}\subsection{Definitions}
+
+\begin{itemize}\item \index{variable\_name - variable definition}variable\_name - The name of a C variable which has been exported from its source file with an 
+\index{epicsExportAddress}epicsExportAddress declaration.
+
+\item \index{type - variable definition}type - The C variable type.  If not present, int is assumed.  Currently only int and double  variables are supported.
+
+\end{itemize}This registers a diagnostic/configuration variable for device and driver support or a subroutine record subroutine so that 
+the variable can be read and set with the iocsh var command (Section on page251). The example application described in 
+Section2.2 on page11 provides an example of how to register a debug variable for a subroutine record.
+
+\subsection{Example}
+
+In an application C source file:
+
+\begin{verbatim}#include <epicsExport.h>
+
+static double myParameter;
+epicsExportAddress(double, myParameter);
+\end{verbatim}In an application database definition file:
+
+\begin{verbatim}variable(myParameter, double)
+\end{verbatim}\section{Function Declaration}
+
+\index{function - Database Definitions}\subsection{Format:}
+
+\begin{verbatim}function(function_name)
+\end{verbatim}\subsection{Definitions}
+
+\begin{itemize}\item \index{function\_name - function definition}function\_name - The name of a C function which has been exported from its source file with an 
+\index{epicsRegisterFunction}epicsRegisterFunction declaration.
+
+\end{itemize}This registers a function so that it can be found in the function registry for use by record types such as sub or aSub which 
+refer to the function by name. The example application described in Chapter 2.2, "Example IOC Application" on page11 
+provides an example of how to register functions for a subroutine record.
+
+\subsection{Example}
+
+In an application C source file:
+
+\begin{verbatim}    #include <epicsExport.h>
+    #include <registryFunction.h>
+    
+    static long myFunction(void *argp) {
+        /* my code ... */
+    }
+    epicsRegisterFunction(myFunction);
+\end{verbatim}In an application database definition file:
+
+\begin{verbatim}    function(myFunction)
+\end{verbatim}\section{Breakpoint Table}
+
+\index{breakpoint table - Database Definitions}\subsection{Format:}
+
+\begin{verbatim}breaktable(name) {
+raw_value eng_value
+...
+}
+\end{verbatim}\subsection{Definitions}
+
+\begin{itemize}\item \index{name - breakpoint table}name - Name, which must be alpha-numeric, of the breakpoint table. If duplicates are specified the first is used.
+
+\item \index{raw\_value - breakpoint table}raw\_value - The raw value, i.e. the actual ADC value associated with the beginning of the interval.
+
+\item \index{eng\_value - breakpoint table}eng\_value - The engineering value associated with the beginning of the interval.
+
+\end{itemize}\subsection{Example}
+
+\begin{verbatim}breaktable(typeJdegC) {
+    0.000000 0.000000
+    365.023224 67.000000
+    1000.046448 178.000000
+    3007.255859 524.000000
+    3543.383789 613.000000
+    4042.988281 692.000000
+    4101.488281 701.000000
+}
+\end{verbatim}\section{Record Instance}
+
+\index{record instance - Database Definitions}\subsection{Format:}
+
+\begin{verbatim}record(record_type, record_name) {
+alias(alias_name)
+field(field_name, "field_value")
+info(info_name, "info_value")
+...
+}
+alias(record_name, alias_name)
+\end{verbatim}\subsection{definitions}
+
+\begin{itemize}\item \index{record\_type - record instance definition}record\_type - The record type. 
+
+\item \index{record\_name - record instance definition}record\_name - The record name. This must be composed of the following characters:
+
+\end{itemize}\begin{verbatim}a-z A-Z 0-9 _ - + : [ ] < > ;
+\end{verbatim}\begin{description}\item NOTE: If macro substitutions are used the name must be quoted.
+
+\item If duplicate definitions are given for the same record, then the last value given for each field is the value assigned 
+to the field. 
+
+\end{description}\begin{itemize}\item \index{alias\_name - record instance definition}alias\_name - an alternate name for the record, following the same rules as record\_name.
+
+\item \index{field\_name - record instance definition}field\_name - A field name
+
+\item \index{field value - record instance definition}field\_value - Depends on field type. Inside the double quotes the field value string may contain escaped C89 
+characters such as \textbackslash{}", \textbackslash{}t, \textbackslash{}n, \textbackslash{}064 and \textbackslash{}x7e, and these will be translated appropriately when loading the database.
+
+\end{itemize}\verb|DBF_STRING|
+
+Any ASCII string. If it exceeds the field length, it will be truncated.
+
+\verb|DBF_CHAR|, \verb|DBF_UCHAR|, \verb|DBF_SHORT|, \verb|DBF_USHORT|, \verb|DBF_LONG|, \verb|DBF_ULONG|
+
+A string that represents a valid integer. The standard C conventions are applied, i.e. a leading 0 means the 
+value is given in octal and a leading 0x means that value is given in hex.
+
+\verb|DBF_FLOAT|, \verb|DBF_DOUBLE|
+
+The string must represent a valid floating point number.
+
+\verb|DBF_MENU|
+
+The string must be one of the valid choices for the associated menu.
+
+\verb|DBF_DEVICE|
+
+The string must be one of the valid device choice strings.
+
+\verb|DBF_INLINK|, \verb|DBF_OUTLINK|
+
+\verb|NOTES:|
+
+In the field is INP or OUT then it is associated with field DTYP. Other DBF\_INLINK and 
+DBF\_OUTLINK fields can be either CONSTANT or PV\_LINKs
+
+\verb|DTYP must be set before its associated INP or OUT field.|
+
+Choosing the DTYP implicitly chooses a bus type.
+
+A DTYP of CONSTANT can be either a constant or a PV\_LINK.
+
+
+
+The allowed value depends on the bus type as follows:
+
+\verb|CONSTANT|
+
+A constant valid for the field associated 
+
+\index{CONSTANT - link field value}\verb|PV_LINK|
+
+A value of the form:
+
+
+
+    record.field process maximize
+
+\index{PV\_LINK - link field value}
+
+\verb|field, process|, and \verb|maximize| are optional. 
+
+The default value for \verb|field| is \verb|VAL|.
+
+\verb|process| can have one of the following values:
+
+\verb|NPP| - No Process Passive (Default)
+
+\verb|PP| - Process Passive
+
+\verb|CA| - Force link to be a channel access link
+
+\verb|CP| - CA and process on monitor
+
+\verb|CPP| - CA and process on monitor if record is passive
+
+NOTES:
+
+CP and CPP are valid only for INLINKs.
+
+FWD\_LINKs can be PP or CA. If a FWD\_LINK is a channel access link it must reference the 
+PROC field.
+
+\verb|maximize| can have one of the following values
+
+\verb|NMS| - No Maximize Severity (Default)
+
+\verb|MS| - Maximize severity
+
+\verb|VME_IO|
+
+\index{VME\_IO - link field value}\#Ccard Ssignal @parm
+
+where:
+
+ \verb|card| - the card number of associated hardware module.
+
+ \verb|signal| - signal on card
+
+ \verb|parm| - An arbitrary character string of up to 31 characters.
+
+                This field is optional and is device specific.
+
+\verb|CAMAC_IO|
+
+\index{CAMAC\_IO - link field value}\#Bbranch Ccrate Nstation Asubaddress Ffunction @parm
+
+\verb|branch|, \verb|crate|, \verb|station|, \verb|subaddress|, and \verb|function| should be obvious to \verb|camac| users. 
+\verb|Subaddress| and \verb|function| are optional (0 if not given). \verb|Parm| is also optional and is device 
+dependent (25 characters max).
+
+\verb|AB_IO|
+
+\index{AB\_IO - link field value}\#Llink Aadapter Ccard Ssignal @parm
+
+\verb|link| - Scanner., i.e. vme scanner number
+
+\verb|adapter| - Adapter. Allen Bradley also calls this rack
+
+\verb|card| - Card within Allen Bradley Chassis
+
+\verb|signal| - signal on card
+
+\verb|parm| - An optional character string that is device dependent(27 char max)
+
+\verb|GPIB_IO|
+
+\index{GPIB\_IO - link field value}\#Llink Aaddr @parm
+
+\verb|link| - gpib link, i.e. interface
+
+\verb|addr| - GPIB address
+
+\verb|parm| - device dependent character string (31 char max)
+
+\verb|BITBUS_IO|
+
+\index{BITBUS\_IO - link field value}\#Llink Nnode Pport Ssignal @parm
+
+\verb|link| - link, i.e.  vme bitbus interface.
+
+\verb|node| - bitbus node
+
+\verb|port| - port on the node
+
+\verb|signal| - signal on port
+
+\verb|parm| - device specific character string(31 char max)
+
+\verb|INST_IO|
+
+\index{INST\_IO - link field value}@parm
+
+\verb|parm| - Device dependent character string
+
+\verb|BBGPIB_IO|
+
+\index{BBGPIB\_IO - link field value}\#Llink Bbbaddr Ggpibaddr @parm
+
+\verb|link| - link, i.e. vme bitbus interface.
+
+\verb|bbadddr| - bitbus address
+
+\verb|gpibaddr| - gpib address
+
+\verb|parm| - optional device dependent character string(31 char max)
+
+\verb|RF_IO|
+
+\index{RF\_IO - link field value}\verb|#Rcryo Mmicro Ddataset Eelemen|t
+
+\verb|VXI_IO|
+
+\index{VXI\_IO - link field value}\#Vframe Cslot Ssignal @parm (Dynamic addressing)
+
+     or
+
+\verb|#Vla Signal @parm  (Static Addressing|)
+
+\verb|frame| - VXI frame number
+
+\verb|slot| - Slot within VXI frame
+
+\verb|la| - Logical Address
+
+\verb|signal| - Signal Number
+
+\verb|parm| - device specific character string(25 char max)
+
+\verb|DBF_FWDLINK|
+
+This is either not defined or else is a \verb|PV_LINK|. See above for definitions.
+
+\begin{itemize}\item \index{info\_name - record instance definition}info\_name - The name of an information item related to this record. See section 6.13 below for more on 
+information items.
+
+\item \index{info\_value - record instance definition}info\_value - Any ASCII string. IOC applications using this information item may place additional restrictions on 
+the contents of the string.
+
+\end{itemize}\subsection{Examples}
+
+\begin{verbatim}record(ai,STS_AbAiMaS0) {
+field(SCAN,".1 second")
+field(DTYP,"AB-1771IFE-4to20MA")
+field(INP,"#L0 A2 C0 S0 F0 @")
+field(PREC,"4")
+field(LINR,"LINEAR")
+field(EGUF,"20")
+field(EGUL,"4")
+field(EGU,"MilliAmps")
+field(HOPR,"20")
+field(LOPR,"4")
+}
+record(ao,STS_AbAoMaC1S0) {
+field(DTYP,"AB-1771OFE")
+field(OUT,"#L0 A2 C1 S0 F0 @")
+field(LINR,"LINEAR")
+field(EGUF,"20")
+field(EGUL,"4")
+field(EGU,"MilliAmp")
+field(DRVH,"20")
+field(DRVL,"4")
+field(HOPR,"20")
+field(LOPR,"4")
+info(autosaveFields,"VAL")
+}
+record(bi,STS_AbDiA0C0S0) {
+field(SCAN,"I/O Intr")
+field(DTYP,"AB-Binary Input")
+field(INP,"#L0 A0 C0 S0 F0 @")
+field(ZNAM,"Off")
+field(ONAM,"On")
+}
+\end{verbatim}\section{Record Information Item}
+
+\index{Information Item}
+\index{Information item}Information items provide a way to attach named string values to individual record instances that are loaded at the same 
+time as the record definition. They can be attached to any record without having to modify the record type, and can be 
+retrieved by programs running on the IOC (they are not visible via Channel Access at all). Each item attached to a single 
+record must have a unique name by which it is addressed, and database access provides routines to allow a record's info 
+items to be scanned, searched for, retrieved and set. At runtime a \verb|void*| \index{Infomation item pointer}pointer can also be associated with each item, 
+although only the string value can be initialized from the record definition when the database is loaded.
+
+\section{Record Attribute}
+
+\index{record attribute}Each record type can have a set of record attributes. Each attribute is a "\index{Psuedo field}psuedo" field that can be accessed via database 
+and channel access. An attribute is given a name the acts like a field name which has the same value for every instance of 
+the record type. Two attributes are generated automatically for each record type: RTYP and VERS. The value for RTYP is 
+the record type name. The default value for VERS is "none specified", which can be changed by record support. Record 
+support can call the following routine to create new attributes or change existing attributes:
+
+\begin{verbatim}long dbPutAttribute(char *recordTypename,
+
+       char *name,char*value)
+\end{verbatim}\index{dbPutAttribute}The arguments are:
+
+\begin{description}\item \verb|recordTypename| - The name of recordtype.
+
+\item \verb|name| - The attribute name, i.e. the psuedo field name.
+
+\item \verb|value| - The value assigned to the attribute.
+
+\end{description}\section{Breakpoint Tables - Discussion}
+
+\index{Breakpoint Tables}The menu \verb|menuConvert| is used for field \verb|LINR| of the \verb|ai| and \verb|ao| records. These records allow raw data to be converted 
+to/from engineering units via one of the following:
+
+\index{menuConvert}
+\index{LINR}\begin{enumerate}\item No Conversion.
+
+\item \index{Slope Conversion}Slope Conversion.
+
+\item \index{Linear Conversion}Linear Conversion.
+
+\item Breakpoint table.
+
+\end{enumerate}Other record types can also use this feature. The first choice specifies no conversion; the second and third are both linear 
+conversions, the difference being that for Slope conversion the user specifies the conversion slope and offset directly, 
+whereas for Linear conversions these are calculated by the device support from the requsted Engineering Units range and 
+the device support's knowledge of the hardware conversion range. The remaining choices are assumed to be the names of 
+breakpoint tables. If a breakpoint table is chosen, the record support modules calls \verb|cvtRawToEngBpt| or 
+\verb|cvtEngToRawBpt|. You can look at the \verb|ai| and \verb|ao| record support modules for details.
+
+If a user wants to add additional breakpoint tables, then the following should be done:
+
+\begin{itemize}\item Copy the \verb|menuConvert|.\verb|dbd| file from EPICS \verb|base|/\verb|src/bpt|
+
+\item Add definitions for new breakpoint tables to the end
+
+\item Make sure modified \verb|menuConvert|.\verb|dbd| is loaded  into the IOC instead of EPICS version.
+
+\end{itemize}It is only necessary to load a breakpoint file if a record instance actually chooses it. It should also be mentioned that the 
+Allen Bradley IXE device support misuses the \verb|LINR| field. If you use this module, it is very important that you do not 
+change any of the EPICS supplied definitions in \verb|menuConvert|.\verb|dbd|. Just add your definitions at the end.
+
+If a breakpoint table is chosen, then the corresponding breakpoint file must be loaded into the IOC before \verb|iocInit| is 
+called.
+
+Normally, it is desirable to directly create the breakpoint tables. However, sometimes it is desirable to create a breakpoint 
+table from a table of raw values representing equally spaced engineering units. A good example is the Thermocouple 
+tables in the OMEGA Engineering, INC Temperature Measurement Handbook. A tool \verb|makeBpt| is provided to convert 
+such data to a breakpoint table.
+
+The format for generating a breakpoint table from a data table of raw values corresponding to equally spaced engineering 
+values is:
+
+\begin{verbatim}!comment line
+<header line>
+<data table>
+\end{verbatim}The header line contains the following information:
+
+\begin{itemize}\item Name: An alphanumeric ascii string specifying the breakpoint table name
+
+\item Low Value Eng: Engineering Units Value for first breakpoint table entry
+
+\item Low Value Raw: Raw value for first breakpoint table entry
+
+\item High Value Eng: Engineering Units: Highest Value desired
+
+\item High Value Raw: Raw Value for High Value Eng
+
+\item Error: Allowed error (Engineering Units)
+
+\item First Table: Engineering units corresponding to first data table entry
+
+\item Last Table: Engineering units corresponding to last data table entry
+
+\item Delta Table: Change in engineering units per data table entry
+
+\end{itemize} An example definition is:
+
+\begin{verbatim}"TypeKdegF" 32 0 1832 4095 1.0 -454 2500 1
+<data table>
+\end{verbatim}The breakpoint table can be generated by executing
+
+\begin{verbatim}makeBpt bptXXX.data
+\end{verbatim}The input file must have the extension of data. The output filename is the same as the input filename with the extension of 
+dbd.
+
+Another way to create the breakpoint table is to include the following definition in a Makefile.Vx:
+
+\begin{verbatim}BPTS += bptXXX.dbd
+\end{verbatim}NOTE: This requires the naming convention that all data tables are of the form bpt\textless{}name\textgreater{}.data and a breakpoint table 
+bpt\textless{}name\textgreater{}.dbd.
+
+\section{Menu and Record Type Include File Generation.}
+
+\index{Include File Generation}\subsection{Introduction}
+
+Given a file containing menus, \verb|dbToMenuH| generates an include file that can be used by any code which uses the 
+associated menus. Given a file containing any combination of menu definitions and record type definitions, 
+\verb|dbToRecordtypeH| generates an include file that can be used by any code which uses the menus and record type.
+
+\index{dbToMenuH}
+\index{dbToRecordtypeH}EPICS base uses the following conventions for managing menu and recordtype definitions. Users generating local record 
+types are encouraged to do likewise.
+
+\begin{itemize}\item Each menu that is either for fields in database common (for example \verb|menuScan|) or is of global use (for example 
+\verb|menuYesNo|) is defined in a separate file. The name of the file is the same as the menu name with an extension of 
+\verb|dbd|. The name of the generated include file is the menu name with an extension of \verb|h|. Thus \verb|menuScan| is defined 
+in a file \verb|menuScan|.\verb|dbd| and the generated include file is named \verb|menuScan|.\verb|h|
+
+\item Each record type definition is defined in a separate file. In addition, this file contains any menu definitions that are 
+used only by that record type. The name of the file is the same as the recordtype name followed by \verb|Record|.\verb|dbd|. 
+The name of the generated include file is the same name with an extension of \verb|h|. Thus \verb|aoRecord| is defined in a 
+file \verb|aoRecord|.\verb|dbd| and the generated include file is named \verb|aoRecord|.\verb|h|. Since \verb|aoRecord| has a private menu 
+called \verb|aoOIF|, the \verb|dbd| file and the generated include file have definitions for this menu. Thus for each record type, 
+there are two source files (\verb|xxxRecord|.\verb|dbd| and \verb|xxxRecord|.\verb|c|) and one generated file (\verb|xxxRecord|.\verb|h|). 
+
+\end{itemize}Before continuing, it should be mentioned that Application Developers don't have to execute \verb|dbToMenuH| or 
+\verb|dbToRecordtypeH|. If a developer uses the proper naming conventions, it is only necessary to add definitions to their 
+\verb|Makefile|.\verb| |Consult the chapter on the EPICS Build Facility for details..
+
+\subsection{dbToMenuH}
+
+\index{dbToMenuH}This tool is executed as follows:
+
+\begin{verbatim}dbToMenuH -Idir -Smacsub menuXXX.dbd
+\end{verbatim}It generates a file which has the same name as the input file but with an extension of \verb|h|. Multiple \verb|-I| options can be 
+specified for an include path and multiple \verb|-S| options for macro substitution.
+
+For example \verb|menuPriority|.\verb|dbd|, which contains the definitions for processing priority contains:
+
+\begin{verbatim}menu(menuPriority) {
+choice(menuPriorityLOW,"LOW")
+choice(menuPriorityMEDIUM,"MEDIUM")
+choice(menuPriorityHIGH,"HIGH")
+}
+\end{verbatim}The include file, \verb|menuPriority|.\verb|h|, generated by \verb|dbToMenuH| contains:
+
+\begin{verbatim}#ifndef INCmenuPriorityH
+#define INCmenuPriorityH
+typedef enum {
+menuPriorityLOW,
+menuPriorityMEDIUM,
+menuPriorityHIGH,
+}menuPriority;
+#endif /*INCmenuPriorityH*/
+
+\end{verbatim}Any code that needs to use the priority menu values should use these definitions.
+
+\subsection{dbToRecordtypeH}
+
+\index{dbToRecordtypeH}This tool is executed as follows:
+
+\begin{verbatim}dbTorecordtypeH -Idir -Smacsub xxxRecord.dbd
+\end{verbatim}It generates a file which has the same name as the input file but with an extension of \verb|h|. Multiple \verb|-I| options can be 
+specified for an include path and multiple \verb|-S| options for macro substitution.
+
+For example \verb|aoRecord|.\verb|dbd|, which contains the definitions for the analog output record contains:
+
+\begin{verbatim}menu(aoOIF) {
+choice(aoOIF_Full,"Full")
+choice(aoOIF_Incremental,"Incremental")
+}
+recordtype(ao) {
+include "dbCommon.dbd"
+field(VAL,DBF_DOUBLE) {
+prompt("Desired Output")
+asl(ASL0)
+pp(TRUE)
+}
+field(OVAL,DBF_DOUBLE) {
+prompt("Output Value")
+}
+... (Many more field definitions
+}
+}
+\end{verbatim}The include file, \verb|aoRecord|.\verb|h|, generated by \verb|dbToRecordtypeH| contains:
+
+\begin{verbatim}#include "ellLib.h"
+#include "epicsMutex.h"
+#include "link.h"
+#include "epicsTime.h"
+#include "epicsTypes.h"
+
+#ifndef INCaoOIFH
+#define INCaoOIFH
+typedef enum {
+        aoOIF_Full,
+        aoOIF_Incremental,
+}aoOIF;
+#endif /*INCaoOIFH*/
+#ifndef INCaoH
+#define INCaoH
+typedef struct aoRecord {
+        char            name[29]; /*Record Name*/
+        ... Remaining fields in database common
+        double          val;    /*Desired Output*/
+        double          oval;   /*Output Value*/
+        ... remaining record specific fields
+} aoRecord;
+#define aoRecordNAME    0
+... defines for remaining fields in database common
+#define aoRecordVAL     42
+#define aoRecordOVAL    43
+... defines for remaining record specific fields
+#ifdef GEN_SIZE_OFFSET
+int aoRecordSizeOffset(dbRecordType *pdbRecordType)
+{
+    aoRecord *prec = 0;
+  pdbRecordType->papFldDes[0]->size=sizeof(prec->name);
+  pdbRecordType->papFldDes[0]->offset=
+(short)((char *)&prec->name - (char *)prec);
+  ... code to compute size&offset for other fields in dbCommon
+  pdbRecordType->papFldDes[42]->size=sizeof(prec->val);
+  pdbRecordType->papFldDes[42]->offset=
+(short)((char *)&prec->val - (char *)prec);
+  pdbRecordType->papFldDes[43]->size=sizeof(prec->oval);
+  pdbRecordType->papFldDes[43]->offset=
+(short)((char *)&prec->oval - (char *)prec);
+  ... code to compute size&offset for remaining fields
+  pdbRecordType->rec_size = sizeof(*prec);
+  return(0);
+}
+#endif /*GEN_SIZE_OFFSET*/
+
+\end{verbatim}The analog output record support module and all associated device support modules should use this include file. No other 
+code should use it. Let's discuss the various parts of the file.:
+
+\begin{itemize}\item The \verb|enum| generated from the menu definition should be used to reference the value of the field associated with the 
+menu.
+
+\item The \verb|typedef| and \verb|structure| defining the record are used by record support and device support to access fields 
+in an analog output record.
+
+\item A \verb|#define| is present for each field within the record. This is useful for the record support routines that are passed 
+a pointer to a \verb|DBADDR| structure. They can have code like the following:
+
+\end{itemize}\begin{verbatim}
+switch (dbGetFieldIndex(pdbAddr)) {
+case aoRecordVAL :
+...
+    break;
+case aoRecordXXX:
+...
+break;
+default:
+...
+}
+\end{verbatim}The C source routine \verb|aoRecordSizeOffset| is automatically called when a record type file is loaded into an IOC. 
+Thus user code does not have to be aware of this routine except for the following convention: The associate record 
+support module MUST include the statements:
+
+\begin{verbatim}#define GEN_SIZE_OFFSET
+#include "xxxRecord.h"
+#undef GEN_SIZE_OFFSET
+\end{verbatim}This convention ensures that the routine is defined exactly once.
+
+\section{dbExpand}
+
+\index{dbExpand}\begin{verbatim}dbExpand -Idir -Smacsub -ooutfile file1 file2 ...
+\end{verbatim}Multiple \verb|-I| options can be specified for an include path, and multiple \verb|-S| options for macro substitution. If no output 
+filename is specified with \verb|-ooutfile| then the output will go to stdout. Note that the environment variable 
+\verb|EPICS_DB_INCLUDE_PATH| can also be used in place of the \verb|-I| options.
+
+NOTE: This is supported only on the host.
+
+This command reads all the input files and then writes a file containing the definitions for all information described by the 
+input files. The output content differs from the input in that comment lines do not appear and all include files are 
+expanded.
+
+This routine is extremely useful if an IOC is not using NFS for the \verb|dbLoadDatabase| commands. It takes more than 2 
+minutes to load the \verb|base/rec/base.dbd| file into an IOC if NFS is not used. If \verb|dbExpand| creates a local \verb|base.dbd| 
+file, it takes about 7 seconds to load (25 MHZ 68040 IOC).
+
+\section{dbLoadDatabase}
+
+\index{dbLoadDatabase}\begin{verbatim}dbLoadDatabase(char *dbdfile, char *path, char *substitutions)
+\end{verbatim}NOTES: 
+
+\begin{itemize}\item IOC Only
+
+\item Using a path on a vxWorks ioc does not work very well.
+
+\item Both path and substitutions can be null.
+
+\item \verb|dbdfile| may contain environment variable macros of the form \verb|${MOTOR}| which will be expanded before the 
+file is opened.
+
+\end{itemize}This command loads a database file containing any of the definitions given in the summary at the beginning of this 
+chapter. Note that normally \verb|dbLoadDatabase| is only used to load a Database Definition (.dbd) file, but it is currently 
+possible to use it for loading Record Instance (.db) files as well.
+
+\verb|As each line of dbdfile| is read, the substitutions specified in \verb|substitutions| is performed\verb|. |The 
+substitutions are specified as follows:
+
+\begin{verbatim}"var1=sub1,var2=sub3,..."
+\end{verbatim}Variables are specified in the dbfile as \$(variable\_name). If the substitution string
+
+\begin{verbatim}"a=1,b=2,c=\"this is a test\""
+\end{verbatim}were used, any variables \verb|$|(\verb|a|), \verb|$|(\verb|b|), \verb|$|(\verb|c|) would be substituted with the appropriate data.
+
+\section{dbLoadRecords}
+
+\index{dbLoadRecords}\begin{verbatim}dbLoadRecords(char* dbfile, char* substitutions)
+\end{verbatim}NOTES:
+
+\begin{itemize}\item IOC Only.
+
+\item The file indicated by \verb|dbfile| should contain only record instances, record aliases and/or breakpoint tables.
+
+\item The \verb|dbfile| string may itself contain environment variable macros of the form \verb|${MOTOR}| which will be 
+expanded before the file is opened.
+
+\end{itemize}\subsection{EXAMPLE}
+
+For example, let \verb|test|.\verb|db| be:
+
+\begin{verbatim}record(ai,"$(pre)testrec1")
+record(ai,"$(pre)testrec2")
+record(stringout,"$(pre)testrec3") {
+field(VAL,"$(STR)")
+field(SCAN,"$(SCAN)")
+}
+\end{verbatim}Then issuing the command:
+
+\begin{verbatim}dbLoadRecords("test.db",0,"pre=TEST,STR=test,SCAN=Passive")
+\end{verbatim}gives the same results as loading:
+
+\begin{verbatim}record(ai,"TESTtestrec1")
+record(ai,"TESTtestrec2")
+record(stringout,"TESTtestrec3") {
+field(VAL,"test")
+field(SCAN,"Passive")
+}
+\end{verbatim}
+
+\section{dbLoadTemplate}
+
+\index{dbLoadTemplate}\begin{verbatim}dbLoadTemplate(char* template_def)
+\end{verbatim}NOTES:
+
+\begin{itemize}\item IOC Only.
+
+\item MSI can be used to expand templates on the host instead of using this.
+
+\end{itemize}\verb|dbLoadTemplate| reads a template definition file. This file contains rules about loading database instance files, which 
+contain \verb|$|(\verb|xxx|) macros, and performing substitutions.
+
+\verb|template_def| contains the rules for performing substitutions on the instance files. For convenience two formats are 
+provided. The format is either:
+
+\begin{verbatim}file name.template {
+{ var1=sub1_for_set1, var2=sub2_for_set1, var3=sub3_for_set1, ... }
+{ var1=sub1_for_set2, var2=sub2_for_set2, var3=sub3_for_set2, ... }
+{ var1=sub1_for_set3, var2=sub2_for_set3, var3=sub3_for_set3, ... }
+}
+\end{verbatim}or:
+
+\begin{verbatim}file name.template {
+pattern { var1, var2, var3, ... }
+{ sub1_for_set1, sub2_for_set1, sub3_for_set1, ... }
+{ sub1_for_set2, sub2_for_set2, sub3_for_set2, ... }
+{ sub1_for_set3, sub2_for_set3, sub3_for_set3, ... }
+}
+\end{verbatim}The first line (\verb|file name.template|) specifies the record instance input file. The file name may appear inside double 
+quotation marks; these are required if the name contains any characters that are not in the following set, or if it contains 
+environment variable macros of the form \verb|${ENV_VAR_NAME}| which are to be expanded before the file is opened:
+
+\begin{verbatim}a-z A-Z 0-9 _ + - . / \ : ; [ ] < >
+\end{verbatim}Each set of definitions enclosed in \verb|{}| is variable substitution for the input file. The input file has each set applied to it to 
+produce one composite file with all the completed substitutions in it. Version 1 should be obvious. In version 2, the 
+variables are listed in the "\verb|pattern|\{\}" line, which must precede the braced substitution lines. The braced substitution 
+lines contains sets which match up with the \verb|pattern|\{\} line.
+
+\subsection{EXAMPLE}
+
+Two simple template file examples are shown below. The examples specify the same substitutions to perform: 
+\verb|this|=\verb|sub1| and \verb|that|=\verb|sub2| for a first set, and \verb|this|=\verb|sub3| and \verb|that|=\verb|sub4| for a second set. 
+
+\begin{verbatim}file test.template {
+{ this=sub1,that=sub2 }
+{ this=sub3,that=sub4 }
+}
+
+file test.template {
+pattern{this,that}
+{sub1,sub2}
+{sub3,sub4 }
+}
+\end{verbatim}Assume that the file \verb|test|.\verb|template| contains:
+
+\begin{verbatim}record(ai,"$(this)record") {
+field(DESC,"this = $(this)")
+}
+record(ai,"$(that)record") {
+field(DESC,"this = $(that)")
+}
+\end{verbatim}
+
+Using \verb|dbLoadTemplate| with either input is the same as defining the records:
+
+\begin{verbatim}record(ai,"sub1record") {
+field(DESC,"this = sub1")
+}
+record(ai,"sub2record") {
+field(DESC,"this = sub2")
+}
+
+record(ai,"sub3record") {
+field(DESC,"this = sub3")
+}
+record(ai,"sub4record") {
+field(DESC,"this = sub4")
+}
+\end{verbatim}\section{dbReadTest}
+
+\index{dbReadTest}\begin{verbatim}dbReadTest -Idir -Smacsub file.dbd ... file.db ...
+\end{verbatim}This utility can be used to check for correct syntax in database definition and database instance files. It just reads all the 
+specified files
+
+Multiple \verb|-I,| and \verb|-S |options can be specified. An arbitrary number of database definition and database instance files can 
+be specified.
+
+
+
+
+
+
+
+
