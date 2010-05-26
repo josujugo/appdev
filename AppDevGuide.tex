@@ -7,11 +7,17 @@
 \usepackage{makeidx}
 \makeindex
 \usepackage{hyperref}
-\hypersetup{colorlinks, linkcolor=blue}
+\hypersetup{colorlinks, bookmarksnumbered, linkcolor=blue}
 \begin{document}
+
+
+\chapter*{EPICS Applications Developer's Guide}
+\addcontentsline{toc}{chapter}{EPICS Applications Developer's Guide}
 
 \input{tex/titlepage.tex}
 
+\chapter*{Table of Contents}
+\addcontentsline{toc}{chapter}{Table of Contents}
 \tableofcontents
 
 \input{tex/introduction.tex}
@@ -37,7 +43,10 @@
 \input{tex/registry.tex}
 \input{tex/databaseStructures.tex}
 
+\chapter*{Index}
+\addcontentsline{toc}{chapter}{Index}
 \printindex
+
 
 \end{document}
 
