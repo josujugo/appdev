@@ -27,7 +27,9 @@ $(DEST)/libComOsi.tex \
 $(DEST)/registry.tex \
 $(DEST)/databaseStructures.tex
 
-all: $(TARGETS)
+all: $(DEST) $(TARGETS)
+$(DEST):
+	mkdir -p $@
 
 $(DEST)/%.tex: %.mif.xml $(MIFX)
 	$(MIFX) $< > $@
