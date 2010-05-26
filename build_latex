@@ -1,0 +1,8 @@
+#!/bin/bash
+DOC=$1
+pdflatex $DOC
+makeindex $DOC.idx
+pdflatex $DOC
+pdflatex $DOC
+
+# latex2html $DOC
