@@ -96,7 +96,7 @@ standard output (file descriptor  1)  if \verb|n| is not specified.  If the file
 The IOC shell recognizes the following commands as well as the commands described in chapter 6 (Database Design) and 
 chapter 9 (IOC Test Facilities) among others.  In addition, the commands described in the sequencer documentation are 
 recognized.
-\begin{center}\begin{longtable}{lp{0.7\linewidth}}
+\begin{center}\begin{longtable}{p{1.59082in}p{5.21418in}}
 Command & Description\\
 \hline
 help [command ...] & Display synopsis of specified commands.  Wild-card matching is applied so 'help db*' displays a synopsis of all commands beginning with the letters 'db'.With no arguments display a list of all commands.\\
@@ -129,7 +129,7 @@ application Makefile.
 \end{itemize}\subsection{ENVIRONMENT VARIABLES}
 
 The IOC shell uses the following environment variables to control its operation.
-\begin{center}\begin{longtable}{lp{0.7\linewidth}}
+\begin{center}\begin{longtable}{p{1.305in}p{5.46in}}
 Variable & Description\\
 \hline
 IOCSH\_PS1 & Prompt string. Default is "epics\textgreater{} ".\\
@@ -196,7 +196,7 @@ argument descriptions.  If nargs is zero, arg can be NULL.  The structures which
 }iocshArg;
 \end{verbatim}\index{iocshArg}The name element is used by the help command to print a synopsis for the command.  The type element describes the type 
 of the argument and takes one of the following values:
-\begin{center}\begin{longtable}{lp{0.7\linewidth}}
+\begin{center}\begin{longtable}{p{1.5in}p{3.76in}}
 Type Specifier & Description\\
 \hline
 iocshArgInt & The argument will be converted to an integer value.\\
@@ -214,7 +214,7 @@ The \textbackslash{}Qhandler\textbackslash{}q function which is called when its 
 \end{verbatim}The argument to the handler function is a pointer to an array of unions.  The number of elements in this array is equal to 
 the number of arguments specified in the structure describing the command.  The type and name of the union element 
 which contains the argument value depends on the \textbackslash{}Qtype\textbackslash{}q element of the corresponding argument descriptor:
-\begin{center}\begin{longtable}{llp{0.7\linewidth}}
+\begin{center}\begin{longtable}{p{1.45833in}p{0.56in}p{1.19in}}
 Type Specifier & Type & Union element\\
 \hline
 iocshArgInt & int & args[i].ival\\

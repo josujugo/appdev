@@ -131,7 +131,7 @@ private:
 \index{epicsEventWaitTimeout}
 \index{epicsEventWaitError}
 \index{epicsEventWaitStatus}
-\begin{center}\begin{longtable}{lp{0.7\linewidth}}
+\begin{center}\begin{longtable}{p{1.25in}p{5.0in}}
 Method & Meaning\\
 \hline
 epicsEvent & An epicsEvent can be created empty or full. If it is created empty then a wait issued before a signal will block. If created full then the first wait will always succeed. Multiple signals may be issued between waits but have the same effect as a single signal.\\
@@ -192,7 +192,7 @@ not return if they fail.
 \index{epicsFindSymbol}\index{epicsFindSymbol.h}\verb|epicsFindSymbol.h| contains the following definition:
 
 \begin{verbatim}void * epicsFindSymbol(const char *name);\end{verbatim}\index{osiFindGlobalSymbol}
-\begin{center}\begin{longtable}{lp{0.7\linewidth}}
+\begin{center}\begin{longtable}{p{1.38889in}p{2.5in}}
 Method & Meaning\\
 \hline
 epicsFindSymbol & Return the address of the variable name
@@ -254,7 +254,7 @@ long generalTimeReport(int interest);
 \index{generalTimeCurrentTpName}
 \index{generalTimeEventTpName}
 \index{generalTimeReport}
-\begin{center}\begin{longtable}{lp{0.7\linewidth}}
+\begin{center}\begin{longtable}{p{2.0in}p{4.75in}}
 Method & Meaning\\
 \hline
 generalTime\_Init & Initialise the framework.This is called automatically by any function that requires the framework. It does not need to be called explicitly.\\
@@ -298,7 +298,7 @@ int generalTimeGetExceptPriority(epicsTimeStamp *pDest, int *pPrio,
 \index{generalTimeAddIntCurrentProvider}
 \index{generalTimeRegisterIntEventProvider}
 \index{generalTimeGetExceptPriority}
-\begin{center}\begin{longtable}{lp{0.7\linewidth}}
+\begin{center}\begin{longtable}{p{2.125in}p{4.625in}}
 Method & Meaning\\
 \hline
 generalTimeRegisterCurrentProvider & Register a current time provider with the framework. The getTime routine must return epicsTimeOK if it provided a valid time, or epicsTimeERROR if it could not.\\
@@ -376,7 +376,7 @@ void epicsInterruptContextMessage(const char *message);
 \index{epicsInterruptUnlock}
 \index{epicsInterruptIsInterruptContext}
 \index{epicsInterruptContextMessage}
-\begin{center}\begin{longtable}{lp{0.7\linewidth}}
+\begin{center}\begin{longtable}{p{1.97222in}p{3.66667in}}
 Method & Meaning\\
 \hline
 epicsInterruptLock & Lock interrupts and return a key to be passed to epicsInterruptUnlock To lock the following is done.       int key;      ...      key = epicsInterruptLock();       ...       epicsInterruptUnlock(key);\\
@@ -449,7 +449,7 @@ epicsMessageQueue *pmq;    // OK, pointer
 *pmq = mq1;               // Error: assignment operator is private
 pmq = &mq1;               // OK, pointer assignment and address-of
 \end{verbatim}
-\begin{center}\begin{longtable}{lp{0.7\linewidth}}
+\begin{center}\begin{longtable}{p{1.35in}p{5.0in}}
 Method & Meaning\\
 \hline
 epicsMessageQueue() & Constructor. The capacity is the maximum number of messages, each containing 0 to maximumMessageSize bytes, that can be stored in the message queue.\\
@@ -516,7 +516,7 @@ private:
 \index{epicsMutexLockError}
 \index{epicsMutexLockStatus}
 \index{epicsMutex}
-\begin{center}\begin{longtable}{lp{0.7\linewidth}}
+\begin{center}\begin{longtable}{p{1.38889in}p{5.0in}}
 Method & Meaning\\
 \hline
 epicsMutex & Create a mutual exclusion semaphore.\\
@@ -799,7 +799,7 @@ void * epicsThreadPrivateGet(epicsThreadPrivateId);
 \index{epicsThreadPrivateDelete}
 \index{epicsThreadPrivateSet}
 \index{epicsThreadPrivateGet}
-\begin{center}\begin{longtable}{lp{0.7\linewidth}}
+\begin{center}\begin{longtable}{p{2.375in}p{5.0in}}
 Method & Meaning\\
 \hline
 epicsThreadGetStackSize & Get a stack size value that can be given to epicsThreadCreate. The size argument should be one of the values epicsThreadStackSmall, epicsThreadStackMedium or epicsThreadStackBig.\\
@@ -1127,7 +1127,7 @@ private:
     int eventNumber;
 };
 \end{verbatim}
-\begin{center}\begin{longtable}{lp{0.7\linewidth}}
+\begin{center}\begin{longtable}{p{1.79167in}p{4.94833in}}
 Method & Meaning\\
 \hline
 Convert to/from integer & Does not currently check that the range of the integer is valid, although it might one day.
@@ -1137,7 +1137,7 @@ Convert to/from integer & Does not currently check that the range of the integer
 \subsection{class epicsTime}
 
 \index{epicsTime}
-\begin{center}\begin{longtable}{lp{0.7\linewidth}}
+\begin{center}\begin{longtable}{p{1.95833in}p{4.79167in}}
 Method & Meaning\\
 \hline
 epicsTime()epicsTime(const epicsTime\& t); & The default constructor sets the time to the beginning of the epics epoch.\\
@@ -1233,7 +1233,7 @@ Note that the epicsTimeGetCurrent and epicsTimeGetEvent routines are now impleme
 
 \index{osiPoolStatus.h}\begin{verbatim}int osiSufficentSpaceInPool(void);
 \end{verbatim}\index{osiSufficentSpaceInPool}
-\begin{center}\begin{longtable}{lp{0.7\linewidth}}
+\begin{center}\begin{longtable}{p{1.52778in}p{3.40278in}}
 Method & Meaning\\
 \hline
 osiSufficentSpaceInPool & Return (true,false) if there is sufficient free memory.

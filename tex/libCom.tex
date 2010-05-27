@@ -270,7 +270,7 @@ provided here in a much smaller file - \verb|algorithm| contains many templates 
 from there is \index{std::min}std::min(), \index{std::max}std::max() and/or \index{std::swap}std::swap() your code will compile faster if you include \verb|epicsAlgorithm.h| 
 and use \index{epicsMin}epicsMin(), \index{epicsMax}epicsMax() and \index{epicsSwap}epicsSwap() instead.\index{epicsAlgorithm.h}
 \index{algorithm}
-\begin{center}\begin{longtable}{lp{0.7\linewidth}}
+\begin{center}\begin{longtable}{p{2.5in}p{4.25in}}
 template \textless{}class T\textgreater{} & Meaning\\
 \hline
 const T\& epicsMin(const T\& a, const T\& b) & Returns the smaller of a or b compared using a\textless{}b. Handles NaNs correctly.\\
@@ -293,7 +293,7 @@ int  epicsAtThreadExit(void (*epicsExitFunc)(void *arg), void *arg);
 \index{epicsAtThreadExit}This is an extended replacement for the Posix \verb|exit| and \verb|atexit| routines, which also provides a pointer argument to pass 
 to the exit handlers. This facility was created because of problems on vxWorks and windows with the implementation of 
 \verb|atexit|, i.e. neither of these systems implement \verb|exit| and \verb|atexit| according to the POSIX standard.
-\begin{center}\begin{longtable}{lp{0.7\linewidth}}
+\begin{center}\begin{longtable}{p{2.0in}p{4.4in}}
 Method & Meaning\\
 \hline
 epicsExit & This calls epicsExitCallAtExits and then passes status on to exit.\\
@@ -399,7 +399,7 @@ int dbmfShow(int level);
 \index{dbmfFree}
 \index{dbmfFreeChunks}
 \index{dbmfShow}
-\begin{center}\begin{longtable}{lp{0.7\linewidth}}
+\begin{center}\begin{longtable}{p{1.3in}p{5.5in}}
 Routine & Meaning\\
 \hline
 dbmfInit() & Initialize the facility. Each time malloc() must be called size*chunkItems bytes are allocated. size is the maximum size request from dbmfMalloc() that will be allocated from the dbmf pool. If dbmfInit() was not called before one of the other routines then it is automatically called with size=64 and chuckItems=10.\\
@@ -488,7 +488,7 @@ int epicsRingBytesIsFull(epicsRingBytesId id);
 \index{epicsRingBytesSize}
 \index{epicsRingBytesIsEmpty}
 \index{epicsRingBytesIsFull}
-\begin{center}\begin{longtable}{lp{0.7\linewidth}}
+\begin{center}\begin{longtable}{p{1.6in}p{5.0in}}
 Method & Meaning\\
 \hline
 epicsRingBytesCreate() & Create a new ring buffer of size nbytes. The returned epicsRingBytesId is passed to the other ring methods.\\
@@ -555,7 +555,7 @@ epicsRingPointer *prp;    // OK, pointer
 *prp = rp1;               // Error: assignment operator is private
 prp = &rp1;               // OK, pointer assignment and address-of
 \end{verbatim}
-\begin{center}\begin{longtable}{lp{0.7\linewidth}}
+\begin{center}\begin{longtable}{p{1.27778in}p{5.0in}}
 Method & Meaning\\
 \hline
 epicsRingPointer() & Constructor. The size is the maximum number of elements (pointers) that can be stored in the ring.\\
@@ -642,7 +642,7 @@ protected:
     virtual ~epicsTimer () = 0; // use destroy
 };
 \end{verbatim}
-\begin{center}\begin{longtable}{lp{0.7\linewidth}}
+\begin{center}\begin{longtable}{p{1.1in}p{5.0in}}
 Method & Meaning\\
 \hline
 epicsTimerNotifyexpire() & Code using an epicsTimer must include a class that inherits from epicsTimerNotify. The derived class must implement the method expire(), which is called by the epicsTimer when the associated timer expires. epicsTimerNotify defines a class expireStatus which makes it easy to implement both one shot and periodic timers. A one-shot expire() returns with the statement:    return(noRestart);A periodic timer returns with a statement like:    return(restart,10.0);where is second argument is the delay until the next callback.\\
@@ -665,7 +665,7 @@ public:
 protected:
     virtual ~epicsTimerQueue () = 0;
 };\end{verbatim}
-\begin{center}\begin{longtable}{lp{0.7\linewidth}}
+\begin{center}\begin{longtable}{p{1.1in}p{5.0in}}
 Method & Meaning\\
 \hline
 createTimer() & This is a "factory" method to create timers which use this queue.\\
@@ -684,7 +684,7 @@ protected:
     virtual ~epicsTimerQueueActive () = 0;
 };
 \end{verbatim}\index{epicsTimerQueueActive}
-\begin{center}\begin{longtable}{lp{0.7\linewidth}}
+\begin{center}\begin{longtable}{p{1.1in}p{5.0in}}
 Method & Meaning\\
 \hline
 allocate() & This is a "factory" method to create a timer queue. If okToShare is (true,false) then a (shared, separate) thread will manage the timer requests.If the okToShare constructor parameter is true then if a timer queue is already running at the specified priority then it will be referenced for shared use by the application, and an independent timer queue will not be created.This method should not be called from within a C++ static constructor, since the queue thread requires that a current time provider be available and the last-resort time provider is not guaranteed to have been registered until all constructors have run.Editorial note: It is useful for two independent timer queues to run at the same priority if there are multiple processors, or if there is an application with well behaved timer expire functions that needs to be independent of applications with computationally intensive, mutex locking, or IO blocking timer expire functions. \\
@@ -718,7 +718,7 @@ public:
 };
 \end{verbatim}\index{epicsTimerQueueNotify}
 \index{epicsTimerQueuePassive}
-\begin{center}\begin{longtable}{lp{0.7\linewidth}}
+\begin{center}\begin{longtable}{p{1.6in}p{5.15in}}
 Method & Meaning\\
 \hline
 epicsTimerQueueNotifyreschedule() & The virtual function epicsTimerQueueNotify::reschedule() is called when the delay to the next timer to expire on the timer queue changes.\\

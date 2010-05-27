@@ -19,11 +19,19 @@ def get_table(tag):
         rows1.append(row_data)
     return rows1
 
+def get_table_widths(table):
+    wslist = []
+    ws = table.getElementsByTagName("TblColumnWidth")
+    for w in ws:
+        wslist.append(contents(w))
+    return wslist
+
 def read_tables(doc):
     symbols = {}
     cmds = []
     tbls = doc.getElementsByTagName("Tbl")
     for t in tbls:
+        widths = get_table_widths(t)
         tag = getfirstnode(t, "TblID")
         tag = contents(tag)
         print >> sys.stderr, "table", tag
@@ -31,7 +39,7 @@ def read_tables(doc):
         header = get_table(heading)[0]
         body = getfirstnode(t, "TblBody")
         rows = get_table(body)
-        symbols[tag] = (header, rows)
+        symbols[tag] = (header, rows, widths)
     return symbols
 
 def string_val(node):
@@ -170,11 +178,15 @@ def verb_escape(txt):
 
 def drawtable(table):
     txt = []
-    (header, rows) = table
+    (header, rows, widths) = table
+
+    fmt = []
+    for n in range(len(rows[0])):
+        w = widths[len(widths) - len(rows[0]) + n]
+        fmt.append("p{%s}" % w.replace("\"", "in"))
+    fmt = "".join(fmt)
+    
     rows = [header] + rows
-    fmt = "l" * (len(rows[0]) - 1)
-    # last column is fixed width
-    fmt = fmt + "p{0.7\linewidth}"
     
     txt.append("\n\\begin{center}")
     txt.append("\\begin{longtable}{%s}\n" % fmt)
