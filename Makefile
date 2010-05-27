@@ -5,6 +5,23 @@
 MIFX:=$(PWD)/mifx2tex.py
 DEST=tex
 SRC=/home/jr76/mif/AppDevGuideMIF
+PDFD=pdf
+EPSD=eps
+
+PDFS = \
+$(PDFD)/accessSecurity_1.pdf \
+$(PDFD)/lockScanProcess_26.pdf  \
+$(PDFD)/lockScanProcess_6.pdf  \
+$(PDFD)/lockScanProcess_34.pdf \
+$(PDFD)/lockScanProcess_9.pdf \
+$(PDFD)/lockScanProcess_16.pdf \
+$(PDFD)/lockScanProcess_37.pdf \
+$(PDFD)/lockScanProcess_1.pdf \
+$(PDFD)/lockScanProcess_40.pdf \
+$(PDFD)/scanning_1.pdf \
+$(PDFD)/scanning_12.pdf \
+$(PDFD)/scanning_19.pdf \
+$(PDFD)/databaseStructures_1.pdf
 
 TEXS = \
 $(DEST)/titlepage.tex \
@@ -33,11 +50,15 @@ $(DEST)/databaseStructures.tex
 
 all: AppDevGuide.pdf AppDevGuide
 
-AppDevGuide.pdf: AppDevGuide.tex $(TEXS)
+AppDevGuide.pdf: AppDevGuide.tex $(TEXS) $(PDFS)
 	./build_latex AppDevGuide
 
 AppDevGuide: AppDevGuide.tex $(TEXS)
 	latex2html $< -split +1
+
+$(PDFD)/%.pdf: $(EPSD)/%.eps
+	mkdir -p $(PDFD)
+	epstopdf $< -o=$@
 
 $(DEST)/%.tex: $(SRC)/%.mif.xml $(MIFX)
 	mkdir -p $(DEST)
@@ -46,6 +67,6 @@ $(DEST)/%.tex: $(SRC)/%.mif.xml $(MIFX)
 .PHONY: clean
 clean:
 	rm -rf AppDevGuide
+	rm -rf pdf
 	rm -f *.idx *.ind *.ilg *.log *.out *.pdf *.toc *.aux
-
 

@@ -1,7 +1,7 @@
 #!/bin/env python
 
 from xml.dom.minidom import parse
-import sys, re
+import sys, re, os
 
 def get_table(tag):
     rows1 = []
@@ -42,7 +42,7 @@ def read_tables(doc):
         widths = get_table_widths(t)
         tag = getfirstnode(t, "TblID")
         tag = contents(tag)
-        print >> sys.stderr, "table", tag
+        # print >> sys.stderr, "table", tag
         heading = getfirstnode(t, "TblH")
         header = get_table(heading)[0]
         body = getfirstnode(t, "TblBody")
@@ -112,7 +112,9 @@ def read_text(doc):
                 incode = False
                 cmds.append(("Line", None))                
                 for s in l.childNodes:
-                    if s.nodeType == doc.ELEMENT_NODE and s.nodeName == "Marker":
+                    if s.nodeType == doc.ELEMENT_NODE and s.nodeName == "AFrame":
+                        cmds.append(("Image", contents(s)))
+                    elif s.nodeType == doc.ELEMENT_NODE and s.nodeName == "Marker":
                         mtext = mifunescape(getfirst(s, "MText"))
                         cmds.append(("Index", mtext))
                     elif s.nodeType == doc.ELEMENT_NODE and s.nodeName == "String":
@@ -237,7 +239,7 @@ def drawtable(table):
     txt.append("\\end{center}\n")
     return "".join(txt)
 
-def format_latex(cmds, tables):
+def format_latex(filename, cmds, tables):
 
     "latex formatting environments from list of styling commands"
 
@@ -381,6 +383,12 @@ def format_latex(cmds, tables):
                 pop_line()
                 push_style(font)
 
+        elif c == "Image":
+            imgname = "%s_%s" % (filename, val)
+            pop_line()
+            txt.append("\n\n\includegraphics{%s}" % imgname)
+            # print >> sys.stderr, "Image: %s" % imgname
+
     pop_styles()
     
     return txt
@@ -406,7 +414,7 @@ def main():
     print >> sys.stderr, "latex output"
     txt = []
     # txt.append(prelude)
-    txt.extend(format_latex(cmds, tables))
+    txt.extend(format_latex(os.path.split(filename)[1].replace(".mif.xml", ""), cmds, tables))
     # txt.append(endlude)
     print "".join(txt)
 

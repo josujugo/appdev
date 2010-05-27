@@ -185,6 +185,8 @@ specific this topic is discussed in greater detail in Chapter ``Record Support" 
 is important that the Application Developer understand how they are processed. As an introduction consider the following 
 example :
 
+\includegraphics{lockScanProcess_6}
+
 Assume that A, B, and C are all passive records. The notation states that A has a forward link to B and B to C. C has an 
 input link obtaining a value from A. Assume, for some reason, A gets processed. The following sequence of events 
 occurs:
@@ -218,6 +220,8 @@ The processing order is guaranteed to follow the following rules:
 \begin{enumerate}\item Forward links are processed in order from left to right and top to bottom. For example the following records are 
 processed in the order \verb|FLNK1|, \verb|FLNK2|, \verb|FLNK3|, \verb|FLNK4| .
 
+\includegraphics{lockScanProcess_9}
+
 \item If a record has multiple input links (calculation and select records) the input is obtained in the natural order. For 
 example if the fields are named \verb|INPA|, \verb|INPB|, ..., \verb|INPL|, then the links are read in the order A then B then C, etc. 
 Thus if obtaining an input results in a record being processed, the processing order is guaranteed.
@@ -241,6 +245,8 @@ sections that \verb|pact| has other uses.
 
 Input and output links have an option called process passive. For each such link the application developer can specify 
 process passive \verb|TRUE| (\verb|PP|) or process passive \verb|FALSE| (\verb|NPP|). Consider the following example 
+
+\includegraphics{lockScanProcess_16}
 
 Assume that all records except fanout are passive. When the fanout record is processed the following sequence of events 
 occur:
@@ -267,6 +273,8 @@ occur:
 
 \end{enumerate}Note that A got processed twice. This is unnecessary. If the input link to C is declared no process passive then A will only 
 be processed once. Thus we should have .
+
+\includegraphics{lockScanProcess_26}
 
 \subsubsection{Process Passive: Field attribute }
 
@@ -362,6 +370,8 @@ processing.
 
 \end{enumerate}With these rules the following works just fine:
 
+\includegraphics{lockScanProcess_34}
+
 When \verb|dbProcess| is called for record ASYN, processing will be started but \verb|dbScanPassive| will not be called. Until 
 the asynchronous completion routine executes any additional attempts to process ASYN are ignored. When the 
 asynchronous callback is invoked the \verb|dbScanPassive| is performed.
@@ -371,6 +381,8 @@ Problems still remain. A few examples are:
 \subsection{Infinite Loop}
 
 \index{Infinite Loop}Infinite processing loops are possible.
+
+\includegraphics{lockScanProcess_1}
 
 Assume both A and B are asynchronous passive records and a request is made to process A. The following sequence of 
 events occur.
@@ -389,6 +401,8 @@ starts processing and control returns to B which completes leaving its \verb|pac
 
 A \verb|dbGetLink| to a passive asynchronous record can get old data.
 
+\includegraphics{lockScanProcess_37}
+
 If A is a passive asynchronous record then the \verb|dbGetLink| request forces \verb|dbProcess| to be called for A. \verb|dbProcess| 
 starts the processing and returns. \verb|dbGetLink| then reads the desired value which is still old because processing will only 
 be completed at a later time.
@@ -396,6 +410,8 @@ be completed at a later time.
 \subsection{Delays}
 
 Consider the following:
+
+\includegraphics{lockScanProcess_40}
 
 The second ASYN record will not begin processing until the first completes, etc. This is not really a problem except that 
 the application developer must be aware of delays caused by asynchronous records. Again, note that scanners are not 

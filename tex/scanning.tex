@@ -311,6 +311,8 @@ possible event number. In other words, each event number and priority has its ow
 created until the first request to add an element for that event number. The event scan lists have the memory layout 
 illustrated in Figure17-1.
 
+\includegraphics{scanning_12}
+
 \subsubsection{} \index{post\_event}post\_event
 
 \begin{verbatim}post_event(int event)
@@ -344,6 +346,8 @@ initializes an array of \verb|io_scan_list| structures; one for each callback pr
 Remember that three callback priorities are supported (low, medium, and high). Thus for each interrupt source the 
 structures are illustrated in Figure17-1:
 
+\includegraphics{scanning_19}
+
 When \verb|scanAdd| or \verb|scanDelete| are called, they call the device support routine \verb|get_ioint_info| which returns 
 \verb|pioscanpvt|. The \verb|scan_element| is added or deleted from the correct scan list. 
 
@@ -371,6 +375,8 @@ static epicsThreadId *periodicTaskId;
 \end{verbatim}\verb|nPeriodic|, which is determined at \verb|iocInit| time, is the number of periodic rates. \verb|papPeriodic| is a pointer to an 
 array of pointers to \verb|scan_lists|. There is an array element for each scan rate. Thus the structure illustrated in 
 Figure17-1 exists after \verb|iocInit|.
+
+\includegraphics{scanning_1}
 
 A periodic scan task is created for each scan rate. The following routines implement periodic scanning:
 
