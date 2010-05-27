@@ -23,7 +23,7 @@ A \textless{}top\textgreater{} directory has the following directory structure:
             dir2/
             ...
 \end{verbatim}where configure is a directory containing build configuration files and a Makefile and where dir1, dir2, ... are user created 
-subdirectory trees with Makefiles and source files to be built. Because the build rules allow make commands like "make 
+subdirectory trees with Makefiles and source files to be built. Because the build rules allow make commands like ``make 
 install.vxWorks-68040", subdirectory names within a \textless{}top\textgreater{} directory structure may not contain a period"." character.
 
 \subsection{Install Directories}
@@ -162,14 +162,14 @@ os/CONFIG.Common.\textless{}host\textgreater{} (either YES or NO).
 
 \subsection{Directory names}
 
-\index{Directory names restriction}Because the build rules allow make commands like "make \textless{}dir\textgreater{}.\textless{}action\textgreater{},\textless{}arch\textgreater{}", subdirectory names within a \textless{}top\textgreater{} 
+\index{Directory names restriction}Because the build rules allow make commands like ``make \textless{}dir\textgreater{}.\textless{}action\textgreater{},\textless{}arch\textgreater{}", subdirectory names within a \textless{}top\textgreater{} 
 directory structure may not contain a period"." character.
 
 \subsection{EPICS\_HOST\_ARCH environment variable}
 
 \index{EPICS\_HOST\_ARCH}The startup directory in EPICS base contains a perl script, \verb|EpicsHostArch.pl|, which can be used to define 
 EPICS\_HOST\_ARCH. This script can be invoked with a command line parameter defining the alternate compiler (e.g. if 
-invoking "\verb|EpicsHostArch.pl|" yields solaris-sparc, then invoking "\verb|EpicsHostArch.pl gnu|" will yield solaris-
+invoking ``\verb|EpicsHostArch.pl|" yields solaris-sparc, then invoking ``\verb|EpicsHostArch.pl gnu|" will yield solaris-
 sparc-gnu).
 
 \index{EpicsHostArch.pl}The startup directory also contains scripts to help users set the path and other environment variables
@@ -328,8 +328,8 @@ checks will be performed. If CHECK\_RELEASE is set to WARN the build will contin
 
 \subsection{Modifying configure/RELEASE* files}
 
-\index{RELEASE}You should always do a "\verb|gnumake clean uninstall|" in the \textless{}top\textgreater{} level directory BEFORE adding, changing, or 
-removing any definitions in the configure/RELEASE* files and then a "\verb|gnumake|" at the top level AFTER making the 
+\index{RELEASE}You should always do a ``\verb|gnumake clean uninstall|" in the \textless{}top\textgreater{} level directory BEFORE adding, changing, or 
+removing any definitions in the configure/RELEASE* files and then a ``\verb|gnumake|" at the top level AFTER making the 
 changes.
 
 The file \textless{}top\textgreater{}/configure/RELEASE contains definitions for components obtained from outside \textless{}top\textgreater{}. If you want to link 
@@ -360,12 +360,12 @@ EPICS\_BASE = \$(SUPPORT)/base/3-14-9-asd1
 by \index{CROSS\_COMPILER\_TARGET\_ARCHS}CROSS\_COMPILER\_TARGET\_ARCHS.
 
 It is possible to limit the systems for which a particular definition applies. Most Makefile definitions can be specified with 
-an appended underscore "\_" followed by an osclass specification. If an \_\textless{}osclass\textgreater{} is not specified, then the definition 
+an appended underscore ``\_" followed by an osclass specification. If an \_\textless{}osclass\textgreater{} is not specified, then the definition 
 applies to the host and all CROSS\_COMPILER\_TARGET\_ARCHS systems. If an \_\textless{}osclass\textgreater{} is specified, then the 
 definition applies only to systems with the specified os class. A Makefile definition can also have an appended 
 \_DEFAULT specification. If \_DEFAULT is appended, then the Makefile definition will apply to all systems that do not 
 have an \_\textless{}osclass\textgreater{} specification for that definition. If a \_DEFAULT is appended on a definition but the definition should 
-not apply to a particular system \textless{}osclass\textgreater{}, the value "-nil-" should be specified in the relevant Makefile definition.
+not apply to a particular system \textless{}osclass\textgreater{}, the value ``-nil-" should be specified in the relevant Makefile definition.
 
 Each system has an \index{OS\_CLASS}OS\_CLASS definition in its configure/os/CONFIG.Common.\textless{}arch\textgreater{} file. A few examples are:
 
@@ -421,13 +421,13 @@ will be run on an ioc.
 Each supported target system has a \index{VALID\_BUILDS}VALID\_BUILDS definition which specifies the type of makefile targets it can 
 support. This definition appears in configure/os/CONFIG.Common.\textless{}arch\textgreater{} or configure/os/CONFIG.\textless{}arch\textgreater{}.\textless{}arch\textgreater{} files.
 
-For vxWorks systems VALID\_BUILDS is set to "Ioc".
+For vxWorks systems VALID\_BUILDS is set to ``Ioc".
 
-For Unix type systems, VALID\_BUILDS is set to "Host Ioc".
+For Unix type systems, VALID\_BUILDS is set to ``Host Ioc".
 
-For RTEMS systems, VALID\_BUILDS is set to "Ioc".
+For RTEMS systems, VALID\_BUILDS is set to ``Ioc".
 
-For WIN32 systems, VALID\_BUILDS is set to "Host Ioc".
+For WIN32 systems, VALID\_BUILDS is set to ``Host Ioc".
 
 In a Makefile it is possible to limit the systems for which a particular \index{PROD}PROD, \index{TESTPROD}TESTPROD, \index{LIBRARY, SCRIPTS}LIBRARY, SCRIPTS, and 
 \index{OBJS}OBJS is built. For example the following Makefile lines specify that product aaa should be created for systems that 
@@ -440,7 +440,7 @@ created for all target systems.
 
 \item PROD = ccc
 
-\end{description}These definitions can be further limited by specifying an appended underscore "\_" followed by an osclass or DEFAULT 
+\end{description}These definitions can be further limited by specifying an appended underscore ``\_" followed by an osclass or DEFAULT 
 specification.
 
 \subsection{User specific override definitions}
@@ -464,7 +464,7 @@ override definitions will be used for builds in all \textless{}top\textgreater{}
 
 \subsection{Included Files}
 
-Makefiles normally include files from \textless{}top\textgreater{}/configure. Thus the makefile "inherits" rules and definitions from configure. 
+Makefiles normally include files from \textless{}top\textgreater{}/configure. Thus the makefile ``inherits" rules and definitions from configure. 
 The files in \textless{}top\textgreater{}/configure may in turn include files from another \textless{}top\textgreater{}/configure. This technique makes it possible to 
 share make variables and even rules across \textless{}top\textgreater{} directories.
 
@@ -532,7 +532,7 @@ The most frequently used make commands are:
 \begin{verbatim}gnumake
 \end{verbatim}\index{gnumake}\begin{description}\item This rebuilds and installs everything that is not up to date.
 
-\item NOTE: Executing gnumake without arguments is the same as "gnumake install"
+\item NOTE: Executing gnumake without arguments is the same as ``gnumake install"
 
 \item 
 
@@ -548,12 +548,12 @@ frequently used make commands.
 \item 
 
 \end{description}\begin{verbatim}gnumake all
-\end{verbatim}\begin{description}\item This is the same as "gnumake install".
+\end{verbatim}\begin{description}\item This is the same as ``gnumake install".
 
 \item 
 
 \end{description}\begin{verbatim}gnumake buildInstall
-\end{verbatim}\begin{description}\item This is the same as "gnumake install".
+\end{verbatim}\begin{description}\item This is the same as ``gnumake install".
 
 \item 
 
@@ -561,13 +561,13 @@ frequently used make commands.
 \end{verbatim}\begin{description}\item This rebuilds and installs everything that is not up to date first for the host arch and then (if different) for the 
 specified target arch.
 
-\item NOTE: This is the same as "gnumake install.\textless{}arch\textgreater{}"
+\item NOTE: This is the same as ``gnumake install.\textless{}arch\textgreater{}"
 
 \item 
 
 \end{description}\begin{verbatim}gnumake clean
 \end{verbatim}\index{clean}\begin{description}\item This can be used to save disk space by deleting the O.\textless{}arch\textgreater{} directories that gnumake will create, but does not 
-remove any installed files from the bin, db, dbd etc. directories. "gnumake clean.\textless{}arch\textgreater{}" can be invoked to clean a 
+remove any installed files from the bin, db, dbd etc. directories. ``gnumake clean.\textless{}arch\textgreater{}" can be invoked to clean a 
 single architecture.
 
 \item 
@@ -584,8 +584,8 @@ EPICS\_HOST\_ARCH).
 \item 
 
 \end{description}\begin{verbatim}gnumake rebuild 
-\end{verbatim}\index{rebuild}\begin{description}\item This is the same as "gnumake clean install". If you are unsure about the state of the generated files in an 
-application, just execute "gnumake rebuild".
+\end{verbatim}\index{rebuild}\begin{description}\item This is the same as ``gnumake clean install". If you are unsure about the state of the generated files in an 
+application, just execute ``gnumake rebuild".
 
 \item 
 
@@ -834,7 +834,7 @@ file name can be specified as
 \end{verbatim}A *\textless{}nn\textgreater{}.db database file will be created from a *.template and a *\textless{}nn\textgreater{}.substitutions file, (where nn is an optional index 
 number).
 
-If a \textless{}name\textgreater{} substitutions file contains "file" references to other input files, these referenced files are  made dependencies 
+If a \textless{}name\textgreater{} substitutions file contains ``file" references to other input files, these referenced files are  made dependencies 
 of the created \textless{}name\textgreater{}.db by the \index{makeDbDepends.pl}makeDbDepends.pl perl tool.
 
 The \index{Macro Substitutions and Include tool}Macro Substitutions and Include tool, msi, will be used to generate the database, and msi must either be in your path 
@@ -876,15 +876,15 @@ These definitions will apply to all compiler and linker targets.
 
 \begin{description}\item \index{USR\_INCLUDES}USR\_INCLUDES += -I\textless{}name\textgreater{}
 
-\end{description}header file directories each prefixed by a "-I".
+\end{description}header file directories each prefixed by a ``-I".
 
 \begin{description}\item USR\_INCLUDES\_\textless{}osclass\textgreater{} += -I\textless{}name\textgreater{}
 
-\end{description}os specific header file directories each prefixed by a "-I".
+\end{description}os specific header file directories each prefixed by a ``-I".
 
 \begin{description}\item USR\_INCLUDES\_DEFAULT += -I\textless{}name\textgreater{}
 
-\end{description}header file directories each prefixed by a "-I" for any arch that does not have a USR\_INCLUDE\_\textless{}osclass\textgreater{} 
+\end{description}header file directories each prefixed by a ``-I" for any arch that does not have a USR\_INCLUDE\_\textless{}osclass\textgreater{} 
 definition
 
 \begin{description}\item \index{USR\_CFLAGS}USR\_CFLAGS += \textless{}c flags\textgreater{}
@@ -951,15 +951,15 @@ definition
 
 \begin{description}\item \textless{}\index{name\_INCLUDES}name\textgreater{}\_INCLUDES += -I\textless{}name\textgreater{}
 
-\end{description}header file directories each prefixed by a "-I".
+\end{description}header file directories each prefixed by a ``-I".
 
 \begin{description}\item \textless{}name\textgreater{}\_INCLUDES\_\textless{}osclass\textgreater{} += -I\textless{}name\textgreater{}
 
-\end{description}os specific header file directories each prefixed by a "-I".
+\end{description}os specific header file directories each prefixed by a ``-I".
 
 \begin{description}\item \textless{}name\textgreater{}\_INCLUDES\_\textless{}T\_A\textgreater{} += -I\textless{}name\textgreater{}
 
-\end{description}target architecture specific header file directories each prefixed by a "-I".
+\end{description}target architecture specific header file directories each prefixed by a ``-I".
 
 \begin{description}\item \textless{}\index{name\_CFLAGS}name\textgreater{}\_CFLAGS += \textless{}c flags\textgreater{}
 
@@ -1157,7 +1157,7 @@ definition
 object files built in the current directory, library source file names should be specified. See Specifying Library Source File 
 Names above.
 
-Object files which have filename with a ".o" or ".obj" suffix are defined as follows and can be specified without the suffix 
+Object files which have filename with a ``.o" or ``.obj" suffix are defined as follows and can be specified without the suffix 
 but should have the directory prefix 
 
 \begin{description}\item \index{USR\_OBJS}USR\_OBJS += \textless{}name\textgreater{}
@@ -1201,7 +1201,7 @@ specified.
 
 
 
-Combined object files, from R3.13 built modules and applications which have file names that do not include a ".o" or 
+Combined object files, from R3.13 built modules and applications which have file names that do not include a ``.o" or 
 ".obj" suffix (e.g. xyzLib) are defined as follows:
 
 \begin{description}\item \index{USR\_OBJLIBS}USR\_OBJLIBS += \textless{}name\textgreater{}
@@ -1284,7 +1284,7 @@ named baseLIBOBJS. Base record and device support now exists in archive librarie
 \index{libraries}For each library name specified which is not a system library nor a library from an EPICS top defined in the configure/
 RELEASE file, a \textless{}name\textgreater{}\_DIR definition must be present in the Makefile to specify the location of the library. 
 
-Library names, which must not have a directory and "lib" prefix nor a suffix, are defined as follows:
+Library names, which must not have a directory and ``lib" prefix nor a suffix, are defined as follows:
 
 \begin{description}\item \index{LIB\_LIBS}LIB\_LIBS += \textless{}name\textgreater{}
 
@@ -1375,7 +1375,7 @@ linking named library.
 \end{enumerate}\subsubsection{Specifying library DLL file names (deprecated)}
 
 WIN32 libraries require all external references to be resolved, so if a library contains references to items in other DLL 
-libraries, these DLL library names must be specified (without directory prefix and without ".dll" suffix) as follows:
+libraries, these DLL library names must be specified (without directory prefix and without ``.dll" suffix) as follows:
 
 \begin{description}\item \index{DLL\_LIBS}DLL\_LIBS += \textless{}name\textgreater{}
 
@@ -1393,7 +1393,7 @@ Each \textless{}name\textgreater{} must have a corresponding \textless{}name\tex
 
 \begin{description}\item \index{SHRLIB\_VERSION}SHRLIB\_VERSION += \textless{}version\textgreater{}
 
-\end{description}On WIN32 this results in "/version:\$(SHRLIB\_VERSION)" link option. On Unix type hosts ".\$(SHRLIB\_VERSION)" is 
+\end{description}On WIN32 this results in ``/version:\$(SHRLIB\_VERSION)" link option. On Unix type hosts ``.\$(SHRLIB\_VERSION)" is 
 appended to the shared library name and a symbolic link is created for the unversioned library name.  
 \$(EPICS\_VERSION).\$(EPICS\_REVISION) is the default value for SHRLIB\_VERSION.
 
@@ -1700,7 +1700,7 @@ definition
 
 \subsubsection{Specifying product object file names}
 
-\index{product object file}Object files which have filenames with a ".o" or ".obj" suffix are defined as follows and can be specified without the 
+\index{product object file}Object files which have filenames with a ``.o" or ``.obj" suffix are defined as follows and can be specified without the 
 suffix but should have the directory prefix 
 
 \begin{description}\item \index{USR\_OBJS}USR\_OBJS += \textless{}name\textgreater{}
@@ -1742,7 +1742,7 @@ specified.
 \end{description}Object files will be used in builds of the named product for archs without a \textless{}prodname\textgreater{}\_OBJS\_\textless{}osclass\textgreater{} 
 definition specified.
 
-Combined object files, from R3.13 built modules and applications which have file names that do not include a ".o" or 
+Combined object files, from R3.13 built modules and applications which have file names that do not include a ``.o" or 
 ".obj" suffix (e.g. xyzLib) are defined as follows:
 
 \begin{description}\item \index{USR\_OBJLIBS}USR\_OBJLIBS += \textless{}name\textgreater{}
@@ -1871,7 +1871,7 @@ definition
 \index{product libraries}For each library name specified which is not a system library nor a library from EPICS\_BASE, a \textless{}name\textgreater{}\_DIR definition 
 must be present in the Makefile to specify the location of the library. 
 
-Library names, which must not have a directory and "lib" prefix nor a suffix, are defined as follows:
+Library names, which must not have a directory and ``lib" prefix nor a suffix, are defined as follows:
 
 \begin{description}\item \index{PROD\_LIBS}\index{PROD\_LIBS}PROD\_LIBS += \textless{}name\textgreater{}
 
@@ -1980,7 +1980,7 @@ linking named product.
 
 \begin{description}\item \index{PROD\_VERSION}PROD\_VERSION += \textless{}version\textgreater{}
 
-\end{description}This results in "/version:\$(PROD\_VERSION)" link option.
+\end{description}This results in ``/version:\$(PROD\_VERSION)" link option.
 
 \subsubsection{Product static builds}
 
@@ -2091,7 +2091,7 @@ TESTSCRIPTS\_IOC\_\textless{}osclass\textgreater{} definition
 TESTSCRIPTS\_HOST\_\textless{}osclass\textgreater{} definition.
 
 If a name in one of the above variables matches a regular executable program name (normally generated as a test product) 
-with "\verb|.t|" appended, a suitable perl script will be generated that will execute that program directly; this makes it simple to 
+with ``\verb|.t|" appended, a suitable perl script will be generated that will execute that program directly; this makes it simple to 
 run programs that use the epicsUnitTest routines in libCom.  A test script written in Perl with a name ending \verb|.plt| will be 
 copied into the O.\textless{}arch\textgreater{} directory with the ending changed to \verb|.t|; such scripts will usually use the perl Test::Simple or 
 Test::More libraries.
@@ -2166,7 +2166,7 @@ TCLINDEX += <name>
 
 \index{Java class files}Java class files can be created by the javac tool into \$(INSTALL\_JAVA) or into the O.Common subdirectory, by 
 specifying the name of the java class file in the Makefile. Command line options for the javac tool can be specified. The 
-configuration files set the java c option "-sourcepath .:..:../..".
+configuration files set the java c option ``-sourcepath .:..:../..".
 
 Any of the following can be specified:
 
@@ -2227,7 +2227,7 @@ Any of the following can be specified:
 
 \subsubsection{Example 1}
 
-In this example, all the class files created by the current Makefile's "JAVA+=" definitions, are placed into a file named 
+In this example, all the class files created by the current Makefile's ``JAVA+=" definitions, are placed into a file named 
 mytest1.jar. A manifest file will be automatically generated for the jar. 
 
 Note: \$(INSTALL\_CLASSES) is set to \$(addprefix \$(INSTALL\_JAVA)/,\$(CLASSES)) in the EPICS base configure 
@@ -2272,7 +2272,7 @@ Any of the following can be specified:
 \subsubsection{Example}
 
 In this example, the C header xx\_yy\_zz.h will be created in the \$(COMMON\_DIR) subdirectory from the class xx.yy.zz 
-(i.e. the java class file \$(INSTALL\_JAVA)/xx/yy/zz.class)). The option "-old" will tell javah to create old JDK1.0 style 
+(i.e. the java class file \$(INSTALL\_JAVA)/xx/yy/zz.class)). The option ``-old" will tell javah to create old JDK1.0 style 
 header files.
 
 \begin{description}\item JAVAINC = xx\_yy\_zz.h
@@ -2329,7 +2329,7 @@ RELEASE line pointing to the TOP of this module.
 \index{Table of Makefile definitions}Definitions given below containing \textless{}osclass\textgreater{} are used when building for target archs of a specific \index{osclass}osclass, and the 
 \textless{}osclass\textgreater{} part of the name should be replaced by the desired osclass, e.g. solaris, vxWorks, etc. If a \_DEFAULT setting is 
 given but a particular \textless{}osclass\textgreater{} requires that the default not apply and there are no items in the definition that apply for 
-that \textless{}osclass\textgreater{}, the value "-nil-" should be specified in the relevant Makefile definition.
+that \textless{}osclass\textgreater{}, the value ``-nil-" should be specified in the relevant Makefile definition.
 \begin{center}\begin{longtable}{p{2.94784in}p{3.76247in}}
 \textbf{Build Option} & \textbf{Description}\\
 \hline

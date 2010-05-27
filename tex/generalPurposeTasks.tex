@@ -13,7 +13,7 @@ This chapter describes two sets of EPICS supplied general purpose tasks: 1) Call
 Often when writing code for an IOC there is no obvious task under which to execute. A good example is completion code 
 for an asynchronous device support module. EPICS supplies the callback tasks for such code.
 
-If an IOC tasks "crashes" there is normally no one monitoring the vxWorks shell to detect the problem. EPICS provides a 
+If an IOC tasks ``crashes" there is normally no one monitoring the vxWorks shell to detect the problem. EPICS provides a 
 task watchdog task which periodically checks the state of other tasks. If  it finds that a monitored task has terminated or 
 suspended it issues an error message and can also call other routines which can take additional actions. For example a 
 subroutine record can arrange to be put into alarm if a monitored task crashes.

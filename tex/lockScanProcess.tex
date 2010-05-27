@@ -97,7 +97,7 @@ links the alarm severity of the record referred to by the link is propagated to 
 links the alarm severity of the record containing the link is propagated to the record referred to by the link. In either case, 
 if the severity is changed, the alarm status is set to \verb|LINK_ALARM|.
 
-\index{LINK\_ALARM}The method of determining if the alarm status and severity should be changed is called "maximize severity". In addition 
+\index{LINK\_ALARM}The method of determining if the alarm status and severity should be changed is called ``maximize severity". In addition 
 to its actual status and severity, each record also has a new status and severity. The new status and severity are initially 0, 
 which means \verb|NO_ALARM|. Every time a software component wants to modify the status and severity, it first checks the 
 new severity and only makes a change if the severity it wants to set is greater than the current new severity. If it does make 
@@ -109,7 +109,7 @@ severity outstanding alarm. If multiple alarms of the same severity are present 
 \section{Database Locking}
 
 \index{Database Locking}The purpose of database locking is to prevent a record from being processed simultaneously by two different tasks. In 
-addition, it prevents "outside" tasks from changing any field while the record is being processed.
+addition, it prevents ``outside" tasks from changing any field while the record is being processed.
 
 The following routines are provided for database locking.
 
@@ -177,7 +177,7 @@ when the current processing completes.
 
 \index{Record Processing}A record is processed as a result of a call to \verb|dbProcess|. Each record support module must supply a routine \verb|process|. 
 This routine does most of the work related to record processing. Since the details of record processing are record type 
-specific this topic is discussed in greater detail in Chapter "Record Support" for details.
+specific this topic is discussed in greater detail in Chapter ``Record Support" for details.
 
 \index{process - record support routine}\section{Guidelines for Creating Database Links}
 
@@ -410,7 +410,7 @@ allow scanners to be automatically restarted.
 
 \section{Cached Puts}
 
-\index{Cached Puts}The rules followed by \verb|dbPutLink| and \verb|dbPutField| provide for "cached" puts. This is necessary because of 
+\index{Cached Puts}The rules followed by \verb|dbPutLink| and \verb|dbPutField| provide for ``cached" puts. This is necessary because of 
 asynchronous records. Two cases arise.
 
 The first results from a \verb|dbPutField|, which is a put coming from outside the database, i.e. Channel Access puts. If this 

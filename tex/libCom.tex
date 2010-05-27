@@ -66,7 +66,7 @@ argument values may be modified if the expression uses the assignment operator.
 
 \index{31483: HEADING2: 19.2.1 Expression Syntax}The infix expressions that can be used are very similar to the C expression syntax, but with some additions and subtle 
 differences in operator meaning and precedence. The string may contain a series of expressions separated by a semi-colon 
-character '\verb|;|' any one of which may actually provide the calculation result; however all of the other expressions included 
+character `\verb|;|' any one of which may actually provide the calculation result; however all of the other expressions included 
 must assign their result to a variable. All alphabetic elements described below are case independent, so upper and lower 
 case letters may be used and mixed in the variable and function names as desired. Spaces may be used anywhere within an 
 expression except between the characters that make up a single expression element.
@@ -668,7 +668,7 @@ protected:
 \begin{center}\begin{longtable}{p{1.1in}p{5.0in}}
 \textbf{Method} & \textbf{Meaning}\\
 \hline
-createTimer() & This is a "factory" method to create timers which use this queue.\\
+createTimer() & This is a ``factory" method to create timers which use this queue.\\
 show() & Display info about object
 \end{longtable}\end{center}
 
@@ -687,7 +687,7 @@ protected:
 \begin{center}\begin{longtable}{p{1.1in}p{5.0in}}
 \textbf{Method} & \textbf{Meaning}\\
 \hline
-allocate() & This is a "factory" method to create a timer queue. If okToShare is (true,false) then a (shared, separate) thread will manage the timer requests.If the okToShare constructor parameter is true then if a timer queue is already running at the specified priority then it will be referenced for shared use by the application, and an independent timer queue will not be created.This method should not be called from within a C++ static constructor, since the queue thread requires that a current time provider be available and the last-resort time provider is not guaranteed to have been registered until all constructors have run.Editorial note: It is useful for two independent timer queues to run at the same priority if there are multiple processors, or if there is an application with well behaved timer expire functions that needs to be independent of applications with computationally intensive, mutex locking, or IO blocking timer expire functions. \\
+allocate() & This is a ``factory" method to create a timer queue. If okToShare is (true,false) then a (shared, separate) thread will manage the timer requests.If the okToShare constructor parameter is true then if a timer queue is already running at the specified priority then it will be referenced for shared use by the application, and an independent timer queue will not be created.This method should not be called from within a C++ static constructor, since the queue thread requires that a current time provider be available and the last-resort time provider is not guaranteed to have been registered until all constructors have run.Editorial note: It is useful for two independent timer queues to run at the same priority if there are multiple processors, or if there is an application with well behaved timer expire functions that needs to be independent of applications with computationally intensive, mutex locking, or IO blocking timer expire functions. \\
 release() & Release the queue, i.e. the calling facility will no longer use the queue. The caller MUST ensure that it does not own any active timers. When the last facility using the queue calls release, all resources used by the queue are freed.
 \end{longtable}\end{center}
 
@@ -724,7 +724,7 @@ public:
 epicsTimerQueueNotifyreschedule() & The virtual function epicsTimerQueueNotify::reschedule() is called when the delay to the next timer to expire on the timer queue changes.\\
 epicsTimerQueueNotifyquantum & The virtual function epicsTimerQueueNotify::quantum() returns the timer expire interval scheduling quantum in seconds. This allows different types of timer queues to use application specific timer expire delay scheduling policies. The implementation of epicsTimerQueueActive employs epicsThreadSleep() for this purpose, and therefore epicsTimerQueueActive::quantum() returns the returned value from epicsThreadSleepQuantum(). Other types of timer queues might choose to schedule timer expiration using specialized hardware interrupts. In this case epicsTimerQueueNotify::quantum() might return a value reflecting the precision of a hardware timer. If unknown, then epicsTimerQueueNotify::quantum() should return zero.\\
 epicsTimerQueuePassive & epicsTimerQueuePassive is an abstract base class so cannot be instantiated directly, but contains a static member function to create a concrete passive timer queue object of a (hidden) derived class.\\
-create() & A "factory" method to create a non-threaded timer queue. The calling software also passes an object derived from epicsTimerQueueNotify to receive reschedule() callbacks.\\
+create() & A ``factory" method to create a non-threaded timer queue. The calling software also passes an object derived from epicsTimerQueueNotify to receive reschedule() callbacks.\\
 \~{}epicsTimerQueuePassive() & Destructor. The caller MUST ensure that it does not own any active timers, i.e. it must cancel any active timers before deleting the epicsTimerQueuePassive object.\\
 process() & This calls expire() for all timers that have expired. The facility that creates the queue MUST call this. It returns the delay until the next timer will expire.
 \end{longtable}\end{center}
@@ -767,7 +767,7 @@ void epicsTimerCancel ( epicsTimerId id );
 double epicsTimerGetExpireDelay ( epicsTimerId id );
 void epicsTimerShow ( epicsTimerId id, unsigned int level );
 \end{verbatim}The C interface provides most of the facilities as the C++ interface. It does not support the periodic timer features. The 
-typedefs epicsTimerQueueNotifyReschedule and epicsTimerQueueNotifyQuantum are the "C" interface equivalents to 
+typedefs epicsTimerQueueNotifyReschedule and epicsTimerQueueNotifyQuantum are the ``C" interface equivalents to 
 epicsTimerQueueNotify:: reschedule() and epicsTimerQueueNotify::quantum().
 
 \subsection{Example}
@@ -893,7 +893,7 @@ size_t freeListItemsAvail(void *pvt);
 \index{freeListCleanup}
 \index{freeListItemsAvail}where
 
-\begin{description}\item \emph{pvt}  - For internal use by the freelist library. Caller must provide storage for a "void *pvt"
+\begin{description}\item \emph{pvt}  - For internal use by the freelist library. Caller must provide storage for a ``void *pvt"
 
 \item \emph{size} - Size in bytes of each element. Note that all elements must be same size
 
@@ -1104,8 +1104,8 @@ The Internet address number of the host, specified as a single number.
 
 The Internet host name of the host.
 
-\end{enumerate}In all cases the ':p' may be omitted in which case the port number is set to the value of the \emph{defaultPort} argument. All 
-numbers are read in base 16 if they begin with '0x' or '0X', in base 8 if they begin with '0', and in base 10 otherwise. 
+\end{enumerate}In all cases the `:p' may be omitted in which case the port number is set to the value of the \emph{defaultPort} argument. All 
+numbers are read in base 16 if they begin with `0x' or `0X', in base 8 if they begin with `0', and in base 10 otherwise. 
 
 \subsection{adjustment}
 
@@ -1236,7 +1236,7 @@ A C++ template for use as an exception object, used inside Channel Access. Not d
 
 \subsection{shareLib.h}
 
-\index{shareLib.h}This is the header file for the "decorated names" that appear in header files, e.g.
+\index{shareLib.h}This is the header file for the ``decorated names" that appear in header files, e.g.
 
 \begin{verbatim}#define epicsExportSharedSymbols
 epicsShareFunc int epicsShareAPI a_func(int arg);
@@ -1319,7 +1319,7 @@ tests are not expected to succeed) and testTodoEnd(). This modifies the counting
 recorded as failures.
 
 Additional information can be supplied using the testDiag() routine, which displays the relevent information as a 
-comment in the result output. None of the strings passed to any testXxx() routine should contain a newline '\textbackslash{}n' character, 
+comment in the result output. None of the strings passed to any testXxx() routine should contain a newline `\textbackslash{}n' character, 
 newlines will be added by the test routines as part of the Test Anything Protocol.  For multiple lines of diagnostic output, 
 call testDiag() as many times as necessary.
 

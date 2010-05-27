@@ -136,8 +136,8 @@ consisting of only the following characters does not have to be quoted unless it
 
 \subsection{Quoted Strings}
 
-\index{Quoted String}A quoted string can contain any ascii character except the quote character ". The quote character itself can given by using 
-\textbackslash{} as an escape. For example "\textbackslash{}"" is a quoted string containing the single character ".
+\index{Quoted String}A quoted string can contain any ascii character except the quote character ``. The quote character itself can given by using 
+\textbackslash{} as an escape. For example ``\textbackslash{}"" is a quoted string containing the single character ``.
 
 \subsection{Macro Substitution}
 
@@ -185,9 +185,9 @@ and each time a field value is encountered it replaces the previous value.
 
 \index{filename extension conventions}By convention:
 
-\begin{itemize}\item Record instances files have the extension "\verb|.db|"
+\begin{itemize}\item Record instances files have the extension ``\verb|.db|"
 
-\item Database definition files have the extension "\verb|.dbd|"
+\item Database definition files have the extension ``\verb|.dbd|"
 
 \end{itemize}\subsection{path addpath}
 
@@ -217,7 +217,7 @@ The initial path is determined as follows:
 
 \item If the environment variable \verb|EPICS_DB_INCLUDE_PATH| is defined, it is used. Else:
 
-\item the default path is ".", i.e. the current directory.
+\item the default path is ``.", i.e. the current directory.
 
 \end{description}The path is used unless the filename contains a / or \textbackslash{}. The first directory containing the specified file is used.
 
@@ -232,7 +232,7 @@ The initial path is determined as follows:
 
 \index{comment - Database Definitions}
 \index{comment - Database Definitions}
-\index{comment - Database Definitions}The comment symbol is "\#". Whenever the comment symbol appears, it and all characters through the end of the line are 
+\index{comment - Database Definitions}The comment symbol is ``\#". Whenever the comment symbol appears, it and all characters through the end of the line are 
 ignored.
 
 \section{Menu}
@@ -617,10 +617,10 @@ same combination appears multiple times, the first definition is used.
 
 \verb|VXI_IO|
 
-\begin{itemize}\item \index{dset\_name - device definition}dset\_name -  The exact name of the device support entry table without the trailing "\verb|DSET|". Duplicates are not 
+\begin{itemize}\item \index{dset\_name - device definition}dset\_name -  The exact name of the device support entry table without the trailing ``\verb|DSET|". Duplicates are not 
 allowed.
 
-\item \index{choice\_string - device definition}choice\_string  Choice string for database configuration tools. Note that it must be enclosed in "". Note that for a 
+\item \index{choice\_string - device definition}choice\_string  Choice string for database configuration tools. Note that it must be enclosed in ``". Note that for a 
 given record type, each \verb|choice_string| must be unique.
 
 \end{itemize}\subsection{Examples}
@@ -654,7 +654,7 @@ its source file with an \index{epicsExportRegistrar}epicsExportRegistrar declara
 static void myRegistrar(void);
 epicsExportRegistrar(myRegistrar);
 \end{verbatim}This can be used to register functions for use by subroutine records or that can be invoked from iocsh. The example 
-application described in Chapter 2.2, "Example IOC Application" on page11" provides an example of how to register 
+application described in Chapter 2.2, ``Example IOC Application" on page11" provides an example of how to register 
 functions for subroutine records.
 
 \subsection{Example}
@@ -699,7 +699,7 @@ epicsExportAddress(double, myParameter);
 \index{epicsRegisterFunction}epicsRegisterFunction declaration.
 
 \end{itemize}This registers a function so that it can be found in the function registry for use by record types such as sub or aSub which 
-refer to the function by name. The example application described in Chapter 2.2, "Example IOC Application" on page11 
+refer to the function by name. The example application described in Chapter 2.2, ``Example IOC Application" on page11 
 provides an example of how to register functions for a subroutine record.
 
 \subsection{Example}
@@ -1010,10 +1010,10 @@ although only the string value can be initialized from the record definition whe
 
 \section{Record Attribute}
 
-\index{record attribute}Each record type can have a set of record attributes. Each attribute is a "\index{Psuedo field}psuedo" field that can be accessed via database 
+\index{record attribute}Each record type can have a set of record attributes. Each attribute is a ``\index{Psuedo field}psuedo" field that can be accessed via database 
 and channel access. An attribute is given a name the acts like a field name which has the same value for every instance of 
 the record type. Two attributes are generated automatically for each record type: RTYP and VERS. The value for RTYP is 
-the record type name. The default value for VERS is "none specified", which can be changed by record support. Record 
+the record type name. The default value for VERS is ``none specified", which can be changed by record support. Record 
 support can call the following routine to create new attributes or change existing attributes:
 
 \begin{verbatim}long dbPutAttribute(char *recordTypename,
@@ -1388,7 +1388,7 @@ environment variable macros of the form \verb|${ENV_VAR_NAME}| which are to be e
 \begin{verbatim}a-z A-Z 0-9 _ + - . / \ : ; [ ] < >
 \end{verbatim}Each set of definitions enclosed in \verb|{}| is variable substitution for the input file. The input file has each set applied to it to 
 produce one composite file with all the completed substitutions in it. Version 1 should be obvious. In version 2, the 
-variables are listed in the "\verb|pattern|\{\}" line, which must precede the braced substitution lines. The braced substitution 
+variables are listed in the ``\verb|pattern|\{\}" line, which must precede the braced substitution lines. The braced substitution 
 lines contains sets which match up with the \verb|pattern|\{\} line.
 
 \subsection{EXAMPLE}

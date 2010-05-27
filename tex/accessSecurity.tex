@@ -31,7 +31,7 @@ This document is available through the EPICS website.
 
 \section{Quick Start}
 
-In order to "turn on" access security for a particular IOC the following must be done:
+In order to ``turn on" access security for a particular IOC the following must be done:
 
 \begin{itemize}\item Create the access security file.
 
@@ -166,10 +166,10 @@ multiple UAGs. For vxWorks iocs the user name is taken from the user field of th
 multiple HAGs. For iocs the host name is taken from the target name of the boot parameters. NOTE: host names 
 are converted to lower case.
 
-\item \index{ASG - access security configuration}ASG: An access security group. The group "\verb|DEFAULT|" is a special case. If a member specifies a null group or a 
-group which has no ASG definition then the member is assigned to the group "\verb|DEFAULT|".
+\item \index{ASG - access security configuration}ASG: An access security group. The group ``\verb|DEFAULT|" is a special case. If a member specifies a null group or a 
+group which has no ASG definition then the member is assigned to the group ``\verb|DEFAULT|".
 
-\end{itemize}\index{INP - access security configuration}INP\textless{}index\textgreater{}  Index must have one of the values "\verb|A|" to "\verb|L|". These are just like the \verb|INP| fields of a 
+\end{itemize}\index{INP - access security configuration}INP\textless{}index\textgreater{}  Index must have one of the values ``\verb|A|" to ``\verb|L|". These are just like the \verb|INP| fields of a 
 calculation record. It is necessary to define \verb|INP| fields if a \verb|CALC| field is defined in any \verb|RULE| for the ASG.
 
 \index{RULE}RULE   This defines access permissions. \textless{}\verb|level|\textgreater{} must be 0 or 1. Permission for a level 1 field implies 
@@ -190,7 +190,7 @@ or \verb|FALSE|. The rule only applies if the calculation result is \verb|TRUE|,
 ignored. Assignment statements are not permitted in CALC expressions here.
 
 Each IOC record contains a field \verb|ASG|, which specifies the name of the ASG to which the record belongs. If this field is 
-null or specifies a group which is not defined in the access security file then the record is placed in group "\verb|DEFAULT|".
+null or specifies a group which is not defined in the access security file then the record is placed in group ``\verb|DEFAULT|".
 
 The access privilege for a channel access client is determined as follows:
 
@@ -289,7 +289,7 @@ initialized or a time-out occurs. If initialization fails the record is placed i
 
 \end{enumerate}\subsubsection{Record Type Description}
 
-Each field of each record type has an associated access security level of \verb|ASL0| or \verb|ASL1|. See the chapter "Database 
+Each field of each record type has an associated access security level of \verb|ASL0| or \verb|ASL1|. See the chapter ``Database 
 Definition" for details.
 
 \subsection{Example:}
@@ -311,7 +311,7 @@ These will follow rules 1 and 4 but not 2 or 3.
 
 \item IOC channel access clients always have level 1 write privilege.
 
-\end{enumerate}Most Linac IOC records will not have the \verb|ASG| field defined and will thus be placed in ASG "\verb|DEFAULT|". The following 
+\end{enumerate}Most Linac IOC records will not have the \verb|ASG| field defined and will thus be placed in ASG ``\verb|DEFAULT|". The following 
 records will have an \verb|ASG| defined:
 
 \begin{itemize}\item \verb|LI:OPSTATE| and any other records that need tighter control have \verb|ASG|="\verb|critical|". One such record could be 
@@ -614,7 +614,7 @@ This code is called by a channel access server.
 a convention that allows the server code to locate the \verb|ASMEMBERPVT.| For IOC databases,  \verb|ASMEMBERPVT| is kept in 
 dbCommon\verb|. asl| is the access security level.
 
-The caller must provide permanent storage for \verb|user| and \verb|host|. Note that user is "const char *" but host is just "char *". 
+The caller must provide permanent storage for \verb|user| and \verb|host|. Note that user is ``const char *" but host is just ``char *". 
 The reason is the host names are converted to lower case.
 
 This routine returns \verb|S_asLib_asNotActive| without doing anything if access control is not active.

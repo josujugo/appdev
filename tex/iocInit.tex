@@ -17,7 +17,7 @@ performed by statements residing in startup scripts passed to \verb|iocsh|. An e
 }
 \end{verbatim}The first call to \verb|iocsh| executes commands from the startup script filename which must be passed as an argument to the 
 program. The second call to \verb|iocsh| with a \verb|NULL| argument puts \verb|iocsh| into interactive mode. This allows the user to 
-issue the commands described in chapter "IOC Test Facilities" as well as some additional commands like \verb|help|.
+issue the commands described in chapter ``IOC Test Facilities" as well as some additional commands like \verb|help|.
 
 The command file passed is usually called the startup script, and contains statements like these:
 
@@ -116,7 +116,7 @@ which talks to external devices or software.
 
 Providing the IOC has not already been initialized, \verb|initHookAtIocBuild| is announced first.
 
-The main thread's \verb|epicsThreadIsOkToBlock| flag is set, the message "\verb|Starting iocInit|" is logged and 
+The main thread's \verb|epicsThreadIsOkToBlock| flag is set, the message ``\verb|Starting iocInit|" is logged and 
 \verb|epicsSignalInstallSigHupIgnore| called, which on Unix architectures prevents the process from shutting down 
 if it later receives a HUP signal.
 
@@ -413,7 +413,7 @@ These variables can be set through iocsh via the \verb|epicsEnvSet| command, or 
 
 \index{epicsEnvShow}\section{Initialize Logging}
 
-\index{Initialize Logging}Initialize the logging system. See chapter "IOC Error Logging" for details. The following can be used to direct the log 
+\index{Initialize Logging}Initialize the logging system. See chapter ``IOC Error Logging" for details. The following can be used to direct the log 
 client to use a specific host log server.
 
 \begin{verbatim}epicsEnvSet("EPICS_IOC_LOG_PORT","<port>")

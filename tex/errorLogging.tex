@@ -62,7 +62,7 @@ NOTE: Many sites use CMLOG instead of iocLog.
 \index{errlogMessage}
 \index{errlogFlush} \verb|errlogPrintf |and  \verb|errlogVprintf| are like \verb|printf| and \verb|vprintf| provided by the standard C library, except 
 that their output is sent to the errlog task; unless configured not to, the output will appear on the console as well. Consult 
-any book that describes the standard C library such as "The C Programming Language ANSI C Edition" by Kernighan 
+any book that describes the standard C library such as ``The C Programming Language ANSI C Edition" by Kernighan 
 and Ritchie.
 
 \verb|errlogMessage| sends message to the errlog task.
@@ -94,7 +94,7 @@ and Ritchie.
 \index{errlogGetSevEnumString}
 \index{errlogSetSevToLog}
 \index{errlogGetSevToLog}\verb|errlogSevPrintf| and \verb|errlogSevVprintf| are like \verb|errlogPrintf |and  \verb|errlogVprintf| except that they 
-add the severity to the beginning of the message in the form "sevr=\textless{}value\textgreater{}" where value is on of "info, minor, major, 
+add the severity to the beginning of the message in the form ``sevr=\textless{}value\textgreater{}" where value is on of ``info, minor, major, 
 fatal". Also the message is suppressed if  severity is less than the current severity to suppress. If epicsThreadIsOkToBlock 
 is true, which is true during iocInit, errlogSevVprintf does NOT send output to the errlog task.
 
@@ -118,7 +118,7 @@ is true, which is true during iocInit, errlogSevVprintf does NOT send output to 
 
 \item -1:  Don't report status.
 
-\item Other:  See "Return Status Values" above.
+\item Other:  See ``Return Status Values" above.
 
 \end{itemize}\verb|errMessage|, via a call to \verb|errPrintf|, prints the message, the status symbol and string values, and the name of the task 
 which invoked \verb|errMessage|. It also prints the name of the source file and the line number from which the call was 
@@ -141,7 +141,7 @@ Routine \verb|errPrintf| is normally called as follows:
 
 \item -1:  Don't report status.
 
-\item Other:  See "Return Status Values", above.
+\item Other:  See ``Return Status Values", above.
 
 \end{itemize}FILE and LINE are defined as:
 
@@ -180,7 +180,7 @@ system wide error handlers.
 
 \index{errlogThread}The error message routines can be called by any non-interrupt level code. These routines pass the message to the errlog 
 Thread. If any of the error message routines are called at interrupt level,  \verb|epicsInterruptContextMessage| is 
-called with the message "errlogPrintf called from interrupt level".
+called with the message ``errlogPrintf called from interrupt level".
 
 errlogThread manages the messages. Messages are placed in a message queue, which is read by errlogThread. The 
 message queue uses a fixed block of memory to hold all messages. When the message queue is full additional messages 
@@ -189,7 +189,7 @@ missed messages is generated.
 
 The maximum message size is by default 256  characters. If a message is longer, the message is truncated and a message 
 explaining that it was truncated is appended. There is a chance that long messages corrupt memory. This  only happens if 
-client code is defective. Long messages most likely result from "\%s" formats with a bad string argument.
+client code is defective. Long messages most likely result from ``\%s" formats with a bad string argument.
 
 errlogThread passes each message to any registered listener.
 
@@ -238,7 +238,7 @@ database access routines is:
 
 \begin{verbatim}#define M_dbAccess  (501 << 16)   \
 /*Database Access Routines*/
-\end{verbatim}Directory "\verb|epics/share/epicsH|" contains an \verb|include| library for every IOC subsystem that returns standard status 
+\end{verbatim}Directory ``\verb|epics/share/epicsH|" contains an \verb|include| library for every IOC subsystem that returns standard status 
 values. The status values are encoded with lines of the following format: 
 
 \begin{verbatim}#define S_xxxxxxx value /*string value*/
@@ -263,11 +263,11 @@ messages generated locally by the errlog system. It also reports the messages fr
 \subsection{iocLogServer}
 
 \index{iocLogServer}This runs on a host. It receives messages for all enabled iocLogClients in the local area network. The messages are written 
-to a file. Epics base provides a startup file "base/src/util/rc2.logServer", which is a SystemV init script to start the server. 
+to a file. Epics base provides a startup file ``base/src/util/rc2.logServer", which is a SystemV init script to start the server. 
 Consult this script for details.
 
 To start a log server on a UNIX or PC workstation you must first set the following environment variables and then run the 
-executable "iocLogServer" on your PC or UNIX workstation. 
+executable ``iocLogServer" on your PC or UNIX workstation. 
 
 \begin{description}\item \index{EPICS\_IOC\_LOG\_FILE\_NAME}EPICS\_IOC\_LOG\_FILE\_NAME 
 
@@ -286,8 +286,8 @@ SIGHUP. The new path name will replace any path name supplied in EPICS\_IOC\_LOG
 
 Thus, if EPICS\_IOC\_LOG\_FILE\_NAME is 
 
-"a/b/c.log" and EPICS\_IOC\_LOG\_FILE\_COMMAND returns "A/B" or "A/B/" the log server will be stored 
-at "A/B/c.log"
+"a/b/c.log" and EPICS\_IOC\_LOG\_FILE\_COMMAND returns ``A/B" or ``A/B/" the log server will be stored 
+at ``A/B/c.log"
 
 If EPICS\_IOC\_LOG\_FILE\_COMMAND is empty then this behavior is disabled. This feature is used at 
 some sites for switching the server to a new directory at a fixed time each day. This variable is currently 

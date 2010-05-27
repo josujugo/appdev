@@ -219,11 +219,11 @@ vxWorks task ID of the breakpoint continuation task for the lockset. Here is an 
              Breakpoint: so(ap)
 LSet: 00008#B: 00001   T: 0x22fee4c
              Breakpoint: output
-\end{verbatim}The above indicates that two locksets contain breakpoints. One lockset is stopped at record "\verb|so|." The other is not 
-currently stopped, but contains a breakpoint at record "\verb|output|." "\verb|LSet|:" is the lockset number that is being considered. 
-"\verb|#B:|" is the number of breakpoints set in records within that lockset. "\verb|T:|" is the vxWorks task ID of the continuation 
-task. "\verb|C:|" is the total number of calls to the entrypoint that have been detected. "\verb|C/S:|" is the number of those calls that 
-have been detected per second. \verb|(ap)| indicates that the autoprint feature has been turned on for record "\verb|so|."
+\end{verbatim}The above indicates that two locksets contain breakpoints. One lockset is stopped at record ``\verb|so|." The other is not 
+currently stopped, but contains a breakpoint at record ``\verb|output|." ``\verb|LSet|:" is the lockset number that is being considered. 
+"\verb|#B:|" is the number of breakpoints set in records within that lockset. ``\verb|T:|" is the vxWorks task ID of the continuation 
+task. ``\verb|C:|" is the total number of calls to the entrypoint that have been detected. ``\verb|C/S:|" is the number of those calls that 
+have been detected per second. \verb|(ap)| indicates that the autoprint feature has been turned on for record ``\verb|so|."
 
 \section{Trace Processing}
 
@@ -265,7 +265,7 @@ string (if it was double-quoted) before passing it to errlog.
 \index{dbior}I/O Report:
 
 \begin{verbatim}dbior ("<driver_name>",<interest level>)
-\end{verbatim}This command calls the report entry of the indicated driver. If \verb|<driver_name>| is "" or "*", then a report for all drivers 
+\end{verbatim}This command calls the report entry of the indicated driver. If \verb|<driver_name>| is ``" or ``*", then a report for all drivers 
 is generated. The command also calls the report entry of all device support modules. Interest level is one of the following:
 
 \begin{itemize}\item 0: Print a short report for each module.
@@ -483,7 +483,7 @@ w is(-, W) if client (does not, does) have write access to the channel.
 
 \subsection{dbcar}
 
-\index{dbcar}Database to Channel Access Report - See "Record Link Reports"
+\index{dbcar}Database to Channel Access Report - See ``Record Link Reports"
 
 \subsection{ascar}
 
@@ -577,7 +577,7 @@ when it is called. This routine is of interest to system developers for testing 
 \index{dblsr}Lock Set Report:
 
 \begin{verbatim}dblsr(<recordname>,<level>)
-\end{verbatim}This command generates a report showing the lock set to which each record belongs. If \verb|recordname| is 0, "", or "*" all 
+\end{verbatim}This command generates a report showing the lock set to which each record belongs. If \verb|recordname| is 0, ``", or ``*" all 
 records are shown, otherwise only records in the same lock set as \verb|recordname| are shown.
 
 \verb|level| can have the following values:
@@ -602,7 +602,7 @@ about each locked epicsMutex.
 \index{dbcar}Database to channel access report
 
 \begin{verbatim}dbcar(<recordname>,<level>)
-\end{verbatim}This command generates a report showing database channel access links. If \verb|recordname| is "*" then information about 
+\end{verbatim}This command generates a report showing database channel access links. If \verb|recordname| is ``*" then information about 
 all records is shown otherwise only information about the specified record.
 
 \verb|level| can have the following values:
@@ -615,7 +615,7 @@ all records is shown otherwise only information about the specified record.
 
 \end{description}\subsection{dbhcr}
 
-\index{dbhcr}Report hardware links. See "Hardware Reports".
+\index{dbhcr}Report hardware links. See ``Hardware Reports".
 
 \section{Old Database Access Testing}
 

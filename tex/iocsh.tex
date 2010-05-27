@@ -17,7 +17,7 @@ describe the operation of the IOC shell from the user's and programmer's points 
 
 The IOC shell reads lines of input, expands environment variable parameters, breaks the line into commands and 
 arguments then calls functions corresponding to the decoded command. Commands and arguments are separated by one 
-or more 'space' characters. Characters interpreted as spaces include the actual space character and the tab character as 
+or more `space' characters. Characters interpreted as spaces include the actual space character and the tab character as 
 well as commas and open and close parentheses. Thus, the command line
 
 \begin{verbatim}dbLoadRecords("db/dbExample1.db","user=mrk")
@@ -99,8 +99,8 @@ recognized.
 \begin{center}\begin{longtable}{p{1.59082in}p{5.21418in}}
 Command & Description\\
 \hline
-help [command ...] & Display synopsis of specified commands.  Wild-card matching is applied so 'help db*' displays a synopsis of all commands beginning with the letters 'db'.With no arguments display a list of all commands.\\
-\# & A '\#' in the first column of a line indicates the beginning of a comment which continues to the end of the line\\
+help [command ...] & Display synopsis of specified commands.  Wild-card matching is applied so `help db*' displays a synopsis of all commands beginning with the letters `db'.With no arguments display a list of all commands.\\
+\# & A `\#' in the first column of a line indicates the beginning of a comment which continues to the end of the line\\
 exit & Stop reading commands. When the top-level command interpreter encounters an exit command or end-of-file (EOF) it returns to its caller.\\
 cd directory & Change working directory to directory.\\
 pwd & Print the name of the working directory.\\
@@ -132,7 +132,7 @@ The IOC shell uses the following environment variables to control its operation.
 \begin{center}\begin{longtable}{p{1.305in}p{5.46in}}
 Variable & Description\\
 \hline
-IOCSH\_PS1 & Prompt string. Default is "epics\textgreater{} ".\\
+IOCSH\_PS1 & Prompt string. Default is ``epics\textgreater{} ``.\\
 IOCSH\_HISTSIZE & Number of previous command lines to remember. If the IOCSH\_HISTSIZE environment variable is not present the value of the HISTSIZE environment variable is used.  In the absence of both environment variables, 10 command lines will be remembered.\\
 TERM, INPUTRC & These and other environment variables are used by the readline and termcap libraries and are described in the documentation for those libraries.
 \end{longtable}\end{center}
@@ -201,19 +201,19 @@ Type Specifier & Description\\
 \hline
 iocshArgInt & The argument will be converted to an integer value.\\
 iocshArgDouble & The argument will be converted to a double-precision floating point value.\\
-iocshArgString & The argument will be left as a string.  The memory used to hold the string is 'owned' by iocsh and will be reused once the handler function returns.\\
+iocshArgString & The argument will be left as a string.  The memory used to hold the string is `owned' by iocsh and will be reused once the handler function returns.\\
 iocshArgPersistentString & A copy of the argument will be made and a pointer to the copy will be passed to the handler.  The called function can release this copy by using the pointer as an argument to free().\\
 iocshArgPdbbase & The argument must be pdbbase.\\
 iocshArgArgv & An arbitrary number of arguments is expected.  Subsequent iocshArg structures will be ignored.
 \end{longtable}\end{center}
 
 
-The 'handler' function which is called when its corresponding command is recognized should be of the form:
+The `handler' function which is called when its corresponding command is recognized should be of the form:
 
 \begin{verbatim}    void showCallFunc(const iocshArgBuf *args);
 \end{verbatim}The argument to the handler function is a pointer to an array of unions.  The number of elements in this array is equal to 
 the number of arguments specified in the structure describing the command.  The type and name of the union element 
-which contains the argument value depends on the 'type' element of the corresponding argument descriptor:
+which contains the argument value depends on the `type' element of the corresponding argument descriptor:
 \begin{center}\begin{longtable}{p{1.45833in}p{0.56in}p{1.19in}}
 Type Specifier & Type & Union element\\
 \hline
