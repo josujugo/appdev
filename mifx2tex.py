@@ -10,12 +10,20 @@ def get_table(tag):
         row_data = []
         cells = r.getElementsByTagName("Cell")
         for c in cells:
+            tag = getfirst(c, "PgfTag")
             txt = []
+            font = getfirstnode(c, "PgfFont")
+            if font is not None:
+                ftag = getfirst(font, "FTag")
+                ffam = getfirst(font, "FFamily")
+            else:
+                ftag = None
+                ffam = None
             strs = c.getElementsByTagName("String")
             for s in strs:
                 txt.append(string_val(s))
             txt = "".join(txt)
-            row_data.append(txt)
+            row_data.append((ftag, ffam, tag, txt))
         rows1.append(row_data)
     return rows1
 
@@ -134,7 +142,9 @@ def multireplace(text, reps):
     return text
 
 def mifunescape(text):
-    reps = (("\\>", ">"),
+    reps = (("\\q", "'"),
+            ("\\Q", "'"),
+            ("\\>", ">"),
             ("\\\\:", ":"),
             ("\\\\", "\\"))
     return multireplace(text, reps)
@@ -187,17 +197,38 @@ def drawtable(table):
     fmt = "".join(fmt)
     
     rows = [header] + rows
+
+    # limited formatting support 
+    font_map = {"Code": "verb",
+                "Courier": "verb",
+                "Helvetica": "verb",
+                "Emphasis": "emph",
+                "EquationVariables": "emph"}
+
+    heading_styles = ["CELLHEADING"]
     
     txt.append("\n\\begin{center}")
     txt.append("\\begin{longtable}{%s}\n" % fmt)
     for i0, r in enumerate(rows):
         if i0 == 1:
             txt.append("\\hline\n")
-        for i, c in enumerate(r):
+        for i, (ftag, ffam, ptag, c) in enumerate(r):
             if i != 0:
                 txt.append(" & ")
+            f = font_map.get(ftag, None)
+            if f is None:
+                f = font_map.get(ffam, None)
             s = latexescape(c)
-            txt.append(s)
+
+            if ptag in heading_styles:
+                txt.append("\\textbf{%s}" % s)
+            elif f == "verb":
+                txt.append("\\verb|%s|" % verb_escape(c))
+            elif f == "emph":
+                txt.append("\\emph{%s}" % s)
+            else:
+                txt.append(s)
+            
         if i0 != len(rows) - 1:
             txt.append("\\\\")
         txt.append("\n")

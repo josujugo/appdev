@@ -116,7 +116,7 @@ os directory must have the appropriate configure files.
 \index{Build Requirements}\subsection{Host Environment Variable}
 
 \index{Environment Prerequisites}Only one environment variable, \verb|EPICS_HOST_ARCH|, is required to build EPICS \textless{}top\textgreater{} areas. This variable should be 
-set to be your workstation\textbackslash{}qs operating system - architecture combination to use the os vendor's c/c++ compiler for native 
+set to be your workstation's operating system - architecture combination to use the os vendor's c/c++ compiler for native 
 builds or set to the operating system - architecture - alternate compiler combination to use an alternate compiler for native 
 builds if an alternate compiler is supported on your system. The filenames of the \verb|CONFIG.*.Common |files in base/
 configure/os show the currently supported EPICS\_HOST\_ARCH values. Examples are \verb|solaris-sparc, |
@@ -130,7 +130,7 @@ solaris-sparc-gnu, linux-x86, win32-x86, and\verb| cygwin-x86|.
 
 \item \index{GNU make}GNU make, version 3.81 or greater
 
-\item C++ compiler (host operating system vendor\textbackslash{}qs compiler or GNU compiler)
+\item C++ compiler (host operating system vendor's compiler or GNU compiler)
 
 \end{itemize}If you will be building EPICS components for \index{vxWorks}vxWorks targets you will also need:
 
@@ -853,7 +853,7 @@ Template and substitution files can be installed.
 \index{substitutions file}generates and installs these files. If one or more xxx.substitutions files are to be created by script, the script name must be 
 placed in the CREATESUBSTITUTIONS variable (e.g. CREATESUBSTITUTIONS=mySubst.pl). This script will be 
 executed by gnumake with the prefix of the substitution file name to be generated as its argument. If (and only if) there 
-are script generated substitutions files, the prefix of any inflated database\textbackslash{}qs name may not equal the prefix of the name of 
+are script generated substitutions files, the prefix of any inflated database's name may not equal the prefix of the name of 
 any template used within the directory.
 
 \subsection{DB install files}
@@ -2331,263 +2331,263 @@ RELEASE line pointing to the TOP of this module.
 given but a particular \textless{}osclass\textgreater{} requires that the default not apply and there are no items in the definition that apply for 
 that \textless{}osclass\textgreater{}, the value "-nil-" should be specified in the relevant Makefile definition.
 \begin{center}\begin{longtable}{p{2.94784in}p{3.76247in}}
-Build Option & Description\\
+\textbf{Build Option} & \textbf{Description}\\
 \hline
-Products to be built (host type archs only) & \\
-PROD & products (names without execution suffix) to build and install. Specify xyz to build executable xyz on Unix and xyz.exe on WIN32\\
-PROD\_\textless{}osclass\textgreater{} & os class specific products to build and install for \textless{}osclass\textgreater{} archs only\\
-PROD\_DEFAULT & products to build and install for archs with no PROD\_\textless{}osclass\textgreater{} specified\\
-PROD\_IOC & products to build and install for ioc type archs\\
-PROD\_IOC\_\textless{}osclass\textgreater{} & os specific products to build and install for ioc type archs\\
-PROD\_IOC\_DEFAULT & products to build and install for ioc type arch systems with no PROD\_IOC\_\textless{}osclass\textgreater{} specified\\
-PROD\_HOST & products to build and install for host type archs. \\
-PROD\_HOST\_\textless{}osclass\textgreater{} & os class specific products to build and install for \textless{}osclass\textgreater{} type archs\\
-PROD\_HOST\_DEFAULT & products to build and install for arch with no PROD\_HOST\_\textless{}osclass\textgreater{} specified\\
-Test products to be built & \\
-TESTPROD & test products (names without execution suffix) to build but not install \\
-TESTPROD\_\textless{}osclass\textgreater{} & os class specific test products to build but not install\\
-TESTPROD\_DEFAULT & test products to build but not install for archs with no TESTPROD\_\textless{}osclass\textgreater{} specified\\
-TESTPROD\_IOC & test products to build and install for ioc type archs\\
-TESTPROD\_IOC\_\textless{}osclass\textgreater{} & os specific test products to build and install for ioc type archs\\
-TESTPROD\_IOC\_DEFAULT & test products to build and install for ioc type arch systems with no TESTPROD\_IOC\_\textless{}osclass\textgreater{} specified\\
-TESTPROD\_HOST & testproducts to build and install for host type archs. \\
-TESTPROD\_HOST\_\textless{}osclass\textgreater{} & os class specific testproducts to build and install for \textless{}osclass\textgreater{} type archs\\
-TESTPROD\_HOST\_DEFAULT & test products to build and install for arch with no TESTPROD\_HOST\_\textless{}osclass\textgreater{} specified\\
-Test scripts to be built & \\
-TESTSCRIPTS & test scripts (names with .t suffix) to build but not install\\
-TESTSCRIPTS\_\textless{}osclass\textgreater{} & os class specific test scripts to build but not install\\
-TESTSCRIPTS\_DEFAULT & test scripts to build but not install for archs with no TESTSCRIPTS\_\textless{}osclass\textgreater{} specified\\
-TESTSCRIPTS\_IOC & test scripts to build and install for ioc type archs\\
-TESTSCRIPTS\_IOC\_\textless{}osclass\textgreater{} & os specific test scripts to build and install for ioc type archs\\
-TESTSCRIPTS\_IOC\_DEFAULT & test scripts to build and install for ioc type arch systems with no TESTSCRIPTS\_IOC\_\textless{}osclass\textgreater{} specified\\
-TESTSCRIPTS\_HOST & test scripts to build and install for host type archs. \\
-TESTSCRIPTS\_HOST\_\textless{}osclass\textgreater{} & os class specific testscripts to build and install for \textless{}osclass\textgreater{} type archs\\
-TESTSCRIPTS\_HOST\_DEFAULT & test scripts to build and install for arch with no TESTSCRIPTS\_HOST\_\textless{}osclass\textgreater{} specified\\
-Libraries to be built & \\
-LIBRARY & name of library to build and install. The name should NOT include a prefix or extension e.g. specify Ca to build libCa.a on Unix, Ca.lib or Ca.dll on WIN32\\
-LIBRARY\_\textless{}osclass\textgreater{} & os specific libraries to build and install\\
-LIBRARY\_DEFAULT & libraries to build and install for archs with no LIBRARY\_\textless{}osclass\textgreater{} specified\\
-LIBRARY\_IOC & name of library to build and install for ioc type archs. The name should NOT include a prefix or extension e.g. specify Ca to build libCa.a on Unix, Ca.lib or Ca.dll on WIN32\\
-LIBRARY\_IOC\_\textless{}osclass\textgreater{} & os specific libraries to build and install for ioc type archs\\
-LIBRARY\_IOC\_DEFAULT & libraries to build and install for ioc type arch systems with no LIBRARY\_IOC\_\textless{}osclass\textgreater{} specified\\
-LIBRARY\_HOST & name of library to build and install for host type archs. The name should NOT include a prefix or extension, e.g. specify Ca to build libCa.a on Unix, Ca.lib or Ca.dll on WIN32\\
-LIBRARY\_HOST\_\textless{}osclass\textgreater{} & os class specific libraries to build and install for host type archs\\
-LIBRARY\_HOST\_DEFAULT & libraries to build and install for host type arch systems with no LIBRARY\_HOST\_\textless{}osclass\textgreater{} specified\\
-SHARED\_LIBRARIES & build shared libraries? Must be YES or NO\\
-SHRLIB\_VERSION & shared library version number\\
-Loadable libraries to be built & \\
-LOADABLE\_LIBRARY & name of loadable library to build and install. The name should NOT include a prefix or extension e.g. specify Ca to build libCa.so on Unix and Ca.dll on WIN32\\
-LOADABLE\_LIBRARY\_\textless{}osclass\textgreater{} & os specific loadable libraries to build and install\\
-LOADABLE\_LIBRARY\_DEFAULT & loadable libraries to build and install for archs with no LOADABLE\_LIBRARY\_\textless{}osclass\textgreater{} specified\\
-LOADABLE\_LIBRARY\_HOST & name of loadable library to build and install for host type archs. The name should NOT include a prefix or extension, e.g. specify test to build libtest.so on Unix and test.dll on WIN32\\
-LOADABLE\_LIBRARY\_HOST\_\textless{}osclass\textgreater{} & os class specific loadable libraries to build and install for host type archs\\
-LOADABLE\_LIBRARY\_HOST\_DEFAULT & loadable libraries to build and install for host type arch systems with no LOADABLE\_LIBRARY\_HOST\_\textless{}osclass\textgreater{} specified\\
-Combined object files (vxWorks only) & \\
-OBJLIB & name of a combined object file library and corresponding munch file to build and install. The name will have a Library suffix appended\\
-OBJLIB\_vxWorks & same as OBJLIB\\
-OBJLIB\_SRCS & source files to build the OBJLIB\\
-OBJLIB\_OBJS & object files to include in OBJLIB\\
-Product and library source files & \\
-SRCS & source files to build all PRODs and LIBRARYs\\
-SRCS\_\textless{}osclass\textgreater{} & osclass specific source files to build all PRODs and LIBRARYs\\
-SRCS\_DEFAULT & source file to build all PRODs and LIBRARYs for archs with no SRCS\_\textless{}osclass\textgreater{} specified\\
-USR\_SRCS & source files to build all PRODs and LIBRARYs\\
-USR\_SRCS\_\textless{}osclass\textgreater{} & osclass specific source files to build all PRODs and LIBRARYs\\
-USR\_SRCS\_DEFAULT & source file to build all PRODs and LIBRARYs for archs with no SRCS\_\textless{}osclass\textgreater{} specified\\
-PROD\_SRCS & source files to build all PRODs\\
-PROD\_SRCS\_\textless{}osclass\textgreater{} & osclass specific source files to build all PRODs\\
-PROD\_SRCS\_DEFAULT & source files needed to build PRODs for archs with no SRCS\_\textless{}osclass\textgreater{} specified\\
-LIB\_SRCS & source files for building LIBRARY (e.g. LIB\_SRCS=la.c lb.c lc.c)\\
-LIB\_SRCS\_\textless{}osclass\textgreater{} & os-specific library source files\\
-LIB\_SRCS\_DEFAULT & library source files for archs with no LIB\_SRCS\_\textless{}osclass\textgreater{} specified\\
-LIBSRCS & source files for building LIBRARY (deprecated)\\
-LIBSRCS\_\textless{}osclass\textgreater{} & os-specific library source files (deprecated)\\
-LIBSRCS\_DEFAULT & library source files for archs with no LIBSRCS\_\textless{}osclass\textgreater{} specified (deprecated)\\
-\textless{}name\textgreater{}\_SRCS & source files to build a specific PROD or LIBRARY\\
-\textless{}name\textgreater{}\_SRCS\_\textless{}osclass\textgreater{} & os specific source files to build a specific PROD or LIBRARY\\
-\textless{}name\textgreater{}\_SRCS\_DEFAULT & source files needed to build a specific PROD or LIBRARY for archs with no \textless{}prod\textgreater{}\_SRCS\_\textless{}osclass\textgreater{} specified\\
-Product and library object files & \\
-USR\_OBJS & object files, specified without suffix, to build all PRODs and LIBRARYs\\
-USR\_OBJS\_\textless{}osclass\textgreater{} & osclass specific object files, specified without suffix, to build all PRODs and LIBRARYs\\
-USR\_OBJS\_DEFAULT & object files, specified without suffix, needed to build PRODs and LIBRARYs for archs with no OBJS\_\textless{}osclass\textgreater{} specified\\
-PROD\_OBJS & object files, specified without suffix, to build all PRODs\\
-PROD\_OBJS\_\textless{}osclass\textgreater{} & osclass specific object files, specified without suffix, to build all PRODs\\
-PROD\_OBJS\_DEFAULT & object files, specified without suffix, needed to build PRODs for archs with no OBJS\_\textless{}osclass\textgreater{} specified\\
-LIB\_OBJS & object files, specified without suffix, for building all LIBRARYs (e.g. LIB\_OBJS+=\$(AB\_BIN)/la \$(AB\_BIN)/lb)\\
-LIB\_OBJS\_\textless{}osclass\textgreater{} & os-specific library object files, specify without suffix,\\
-LIB\_OBJS\_DEFAULT & library object files, specified without suffix, for archs with no LIB\_OBJS\_\textless{}osclass\textgreater{} specified\\
-\textless{}name\textgreater{}\_OBJS & object files, specified without suffix, to build a specific PROD or LIBRARY\\
-\textless{}name\textgreater{}\_OBJS\_\textless{}osclass\textgreater{} & os specific object files, specified without suffix, to build a specific PROD or LI\textbar{}BRARY\\
-\textless{}name\textgreater{}\_OBJS\_DEFAULT & object files, without suffix, needed to build a specific PROD or LIBRARY for archs with no \textless{}prod\textgreater{}\_OBJS\_\textless{}osclass\textgreater{} specified\\
-Product and library R3.13 combined object files & \\
-USR\_OBJLIBS & combined object files with filenames that do not have a suffix, needed for building all PRODs and LIBRARYs (e.g. USR\_OBJLIBS+=\$(XYZ\_BIN)/xyzLib)\\
-USR\_OBJLIBS\_\textless{}osclass\textgreater{} & os-specific combined object files with filenames that do not have a suffix for building all PRODs and LIBRARYs\\
-USR\_OBJLIBS\_DEFAULT & combined object files with filenames that do not have a suffix, for archs with no USR\_OBJLIBS\_\textless{}osclass\textgreater{} specified for building all PRODs and LIBRARYs\\
-PROD\_OBJLIBS & combined object files with filenames that do not have a suffix, needed for building all PRODs (e.g. PROD\_OBJLIBS+=\$(XYZ\_BIN)/xyzLib)\\
-PROD\_OBJLIBS\_\textless{}osclass\textgreater{} & os-specific combined object files with filenames that do not have a suffix for building all PRODs\\
-PROD\_OBJLIBS\_DEFAULT & combined object files with filenames that do not have a suffix, for archs with no PROD\_OBJLIBS\_\textless{}osclass\textgreater{} specified for building all PRODs\\
-LIB\_OBJLIBS & combined object files with filenames that do not have a suffix, needed for building all LIBRARYs (e.g. LIB\_OBJLIBS+=\$(XYZ\_BIN)/xyzLib)\\
-LIB\_OBJLIBS\_\textless{}osclass\textgreater{} & os-specific combined object files with filenames that do not have a suffix for building all LIBRARYs\\
-LIB\_OBJLIBS\_DEFAULT & combined object files with filenames that do not have a suffix, for archs with no LIB\_OBJLIBS\_\textless{}osclass\textgreater{} specified for building all LIBRARYs\\
-\textless{}name\textgreater{}\_OBJLIBS & combined object files with filenames that do not have a suffix, needed to build a specific PROD or LIBRARY\\
-\textless{}name\textgreater{}\_OBJLIBS\_\textless{}osclass\textgreater{} & os specific combined object files with filenames that do not have a suffix, to build a specific PROD or LI\textbar{}BRARY\\
-\textless{}name\textgreater{}\_OBJLIBS\_DEFAULT & combined object files with filenames that do not have a suffix, needed to build a specific PROD or LIBRARY for archs with no \textless{}name\textgreater{}\_OBJLIBS\_\textless{}osclass\textgreater{} specified\\
-\textless{}name\textgreater{}\_LDOBJS & combined object files with filenames that do not have a suffix, needed to build a specific PROD or LIBRARY (deprecated)\\
-\textless{}name\textgreater{}\_LDOBJS\_\textless{}osclass\textgreater{} & os specific combined object files with filenames that do not have a suffix, to build a specific PROD or LI\textbar{}BRARY (deprecated)\\
-\textless{}name\textgreater{}\_LDOBJS\_DEFAULT & combined object files with filenames that do not have a suffix, needed to build a specific PROD or LIBRARY for archs with no \textless{}name\textgreater{}\_LDOBJS\_\textless{}osclass\textgreater{} specified (deprecated)\\
-Product and library dependant libraries & \\
-\textless{}name\textgreater{}\_DIR & directory to search for the specified lib. (For libs listed in all PROD\_LIBS, LIB\_LIBS, \textless{}name\textgreater{}\_LIBS and USR\_LIBS listed below)System libraries do not need a \textless{}name\textgreater{}\_dir definition.\\
-USR\_LIBS & load libraries (e.g. Xt X11) for all products and libraries\\
-USR\_LIBS\_\textless{}osclass\textgreater{} & os specific load libraries for all makefile links\\
-USR\_LIBS\_DEFAULT & load libraries for systems with no USR\_LIBS\_\textless{}osclass\textgreater{} specified libs\\
-\textless{}name\textgreater{}\_LIBS & named prod or library specific ld libraries (e.g. probe\_LIBS=X11 Xt)\\
-\textless{}name\textgreater{}\_LIBS\_\textless{}osclass\textgreater{} & os-specific libs needed to link named prod or library\\
-\textless{}name\textgreater{}\_LIBS\_DEFAULT & libs needed to link named prod or library for systems with no \textless{}name\textgreater{}\_LIBS\_\textless{}osclass\textgreater{} specified\\
-PROD\_LIBS & libs needed to link every PROD\\
-PROD\_LIBS\_\textless{}osclass\textgreater{} & os-specific libs needed to link every PROD\\
-PROD\_LIBS\_DEFAULT & libs needed to link every PROD for archs with no PROD\_LIBS\_\textless{}osclass\textgreater{} specified\\
-LIB\_LIBS & libraries to be linked with every library being created\\
-LIB\_LIBS\_\textless{}osclass\textgreater{} & os class specific libraries to be linked with every library being created\\
-LIB\_LIBS\_DEFAULT & libraries to be linked with every library being created for archs with no LIB\_LIBS\_\textless{}osclass\textgreater{} specified\\
-USR\_SYS\_LIBS & system libraries (e.g. Xt X11) for all products and libraries\\
-USR\_SYS\_LIBS\_\textless{}osclass\textgreater{} & os class specific system libraries for all makefile links\\
-USR\_SYS\_LIBS\_DEFAULT & system libraries for archs with no USR\_SYS\_LIBS\_\textless{}osclass\textgreater{} specified\\
-\textless{}name\textgreater{}\_SYS\_LIBS & named prod or library specific system ld libraries\\
-\textless{}name\textgreater{}\_SYS\_LIBS\_\textless{}osclass\textgreater{} & os class specific system libs needed to link named prod or library\\
-\textless{}name\textgreater{}\_SYS\_LIBS\_DEFAULT & system libs needed to link named prod or library for systems with no \textless{}name\textgreater{}\_SYS\_LIBS\_\textless{}osclass\textgreater{} specified\\
-PROD\_SYS\_LIBS & system libs needed to link every PROD\\
-PROD\_SYS\_LIBS\_\textless{}osclass\textgreater{} & os class specific system libs needed to link every PROD\\
-PROD\_SYS\_LIBS\_DEFAULT & system libs needed to link every PROD for archs with no PROD\_SYS\_LIBS\_\textless{}osclass\textgreater{} specified\\
-LIB\_SYS\_LIBS & system libraries to be linked with every library being created\\
-LIB\_SYS\_LIBS\_\textless{}osclass\textgreater{} & os class specific system libraries to be linked with every library being created\\
-LIB\_SYS\_LIBS\_DEFAULT & system libraries to be linked with every library being created for archs with no LIB\_SYS\_LIBS\_\textless{}osclass\textgreater{} specified\\
-SYS\_PROD\_LIBS & system libs needed to link every PROD for all systems (deprecated)\\
-SYS\_PROD\_LIBS\_\textless{}osclass\textgreater{} & os class specific system libs needed to link every PROD (deprecated)\\
-SYS\_PROD\_LIBS\_DEFAULT & system libs needed to link every PROD for systems with no SYS\_PROD\_LIBS\_\textless{}osclass\textgreater{} specified (deprecated)\\
-Compiler flags & \\
-USR\_CFLAGS & C compiler flags for all systems\\
-USR\_CFLAGS\_\textless{}T\_A\textgreater{} & target architecture specific C compiler flags\\
-USR\_CFLAGS\_\textless{}osclass\textgreater{} & os class specific C compiler flags\\
-USR\_CFLAGS\_DEFAULT & C compiler flags for archs with no USR\_CFLAGS\_\textless{}osclass\textgreater{} specified\\
-\textless{}name\textgreater{}\_CFLAGS & file specific C compiler flags (e.g. xxxRecord\_CFLAGS=-g)\\
-\textless{}name\textgreater{}\_CFLAGS\_\textless{}T\_A\textgreater{} & file specific C compiler flags for a specific target architecture\\
-\textless{}name\textgreater{}\_CFLAGS\_\textless{}osclass\textgreater{} & file specific C compiler flags for a specific os class\\
-USR\_CXXFLAGS & C++ compiler flags for all systems (e.g. xyxMain\_CFLAGS=-DSDDS)\\
-USR\_CXXFLAGS\_\textless{}T\_A\textgreater{} & target architecture specific C++ compiler flags\\
-USR\_CXXFLAGS\_\textless{}osclass\textgreater{} & os-specific C++ compiler flags\\
-USR\_CXXFLAGS\_DEFAULT & C++ compiler flags for systems with no USR\_CXXFLAGS\_\textless{}osclass\textgreater{} specified\\
-\textless{}name\textgreater{}\_CXXFLAGS & file specific C++ compiler flags\\
-\textless{}name\textgreater{}\_CXXFLAGS\_\textless{}T\_A\textgreater{} & file specific C++ compiler flags for a specific target architecture\\
-\textless{}name\textgreater{}\_CXXFLAGS\_\textless{}osclass\textgreater{} & file specific C++ compiler flags for a specific osclass\\
-USR\_CPPFLAGS & C pre-processor flags (for all makefile compiles)\\
-USR\_CPPFLAGS\_\textless{}T\_A\textgreater{} & target architecture specific cpp flags\\
-USR\_CPPFLAGS\_\textless{}osclass\textgreater{} & os specific cpp flags\\
-USR\_CPPFLAGS\_DEFAULT & cpp flags for systems with no USR\_CPPFLAGS\_\textless{}osclass\textgreater{} specified\\
-\textless{}name\textgreater{}\_CPPFLAGS & file specific C pre-processor flags(e.g. xxxRecord\_CPPFLAGS=-DDEBUG)\\
-\textless{}name\textgreater{}\_CPPFLAGS\_\textless{}T\_A\textgreater{} & file specific cpp flags for a specific target architecture\\
-\textless{}name\textgreater{}\_CPPFLAGS\_\textless{}osclass\textgreater{} & file specific cpp flags for a specific os class\\
-USR\_INCLUDES & directories, with -I prefix, to search for include files(e.g. -I\$(EPICS\_EXTENSIONS\_INCLUDE))\\
-USR\_INCLUDES\_\textless{}osclass\textgreater{} & directories, with -I prefix, to search for include files for a specific os class\\
-USR\_INCLUDES\_DEFAULT & directories, with -I prefix, to search for include files for systems with no \textless{}name\textgreater{}\_INCLUDES\_\textless{}osclass\textgreater{} specified\\
-\textless{}name\textgreater{}\_INCLUDES & directories, with -I prefix, to search for include files when building a specific object file (e.g. -I\$(MOTIF\_INC))\\
-\textless{}name\textgreater{}\_INCLUDES\_\textless{}T\_A\textgreater{} & file specific directories, with -I prefix, to search for include files for a specific target architecture\\
-\textless{}name\textgreater{}\_INCLUDES\_\textless{}osclass\textgreater{} & file specific directories, with -I prefix, to search for include files for a specific os class\\
-HOST\_WARN & Are compiler warning messages desired for host type builds? (YES or NO) (default is YES)\\
-CROSS\_WARN & C cross-compiler warning messages desired (YES or NO) (default YES)\\
-HOST\_OPT & Is host build compiler optimization desired (default is NO optimization)\\
-CROSS\_OPT & Is cross-compiler optimization desired (YES or NO) (default is NO optimization)\\
-CMPLR & C compiler selection, TRAD, ANSI or STRICT (default is STRICT)\\
-CXXCMPLR & C++ compiler selection, NORMAL or STRICT (default is STRICT)\\
-Linker options &    \\
-USR\_LDFLAGS & linker options (for all makefile links)\\
-USR\_LDFLAGS\_\textless{}osclass\textgreater{} & os specific linker options (for all makefile links)\\
-USR\_LDFLAGS\_DEFAULT & linker options for systems with no USR\_LDFLAGS\_\textless{}osclass\textgreater{} specified\\
-PROD\_LDFLAGS & prod linker options\\
-PROD\_LDFLAGS\_\textless{}osclass\textgreater{} & os specific prod linker options\\
-PROD\_LDFLAGS\_DEFAULT & prod linker options for systems with no PROD\_LDFLAGS\_\textless{}osclass\textgreater{} specified\\
-LIB\_LDFLAGS & library linker options\\
-LIB\_LDFLAGS\_\textless{}osclass\textgreater{} & os specific library linker options\\
-LIB\_LDFLAGS\_DEFAULT & library linker options for systems with no LIB\_LDFLAGS\_\textless{}osclass\textgreater{} specified\\
-\textless{}name\textgreater{}\_LDFLAGS & prod or library specific linker options\\
-\textless{}name\textgreater{}\_LDFLAGS\_\textless{}osclass\textgreater{} & prod or library specific linker flags for a specific os class\\
-\textless{}name\textgreater{}\_LDFLAGS\_DEFAULT & linker options for systems with no \textless{}name\textgreater{}\_LDFLAGS\_\textless{}osclass\textgreater{} specified\\
-STATIC\_BUILD & Is static build desired (YES or NO) (default is NO). On win32 if STATIC\_BUILD=YES then set SHARED\_LIBRARIES=NO) \\
-Header files to be installed &    \\
-INC & list of include files to install into \$(INSTALL\_DIR)/include\\
-INC\_\textless{}osclass\textgreater{} & os specific includes to installed under \$(INSTALL\_DIR)/include/os/\textless{}osclass\textgreater{}\\
-INC\_DEFAULT & include files to install where no INC\_\textless{}osclass\textgreater{} is specified\\
-Perl, csh, tcl etc. script installation &    \\
-SCRIPTS & scripts to install for all systems\\
-SCRIPTS\_\textless{}osclass\textgreater{} & os-specific scripts to install\\
-SCRIPTS\_DEFAULT & scripts to install for systems with no SCRIPTS\_\textless{}osclass\textgreater{} specified\\
-SCRIPTS\_IOC & scripts to install for ioc type archs.\\
-SCRIPTS\_IOC\_\textless{}osclass\textgreater{} & os specific scripts to install for ioc type archs\\
-SCRIPTS\_IOC\_DEFAULT & scripts to install for ioc type arch systems with no SCRIPTS\_IOC\_\textless{}osclass\textgreater{} specified\\
-SCRIPTS\_HOST & scripts to install for host type archs. T\\
-SCRIPTS\_HOST\_\textless{}osclass\textgreater{} & os class specific scripts to install for host type archs\\
-SCRIPTS\_HOST\_DEFAULT & scripts to install for host type arch systems with no OBJS\_HOST\_\textless{}osclass\textgreater{} specified\\
-TCLLIBNAME & list of tcl scripts to install into \$(INSTALL\_DIR)/lib/\textless{}osclass\textgreater{} (Unix hosts only)\\
-TCLINDEX & name of tcl index file to create from TCLLIBNAME scripts\\
-Object files & The names in the following OBJS definitions should NOT include a suffix (.o or.obj).\\
-OBJS & object files to build and install for all system. \\
-OBJS\_\textless{}osclass\textgreater{} & os-specific object files to build and install. \\
-OBJS\_DEFAULT & object files to build and install for systems with no OBJS\_\textless{}osclass\textgreater{} specified.\\
-OBJS\_IOC & object files to build and install for ioc type archs.\\
-OBJS\_IOC\_\textless{}osclass\textgreater{} & os specific object files to build and install for ioc type archs\\
-OBJS\_IOC\_DEFAULT & object files to build and install for ioc type arch systems with no OBJS\_IOC\_\textless{}osclass\textgreater{} specified\\
-OBJS\_HOST & object files to build and install for host type archs. T\\
-OBJS\_HOST\_\textless{}osclass\textgreater{} & os class specific object files to build and install for host type archs\\
-OBJS\_HOST\_DEFAULT & object files to build and install for host type arch systems with no OBJS\_HOST\_\textless{}osclass\textgreater{} specified\\
-Documentation &    \\
-DOCS & text files to be installed into the \$(INSTALL\_DIR)/doc directory\\
-HTMLS\_DIR & name install Hypertext directory name i.e. \$(INSTALL\_DIR)/html/\$(HTMLS\_DIR)\\
-HTMLS & hypertext files to be installed into the \$(INSTALL\_DIR)/html/\$(HTMLS\_DIR) directory\\
-TEMPLATES\_DIR & template directory to be created as \$(INSTALL\_DIR)/templates/\$(TEMPLATE\_DIR)\\
-TEMPLATES & template files to be installed into \$(TEMPLATE\_DIR)\\
-Database Definition files & \\
-DBD & database definition files to be installed or created and installed into \$(INSTALL\_DBD).\\
-DBDINC & names, without suffix, of menus or record database definitions and headers to be installed or created and installed. \\
-USR\_DBDFLAGS & optional flags for dbExpand. Currently only include path (-I \textless{}path\textgreater{}) and macro substitution (-S \textless{}substitution\textgreater{}) are supported. \\
-DBD\_INSTALLS & files from specified directory to install into \$(INSTALL\_DBD) (e.g. DBD\_INSTALLS = \$(APPNAME)/dbd/test.dbd\\
-Database Files & \\
-DB & database files to be installed or created and installed into \$(INSTALL\_DB).\\
-DB\_INSTALLS & files from specified directory to install into \$(INSTALL\_DB) (e.g. DB\_INSTALLS = \$(APPNAME)/db/test.db\\
-USR\_DBFLAGS & optional flags for msi (EPICS Macro Substitution Tool)\\
-Options for other programs &    \\
-YACCOPT & yacc options\\
-LEXOPT & lex options\\
-SNCFLAGS & state notation language, snc, options\\
-\textless{}name\textgreater{}\_SNCFLAGS & product specific state notation language options\\
-E2DB\_FLAGS & e2db options\\
-SCH2EDIF\_FLAGS & sch2edif options\\
-RANLIBFLAGS & ranlib options\\
-USR\_ARFLAGS & ar options\\
-Facilities for building Java programs &    \\
-JAVA & names of Java source files to be built and installed\\
-TESTJAVA & names of Java source files to be built\\
-JAVAINC & names of C header file to be created in O.Common subdirectory\\
-JAR & name of Jar file to be built\\
-JAR\_INPUT & names of files to be included in JAR\\
-JAR\_MANIFEST & name of manifest file for JAR\\
-USR\_JAVACFLAGS & javac tool options\\
-USR\_JAVAHFLAGS & javah tool options\\
-Facilities for Windows 95/NT resource ( .rc) files &    \\
-RCS & resource files (\textless{}name\textgreater{}.rc) needed to build every PROD and LIBRARY\\
-RCS\_\textless{}osclass\textgreater{} & resource files (\textless{}name\textgreater{}.rc) needed to build every PROD and LIBRARY for ioc type archs\\
-RCS\_DEFAULT & resource files needed to build every PROD and LIBRARY for ioc type arch systems with no RCS\_\textless{}osclass\textgreater{} specified\\
-\textless{}name\textgreater{}\_RCS & resource files needed to build a specific PROD or LIBRARY\\
-\textless{}name\textgreater{}\_RCS\_\textless{}osclass\textgreater{} & os specific resource files to build a specific PROD or LIBRARY\\
-\textless{}name\textgreater{}\_RCS\_DEFAULT & resource files needed to build a specific PROD or LIBRARY for ioc type arch systems with no RCS\_\textless{}osclass\textgreater{} specified\\
-Other definitions:  &    \\
-USR\_VPATH & list of directories\\
-BIN\_INSTALLS & files from specified directories to be installed into \$(INSTALL\_BIN) (e.g. BIN\_INSTALLS = \$(EPICS\_BASE\_BIN)/aiRecord\$(OBJ))\\
-BIN\_INSTALLS\_\textless{}osclass\textgreater{} & os class specific files from specified directories to be installed into \$(INSTALL\_BIN)\\
-BIN\_INSTALLS\_DEFAULT & files from specified directories to be installed into \$(INSTALL\_BIN) for target archs with no BIN\_INSTALLS\_\textless{}osclass\textgreater{} specified\\
-LIB\_INSTALLS & files from specified directories to be installed into \$(INSTALL\_LIB)\\
-LIB\_INSTALLS\_\textless{}osclass\textgreater{} & os class specific files from specified directories to be installed into \$(INSTALL\_LIB)\\
-LIB\_INSTALLS\_DEFAULT & files from specified directories to be installed into \$(INSTALL\_LIB) for target archs with no LIB\_INSTALLS\_\textless{}osclass\textgreater{} specified\\
-TARGETS & files to create but not install\\
-INSTALL\_LOCATION & installation directory (defaults to \$(TOP))
+\textbf{Products to be built (host type archs only)} & \\
+\verb|PROD| & products (names without execution suffix) to build and install. Specify xyz to build executable xyz on Unix and xyz.exe on WIN32\\
+\verb|PROD_<osclass>| & os class specific products to build and install for \textless{}osclass\textgreater{} archs only\\
+\verb|PROD_DEFAULT| & products to build and install for archs with no PROD\_\textless{}osclass\textgreater{} specified\\
+\verb|PROD_IOC| & products to build and install for ioc type archs\\
+\verb|PROD_IOC_<osclass>| & os specific products to build and install for ioc type archs\\
+\verb|PROD_IOC_DEFAULT| & products to build and install for ioc type arch systems with no PROD\_IOC\_\textless{}osclass\textgreater{} specified\\
+\verb|PROD_HOST| & products to build and install for host type archs. \\
+\verb|PROD_HOST_<osclass>| & os class specific products to build and install for \textless{}osclass\textgreater{} type archs\\
+\verb|PROD_HOST_DEFAULT| & products to build and install for arch with no PROD\_HOST\_\textless{}osclass\textgreater{} specified\\
+\textbf{Test products to be built} & \\
+\verb|TESTPROD| & test products (names without execution suffix) to build but not install \\
+\verb|TESTPROD_<osclass>| & os class specific test products to build but not install\\
+\verb|TESTPROD_DEFAULT| & test products to build but not install for archs with no TESTPROD\_\textless{}osclass\textgreater{} specified\\
+\verb|TESTPROD_IOC| & test products to build and install for ioc type archs\\
+\verb|TESTPROD_IOC_<osclass>| & os specific test products to build and install for ioc type archs\\
+\verb|TESTPROD_IOC_DEFAULT| & test products to build and install for ioc type arch systems with no TESTPROD\_IOC\_\textless{}osclass\textgreater{} specified\\
+\verb|TESTPROD_HOST| & testproducts to build and install for host type archs. \\
+\verb|TESTPROD_HOST_<osclass>| & os class specific testproducts to build and install for \textless{}osclass\textgreater{} type archs\\
+\verb|TESTPROD_HOST_DEFAULT| & test products to build and install for arch with no TESTPROD\_HOST\_\textless{}osclass\textgreater{} specified\\
+\textbf{Test scripts to be built} & \\
+\verb|TESTSCRIPTS| & test scripts (names with .t suffix) to build but not install\\
+\verb|TESTSCRIPTS_<osclass>| & os class specific test scripts to build but not install\\
+\verb|TESTSCRIPTS_DEFAULT| & test scripts to build but not install for archs with no TESTSCRIPTS\_\textless{}osclass\textgreater{} specified\\
+\verb|TESTSCRIPTS_IOC| & test scripts to build and install for ioc type archs\\
+\verb|TESTSCRIPTS_IOC_<osclass>| & os specific test scripts to build and install for ioc type archs\\
+\verb|TESTSCRIPTS_IOC_DEFAULT| & test scripts to build and install for ioc type arch systems with no TESTSCRIPTS\_IOC\_\textless{}osclass\textgreater{} specified\\
+\verb|TESTSCRIPTS_HOST| & test scripts to build and install for host type archs. \\
+\verb|TESTSCRIPTS_HOST_<osclass>| & os class specific testscripts to build and install for \textless{}osclass\textgreater{} type archs\\
+\verb|TESTSCRIPTS_HOST_DEFAULT| & test scripts to build and install for arch with no TESTSCRIPTS\_HOST\_\textless{}osclass\textgreater{} specified\\
+\textbf{Libraries to be built} & \\
+\verb|LIBRARY| & name of library to build and install. The name should NOT include a prefix or extension e.g. specify Ca to build libCa.a on Unix, Ca.lib or Ca.dll on WIN32\\
+\verb|LIBRARY_<osclass>| & os specific libraries to build and install\\
+\verb|LIBRARY_DEFAULT| & libraries to build and install for archs with no LIBRARY\_\textless{}osclass\textgreater{} specified\\
+\verb|LIBRARY_IOC| & name of library to build and install for ioc type archs. The name should NOT include a prefix or extension e.g. specify Ca to build libCa.a on Unix, Ca.lib or Ca.dll on WIN32\\
+\verb|LIBRARY_IOC_<osclass>| & os specific libraries to build and install for ioc type archs\\
+\verb|LIBRARY_IOC_DEFAULT| & libraries to build and install for ioc type arch systems with no LIBRARY\_IOC\_\textless{}osclass\textgreater{} specified\\
+\verb|LIBRARY_HOST| & name of library to build and install for host type archs. The name should NOT include a prefix or extension, e.g. specify Ca to build libCa.a on Unix, Ca.lib or Ca.dll on WIN32\\
+\verb|LIBRARY_HOST_<osclass>| & os class specific libraries to build and install for host type archs\\
+\verb|LIBRARY_HOST_DEFAULT| & libraries to build and install for host type arch systems with no LIBRARY\_HOST\_\textless{}osclass\textgreater{} specified\\
+\verb|SHARED_LIBRARIES| & build shared libraries? Must be YES or NO\\
+\verb|SHRLIB_VERSION| & shared library version number\\
+\textbf{Loadable libraries to be built} & \\
+\verb|LOADABLE_LIBRARY| & name of loadable library to build and install. The name should NOT include a prefix or extension e.g. specify Ca to build libCa.so on Unix and Ca.dll on WIN32\\
+\verb|LOADABLE_LIBRARY_<osclass>| & os specific loadable libraries to build and install\\
+\verb|LOADABLE_LIBRARY_DEFAULT| & loadable libraries to build and install for archs with no LOADABLE\_LIBRARY\_\textless{}osclass\textgreater{} specified\\
+\verb|LOADABLE_LIBRARY_HOST| & name of loadable library to build and install for host type archs. The name should NOT include a prefix or extension, e.g. specify test to build libtest.so on Unix and test.dll on WIN32\\
+\verb|LOADABLE_LIBRARY_HOST_<osclass>| & os class specific loadable libraries to build and install for host type archs\\
+\verb|LOADABLE_LIBRARY_HOST_DEFAULT| & loadable libraries to build and install for host type arch systems with no LOADABLE\_LIBRARY\_HOST\_\textless{}osclass\textgreater{} specified\\
+\textbf{Combined object files (vxWorks only)} & \\
+\verb|OBJLIB| & name of a combined object file library and corresponding munch file to build and install. The name will have a Library suffix appended\\
+\verb|OBJLIB_vxWorks| & same as OBJLIB\\
+\verb|OBJLIB_SRCS| & source files to build the OBJLIB\\
+\verb|OBJLIB_OBJS| & object files to include in OBJLIB\\
+\textbf{Product and library source files} & \\
+\verb|SRCS| & source files to build all PRODs and LIBRARYs\\
+\verb|SRCS_<osclass>| & osclass specific source files to build all PRODs and LIBRARYs\\
+\verb|SRCS_DEFAULT| & source file to build all PRODs and LIBRARYs for archs with no SRCS\_\textless{}osclass\textgreater{} specified\\
+\verb|USR_SRCS| & source files to build all PRODs and LIBRARYs\\
+\verb|USR_SRCS_<osclass>| & osclass specific source files to build all PRODs and LIBRARYs\\
+\verb|USR_SRCS_DEFAULT| & source file to build all PRODs and LIBRARYs for archs with no SRCS\_\textless{}osclass\textgreater{} specified\\
+\verb|PROD_SRCS| & source files to build all PRODs\\
+\verb|PROD_SRCS_<osclass>| & osclass specific source files to build all PRODs\\
+\verb|PROD_SRCS_DEFAULT| & source files needed to build PRODs for archs with no SRCS\_\textless{}osclass\textgreater{} specified\\
+\verb|LIB_SRCS| & source files for building LIBRARY (e.g. LIB\_SRCS=la.c lb.c lc.c)\\
+\verb|LIB_SRCS_<osclass>| & os-specific library source files\\
+\verb|LIB_SRCS_DEFAULT| & library source files for archs with no LIB\_SRCS\_\textless{}osclass\textgreater{} specified\\
+\verb|LIBSRCS| & source files for building LIBRARY (deprecated)\\
+\verb|LIBSRCS_<osclass>| & os-specific library source files (deprecated)\\
+\verb|LIBSRCS_DEFAULT| & library source files for archs with no LIBSRCS\_\textless{}osclass\textgreater{} specified (deprecated)\\
+\verb|<name>_SRCS| & source files to build a specific PROD or LIBRARY\\
+\verb|<name>_SRCS_<osclass>| & os specific source files to build a specific PROD or LIBRARY\\
+\verb|<name>_SRCS_DEFAULT| & source files needed to build a specific PROD or LIBRARY for archs with no \textless{}prod\textgreater{}\_SRCS\_\textless{}osclass\textgreater{} specified\\
+\textbf{Product and library object files} & \\
+\verb|USR_OBJS| & object files, specified without suffix, to build all PRODs and LIBRARYs\\
+\verb|USR_OBJS_<osclass>| & osclass specific object files, specified without suffix, to build all PRODs and LIBRARYs\\
+\verb|USR_OBJS_DEFAULT| & object files, specified without suffix, needed to build PRODs and LIBRARYs for archs with no OBJS\_\textless{}osclass\textgreater{} specified\\
+\verb|PROD_OBJS| & object files, specified without suffix, to build all PRODs\\
+\verb|PROD_OBJS_<osclass>| & osclass specific object files, specified without suffix, to build all PRODs\\
+\verb|PROD_OBJS_DEFAULT| & object files, specified without suffix, needed to build PRODs for archs with no OBJS\_\textless{}osclass\textgreater{} specified\\
+\verb|LIB_OBJS| & object files, specified without suffix, for building all LIBRARYs (e.g. LIB\_OBJS+=\$(AB\_BIN)/la \$(AB\_BIN)/lb)\\
+\verb|LIB_OBJS_<osclass>| & os-specific library object files, specify without suffix,\\
+\verb|LIB_OBJS_DEFAULT| & library object files, specified without suffix, for archs with no LIB\_OBJS\_\textless{}osclass\textgreater{} specified\\
+\verb|<name>_OBJS| & object files, specified without suffix, to build a specific PROD or LIBRARY\\
+\verb|<name>_OBJS_<osclass>| & os specific object files, specified without suffix, to build a specific PROD or LI\textbar{}BRARY\\
+\verb|<name>_OBJS_DEFAULT| & object files, without suffix, needed to build a specific PROD or LIBRARY for archs with no \textless{}prod\textgreater{}\_OBJS\_\textless{}osclass\textgreater{} specified\\
+\textbf{Product and library R3.13 combined object files} & \\
+\verb|USR_OBJLIBS| & combined object files with filenames that do not have a suffix, needed for building all PRODs and LIBRARYs (e.g. USR\_OBJLIBS+=\$(XYZ\_BIN)/xyzLib)\\
+\verb|USR_OBJLIBS_<osclass>| & os-specific combined object files with filenames that do not have a suffix for building all PRODs and LIBRARYs\\
+\verb|USR_OBJLIBS_DEFAULT| & combined object files with filenames that do not have a suffix, for archs with no USR\_OBJLIBS\_\textless{}osclass\textgreater{} specified for building all PRODs and LIBRARYs\\
+\verb|PROD_OBJLIBS| & combined object files with filenames that do not have a suffix, needed for building all PRODs (e.g. PROD\_OBJLIBS+=\$(XYZ\_BIN)/xyzLib)\\
+\verb|PROD_OBJLIBS_<osclass>| & os-specific combined object files with filenames that do not have a suffix for building all PRODs\\
+\verb|PROD_OBJLIBS_DEFAULT| & combined object files with filenames that do not have a suffix, for archs with no PROD\_OBJLIBS\_\textless{}osclass\textgreater{} specified for building all PRODs\\
+\verb|LIB_OBJLIBS| & combined object files with filenames that do not have a suffix, needed for building all LIBRARYs (e.g. LIB\_OBJLIBS+=\$(XYZ\_BIN)/xyzLib)\\
+\verb|LIB_OBJLIBS_<osclass>| & os-specific combined object files with filenames that do not have a suffix for building all LIBRARYs\\
+\verb|LIB_OBJLIBS_DEFAULT| & combined object files with filenames that do not have a suffix, for archs with no LIB\_OBJLIBS\_\textless{}osclass\textgreater{} specified for building all LIBRARYs\\
+\verb|<name>_OBJLIBS| & combined object files with filenames that do not have a suffix, needed to build a specific PROD or LIBRARY\\
+\verb|<name>_OBJLIBS_<osclass>| & os specific combined object files with filenames that do not have a suffix, to build a specific PROD or LI\textbar{}BRARY\\
+\verb|<name>_OBJLIBS_DEFAULT| & combined object files with filenames that do not have a suffix, needed to build a specific PROD or LIBRARY for archs with no \textless{}name\textgreater{}\_OBJLIBS\_\textless{}osclass\textgreater{} specified\\
+\verb|<name>_LDOBJS| & combined object files with filenames that do not have a suffix, needed to build a specific PROD or LIBRARY (deprecated)\\
+\verb|<name>_LDOBJS_<osclass>| & os specific combined object files with filenames that do not have a suffix, to build a specific PROD or LI\textbar{}BRARY (deprecated)\\
+\verb|<name>_LDOBJS_DEFAULT| & combined object files with filenames that do not have a suffix, needed to build a specific PROD or LIBRARY for archs with no \textless{}name\textgreater{}\_LDOBJS\_\textless{}osclass\textgreater{} specified (deprecated)\\
+\textbf{Product and library dependant libraries} & \\
+\verb|<name>_DIR| & directory to search for the specified lib. (For libs listed in all PROD\_LIBS, LIB\_LIBS, \textless{}name\textgreater{}\_LIBS and USR\_LIBS listed below)System libraries do not need a \textless{}name\textgreater{}\_dir definition.\\
+\verb|USR_LIBS| & load libraries (e.g. Xt X11) for all products and libraries\\
+\verb|USR_LIBS_<osclass>| & os specific load libraries for all makefile links\\
+\verb|USR_LIBS_DEFAULT| & load libraries for systems with no USR\_LIBS\_\textless{}osclass\textgreater{} specified libs\\
+\verb|<name>_LIBS| & named prod or library specific ld libraries (e.g. probe\_LIBS=X11 Xt)\\
+\verb|<name>_LIBS_<osclass>| & os-specific libs needed to link named prod or library\\
+\verb|<name>_LIBS_DEFAULT| & libs needed to link named prod or library for systems with no \textless{}name\textgreater{}\_LIBS\_\textless{}osclass\textgreater{} specified\\
+\verb|PROD_LIBS| & libs needed to link every PROD\\
+\verb|PROD_LIBS_<osclass>| & os-specific libs needed to link every PROD\\
+\verb|PROD_LIBS_DEFAULT| & libs needed to link every PROD for archs with no PROD\_LIBS\_\textless{}osclass\textgreater{} specified\\
+\verb|LIB_LIBS| & libraries to be linked with every library being created\\
+\verb|LIB_LIBS_<osclass>| & os class specific libraries to be linked with every library being created\\
+\verb|LIB_LIBS_DEFAULT| & libraries to be linked with every library being created for archs with no LIB\_LIBS\_\textless{}osclass\textgreater{} specified\\
+\verb|USR_SYS_LIBS| & system libraries (e.g. Xt X11) for all products and libraries\\
+\verb|USR_SYS_LIBS_<osclass>| & os class specific system libraries for all makefile links\\
+\verb|USR_SYS_LIBS_DEFAULT| & system libraries for archs with no USR\_SYS\_LIBS\_\textless{}osclass\textgreater{} specified\\
+\verb|<name>_SYS_LIBS| & named prod or library specific system ld libraries\\
+\verb|<name>_SYS_LIBS_<osclass>| & os class specific system libs needed to link named prod or library\\
+\verb|<name>_SYS_LIBS_DEFAULT| & system libs needed to link named prod or library for systems with no \textless{}name\textgreater{}\_SYS\_LIBS\_\textless{}osclass\textgreater{} specified\\
+\verb|PROD_SYS_LIBS| & system libs needed to link every PROD\\
+\verb|PROD_SYS_LIBS_<osclass>| & os class specific system libs needed to link every PROD\\
+\verb|PROD_SYS_LIBS_DEFAULT| & system libs needed to link every PROD for archs with no PROD\_SYS\_LIBS\_\textless{}osclass\textgreater{} specified\\
+\verb|LIB_SYS_LIBS| & system libraries to be linked with every library being created\\
+\verb|LIB_SYS_LIBS_<osclass>| & os class specific system libraries to be linked with every library being created\\
+\verb|LIB_SYS_LIBS_DEFAULT| & system libraries to be linked with every library being created for archs with no LIB\_SYS\_LIBS\_\textless{}osclass\textgreater{} specified\\
+\verb|SYS_PROD_LIBS| & system libs needed to link every PROD for all systems (deprecated)\\
+\verb|SYS_PROD_LIBS_<osclass>| & os class specific system libs needed to link every PROD (deprecated)\\
+\verb|SYS_PROD_LIBS_DEFAULT| & system libs needed to link every PROD for systems with no SYS\_PROD\_LIBS\_\textless{}osclass\textgreater{} specified (deprecated)\\
+\textbf{Compiler flags} & \\
+\verb|USR_CFLAGS| & C compiler flags for all systems\\
+\verb|USR_CFLAGS_<T_A>| & target architecture specific C compiler flags\\
+\verb|USR_CFLAGS_<osclass>| & os class specific C compiler flags\\
+\verb|USR_CFLAGS_DEFAULT| & C compiler flags for archs with no USR\_CFLAGS\_\textless{}osclass\textgreater{} specified\\
+\verb|<name>_CFLAGS| & file specific C compiler flags (e.g. xxxRecord\_CFLAGS=-g)\\
+\verb|<name>_CFLAGS_<T_A>| & file specific C compiler flags for a specific target architecture\\
+\verb|<name>_CFLAGS_<osclass>| & file specific C compiler flags for a specific os class\\
+\verb|USR_CXXFLAGS| & C++ compiler flags for all systems (e.g. xyxMain\_CFLAGS=-DSDDS)\\
+\verb|USR_CXXFLAGS_<T_A>| & target architecture specific C++ compiler flags\\
+\verb|USR_CXXFLAGS_<osclass>| & os-specific C++ compiler flags\\
+\verb|USR_CXXFLAGS_DEFAULT| & C++ compiler flags for systems with no USR\_CXXFLAGS\_\textless{}osclass\textgreater{} specified\\
+\verb|<name>_CXXFLAGS| & file specific C++ compiler flags\\
+\verb|<name>_CXXFLAGS_<T_A>| & file specific C++ compiler flags for a specific target architecture\\
+\verb|<name>_CXXFLAGS_<osclass>| & file specific C++ compiler flags for a specific osclass\\
+\verb|USR_CPPFLAGS| & C pre-processor flags (for all makefile compiles)\\
+\verb|USR_CPPFLAGS_<T_A>| & target architecture specific cpp flags\\
+\verb|USR_CPPFLAGS_<osclass>| & os specific cpp flags\\
+\verb|USR_CPPFLAGS_DEFAULT| & cpp flags for systems with no USR\_CPPFLAGS\_\textless{}osclass\textgreater{} specified\\
+\verb|<name>_CPPFLAGS| & file specific C pre-processor flags(e.g. xxxRecord\_CPPFLAGS=-DDEBUG)\\
+\verb|<name>_CPPFLAGS_<T_A>| & file specific cpp flags for a specific target architecture\\
+\verb|<name>_CPPFLAGS_<osclass>| & file specific cpp flags for a specific os class\\
+\verb|USR_INCLUDES| & directories, with -I prefix, to search for include files(e.g. -I\$(EPICS\_EXTENSIONS\_INCLUDE))\\
+\verb|USR_INCLUDES_<osclass>| & directories, with -I prefix, to search for include files for a specific os class\\
+\verb|USR_INCLUDES_DEFAULT| & directories, with -I prefix, to search for include files for systems with no \textless{}name\textgreater{}\_INCLUDES\_\textless{}osclass\textgreater{} specified\\
+\verb|<name>_INCLUDES| & directories, with -I prefix, to search for include files when building a specific object file (e.g. -I\$(MOTIF\_INC))\\
+\verb|<name>_INCLUDES_<T_A>| & file specific directories, with -I prefix, to search for include files for a specific target architecture\\
+\verb|<name>_INCLUDES_<osclass>| & file specific directories, with -I prefix, to search for include files for a specific os class\\
+\verb|HOST_WARN| & Are compiler warning messages desired for host type builds? (YES or NO) (default is YES)\\
+\verb|CROSS_WARN| & C cross-compiler warning messages desired (YES or NO) (default YES)\\
+\verb|HOST_OPT| & Is host build compiler optimization desired (default is NO optimization)\\
+\verb|CROSS_OPT| & Is cross-compiler optimization desired (YES or NO) (default is NO optimization)\\
+\verb|CMPLR| & C compiler selection, TRAD, ANSI or STRICT (default is STRICT)\\
+\verb|CXXCMPLR| & C++ compiler selection, NORMAL or STRICT (default is STRICT)\\
+\textbf{Linker options} &    \\
+\verb|USR_LDFLAGS| & linker options (for all makefile links)\\
+\verb|USR_LDFLAGS_<osclass>| & os specific linker options (for all makefile links)\\
+\verb|USR_LDFLAGS_DEFAULT| & linker options for systems with no USR\_LDFLAGS\_\textless{}osclass\textgreater{} specified\\
+\verb|PROD_LDFLAGS| & prod linker options\\
+\verb|PROD_LDFLAGS_<osclass>| & os specific prod linker options\\
+\verb|PROD_LDFLAGS_DEFAULT| & prod linker options for systems with no PROD\_LDFLAGS\_\textless{}osclass\textgreater{} specified\\
+\verb|LIB_LDFLAGS| & library linker options\\
+\verb|LIB_LDFLAGS_<osclass>| & os specific library linker options\\
+\verb|LIB_LDFLAGS_DEFAULT| & library linker options for systems with no LIB\_LDFLAGS\_\textless{}osclass\textgreater{} specified\\
+\verb|<name>_LDFLAGS| & prod or library specific linker options\\
+\verb|<name>_LDFLAGS_<osclass>| & prod or library specific linker flags for a specific os class\\
+\verb|<name>_LDFLAGS_DEFAULT| & linker options for systems with no \textless{}name\textgreater{}\_LDFLAGS\_\textless{}osclass\textgreater{} specified\\
+\verb|STATIC_BUILD| & Is static build desired (YES or NO) (default is NO). On win32 if STATIC\_BUILD=YES then set SHARED\_LIBRARIES=NO) \\
+\textbf{Header files to be installed} &    \\
+\verb|INC| & list of include files to install into \$(INSTALL\_DIR)/include\\
+\verb|INC_<osclass>| & os specific includes to installed under \$(INSTALL\_DIR)/include/os/\textless{}osclass\textgreater{}\\
+\verb|INC_DEFAULT| & include files to install where no INC\_\textless{}osclass\textgreater{} is specified\\
+\textbf{Perl, csh, tcl etc. script installation} &    \\
+\verb|SCRIPTS| & scripts to install for all systems\\
+\verb|SCRIPTS_<osclass>| & os-specific scripts to install\\
+\verb|SCRIPTS_DEFAULT| & scripts to install for systems with no SCRIPTS\_\textless{}osclass\textgreater{} specified\\
+\verb|SCRIPTS_IOC| & scripts to install for ioc type archs.\\
+\verb|SCRIPTS_IOC_<osclass>| & os specific scripts to install for ioc type archs\\
+\verb|SCRIPTS_IOC_DEFAULT| & scripts to install for ioc type arch systems with no SCRIPTS\_IOC\_\textless{}osclass\textgreater{} specified\\
+\verb|SCRIPTS_HOST| & scripts to install for host type archs. T\\
+\verb|SCRIPTS_HOST_<osclass>| & os class specific scripts to install for host type archs\\
+\verb|SCRIPTS_HOST_DEFAULT| & scripts to install for host type arch systems with no OBJS\_HOST\_\textless{}osclass\textgreater{} specified\\
+\verb|TCLLIBNAME| & list of tcl scripts to install into \$(INSTALL\_DIR)/lib/\textless{}osclass\textgreater{} (Unix hosts only)\\
+\verb|TCLINDEX| & name of tcl index file to create from TCLLIBNAME scripts\\
+\textbf{Object files} & The names in the following OBJS definitions should NOT include a suffix (.o or.obj).\\
+\verb|OBJS| & object files to build and install for all system. \\
+\verb|OBJS_<osclass>| & os-specific object files to build and install. \\
+\verb|OBJS_DEFAULT| & object files to build and install for systems with no OBJS\_\textless{}osclass\textgreater{} specified.\\
+\verb|OBJS_IOC| & object files to build and install for ioc type archs.\\
+\verb|OBJS_IOC_<osclass>| & os specific object files to build and install for ioc type archs\\
+\verb|OBJS_IOC_DEFAULT| & object files to build and install for ioc type arch systems with no OBJS\_IOC\_\textless{}osclass\textgreater{} specified\\
+\verb|OBJS_HOST| & object files to build and install for host type archs. T\\
+\verb|OBJS_HOST_<osclass>| & os class specific object files to build and install for host type archs\\
+\verb|OBJS_HOST_DEFAULT| & object files to build and install for host type arch systems with no OBJS\_HOST\_\textless{}osclass\textgreater{} specified\\
+\textbf{Documentation} &    \\
+\verb|DOCS| & text files to be installed into the \$(INSTALL\_DIR)/doc directory\\
+\verb|HTMLS_DIR| & name install Hypertext directory name i.e. \$(INSTALL\_DIR)/html/\$(HTMLS\_DIR)\\
+\verb|HTMLS| & hypertext files to be installed into the \$(INSTALL\_DIR)/html/\$(HTMLS\_DIR) directory\\
+\verb|TEMPLATES_DIR| & template directory to be created as \$(INSTALL\_DIR)/templates/\$(TEMPLATE\_DIR)\\
+\verb|TEMPLATES| & template files to be installed into \$(TEMPLATE\_DIR)\\
+\textbf{Database Definition files} & \\
+\verb|DBD| & database definition files to be installed or created and installed into \$(INSTALL\_DBD).\\
+\verb|DBDINC| & names, without suffix, of menus or record database definitions and headers to be installed or created and installed. \\
+\verb|USR_DBDFLAGS| & optional flags for dbExpand. Currently only include path (-I \textless{}path\textgreater{}) and macro substitution (-S \textless{}substitution\textgreater{}) are supported. \\
+\verb|DBD_INSTALLS| & files from specified directory to install into \$(INSTALL\_DBD) (e.g. DBD\_INSTALLS = \$(APPNAME)/dbd/test.dbd\\
+\textbf{Database Files} & \\
+\verb|DB| & database files to be installed or created and installed into \$(INSTALL\_DB).\\
+\verb|DB_INSTALLS| & files from specified directory to install into \$(INSTALL\_DB) (e.g. DB\_INSTALLS = \$(APPNAME)/db/test.db\\
+\verb|USR_DBFLAGS| & optional flags for msi (EPICS Macro Substitution Tool)\\
+\textbf{Options for other programs} &    \\
+\verb|YACCOPT| & yacc options\\
+\verb|LEXOPT| & lex options\\
+\verb|SNCFLAGS| & state notation language, snc, options\\
+\verb|<name>_SNCFLAGS| & product specific state notation language options\\
+\verb|E2DB_FLAGS| & e2db options\\
+\verb|SCH2EDIF_FLAGS| & sch2edif options\\
+\verb|RANLIBFLAGS| & ranlib options\\
+\verb|USR_ARFLAGS| & ar options\\
+\textbf{Facilities for building Java programs} &    \\
+\verb|JAVA| & names of Java source files to be built and installed\\
+\verb|TESTJAVA| & names of Java source files to be built\\
+\verb|JAVAINC| & names of C header file to be created in O.Common subdirectory\\
+\verb|JAR| & name of Jar file to be built\\
+\verb|JAR_INPUT| & names of files to be included in JAR\\
+\verb|JAR_MANIFEST| & name of manifest file for JAR\\
+\verb|USR_JAVACFLAGS| & javac tool options\\
+\verb|USR_JAVAHFLAGS| & javah tool options\\
+\textbf{Facilities for Windows 95/NT resource ( .rc) files} &    \\
+\verb|RCS| & resource files (\textless{}name\textgreater{}.rc) needed to build every PROD and LIBRARY\\
+\verb|RCS_<osclass>| & resource files (\textless{}name\textgreater{}.rc) needed to build every PROD and LIBRARY for ioc type archs\\
+\verb|RCS_DEFAULT| & resource files needed to build every PROD and LIBRARY for ioc type arch systems with no RCS\_\textless{}osclass\textgreater{} specified\\
+\verb|<name>_RCS| & resource files needed to build a specific PROD or LIBRARY\\
+\verb|<name>_RCS_<osclass>| & os specific resource files to build a specific PROD or LIBRARY\\
+\verb|<name>_RCS_DEFAULT| & resource files needed to build a specific PROD or LIBRARY for ioc type arch systems with no RCS\_\textless{}osclass\textgreater{} specified\\
+\textbf{Other definitions: } &    \\
+\verb|USR_VPATH| & list of directories\\
+\verb|BIN_INSTALLS| & files from specified directories to be installed into \$(INSTALL\_BIN) (e.g. BIN\_INSTALLS = \$(EPICS\_BASE\_BIN)/aiRecord\$(OBJ))\\
+\verb|BIN_INSTALLS_<osclass>| & os class specific files from specified directories to be installed into \$(INSTALL\_BIN)\\
+\verb|BIN_INSTALLS_DEFAULT| & files from specified directories to be installed into \$(INSTALL\_BIN) for target archs with no BIN\_INSTALLS\_\textless{}osclass\textgreater{} specified\\
+\verb|LIB_INSTALLS| & files from specified directories to be installed into \$(INSTALL\_LIB)\\
+\verb|LIB_INSTALLS_<osclass>| & os class specific files from specified directories to be installed into \$(INSTALL\_LIB)\\
+\verb|LIB_INSTALLS_DEFAULT| & files from specified directories to be installed into \$(INSTALL\_LIB) for target archs with no LIB\_INSTALLS\_\textless{}osclass\textgreater{} specified\\
+\verb|TARGETS| & files to create but not install\\
+\verb|INSTALL_LOCATION| & installation directory (defaults to \$(TOP))
 \end{longtable}\end{center}
 
 

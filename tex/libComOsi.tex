@@ -132,7 +132,7 @@ private:
 \index{epicsEventWaitError}
 \index{epicsEventWaitStatus}
 \begin{center}\begin{longtable}{p{1.25in}p{5.0in}}
-Method & Meaning\\
+\textbf{Method} & \textbf{Meaning}\\
 \hline
 epicsEvent & An epicsEvent can be created empty or full. If it is created empty then a wait issued before a signal will block. If created full then the first wait will always succeed. Multiple signals may be issued between waits but have the same effect as a single signal.\\
 \~{}epicsEvent & Remove the event and any resources it uses. Any further use of the semaphore result in unknown (most certainly bad) behavior. No outstanding take can be active when this call is made.\\
@@ -193,7 +193,7 @@ not return if they fail.
 
 \begin{verbatim}void * epicsFindSymbol(const char *name);\end{verbatim}\index{osiFindGlobalSymbol}
 \begin{center}\begin{longtable}{p{1.38889in}p{2.5in}}
-Method & Meaning\\
+\textbf{Method} & \textbf{Meaning}\\
 \hline
 epicsFindSymbol & Return the address of the variable name
 \end{longtable}\end{center}
@@ -255,7 +255,7 @@ long generalTimeReport(int interest);
 \index{generalTimeEventTpName}
 \index{generalTimeReport}
 \begin{center}\begin{longtable}{p{2.0in}p{4.75in}}
-Method & Meaning\\
+\textbf{Method} & \textbf{Meaning}\\
 \hline
 generalTime\_Init & Initialise the framework.This is called automatically by any function that requires the framework. It does not need to be called explicitly.\\
 installLastResortEventProvider & Install a Time Event time provider that returns the current time for any Time Event number.This is optional as it is site policy whether the last resort for a Time Event time in the absence of any working provider should be a failure, or the current time.\\
@@ -299,7 +299,7 @@ int generalTimeGetExceptPriority(epicsTimeStamp *pDest, int *pPrio,
 \index{generalTimeRegisterIntEventProvider}
 \index{generalTimeGetExceptPriority}
 \begin{center}\begin{longtable}{p{2.125in}p{4.625in}}
-Method & Meaning\\
+\textbf{Method} & \textbf{Meaning}\\
 \hline
 generalTimeRegisterCurrentProvider & Register a current time provider with the framework. The getTime routine must return epicsTimeOK if it provided a valid time, or epicsTimeERROR if it could not.\\
 generalTimeRegisterEventProvider & Register a provider of Time Event times with the framework. The getEvent routine must return epicsTimeOK if it provided a valid time for the requested Time Event, or epicsTimeERROR if it could not.It is an implemetation decision by the provider whether a request for an Event that has never happened should return an error and/or a valid timestamp.\\
@@ -377,7 +377,7 @@ void epicsInterruptContextMessage(const char *message);
 \index{epicsInterruptIsInterruptContext}
 \index{epicsInterruptContextMessage}
 \begin{center}\begin{longtable}{p{1.97222in}p{3.66667in}}
-Method & Meaning\\
+\textbf{Method} & \textbf{Meaning}\\
 \hline
 epicsInterruptLock & Lock interrupts and return a key to be passed to epicsInterruptUnlock To lock the following is done.       int key;      ...      key = epicsInterruptLock();       ...       epicsInterruptUnlock(key);\\
 epicsInterruptUnlock & Unlock interrupts.\\
@@ -450,7 +450,7 @@ epicsMessageQueue *pmq;    // OK, pointer
 pmq = &mq1;               // OK, pointer assignment and address-of
 \end{verbatim}
 \begin{center}\begin{longtable}{p{1.35in}p{5.0in}}
-Method & Meaning\\
+\textbf{Method} & \textbf{Meaning}\\
 \hline
 epicsMessageQueue() & Constructor. The capacity is the maximum number of messages, each containing 0 to maximumMessageSize bytes, that can be stored in the message queue.\\
 \~{}epicsMessageQueue() & Destructor.\\
@@ -517,7 +517,7 @@ private:
 \index{epicsMutexLockStatus}
 \index{epicsMutex}
 \begin{center}\begin{longtable}{p{1.38889in}p{5.0in}}
-Method & Meaning\\
+\textbf{Method} & \textbf{Meaning}\\
 \hline
 epicsMutex & Create a mutual exclusion semaphore.\\
 \~{}epicsMutex & Remove the semaphore and any resources it uses. Any further use of the semaphore result in unknown (most certainly bad) results.\\
@@ -800,7 +800,7 @@ void * epicsThreadPrivateGet(epicsThreadPrivateId);
 \index{epicsThreadPrivateSet}
 \index{epicsThreadPrivateGet}
 \begin{center}\begin{longtable}{p{2.375in}p{5.0in}}
-Method & Meaning\\
+\textbf{Method} & \textbf{Meaning}\\
 \hline
 epicsThreadGetStackSize & Get a stack size value that can be given to epicsThreadCreate. The size argument should be one of the values epicsThreadStackSmall, epicsThreadStackMedium or epicsThreadStackBig.\\
 epicsThreadOnce & This is used as follows:       void myInitFunc(void * arg)       \{          ...        \}        epicsThreadOnceId onceFlag = EPICS\_THREAD\_ONCE\_INIT;          ...        epicsThreadOnce(\&onceFlag,myInitFunc,(void *)myParm);For each unique epicsThreadOnceId, epicsThreadOnce guarantees    1) myInitFunc is called only once.    2) myInitFunc completes before any epicsThreadOnce call completes.Note that myInitFunc must not call epicsThreadOnce with the same onceId.\\
@@ -1128,7 +1128,7 @@ private:
 };
 \end{verbatim}
 \begin{center}\begin{longtable}{p{1.79167in}p{4.94833in}}
-Method & Meaning\\
+\textbf{Method} & \textbf{Meaning}\\
 \hline
 Convert to/from integer & Does not currently check that the range of the integer is valid, although it might one day.
 \end{longtable}\end{center}
@@ -1138,7 +1138,7 @@ Convert to/from integer & Does not currently check that the range of the integer
 
 \index{epicsTime}
 \begin{center}\begin{longtable}{p{1.95833in}p{4.79167in}}
-Method & Meaning\\
+\textbf{Method} & \textbf{Meaning}\\
 \hline
 epicsTime()epicsTime(const epicsTime\& t); & The default constructor sets the time to the beginning of the epics epoch.\\
 static getEvent & Returns an epicsTime indicating when the associated event last occurred. See the description of the C routine epicsTimeGetEvent below for details.\\
@@ -1234,7 +1234,7 @@ Note that the epicsTimeGetCurrent and epicsTimeGetEvent routines are now impleme
 \index{osiPoolStatus.h}\begin{verbatim}int osiSufficentSpaceInPool(void);
 \end{verbatim}\index{osiSufficentSpaceInPool}
 \begin{center}\begin{longtable}{p{1.52778in}p{3.40278in}}
-Method & Meaning\\
+\textbf{Method} & \textbf{Meaning}\\
 \hline
 osiSufficentSpaceInPool & Return (true,false) if there is sufficient free memory.
 \end{longtable}\end{center}
