@@ -6,22 +6,19 @@
 \usepackage{longtable}
 \usepackage{upquote}
 \setcounter{secnumdepth}{3}
-\setcounter{tocdepth}{3}
+\setcounter{tocdepth}{1}
 \usepackage{makeidx}
 \makeindex
 \usepackage{hyperref}
 \hypersetup{colorlinks, bookmarksnumbered, linkcolor=blue}
 \begin{document}
 
-
-\chapter*{EPICS Applications Developer's Guide}
 \addcontentsline{toc}{chapter}{EPICS Applications Developer's Guide}
 
 \input{tex/titlepage.tex}
 
-\chapter*{Table of Contents}
-\addcontentsline{toc}{chapter}{Table of Contents}
 \tableofcontents
+\addcontentsline{toc}{chapter}{Table of Contents}
 
 \input{tex/introduction.tex}
 \input{tex/gettingStarted.tex}
@@ -46,10 +43,8 @@
 \input{tex/registry.tex}
 \input{tex/databaseStructures.tex}
 
-\chapter*{Index}
 \addcontentsline{toc}{chapter}{Index}
 \printindex
-
 
 \end{document}
 
