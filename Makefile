@@ -9,6 +9,8 @@ PDFD=pdf
 EPSD=eps
 
 PDFS = \
+$(PDFD)/overview_1.pdf \
+$(PDFD)/overview_6.pdf \
 $(PDFD)/accessSecurity_1.pdf \
 $(PDFD)/lockScanProcess_26.pdf  \
 $(PDFD)/lockScanProcess_6.pdf  \
