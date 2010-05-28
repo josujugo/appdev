@@ -1,10 +1,7 @@
 # requires:
 # latex2html and pdflatex
-# XML output of mif2xml-0.3 in SRC
 
-MIFX:=$(PWD)/mifx2tex.py
-DEST=tex
-SRC=/home/jr76/mif/AppDevGuideMIF
+TEXD=tex
 PDFD=pdf
 EPSD=eps
 
@@ -26,29 +23,29 @@ $(PDFD)/scanning_19.pdf \
 $(PDFD)/databaseStructures_1.pdf
 
 TEXS = \
-$(DEST)/titlepage.tex \
-$(DEST)/introduction.tex \
-$(DEST)/gettingStarted.tex \
-$(DEST)/overview.tex \
-$(DEST)/epicsBuildFacility.tex \
-$(DEST)/lockScanProcess.tex \
-$(DEST)/databaseDefinition.tex \
-$(DEST)/iocInit.tex \
-$(DEST)/accessSecurity.tex \
-$(DEST)/test.tex \
-$(DEST)/errorLogging.tex \
-$(DEST)/recordSupport.tex \
-$(DEST)/deviceSupport.tex \
-$(DEST)/driverSupport.tex \
-$(DEST)/staticDatabaseAccess.tex \
-$(DEST)/runtimeDatabaseAccess.tex \
-$(DEST)/generalPurposeTasks.tex \
-$(DEST)/scanning.tex \
-$(DEST)/iocsh.tex \
-$(DEST)/libCom.tex \
-$(DEST)/libComOsi.tex \
-$(DEST)/registry.tex \
-$(DEST)/databaseStructures.tex
+$(TEXD)/titlepage.tex \
+$(TEXD)/introduction.tex \
+$(TEXD)/gettingStarted.tex \
+$(TEXD)/overview.tex \
+$(TEXD)/epicsBuildFacility.tex \
+$(TEXD)/lockScanProcess.tex \
+$(TEXD)/databaseDefinition.tex \
+$(TEXD)/iocInit.tex \
+$(TEXD)/accessSecurity.tex \
+$(TEXD)/test.tex \
+$(TEXD)/errorLogging.tex \
+$(TEXD)/recordSupport.tex \
+$(TEXD)/deviceSupport.tex \
+$(TEXD)/driverSupport.tex \
+$(TEXD)/staticDatabaseAccess.tex \
+$(TEXD)/runtimeDatabaseAccess.tex \
+$(TEXD)/generalPurposeTasks.tex \
+$(TEXD)/scanning.tex \
+$(TEXD)/iocsh.tex \
+$(TEXD)/libCom.tex \
+$(TEXD)/libComOsi.tex \
+$(TEXD)/registry.tex \
+$(TEXD)/databaseStructures.tex
 
 all: AppDevGuide.pdf AppDevGuide
 
@@ -61,11 +58,6 @@ AppDevGuide: AppDevGuide.tex $(TEXS)
 $(PDFD)/%.pdf: $(EPSD)/%.eps
 	mkdir -p $(PDFD)
 	epstopdf $< -o=$@
-
-# disable MIF to TEX conversion before manual editing begins
-# $(DEST)/%.tex: $(SRC)/%.mif.xml $(MIFX)
-# 	mkdir -p $(DEST)
-# 	$(MIFX) $< > $@
 
 .PHONY: clean
 clean:
