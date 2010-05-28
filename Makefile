@@ -62,9 +62,10 @@ $(PDFD)/%.pdf: $(EPSD)/%.eps
 	mkdir -p $(PDFD)
 	epstopdf $< -o=$@
 
-$(DEST)/%.tex: $(SRC)/%.mif.xml $(MIFX)
-	mkdir -p $(DEST)
-	$(MIFX) $< > $@
+# disable MIF to TEX conversion before manual editing begins
+# $(DEST)/%.tex: $(SRC)/%.mif.xml $(MIFX)
+# 	mkdir -p $(DEST)
+# 	$(MIFX) $< > $@
 
 .PHONY: clean
 clean:

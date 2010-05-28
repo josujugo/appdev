@@ -2,121 +2,104 @@
 
 \section{Overview}
 
-This document describes the core software that resides in an\index{Input/Output Controller} \index{\textless{}\$nopage\textgreater{}IOC :See Input/Out Controller}Input/Output Controller (IOC), one of the major components 
+This document describes the core software that resides in an\index{Input/Output Controller} Input/Output Controller (IOC), one of the major components 
 of \index{EPICS}EPICS. It is intended for anyone developing EPICS IOC databases and/or new record/device/driver support.
 
 The plan of the book is:
 
-Getting Started
+\begin{description} % hfill allows item body on new line
 
-\begin{description}\item A brief description of how to create EPICS support and ioc applications.
+\item[Getting Started] \hfill \\
+A brief description of how to create EPICS support and ioc applications.
 
-\end{description}\index{EPICS: Overview}EPICS Overview
+\item[EPICS Overview] \index{EPICS: Overview} \hfill \\
+An overview of EPICS is presented, showing how the IOC software fits into EPICS.
 
-\begin{description}\item An overview of EPICS is presented, showing how the IOC software fits into EPICS.
-
-\end{description}EPICS Build Facility
-
-\begin{description}\item This chapter, which was written by Janet Anderson, describes the EPICS build facility including directory 
+\item[EPICS Build Facility] \hfill \\
+This chapter, which was written by Janet Anderson, describes the EPICS build facility including directory 
 structure, environment and system requirements, configuration files, Makefiles, and related build tools.
 
-\end{description}Database Locking, Scanning, and Processing
+\item[Database Locking, Scanning, and Processing] \hfill \\
+Overview of three closely related IOC concepts. These concepts are at the heart of what constitutes an EPICS IOC.
 
-\begin{description}\item Overview of three closely related IOC concepts. These concepts are at the heart of what constitutes an EPICS IOC.
-
-\end{description}Database Definition
-
-\begin{description}\item This chapter gives a complete description of the format of the files that describe IOC databases. This is the format 
+\item[Database Definition] \hfill \\
+This chapter gives a complete description of the format of the files that describe IOC databases. This is the format 
 used by Database Configuration Tools and is also the format used to load databases into an IOC.
 
-\end{description}IOC Initialization
+\item[IOC Initialization] \hfill \\
+A great deal happens at IOC initialization. This chapter removes some of the mystery about initialization.
 
-\begin{description}\item A great deal happens at IOC initialization. This chapter removes some of the mystery about initialization.
-
-\end{description}Access Security
-
-\begin{description}\item Channel Access Security is implemented in IOCs. This chapter explains how it is configured and also how it is 
+\item[Access Security] \hfill \\
+Channel Access Security is implemented in IOCs. This chapter explains how it is configured and also how it is 
 implemented.
 
-\end{description}IOC Test Facilities
+\item[IOC Test Facilities] \hfill \\
+Epics supplied test routines that can be executed via the epics or vxWorks shell.
 
-\begin{description}\item Epics supplied test routines that can be executed via the epics or vxWorks shell.
+\item[IOC Error Logging] \hfill \\
+IOC code can call routines that send messages to a system wide error logger.
 
-\end{description}IOC Error Logging
-
-\begin{description}\item IOC code can call routines that send messages to a system wide error logger.
-
-\end{description}Record Support
-
-\begin{description}\item The concept of record support is discussed. This information is necessary for anyone who wishes to provide 
+\item[Record Support] \hfill \\
+The concept of record support is discussed. This information is necessary for anyone who wishes to provide 
 customized record and device support.
 
-\end{description}Device Support
-
-\begin{description}\item The concept of device support is discussed. Device support takes care of the hardware specific details of record 
+\item[Device Support] \hfill \\
+The concept of device support is discussed. Device support takes care of the hardware specific details of record 
 support, i.e. it is the interface between hardware and a record support module. Device support can directly access 
 hardware or may interface to driver support.
 
-\end{description}Driver Support
-
-\begin{description}\item The concepts of driver support is discussed. Drivers, which are not always needed, have no knowledge of records 
+\item[Driver Support] \hfill \\
+The concepts of driver support is discussed. Drivers, which are not always needed, have no knowledge of records 
 but just take care of interacting with hardware. Guidelines are given about when driver support, instead of just 
 device support, should be provided.
 
-\end{description}Static Database Access
-
-\begin{description}\item This is a library that works on both Host and IOC. For IOCs it works and on initialized or uninitialized EPICS 
+\item[Static Database Access] \hfill \\
+This is a library that works on both Host and IOC. For IOCs it works and on initialized or uninitialized EPICS 
 databases.
 
-\end{description}Runtime Database Access
-
-\begin{description}\item The heart of the IOC software is the memory resident database. This chapter describes the interface to this 
+\item[Runtime Database Access] \hfill \\
+The heart of the IOC software is the memory resident database. This chapter describes the interface to this 
 database.
 
-\end{description}Device Support Library
+\item[Device Support Library] \hfill \\
+A set of routines are provided for device support modules that use shared resources such as VME address space.
 
-\begin{description}\item A set of routines are provided for device support modules that use shared resources such as VME address space.
+\item[EPICS General Purpose Tasks] \hfill \\
+General purpose callback tasks and  task watchdog.
 
-\end{description}EPICS General Purpose Tasks
+\item[Database Scanning] \hfill \\
+Database scan tasks, i.e. the tasks that request records to process.
 
-\begin{description}\item General purpose callback tasks and  task watchdog.
-
-\end{description}Database Scanning
-
-\begin{description}\item Database scan tasks, i.e. the tasks that request records to process.
-
-\end{description}IOC Shell
-
-\begin{description}\item The EPICS IOC shell is a simple command interpreter which provides a subset of the capabilities of the vxWorks 
+\item[IOC Shell] \hfill \\
+The EPICS IOC shell is a simple command interpreter which provides a subset of the capabilities of the vxWorks 
 shell.
 
-\end{description}libCom
-
-\begin{description}\item EPICS base includes a subdirectory src/libCom, which contains a number of c and c++ libraries that are used by 
+\item[libCom] \hfill \\
+EPICS base includes a subdirectory src/libCom, which contains a number of c and c++ libraries that are used by 
 the other components of base. This chapter describes most of these libraries.
 
-\end{description}libCom OSI
-
-\begin{description}\item This chapter describes the libraries in libCom that provide Operating System Independent (OSI) interrfaces used 
+\item[libCom OSI] \hfill \\
+This chapter describes the libraries in libCom that provide Operating System Independent (OSI) interrfaces used 
 by the rest of EPICS base. LibCom also contains operating system dependent code that implements the OSI 
 interfaces.
 
-\end{description}Registry
-
-\begin{description}\item Under vxWorks osiFindGlobalSymbol can be used to dynamically bind to record, device, and driver support. Since 
+\item[Registry] \hfill \\
+Under vxWorks osiFindGlobalSymbol can be used to dynamically bind to record, device, and driver support. Since 
 on some systems this always returns failure, a registry facility is provided to implement the binding. The basic idea 
 is that any storage meant to be ``globally" accessable must be registered before it can be accessed 
 
-\end{description}Database Structures
+\item[Database Structures] \hfill \\
+A description of the internal database structures.
 
-\begin{description}\item A description of the internal database structures.
+\end{description}
 
-\end{description}Other than the overview chapter this document describes only core IOC software. Thus it does not describe other EPICS 
+Other than the overview chapter this document describes only core IOC software. Thus it does not describe other EPICS 
 tools which run in an IOC such as the sequencer. It also does not describe Channel Access. 
 
 The reader of this manual should also have the following documents:
 
-\begin{itemize}\item EPICS Record Reference Manual, Philip Stanley, Janet Anderson and Marty Kraimer
+\begin{itemize}
+\item \emph{EPICS Record Reference Manual}, Philip Stanley, Janet Anderson and Marty Kraimer
 
 See the EPICS online wiki for latest version.
 
@@ -124,13 +107,15 @@ See the EPICS online wiki for latest version.
 
 http://www.aps.anl.gov/asd/controls/epics/EpicsDocumentation/AppDevManuals/iocScm-3.13.2/index.html
 
-\item vxWorks Programmer's Guide, Wind River Systems
+\item \emph{vxWorks Programmer's Guide}, Wind River Systems
 
-\item vxWorks Reference Manual, Wind River Systems
+\item \emph{vxWorks Reference Manual}, Wind River Systems
 
 \item RTEMS C User's Guide, Online Applications Research 
 
-\end{itemize}\section{Acknowledgments}
+\end{itemize}
+
+\section{Acknowledgments}
 
 The basic model of what an IOC should do and how to do it was developed by Bob Dalesio at LANL/GTA. The principle 
 ideas for Channel Access were developed by Jeff Hill at LANL/GTA. Bob and Jeff also were the principle implementers 
@@ -170,11 +155,3 @@ used on non vxWorks environments. Ralph Lange provided the port to HPUX.
 
 Many other people have been involved with EPICS development, including new record, device, and driver support 
 modules.
-
-
-
-
-
-
-
-

@@ -4,13 +4,25 @@
 \usepackage{graphicx}
 \graphicspath{{pdf/}{eps/}}
 \usepackage{longtable}
+% straight quotes in verbatim code listing
 \usepackage{upquote}
+
+% numbersubsubsections, reduce TOC depth
 \setcounter{secnumdepth}{3}
 \setcounter{tocdepth}{1}
+
 \usepackage{makeidx}
 \makeindex
+
+% pdf links
 \usepackage{hyperref}
 \hypersetup{colorlinks, bookmarksnumbered, linkcolor=blue}
+
+% make all dephts of bullet points a dot
+\renewcommand{\labelitemii}{\labelitemi}
+\renewcommand{\labelitemiii}{\labelitemi}
+\renewcommand{\labelitemiv}{\labelitemi}
+
 \begin{document}
 
 \addcontentsline{toc}{chapter}{EPICS Applications Developer's Guide}
@@ -47,4 +59,3 @@
 \printindex
 
 \end{document}
-
