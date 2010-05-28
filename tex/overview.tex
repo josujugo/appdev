@@ -1,65 +1,63 @@
-
-
-
-
-
-
 \chapter{EPICS Overview}
 
 \section{What is EPICS?}
 
-\index{EPICS}EPICS consists of a set of software components and tools that Application Developers use to create a control system. The 
-basic components are:
+\index{EPICS}EPICS consists of a set of software components and tools that Application Developers use to create a control system. The basic components are:
 
-\begin{itemize}\item OPI: \index{OPI}Operator Interface. This is a workstation which can run various EPICS tools.
+\begin{itemize}
+\item \textbf{\textbf{OPI}}: \index{OPI}Operator Interface. This is a workstation which can run various EPICS tools.
 
-\item IOC: \index{IOC}Input/Output Controller. Any platform that can support EPICS run time databases together with the other 
+\item \textbf{\textbf{IOC}}: \index{IOC}Input/Output Controller. Any platform that can support EPICS run time databases together with the other 
 software components described in the manual. One example is a workstation. Another example is a VME/VXI 
 based system using vxWorks or RTEMS as the realtime operating system.
 
-\item LAN: \index{LAN}Local Area Network. This is the communication network which allows the IOCs and OPIs to communicate. 
+\item \textbf{\textbf{LAN}}: \index{LAN}Local Area Network. This is the communication network which allows the IOCs and OPIs to communicate. 
 EPICS provides a software component, \index{Channel Access}Channel Access, which provides network transparent communication 
 between a Channel Access client and an arbitrary number of Channel Access servers.
 
-\end{itemize}A control system implemented via EPICS has the following physical structure.
+\end{itemize}
+A control system implemented via EPICS has the following physical structure.
 
+\begin{center}
 \includegraphics{overview_1}
+\end{center}
 
-The rest of this chapter gives a brief description of EPICS:
+\noindent The rest of this chapter gives a brief description of EPICS:
 
-\begin{itemize}\item Basic Attributes: A few basic attributes of EPICS.
+\begin{itemize}
 
-\item Platforms: The vendor supplied Hardware and Software platforms EPICS supports.
-
-\item IOC Software: EPICS supplied IOC software components.
-
-\item Channel Access:  EPICS software that supports network independent access to IOC databases.
-
-\item OPI Tools: EPICS supplied OPI based tools.
-
-\item EPICS Core: A list of the EPICS core software, i.e. the software components without which EPICS will not work.
+\item \textbf{\textbf{Basic Attributes}}: A few basic attributes of EPICS.
+\item \textbf{\textbf{Platforms}}: The vendor supplied Hardware and Software platforms EPICS supports.
+\item \textbf{\textbf{IOC Software}}: EPICS supplied IOC software components.
+\item \textbf{\textbf{Channel Access}}:  EPICS software that supports network independent access to IOC databases.
+\item \textbf{\textbf{OPI Tools}}: EPICS supplied OPI based tools.
+\item \textbf{\textbf{EPICS Core}}: A list of the EPICS core software, i.e. the software components without which EPICS will not work.
 
 \end{itemize}\section{Basic Attributes}
 
 \index{EPICS:Basic Attributes}The basic attributes of EPICS are:
 
-\begin{itemize}\item Tool Based: EPICS provides a number of tools for creating a control system. This minimizes the need for custom 
+\begin{itemize}
+
+\item \textbf{\textbf{Tool Based}}: EPICS provides a number of tools for creating a control system. This minimizes the need for custom 
 coding and helps ensure uniform operator interfaces.
 
-\item Distributed: An arbitrary number of IOCs and OPIs can be supported. As long as the network is not saturated, no 
+\item \textbf{\textbf{Distributed}}: An arbitrary number of IOCs and OPIs can be supported. As long as the network is not saturated, no 
 single bottle neck is present. A distributed system scales nicely. If a single IOC becomes saturated, its functions can 
 be spread over several IOCs. Rather than running all applications on a single host, the applications can be spread 
 over many OPIs.
 
-\item Event Driven: The EPICS software components are all designed to be event driven to the maximum extent 
+\item \textbf{\textbf{Event Driven}}: The EPICS software components are all designed to be event driven to the maximum extent 
 possible. For example, rather than having to poll IOCs for changes, a Channel Access client can request that it be 
 notified when a change occurs. This design leads to efficient use of resources, as well as, quick response times.
 
-\item High Performance: A SPARC based workstation can handle several thousand screen updates a second with each 
+\item \textbf{\textbf{High Performance}}: A SPARC based workstation can handle several thousand screen updates a second with each 
 update resulting from a Channel Access event. A 68040 IOC can process more than 6,000 records per second, 
 including generation of Channel Access events. 
 
-\end{itemize}\section{Hardware - Software Platforms (Vendor Supplied)}
+\end{itemize}
+
+\section{Hardware - Software Platforms (Vendor Supplied)}
 
 \index{EPICS:Hardware/Software Platforms}EPICS core components (including IOC components) run on a wide range of systems. Currently this includes the 
 following platforms, but new operating system platforms can be easily supported if they have reasonable support for 
@@ -67,100 +65,88 @@ sockets and threads. Currently most 32 bit processors are supported. Some limite
 processors.
 
 \subsection{OPI}
-
 \index{Operator Interface:Hardware/Software Platforms}Platforms
-
-\begin{itemize}\item Sun Solaris
-
+\begin{itemize}
+\item Sun Solaris
 \item Linux
-
 \item Darwin, i.e. Mac OS 10
-
 \item Windows NT/2000/XP/Vista (32 bit)
-
-\end{itemize}\subsection{LAN}
-
+\end{itemize}
+\subsection{LAN}
 \index{Local Area Network:Hardware/Software Platforms}Hardware
+\begin{itemize}
+\item Ethernet (most flavors)
+\end{itemize}
+Software
+\begin{itemize}
+\item TCP/IP protocols via sockets API
+\end{itemize}
 
-\begin{itemize}\item Ethernet (most flavors)
-
-\end{itemize}Software
-
-\begin{itemize}\item TCP/IP protocols via sockets API
-
-\end{itemize}\subsection{IOC}
-
+\subsection{IOC}
 \index{Input/Output Controller:Hardware/Software Platforms}Hardware
-
-\begin{itemize}\item VME and VXI bus and crates
-
-\end{itemize}Various VME modules (ADCs, DAC, Binary I/O, etc.)
-
-Allen Bradley Scanner (Most AB I/O modules)
-
-GPIB devices
-
-BITBUS devices
-
-CAMAC
-
-CANBUS
-
-\begin{itemize}\item Motorola 68K
-
+\begin{itemize}
+\item VME and VXI bus and crates
+  \begin{itemize}
+  \item Various VME modules (ADCs, DAC, Binary I/O, etc.)
+  \item Allen Bradley Scanner (Most AB I/O modules)
+  \item GPIB devices
+  \item BITBUS devices
+  \item CAMAC
+  \item CANBUS
+  \end{itemize}
+\item Motorola 68K
 \item Intel x86
-
 \item AMD Athelon
-
 \item PowerPC
-
 \item Sun SPARC and x86
-
-\end{itemize}Software
-
-\begin{itemize}\item vxWorks operating system
-
-\end{itemize}Real time kernel
-
-Extensive ``Unix like" libraries
-
-\begin{itemize}\item RTEMS
-
+\end{itemize}
+Software
+\begin{itemize}
+\item vxWorks operating system
+\begin{itemize}
+\item Real time kernel
+\item Extensive ``Unix like" libraries
+\end{itemize}
+\item RTEMS
 \item Linux
-
 \item Unix
-
 \item Darwin
-
 \item win32
+\end{itemize}
 
-\end{itemize}\section{IOC Software Components}
+\section{IOC Software Components}
 
 \index{Input/Output Controller:Software Components}
 
-\includegraphics{overview_6}An IOC contains the following EPICS supplied software components.
+An IOC contains the following EPICS supplied software components.
+\begin{center}
+\includegraphics{overview_6}
+\end{center}
 
-\begin{itemize}\item IOC Database: The memory resident database plus associated data structures.
+\begin{itemize}
 
-\item Database Access:  Database access routines. With the exception of record and device support, all access to the 
+\item \textbf{\textbf{IOC Database}}: The memory resident database plus associated data structures.
+
+\item \textbf{\textbf{Database Access}}:  Database access routines. With the exception of record and device support, all access to the 
 database is via the database access routines.
 
-\item Scanners:  The mechanism for deciding when records should be processed.
+\item \textbf{\textbf{Scanners}}:  The mechanism for deciding when records should be processed.
 
-\item Record Support:  Each record type has an associated set of record support routines.
+\item \textbf{\textbf{Record Support}}:  Each record type has an associated set of record support routines.
 
-\item Device Support: Each record type can have one or more sets of device support routines.
+\item \textbf{\textbf{Device Support}}: Each record type can have one or more sets of device support routines.
 
-\item Device Drivers:  Device drivers access external devices. A driver may have an associated driver interrupt routine.
+\item \textbf{\textbf{Device Drivers}}:  Device drivers access external devices. A driver may have an associated driver interrupt routine.
 
-\item Channel Access:  The interface between the external world and the IOC. It provides a network independent 
+\item \textbf{\textbf{Channel Access}}:  The interface between the external world and the IOC. It provides a network independent 
 interface to database access.
 
-\item Monitors:  Database monitors are invoked when database field values change.
+\item \textbf{\textbf{Monitors}}:  Database monitors are invoked when database field values change.
 
-\item Sequencer:  A finite state machine.
+\item \textbf{\textbf{Sequencer}}:  A finite state machine.
 
-\end{itemize}Let's briefly describe the major components of the IOC and how they interact.
+\end{itemize}
+Let's briefly describe the major components of the IOC and how they interact.
 
 \subsection{IOC Database}
 
@@ -185,19 +171,19 @@ See Chapter 15, ``Runtime Database Access" on page213 for details.
 Database scanning is the mechanism for deciding when to process a record. Five types of scanning are possible: Periodic, 
 Event, I/O Event, Passive and Scan Once.
 
-\begin{itemize}\item Periodic:  A request can be made to process a record periodically. A number of time intervals are supported.
+\begin{itemize}
+\item \textbf{\textbf{Periodic}}:  A request can be made to process a record periodically. A number of time intervals are supported.
 
-\item Event:  Event scanning is based on the posting of an event by any IOC software component. The actual subroutine 
-call is:
-
-\end{itemize}\begin{verbatim}post_event(event_num)
-\end{verbatim}\index{post\_event}\begin{itemize}\item I/O Event:  The I/O event scanning system processes records based on external interrupts. An IOC device driver 
+\item \textbf{\textbf{Event}}:  Event scanning is based on the posting of an event by any IOC software component. The actual subroutine 
+call is: \\
+\verb|  post_event(event_num)| \index{post\_event}
+\item \textbf{\textbf{I/O Event}}:  The I/O event scanning system processes records based on external interrupts. An IOC device driver 
 interrupt routine must be available to accept the external interrupts.
 
-\item Passive:  Passive records are processed as a result of linked records being processed or as a result of external 
+\item \textbf{\textbf{Passive}}:  Passive records are processed as a result of linked records being processed or as a result of external 
 changes such as Channel Access puts.
 
-\item Scan Once: In order to provide for caching puts, The scanning system provides a routine \verb|scanOnce| which 
+\item \textbf{\textbf{Scan Once}}: In order to provide for caching puts, The scanning system provides a routine \verb|scanOnce| which 
 arranges for a record to be processed one time.
 
 \end{itemize}\subsection{Record Support, Device Support and Device Drivers}
@@ -222,19 +208,20 @@ discussed in greater detail in later chapters.
 Every record support module must provide a record processing routine to be called by the database scanners. Record 
 processing consists of some combination of the following functions (particular records types may not need all functions):
 
-\begin{itemize}\item Input:  Read inputs. Inputs can be obtained, via device support routines, from hardware, from other database 
+\begin{itemize}
+\item \textbf{\textbf{Input}}:  Read inputs. Inputs can be obtained, via device support routines, from hardware, from other database 
 records via database links, or from other IOCs via Channel Access links.
 
-\item Conversion:  Conversion of raw input to engineering units or engineering units to raw output values.
+\item \textbf{\textbf{Conversion}}:  Conversion of raw input to engineering units or engineering units to raw output values.
 
-\item Output:  Write outputs. Output can be directed, via device support routines, to hardware, to other database records 
+\item \textbf{\textbf{Output}}:  Write outputs. Output can be directed, via device support routines, to hardware, to other database records 
 via database links, or to other IOCs via Channel Access links.
 
-\item Raise Alarms:  Check for and raise alarms.
+\item \textbf{\textbf{Raise Alarms}}:  Check for and raise alarms.
 
-\item Monitor:  Trigger monitors related to Channel Access callbacks.
+\item \textbf{\textbf{Monitor}}:  Trigger monitors related to Channel Access callbacks.
 
-\item Link:  Trigger processing of linked records.
+\item \textbf{\textbf{Link}}:  Trigger processing of linked records.
 
 \end{itemize}\subsection{Channel Access}
 
@@ -260,13 +247,15 @@ of servers.
 
 The basic Channel Access client services are:
 
-\begin{itemize}\item Search:  Locate the IOCs containing selected process variables and establish communication with each one.
+\begin{itemize}
 
-\item Get:  Get value plus additional optional information for a selected set of process variables.
+\item \textbf{Search}:  Locate the IOCs containing selected process variables and establish communication with each one.
 
-\item Put:  Change the values of selected process variables.
+\item \textbf{Get}:  Get value plus additional optional information for a selected set of process variables.
 
-\item Add Event: Add a change of state callback. This is a request to have the server send information only when the 
+\item \textbf{Put}:  Change the values of selected process variables.
+
+\item \textbf{Add Event}: Add a change of state callback. This is a request to have the server send information only when the 
 associated process variable changes state. Any combination of the following state changes can be requested: 
 change of value, change of alarm status and/or severity, and change of archival value. Many record types provide 
 hysteresis factors for value changes.
@@ -274,21 +263,21 @@ hysteresis factors for value changes.
 \end{itemize}In addition to requesting process variable values, any combination of the following additional information may be 
 requested:
 
-\begin{itemize}\item Status:  Alarm status and severity.
+\begin{itemize}\item \textbf{Status}:  Alarm status and severity.
 
-\item Units:  Engineering units for this process variable.
+\item \textbf{Units}:  Engineering units for this process variable.
 
-\item Precision:  Precision with which to display floating point numbers.
+\item \textbf{Precision}:  Precision with which to display floating point numbers.
 
-\item Time:  Time when the record was last processed.
+\item \textbf{Time}:  Time when the record was last processed.
 
-\item Enumerated:  A set of ASCII strings defining the meaning of enumerated values.
+\item \textbf{Enumerated}:  A set of ASCII strings defining the meaning of enumerated values.
 
-\item Graphics:  High and low limits for producing graphs.
+\item \textbf{Graphics}:  High and low limits for producing graphs.
 
-\item Control:  High and low control limits.
+\item \textbf{Control}:  High and low control limits.
 
-\item Alarm:  The alarm \verb|HIHI|, \verb|HIGH|, \verb|LOW|, and \verb|LOLO| values for the process variable.
+\item \textbf{Alarm}:  The alarm \verb|HIHI|, \verb|HIGH|, \verb|LOW|, and \verb|LOLO| values for the process variable.
 
 \end{itemize}It should be noted that Channel Access does not provide access to database records as records. This is a deliberate design 
 decision. This allows new record types to be added without impacting any software that accesses the database via Channel 
@@ -325,61 +314,63 @@ Channel Access. Channel Access tools are real time tools, i.e. they are used to 
 
 A large number of Channel Access tools have been developed. The following are some representative examples.
 
-\begin{itemize}\item EDM - Extensible Display Manager. The newest display manager/editor for EPICS.
+\begin{itemize}
+\item \textbf{EDM}: Extensible Display Manager. The newest display manager/editor for EPICS.
 
-\item MEDM: Motif version of combined display manager and display editor.
+\item \textbf{MEDM}: Motif version of combined display manager and display editor.
 
-\item DM:  Display Manager. Reads one or more display list files created by EDD, establishes communication with all 
+\item \textbf{DM}:  Display Manager. Reads one or more display list files created by EDD, establishes communication with all 
 necessary IOCs, establishes monitors on process variables, accepts operator control requests, and updates the 
 display to reflect all changes.
 
-\item stripTool - General purpose stripchart tool.
+\item \textbf{stripTool} - General purpose stripchart tool.
 
-\item ALH: Alarm Handler. General purpose alarm handler driven by an alarm configuration file.
+\item \textbf{ALH}: Alarm Handler. General purpose alarm handler driven by an alarm configuration file.
 
-\item AR:  Archiver. General purpose tool to acquire and save data from IOCs.
+\item \textbf{AR}:  Archiver. General purpose tool to acquire and save data from IOCs.
 
-\item Sequencer:  Runs in an IOC and emulates a finite state machine.
+\item \textbf{Sequencer}:  Runs in an IOC and emulates a finite state machine.
 
-\item BURT:  Backup and Restore Tool. General purpose tool to save and restore Channel Access channels. The tool can 
+\item \textbf{BURT}:  Backup and Restore Tool. General purpose tool to save and restore Channel Access channels. The tool can 
 be run via Unix commands or via a Graphical User Interface.
 
-\item KM:  Knob Manager - Channel Access interface for the sun dials (a set of 8 knobs)
+\item \textbf{KM}:  Knob Manager - Channel Access interface for the sun dials (a set of 8 knobs)
 
-\item PROBE: Allows the user to monitor and/or change a single process variable specified at run time.
+\item \textbf{PROBE}: Allows the user to monitor and/or change a single process variable specified at run time.
 
-\item CAMATH:  Channel Access interface for Mathematica.
+\item \textbf{CAMATH}:  Channel Access interface for Mathematica.
 
-\item CAWINGZ:  Channel Access interface for Wingz.
+\item \textbf{CAWINGZ}:  Channel Access interface for Wingz.
 
-\item IDL/PVWAVE Channel Access Interfaces exist for these products.
+\item \textbf{IDL/PVWAVE}: Channel Access Interfaces exist for these products.
 
-\item TCL/TK Channel Access Interface for these products.
+\item \textbf{TCL/TK}: Channel Access Interface for these products.
 
-\item CDEV - A library designed to provide a standard API to one or more underlying packages, typically control 
+\item \textbf{CDEV}: A library designed to provide a standard API to one or more underlying packages, typically control 
 system interfaces. CDEV provides a Channel Access service.
 
 \end{itemize}\subsection{Examples of other OPI Tools}
 
-\begin{itemize}\item VDCT - A Java based database configuration tool which is quickly becoming the recommended database 
+\begin{itemize}
+\item \textbf{VDCT}: A Java based database configuration tool which is quickly becoming the recommended database 
 configuration tool.
 
-\item JDCT: Java Database Configuration Tool. A JAVA based tool for creating run time databases.
+\item \textbf{JDCT}: Java Database Configuration Tool. A JAVA based tool for creating run time databases.
 
-\item GDCT: Graphical Database Configuration Tool. Used to create a run time database for an IOC. This is no longer 
+\item \textbf{GDCT}: Graphical Database Configuration Tool. Used to create a run time database for an IOC. This is no longer 
 being developed since it is based on an open source software system called unidraw, which is no longer being 
 supported.
 
-\item EDD:  Display Editor. This tool is used to create a display list file for the Display Manager. A display list file 
+\item \textbf{EDD}:  Display Editor. This tool is used to create a display list file for the Display Manager. A display list file 
 contains a list of static, monitor, and control elements. Each monitor and control element has an associated process 
 variable.
 
-\item SNC:  State Notation Compiler. It generates a C program that represents the states for the IOC Sequencer tool.
+\item \textbf{SNC}:  State Notation Compiler. It generates a C program that represents the states for the IOC Sequencer tool.
 
-\item Database Tools - Tools are provided which generate C include files from menu and record type database definition 
+\item \textbf{Database Tools}: Tools are provided which generate C include files from menu and record type database definition 
 files.
 
-\item Source/Release:  EPICS provides a Source/Release mechanism for managing EPICS.
+\item \textbf{Source/Release}:  EPICS provides a Source/Release mechanism for managing EPICS.
 
 \end{itemize}\section{EPICS Core Software}
 
@@ -402,5 +393,6 @@ EPICS without which EPICS would not function, are:
 MEDM (or EDD/DM). Likewise an application developer would not start from scratch developing record and device 
 support. Most OPI tools do not, however, have to be used. Likewise any given record support module, device support 
 module, or driver could be deleted from a particular IOC and EPICS will still function.
+
 
 
