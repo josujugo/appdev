@@ -42,27 +42,27 @@ addpath "path"
 include "filename"
 #comment
 menu(name) {
-include "filename"
-choice(choice_name,"choice_value")
-...
+    include "filename"
+    choice(choice_name,"choice_value")
+    ...
 }
 
 recordtype(record_type) {
-include "filename"
-field(field_name,field_type) {
-asl(asl_level)
-initial("init_value")
-promptgroup(gui_group)
-prompt("prompt_value")
-special(special_value)
-pp(pp_value)
-interest(interest_level)
-base(base_type)
-size(size_value)
-extra("extra_info")
-menu(name)
-}
-...
+    include "filename"
+    field(field_name,field_type) {
+        asl(asl_level)
+        initial("init_value")
+        promptgroup(gui_group)
+        prompt("prompt_value")
+        special(special_value)
+        pp(pp_value)
+        interest(interest_level)
+        base(base_type)
+        size(size_value)
+        extra("extra_info")
+        menu(name)
+    }
+    ...
 }
 
 device(record_type,link_type,dset_name,"choice_string")
@@ -74,17 +74,17 @@ registrar(function_name)
 variable(variable_name)
 
 breaktable(name) {
-raw_value eng_value
-...
+    raw_value eng_value
+    ...
 }
 \end{verbatim}The Following defines a Record Instance
 
 \begin{verbatim}record(record_type,record_name) {
 include "filename"
 field(field_name,"value")
-alias(alias_name)
-info(info_name,"value")
-...
+    alias(alias_name)
+    info(info_name,"value")
+    ...
 }
 alias(record_name,alias_name)
 \end{verbatim}\section{General Rules for Database Definition}
@@ -93,7 +93,8 @@ alias(record_name,alias_name)
 
 \index{Keywords}The following are keywords, i.e. they may not be used as values unless they are enclosed in quotes:
 
-\begin{verbatim}path
+\begin{verbatim}
+path
 addpath
 include
 menu
@@ -110,7 +111,8 @@ record
 grecord
 info
 alias
-\end{verbatim}\index{path}
+\end{verbatim}
+\index{path}
 \index{addpath}
 \index{include}
 \index{menu}
@@ -136,8 +138,7 @@ consisting of only the following characters does not have to be quoted unless it
 
 \subsection{Quoted Strings}
 
-\index{Quoted String}A quoted string can contain any ascii character except the quote character ``. The quote character itself can given by using 
-\textbackslash{} as an escape. For example ``\textbackslash{}"" is a quoted string containing the single character ``.
+\index{Quoted String}A quoted string can contain any ascii character except the quote character \verb|"|. The quote character itself can given by using \verb|\| as an escape. For example \verb|"\""| is a quoted string containing the single character \verb|"|.
 
 \subsection{Macro Substitution}
 
@@ -240,8 +241,8 @@ ignored.
 \index{menu - Database Definitions}Format:
 
 \begin{verbatim}menu(name) {
-choice(choice_name,"choice_value")
-...
+    choice(choice_name,"choice_value")
+    ...
 }
 \end{verbatim}Where:
 
@@ -262,21 +263,22 @@ choice(menuYesNoYES,"YES")
 
 \index{record type - Database Definitions}\subsection{Format:}
 
-\begin{verbatim}recordtype(record_type) {
-field(field_name,field_type) {
-asl(asl_level)
-initial("init_value")
-promptgroup(gui_group)
-prompt("prompt_value")
-special(special_value)
-pp(pp_value)
-interest(interest_level)
-base(base_type)
-size(size_value)
-extra("extra_info")
-menu("name")
-}
-...
+\begin{verbatim}
+recordtype(record_type) {
+    field(field_name,field_type) {
+    asl(asl_level)
+    initial("init_value")
+    promptgroup(gui_group)
+    prompt("prompt_value")
+    special(special_value)
+    pp(pp_value)
+    interest(interest_level)
+    base(base_type)
+    size(size_value)
+    extra("extra_info")
+    menu("name")
+    }
+    ...
 }
 \end{verbatim}\subsection{rules}
 
@@ -319,115 +321,73 @@ longer exists, problems may arise with some Channel Access clients if longer fie
 
 \item \index{field\_type - field definition}field\_type - This must be one of the following values:
 
-\end{itemize}\verb|DBF_STRING|
-
-\verb|DBF_CHAR|
-
-\verb|DBF_UCHAR|
-
-\verb|DBF_SHORT|
-
-\verb|DBF_USHORT|
-
-\verb|DBF_LONG|
-
-\verb|DBF_ULONG|
-
-\verb|DBF_FLOAT|
-
-\verb|DBF_DOUBLE|
-
-\verb|DBF_ENUM|
-
-\verb|DBF_MENU|
-
-\verb|DBF_DEVICE|
-
-\verb|DBF_INLINK|
-
-\verb|DBF_OUTLINK|
-
-\verb|DBF_FWDLINK|
-
-\verb|DBF_NOACCESS|
-
-\begin{itemize}\item \index{asl\_level - field definition}asl\_level - This must be one of the following values:
-
-\end{itemize}\verb|ASL0|
-
-\verb|ASL1|  (default value)
-
-\begin{itemize}\item \index{init\_value - field definition}init\_value - A legal value for data type.
-
+\begin{itemize}
+\item \verb|DBF_STRING|
+\item \verb|DBF_CHAR|
+\item \verb|DBF_UCHAR|
+\item \verb|DBF_SHORT|
+\item \verb|DBF_USHORT|
+\item \verb|DBF_LONG|
+\item \verb|DBF_ULONG|
+\item \verb|DBF_FLOAT|
+\item \verb|DBF_DOUBLE|
+\item \verb|DBF_ENUM|
+\item \verb|DBF_MENU|
+\item \verb|DBF_DEVICE|
+\item \verb|DBF_INLINK|
+\item \verb|DBF_OUTLINK|
+\item \verb|DBF_FWDLINK|
+\item \verb|DBF_NOACCESS|
+\end{itemize}
+\item \index{asl\_level - field definition}asl\_level - This must be one of the following values:
+\begin{itemize}
+\item \verb|ASL0|
+\item \verb|ASL1|  (default value)
+\end{itemize}
+\item \index{init\_value - field definition}init\_value - A legal value for data type.
 \item \index{prompt\_value - field definition}prompt\_value - A prompt value for database configuration tools.
-
 \item \index{gui\_group - field definition}gui\_group - This must be one of the following:
-
-\end{itemize}\verb|GUI_COMMON|
-
-\verb|GUI_ALARMS|
-
-\verb|GUI_BITS1|
-
-\verb|GUI_BITS2|
-
-\verb|GUI_CALC|
-
-\verb|GUI_CLOCK|
-
-\verb|GUI_COMPRESS|
-
-\verb|GUI_CONVERT|
-
-\verb|GUI_DISPLAY|
-
-\verb|GUI_HIST|
-
-\verb|GUI_INPUTS|
-
-\verb|GUI_LINKS|
-
-\verb|GUI_MBB|
-
-\verb|GUI_MOTOR|
-
-\verb|GUI_OUTPUT|
-
-\verb|GUI_PID|
-
-\verb|GUI_PULSE|
-
-\verb|GUI_SELECT|
-
-\verb|GUI_SEQ1|
-
-\verb|GUI_SEQ2|
-
-\verb|GUI_SEQ3|
-
-\verb|GUI_SUB|
-
-\verb|GUI_TIMER|
-
-\verb|GUI_WAVE|
-
-\verb|GUI_SCAN|
+\begin{itemize}
+\item \verb|GUI_COMMON|
+\item \verb|GUI_ALARMS|
+\item \verb|GUI_BITS1|
+\item \verb|GUI_BITS2|
+\item \verb|GUI_CALC|
+\item \verb|GUI_CLOCK|
+\item \verb|GUI_COMPRESS|
+\item \verb|GUI_CONVERT|
+\item \verb|GUI_DISPLAY|
+\item \verb|GUI_HIST|
+\item \verb|GUI_INPUTS|
+\item \verb|GUI_LINKS|
+\item \verb|GUI_MBB|
+\item \verb|GUI_MOTOR|
+\item \verb|GUI_OUTPUT|
+\item \verb|GUI_PID|
+\item \verb|GUI_PULSE|
+\item \verb|GUI_SELECT|
+\item \verb|GUI_SEQ1|
+\item \verb|GUI_SEQ2|
+\item \verb|GUI_SEQ3|
+\item \verb|GUI_SUB|
+\item \verb|GUI_TIMER|
+\item \verb|GUI_WAVE|
+\item \verb|GUI_SCAN|
 
 NOTE: \verb|GUI| types were invented with the intention of allowing database configuration tools to prompt for 
 groups of fields and when a user selects a group the fields within the group. Since this feature has seldom 
 been used, many record types have not assigned the correct GUI groups to some fields.
 
-\begin{itemize}\item \index{special\_value - field definition}special\_value must be one of the following:
+\end{itemize}\item \index{special\_value - field definition}special\_value must be one of the following:
 
-\end{itemize}An integer value greater than 103. In this case, the record support special routine is called whenever the field 
+\begin{itemize}
+\item An integer value greater than 103. In this case, the record support special routine is called whenever the field 
 is modified by database access. This feature is present only for compatibility. New support modules should 
 use \verb|SPC_MOD|.
 
-
-
 The following value disallows access to field.
 
-\verb|SPC_NOMOD| - This means that field can not be modified at runtime except by the record/device support 
+\item \verb|SPC_NOMOD| - This means that field can not be modified at runtime except by the record/device support 
 modules for the record type.
 
 \index{SPC\_NOMOD}
@@ -436,15 +396,15 @@ The following values are used for database common. They must NOT be used for rec
 
 \verb|SPC_SCAN| - Scan related field.
 
-\index{SPC\_SCAN}\verb|SPC_ALARMACK| - Alarm acknowledgment field.
+\item \index{SPC\_SCAN}\verb|SPC_ALARMACK| - Alarm acknowledgment field.
 
-\index{SPC\_ALARMACK}\verb|SPC_AS| - Access security field.
+\item \index{SPC\_ALARMACK}\verb|SPC_AS| - Access security field.
 
 \index{SPC\_AS}
 
 The following value is used if record support wants to trap \verb|dbNameToAddr| calls.
 
-\verb|SPC_DBADDR| - This is set if the record support \verb|cvt_dbaddr| routine should be called whenever 
+\item \verb|SPC_DBADDR| - This is set if the record support \verb|cvt_dbaddr| routine should be called whenever 
 \verb|dbNameToAddr| is called, i.e. when code outside record/device support want to access the field.
 
 \index{SPC\_DBADDR}
@@ -453,137 +413,147 @@ The following values all result in the record support special routine being call
 modifies the field. The only reason for multiple values is that originally it seemed like a good idea. New 
 support modules should only use \verb|SPC_MOD|.
 
-\verb|SPC_MOD| - Notify when modified, i.e. call the record support special routine whenever the field is modified 
+\item \verb|SPC_MOD| - Notify when modified, i.e. call the record support special routine whenever the field is modified 
 by database access.
 
-\index{SPC\_MOD}\verb|SPC_RESET| - a reset field is being modified.
+\item \index{SPC\_MOD}\verb|SPC_RESET| - a reset field is being modified.
 
-\index{SPC\_RESET}\verb|SPC_LINCONV| - A linear conversion field is being modified.
+\item \index{SPC\_RESET}\verb|SPC_LINCONV| - A linear conversion field is being modified.
 
-\index{SPC\_LINCONV}\verb|SPC_CALC| - A calc field is being modified.
+\item \index{SPC\_LINCONV}\verb|SPC_CALC| - A calc field is being modified.
 
-\index{SPC\_CALC}\begin{itemize}\item \index{pp\_value - field definition}pp\_value - Should a passive record be processed when Channel Access writes to this field?  The allowed values 
+\index{SPC\_CALC}
+\end{itemize}
+
+\item \index{pp\_value - field definition}pp\_value - Should a passive record be processed when Channel Access writes to this field?  The allowed values 
 are:
 
-\end{itemize}\verb|NO| (default)
+\begin{itemize}
+\item \verb|NO| (default)
+\item \verb|YES|
+\end{itemize}
 
-\verb|YES|
-
-\begin{itemize}\item \index{interest\_level - field definition}interest\_level - An interest level for the \verb|dbpr| command.
+\item \index{interest\_level - field definition}interest\_level - An interest level for the \verb|dbpr| command.
 
 \item \index{base - field definition}base - For integer type fields, the default base. The legal values are:
 
-\end{itemize}\verb|DECIMAL| (Default)
+\begin{itemize}
+\item \verb|DECIMAL| (Default)
+\item \verb|HEX|
+\end{itemize}
 
-\verb|HEX|
-
-\begin{itemize}\item \index{size\_value - field definition}size\_value - The number of characters for a \verb|DBF_STRING| field.
+\item \index{size\_value - field definition}size\_value - The number of characters for a \verb|DBF_STRING| field.
 
 \item \index{extra\_info - field definition}extra\_info - For \verb|DBF_NOACCESS| fields, this is the C language definition for the field. The definition must end 
 with the fieldname in lower case.
 
-\end{itemize}\subsection{Example}
+\end{itemize}
+
+\subsection{Example}
 
 The following is the definition of the binary input record.
 
-\begin{verbatim}recordtype(bi) {
-include "dbCommon.dbd" 
-field(INP,DBF_INLINK) {
-prompt("Input Specification")
-promptgroup(GUI_INPUTS)
-interest(1)
+\begin{verbatim}
+recordtype(bi) {
+    include "dbCommon.dbd" 
+        field(INP,DBF_INLINK) {
+        prompt("Input Specification")
+        promptgroup(GUI_INPUTS)
+        interest(1)
+    }
+    field(VAL,DBF_ENUM) {
+        prompt("Current Value")
+        promptgroup(GUI_INPUTS)
+        asl(ASL0)
+        pp(TRUE)
+    }
+    field(ZSV,DBF_MENU) {
+        prompt("Zero Error Severity")
+        promptgroup(GUI_ALARMS)
+        pp(TRUE)
+        interest(1)
+        menu(menuAlarmSevr)
+    }
+    field(OSV,DBF_MENU) {
+        prompt("One Error Severity")
+        promptgroup(GUI_BITS1)
+        pp(TRUE)
+        interest(1)
+        menu(menuAlarmSevr)
+    }
+    field(COSV,DBF_MENU) {
+        prompt("Change of State Svr")
+        promptgroup(GUI_BITS2)
+        pp(TRUE)
+        interest(1)
+        menu(menuAlarmSevr)
+    }
+    field(ZNAM,DBF_STRING) {
+        prompt("Zero Name")
+        promptgroup(GUI_CALC)
+        pp(TRUE)
+        interest(1)
+        size(20)
+    }
+    field(ONAM,DBF_STRING) {
+        prompt("One Name")
+        promptgroup(GUI_CLOCK)
+        pp(TRUE)
+        interest(1)
+        size(20)
+    }
+    field(RVAL,DBF_ULONG) {
+        prompt("Raw Value")
+        pp(TRUE)
+    }
+    field(ORAW,DBF_ULONG) {
+        prompt("prev Raw Value")
+        special(SPC_NOMOD)
+        interest(3)
+    }
+    field(MASK,DBF_ULONG) {
+        prompt("Hardware Mask")
+        special(SPC_NOMOD) 
+        interest(1)
+    }
+    field(LALM,DBF_USHORT) {
+        prompt("Last Value Alarmed")
+        special(SPC_NOMOD)
+        interest(3)
+    }
+    field(MLST,DBF_USHORT) {
+        prompt("Last Value Monitored")
+        special(SPC_NOMOD)
+        interest(3)
+    }
+    field(SIOL,DBF_INLINK) {
+        prompt("Sim Input Specifctn")
+        promptgroup(GUI_INPUTS)
+        interest(1)
+    }
+    field(SVAL,DBF_USHORT) {
+        prompt("Simulation Value")
+    }
+    field(SIML,DBF_INLINK) {
+        prompt("Sim Mode Location")
+        promptgroup(GUI_INPUTS)
+        interest(1)
+    }
+    field(SIMM,DBF_MENU) {
+        prompt("Simulation Mode")
+        interest(1)
+        menu(menuYesNo)
+    }
+    field(SIMS,DBF_MENU) {
+        prompt("Sim mode Alarm Svrty")
+        promptgroup(GUI_INPUTS)
+        interest(2)
+        menu(menuAlarmSevr)
+    }
 }
-field(VAL,DBF_ENUM) {
-prompt("Current Value")
-promptgroup(GUI_INPUTS)
-asl(ASL0)
-pp(TRUE)
-}
-field(ZSV,DBF_MENU) {
-prompt("Zero Error Severity")
-promptgroup(GUI_ALARMS)
-pp(TRUE)
-interest(1)
-menu(menuAlarmSevr)
-}
-field(OSV,DBF_MENU) {
-prompt("One Error Severity")
-promptgroup(GUI_BITS1)
-pp(TRUE)
-interest(1)
-menu(menuAlarmSevr)
-}
-field(COSV,DBF_MENU) {
-prompt("Change of State Svr")
-promptgroup(GUI_BITS2)
-pp(TRUE)
-interest(1)
-menu(menuAlarmSevr)
-}
-field(ZNAM,DBF_STRING) {
-prompt("Zero Name")
-promptgroup(GUI_CALC)
-pp(TRUE)
-interest(1)
-size(20)
-}
-field(ONAM,DBF_STRING) {
-prompt("One Name")
-promptgroup(GUI_CLOCK)
-pp(TRUE)
-interest(1)
-size(20)
-}
-field(RVAL,DBF_ULONG) {
-prompt("Raw Value")
-pp(TRUE)
-}
-field(ORAW,DBF_ULONG) {
-prompt("prev Raw Value")
-special(SPC_NOMOD)
-interest(3)
-}
-field(MASK,DBF_ULONG) {
-prompt("Hardware Mask")
-special(SPC_NOMOD)
-interest(1)
-}
-field(LALM,DBF_USHORT) {
-prompt("Last Value Alarmed")
-special(SPC_NOMOD)
-interest(3)
-}
-field(MLST,DBF_USHORT) {
-prompt("Last Value Monitored")
-special(SPC_NOMOD)
-interest(3)
-}
-field(SIOL,DBF_INLINK) {
-prompt("Sim Input Specifctn")
-promptgroup(GUI_INPUTS)
-interest(1)
-}
-field(SVAL,DBF_USHORT) {
-prompt("Simulation Value")
-}
-field(SIML,DBF_INLINK) {
-prompt("Sim Mode Location")
-promptgroup(GUI_INPUTS)
-interest(1)
-}
-field(SIMM,DBF_MENU) {
-prompt("Simulation Mode")
-interest(1)
-menu(menuYesNo)
-}
-field(SIMS,DBF_MENU) {
-prompt("Sim mode Alarm Svrty")
-promptgroup(GUI_INPUTS)
-interest(2)
-menu(menuAlarmSevr)
-}
-}
-\end{verbatim}\section{Device}
+\end{verbatim}
+
+\section{Device}
 
 \index{device - Database Definitions}\subsection{Format:}
 
@@ -595,29 +565,33 @@ same combination appears multiple times, the first definition is used.
 
 \item \index{link\_type - device definition}link\_type - Link type. This must be one of the following:
 
-\end{itemize}\verb|CONSTANT|
+\begin{itemize}
 
-\verb|PV_LINK|
+\item \verb|CONSTANT|
 
-\verb|VME_IO|
+\item \verb|PV_LINK|
 
-\verb|CAMAC_IO|
+\item \verb|VME_IO|
 
-\verb|AB_IO|
+\item \verb|CAMAC_IO|
 
-\verb|GPIB_IO|
+\item \verb|AB_IO|
 
-\verb|BITBUS_IO|
+\item \verb|GPIB_IO|
 
-\verb|INST_IO|
+\item \verb|BITBUS_IO|
 
-\verb|BBGPIB_IO|
+\item \verb|INST_IO|
 
-\verb|RF_IO|
+\item \verb|BBGPIB_IO|
 
-\verb|VXI_IO|
+\item \verb|RF_IO|
 
-\begin{itemize}\item \index{dset\_name - device definition}dset\_name -  The exact name of the device support entry table without the trailing ``\verb|DSET|". Duplicates are not 
+\item \verb|VXI_IO|
+
+\end{itemize}
+
+\item \index{dset\_name - device definition}dset\_name -  The exact name of the device support entry table without the trailing ``\verb|DSET|". Duplicates are not 
 allowed.
 
 \item \index{choice\_string - device definition}choice\_string  Choice string for database configuration tools. Note that it must be enclosed in ``". Note that for a 
@@ -642,7 +616,9 @@ device(ai,VME_IO,devAiXy566Se,"XYCOM-566 SE Scanned")
 driver(drvXy210)
 \end{verbatim}\section{Registrar Declaration}
 
-\index{registrar - Database Defintions}\subsection{Format:}
+\index{registrar - Database Defintions}
+
+\subsection{Format:}
 
 \begin{verbatim}registrar(function_name)
 \end{verbatim}\subsection{Definitions}
@@ -747,75 +723,80 @@ raw_value eng_value
 
 \index{record instance - Database Definitions}\subsection{Format:}
 
-\begin{verbatim}record(record_type, record_name) {
-alias(alias_name)
-field(field_name, "field_value")
-info(info_name, "info_value")
-...
+\begin{verbatim}
+record(record_type, record_name) {
+    alias(alias_name)
+    field(field_name, "field_value")
+    info(info_name, "info_value")
+    ...
 }
 alias(record_name, alias_name)
-\end{verbatim}\subsection{definitions}
-
+\end{verbatim}
+\subsection{definitions}
 \begin{itemize}\item \index{record\_type - record instance definition}record\_type - The record type. 
 
-\item \index{record\_name - record instance definition}record\_name - The record name. This must be composed of the following characters:
+\item \index{record\_name - record instance definition}record\_name - The record name. This must be composed of the following characters:\\
+\verb|a-z A-Z 0-9 _ - + : [ ] < > ;|\\
+NOTE: If macro substitutions are used the name must be quoted.
 
-\end{itemize}\begin{verbatim}a-z A-Z 0-9 _ - + : [ ] < > ;
-\end{verbatim}\begin{description}\item NOTE: If macro substitutions are used the name must be quoted.
-
-\item If duplicate definitions are given for the same record, then the last value given for each field is the value assigned 
+If duplicate definitions are given for the same record, then the last value given for each field is the value assigned 
 to the field. 
 
-\end{description}\begin{itemize}\item \index{alias\_name - record instance definition}alias\_name - an alternate name for the record, following the same rules as record\_name.
+\item \index{alias\_name - record instance definition}alias\_name - an alternate name for the record, following the same rules as record\_name.
 
 \item \index{field\_name - record instance definition}field\_name - A field name
 
 \item \index{field value - record instance definition}field\_value - Depends on field type. Inside the double quotes the field value string may contain escaped C89 
 characters such as \textbackslash{}", \textbackslash{}t, \textbackslash{}n, \textbackslash{}064 and \textbackslash{}x7e, and these will be translated appropriately when loading the database.
 
-\end{itemize}\verb|DBF_STRING|
+\begin{itemize}
+
+\item \verb|DBF_STRING|
 
 Any ASCII string. If it exceeds the field length, it will be truncated.
 
-\verb|DBF_CHAR|, \verb|DBF_UCHAR|, \verb|DBF_SHORT|, \verb|DBF_USHORT|, \verb|DBF_LONG|, \verb|DBF_ULONG|
+\item \verb|DBF_CHAR|, \verb|DBF_UCHAR|, \verb|DBF_SHORT|, \verb|DBF_USHORT|, \verb|DBF_LONG|, \verb|DBF_ULONG|
 
 A string that represents a valid integer. The standard C conventions are applied, i.e. a leading 0 means the 
 value is given in octal and a leading 0x means that value is given in hex.
 
-\verb|DBF_FLOAT|, \verb|DBF_DOUBLE|
+\item \verb|DBF_FLOAT|, \verb|DBF_DOUBLE|
 
 The string must represent a valid floating point number.
 
-\verb|DBF_MENU|
+\item \verb|DBF_MENU|
 
 The string must be one of the valid choices for the associated menu.
 
-\verb|DBF_DEVICE|
+\item \verb|DBF_DEVICE|
 
 The string must be one of the valid device choice strings.
 
-\verb|DBF_INLINK|, \verb|DBF_OUTLINK|
+\item \verb|DBF_INLINK|, \verb|DBF_OUTLINK|
 
 \verb|NOTES:|
 
-In the field is INP or OUT then it is associated with field DTYP. Other DBF\_INLINK and 
+\begin{itemize}
+\item In the field is INP or OUT then it is associated with field DTYP. Other DBF\_INLINK and 
 DBF\_OUTLINK fields can be either CONSTANT or PV\_LINKs
 
-\verb|DTYP must be set before its associated INP or OUT field.|
+\item \verb|DTYP must be set before its associated INP or OUT field.|
 
-Choosing the DTYP implicitly chooses a bus type.
+\item Choosing the DTYP implicitly chooses a bus type.
 
-A DTYP of CONSTANT can be either a constant or a PV\_LINK.
+\item A DTYP of CONSTANT can be either a constant or a PV\_LINK.
 
-
+\end{itemize}
 
 The allowed value depends on the bus type as follows:
 
-\verb|CONSTANT|
+\begin{itemize}
+
+\item \verb|CONSTANT|
 
 A constant valid for the field associated 
 
-\index{CONSTANT - link field value}\verb|PV_LINK|
+\item \index{CONSTANT - link field value}\verb|PV_LINK|
 
 A value of the form:
 
@@ -825,21 +806,23 @@ A value of the form:
 
 \index{PV\_LINK - link field value}
 
-\verb|field, process|, and \verb|maximize| are optional. 
+\verb|field|, \verb|process|, and \verb|maximize| are optional. 
 
 The default value for \verb|field| is \verb|VAL|.
 
 \verb|process| can have one of the following values:
 
-\verb|NPP| - No Process Passive (Default)
+\begin{itemize}
 
-\verb|PP| - Process Passive
+\item \verb|NPP| - No Process Passive (Default)
 
-\verb|CA| - Force link to be a channel access link
+\item \verb|PP| - Process Passive
 
-\verb|CP| - CA and process on monitor
+\item \verb|CA| - Force link to be a channel access link
 
-\verb|CPP| - CA and process on monitor if record is passive
+\item \verb|CP| - CA and process on monitor
+
+\item \verb|CPP| - CA and process on monitor if record is passive
 
 NOTES:
 
@@ -848,27 +831,29 @@ CP and CPP are valid only for INLINKs.
 FWD\_LINKs can be PP or CA. If a FWD\_LINK is a channel access link it must reference the 
 PROC field.
 
+\end{itemize}
+
 \verb|maximize| can have one of the following values
 
-\verb|NMS| - No Maximize Severity (Default)
+\begin{itemize}
 
-\verb|MS| - Maximize severity
+\item \verb|NMS| - No Maximize Severity (Default)
 
-\verb|VME_IO|
+\item \verb|MS| - Maximize severity
+
+\end{itemize}
+
+\item \verb|VME_IO|
 
 \index{VME\_IO - link field value}\#Ccard Ssignal @parm
 
 where:
 
- \verb|card| - the card number of associated hardware module.
+\verb|card| - the card number of associated hardware module.
+\verb|signal| - signal on card
+\verb|parm| - An arbitrary character string of up to 31 characters. This field is optional and is device specific.
 
- \verb|signal| - signal on card
-
- \verb|parm| - An arbitrary character string of up to 31 characters.
-
-                This field is optional and is device specific.
-
-\verb|CAMAC_IO|
+\item \verb|CAMAC_IO|
 
 \index{CAMAC\_IO - link field value}\#Bbranch Ccrate Nstation Asubaddress Ffunction @parm
 
@@ -876,7 +861,7 @@ where:
 \verb|Subaddress| and \verb|function| are optional (0 if not given). \verb|Parm| is also optional and is device 
 dependent (25 characters max).
 
-\verb|AB_IO|
+\item \verb|AB_IO|
 
 \index{AB\_IO - link field value}\#Llink Aadapter Ccard Ssignal @parm
 
@@ -890,7 +875,7 @@ dependent (25 characters max).
 
 \verb|parm| - An optional character string that is device dependent(27 char max)
 
-\verb|GPIB_IO|
+\item \verb|GPIB_IO|
 
 \index{GPIB\_IO - link field value}\#Llink Aaddr @parm
 
@@ -900,7 +885,7 @@ dependent (25 characters max).
 
 \verb|parm| - device dependent character string (31 char max)
 
-\verb|BITBUS_IO|
+\item \verb|BITBUS_IO|
 
 \index{BITBUS\_IO - link field value}\#Llink Nnode Pport Ssignal @parm
 
@@ -914,13 +899,13 @@ dependent (25 characters max).
 
 \verb|parm| - device specific character string(31 char max)
 
-\verb|INST_IO|
+\item \verb|INST_IO|
 
 \index{INST\_IO - link field value}@parm
 
 \verb|parm| - Device dependent character string
 
-\verb|BBGPIB_IO|
+\item \verb|BBGPIB_IO|
 
 \index{BBGPIB\_IO - link field value}\#Llink Bbbaddr Ggpibaddr @parm
 
@@ -932,11 +917,11 @@ dependent (25 characters max).
 
 \verb|parm| - optional device dependent character string(31 char max)
 
-\verb|RF_IO|
+\item \verb|RF_IO|
 
 \index{RF\_IO - link field value}\verb|#Rcryo Mmicro Ddataset Eelemen|t
 
-\verb|VXI_IO|
+\item \verb|VXI_IO|
 
 \index{VXI\_IO - link field value}\#Vframe Cslot Ssignal @parm (Dynamic addressing)
 
@@ -954,53 +939,61 @@ dependent (25 characters max).
 
 \verb|parm| - device specific character string(25 char max)
 
-\verb|DBF_FWDLINK|
+\end{itemize}
+
+\item \verb|DBF_FWDLINK|
 
 This is either not defined or else is a \verb|PV_LINK|. See above for definitions.
 
-\begin{itemize}\item \index{info\_name - record instance definition}info\_name - The name of an information item related to this record. See section 6.13 below for more on 
+\end{itemize}
+
+\item \index{info\_name - record instance definition}info\_name - The name of an information item related to this record. See section 6.13 below for more on 
 information items.
 
 \item \index{info\_value - record instance definition}info\_value - Any ASCII string. IOC applications using this information item may place additional restrictions on 
 the contents of the string.
 
-\end{itemize}\subsection{Examples}
+\end{itemize}
 
-\begin{verbatim}record(ai,STS_AbAiMaS0) {
-field(SCAN,".1 second")
-field(DTYP,"AB-1771IFE-4to20MA")
-field(INP,"#L0 A2 C0 S0 F0 @")
-field(PREC,"4")
-field(LINR,"LINEAR")
-field(EGUF,"20")
-field(EGUL,"4")
-field(EGU,"MilliAmps")
-field(HOPR,"20")
-field(LOPR,"4")
+\subsection{Examples}
+
+\begin{verbatim}
+record(ai,STS_AbAiMaS0) {
+    field(SCAN,".1 second")
+    field(DTYP,"AB-1771IFE-4to20MA")
+    field(INP,"#L0 A2 C0 S0 F0 @")
+    field(PREC,"4")
+    field(LINR,"LINEAR")
+    field(EGUF,"20")
+    field(EGUL,"4")
+    field(EGU,"MilliAmps")
+    field(HOPR,"20")
+    field(LOPR,"4")
 }
 record(ao,STS_AbAoMaC1S0) {
-field(DTYP,"AB-1771OFE")
-field(OUT,"#L0 A2 C1 S0 F0 @")
-field(LINR,"LINEAR")
-field(EGUF,"20")
-field(EGUL,"4")
-field(EGU,"MilliAmp")
-field(DRVH,"20")
-field(DRVL,"4")
-field(HOPR,"20")
-field(LOPR,"4")
-info(autosaveFields,"VAL")
+    field(DTYP,"AB-1771OFE")
+    field(OUT,"#L0 A2 C1 S0 F0 @")
+    field(LINR,"LINEAR")
+    field(EGUF,"20")
+    field(EGUL,"4")
+    field(EGU,"MilliAmp")
+    field(DRVH,"20")
+    field(DRVL,"4")
+    field(HOPR,"20")
+    field(LOPR,"4")
+    info(autosaveFields,"VAL")
 }
 record(bi,STS_AbDiA0C0S0) {
-field(SCAN,"I/O Intr")
-field(DTYP,"AB-Binary Input")
-field(INP,"#L0 A0 C0 S0 F0 @")
-field(ZNAM,"Off")
-field(ONAM,"On")
+    field(SCAN,"I/O Intr")
+    field(DTYP,"AB-Binary Input")
+    field(INP,"#L0 A0 C0 S0 F0 @")
+    field(ZNAM,"Off")
+    field(ONAM,"On")
 }
-\end{verbatim}\section{Record Information Item}
+\end{verbatim}
 
-\index{Information Item}
+\section{Record Information Item}
+
 \index{Information item}Information items provide a way to attach named string values to individual record instances that are loaded at the same 
 time as the record definition. They can be attached to any record without having to modify the record type, and can be 
 retrieved by programs running on the IOC (they are not visible via Channel Access at all). Each item attached to a single 

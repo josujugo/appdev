@@ -1,11 +1,4 @@
-
-
-
-
-
-
-\chapter{Database Locking, Scanning, And }
-Processing
+\chapter{Database Locking, Scanning, And Processing}
 
 \section{Overview}
 
@@ -22,46 +15,54 @@ considerable complication. Thus, before discussing locking, scanning, and proces
 
 \index{Database Links}A database record may contain links to other records. Each link is one of the following types:
 
-\begin{itemize}\item \index{INLINK}INLINK
-
-\end{itemize}\begin{description}\item \index{OUTLINK}OUTLINK
+\begin{itemize}
+\item \index{INLINK}INLINK
+\item \index{OUTLINK}OUTLINK
 
 INLINKs and OUTLINKs can be one of the following:
 
-\end{description}\index{constant link}constant link
+\begin{itemize}
+\item \index{constant link} constant link
 
 Not discussed in this chapter
 
-\index{database link}database link
+\item \index{database link}database link
 
 A link to another record in the same IOC.
 
-\index{channel access link}channel access link
+\item \index{channel access link}channel access link
 
 A link to a record in another IOC. It is accessed via a special IOC client task. It is also possible to force a 
 link to be a channel access link even it references a record in the same IOC.
 
-hardware link
+\item hardware link
 
 Not discussed in this chapter
 
-\begin{itemize}\item \index{FWDLINK}FWDLINK
+\end{itemize}
 
-\end{itemize}\begin{description}\item A forward link refers to a record that should be processed whenever the record containing the forward link is 
+\item \index{FWDLINK}FWDLINK
+
+A forward link refers to a record that should be processed whenever the record containing the forward link is 
 processed. The following types are supported:
 
-\end{description}constant link
+\begin{itemize}
+
+\item constant link
 
 Ignored.
 
-database link
+\item database link
 
 A link to another record in the same IOC.
 
-channel access link
+\item channel access link
 
 A link to a record in another IOC or a link forced to be a channel access link. Unless the link references the 
 PROC field it is ignored. If it does reference the PROC field a channel access put with a value of 1 is issued.
+
+\end{itemize}
+\end{itemize}
 
 Links are defined in file \verb|link.h|.
 
@@ -151,7 +152,7 @@ processing request if and only if the record is passive and is not already being
 
 \end{enumerate}A \verb|dbScanPassive| request results from a task calling one of the following routines:
 
-\begin{itemize}\item \index{dbScanPassive}dbScanPassive:  Only record processing routines, \verb|dbGetLink|, \verb|dbPutLink|, and \verb|dbPutField| call 
+\begin{itemize}\item \index{dbScanPassive}dbScanPassive:  Only record processing routines, \verb|dbGetLink|, \verb|dbPutLink|, and \verb|dbPutField| call \\
 \verb|dbScanPassive|. Record processing routines call it for each forward link in the record. 
 
 \item \index{dbPutField}dbPutField:  This routine changes the specified field and then, if the field has been declared \verb|process_passive|, 
@@ -161,10 +162,10 @@ This use of \verb|process_passive| is used only by \verb|dbPutField|. If \verb|d
 (this can happen to asynchronous records) and it is supposed to cause it to process, it arranges for it to be processed 
 again, when the current processing completes.
 
-\item \index{dbGetLink}dbGetLink:  If the link specifies process passive, this routine calls \verb|dbScanPassive|. Whether or not 
+\item \index{dbGetLink}dbGetLink:  If the link specifies process passive, this routine calls \verb|dbScanPassive|. Whether or not \\
 \verb|dbScanPassive| is called, it then obtains the specified value. 
 
-\item \index{dbPutLink}dbPutLink:  This routine changes the specified field. Then, if the link specifies process passive, it calls 
+\item \index{dbPutLink}dbPutLink:  This routine changes the specified field. Then, if the link specifies process passive, it calls \\
 \verb|dbScanPassive|. \verb|dbPutLink| is only called from record processing routines. Note that this usage of 
 \verb|process_passive| is under the control of the application developer. If \verb|dbPutLink| finds the record already 
 active because of a \verb|dbPutField| directed to this record then it arranges for the record to be processed again,  
@@ -185,7 +186,9 @@ specific this topic is discussed in greater detail in Chapter ``Record Support" 
 is important that the Application Developer understand how they are processed. As an introduction consider the following 
 example :
 
+\begin{center}
 \includegraphics{lockScanProcess_6}
+\end{center}
 
 Assume that A, B, and C are all passive records. The notation states that A has a forward link to B and B to C. C has an 
 input link obtaining a value from A. Assume, for some reason, A gets processed. The following sequence of events 
@@ -220,7 +223,9 @@ The processing order is guaranteed to follow the following rules:
 \begin{enumerate}\item Forward links are processed in order from left to right and top to bottom. For example the following records are 
 processed in the order \verb|FLNK1|, \verb|FLNK2|, \verb|FLNK3|, \verb|FLNK4| .
 
+\begin{center}
 \includegraphics{lockScanProcess_9}
+\end{center}
 
 \item If a record has multiple input links (calculation and select records) the input is obtained in the natural order. For 
 example if the fields are named \verb|INPA|, \verb|INPB|, ..., \verb|INPL|, then the links are read in the order A then B then C, etc. 
@@ -228,7 +233,9 @@ Thus if obtaining an input results in a record being processed, the processing o
 
 \item All input and output links are processed before the forward link.
 
-\end{enumerate}\subsubsection{Lock Sets}
+\end{enumerate}
+
+\subsubsection{Lock Sets}
 
 All records, except for the conditions listed in the next paragraph, linked together directly or indirectly are placed in the 
 same lock set. When \verb|dbScanLock| is called the entire set, not just the specified record, is locked. This prevents two 
@@ -246,7 +253,9 @@ sections that \verb|pact| has other uses.
 Input and output links have an option called process passive. For each such link the application developer can specify 
 process passive \verb|TRUE| (\verb|PP|) or process passive \verb|FALSE| (\verb|NPP|). Consider the following example 
 
+\begin{center}
 \includegraphics{lockScanProcess_16}
+\end{center}
 
 Assume that all records except fanout are passive. When the fanout record is processed the following sequence of events 
 occur:
@@ -274,7 +283,9 @@ occur:
 \end{enumerate}Note that A got processed twice. This is unnecessary. If the input link to C is declared no process passive then A will only 
 be processed once. Thus we should have .
 
+\begin{center}
 \includegraphics{lockScanProcess_26}
+\end{center}
 
 \subsubsection{Process Passive: Field attribute }
 
@@ -370,7 +381,9 @@ processing.
 
 \end{enumerate}With these rules the following works just fine:
 
+\begin{center}
 \includegraphics{lockScanProcess_34}
+\end{center}
 
 When \verb|dbProcess| is called for record ASYN, processing will be started but \verb|dbScanPassive| will not be called. Until 
 the asynchronous completion routine executes any additional attempts to process ASYN are ignored. When the 
@@ -382,7 +395,9 @@ Problems still remain. A few examples are:
 
 \index{Infinite Loop}Infinite processing loops are possible.
 
+\begin{center}
 \includegraphics{lockScanProcess_1}
+\end{center}
 
 Assume both A and B are asynchronous passive records and a request is made to process A. The following sequence of 
 events occur.
@@ -401,7 +416,9 @@ starts processing and control returns to B which completes leaving its \verb|pac
 
 A \verb|dbGetLink| to a passive asynchronous record can get old data.
 
+\begin{center}
 \includegraphics{lockScanProcess_37}
+\end{center}
 
 If A is a passive asynchronous record then the \verb|dbGetLink| request forces \verb|dbProcess| to be called for A. \verb|dbProcess| 
 starts the processing and returns. \verb|dbGetLink| then reads the desired value which is still old because processing will only 
@@ -411,7 +428,9 @@ be completed at a later time.
 
 Consider the following:
 
+\begin{center}
 \includegraphics{lockScanProcess_40}
+\end{center}
 
 The second ASYN record will not begin processing until the first completes, etc. This is not really a problem except that 
 the application developer must be aware of delays caused by asynchronous records. Again, note that scanners are not 

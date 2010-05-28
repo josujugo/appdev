@@ -267,8 +267,8 @@ INSTALL\_BIN               = \$(INSTALL\_LOCATION\_BIN)/\$(T\_A)
 \index{Extension cnfiguration}
 \index{Application Specific Configuration}The base/configure directory contains files with the default build definitions and site specific build definitions. The 
 extensions/configure directory contains extension specific build definitions (e.g. location of X11 and Motif libraries) and 
-"include \textless{}filename\textgreater{}" lines for the base/configure files. Likewise, the \textless{}application\textgreater{}/configure directory contains 
-application specific build definitions and includes for the base/configure files. Build definitions such a 
+``include \textless{}filename\textgreater{}" lines for the base/configure files. Likewise, the \textless{}application\textgreater{}/configure directory contains 
+application specific build definitions and includes for the base/configure files. Build definitions such as \\ 
 \index{CROSS\_COMPILER\_TARGET\_ARCHS}CROSS\_COMPILER\_TARGET\_ARCHS can be overridden in an extension or application by placing an \index{override}override 
 definition in the \textless{}top\textgreater{}/configure/CONFIG\_SITE file.
 
@@ -1028,7 +1028,8 @@ win32 Note: An object library file is created when \index{SHARED\_LIBRARIES}SHAR
 \$(INSTALL\_LOCATION)/lib/\textless{}arch\textgreater{}. Two library files are created when SHARED\_LIBRARIES=YES, \textless{}name\textgreater{}.lib, an 
 import library for DLLs, which is installed into \$(INSTALL\_LOCATION)/lib/\textless{}arch\textgreater{}, and \textless{}name\textgreater{}.dll which is installed 
 into \$(INSTALL\_LOCATION)/bin/\textless{}arch\textgreater{}. (Warning: The file \textless{}name\textgreater{}.lib will only be created by the build if there are 
-exported symbols from the library.) If SHARED\_LIBRARIES=YES, the directory \$(INSTALL\_LOCATION)/bin/\textless{}arch\textgreater{} 
+exported symbols from the library.) If SHARED\_LIBRARIES=YES, the directory \\
+\$(INSTALL\_LOCATION)/bin/\textless{}arch\textgreater{} 
 must be in the user's path during builds to allow invoking executables which were linked with shared libraries. NOTE: the 
 \textless{}name\textgreater{}.lib files are different for shared and nonshared builds.
 
@@ -1394,7 +1395,7 @@ Each \textless{}name\textgreater{} must have a corresponding \textless{}name\tex
 \begin{description}\item \index{SHRLIB\_VERSION}SHRLIB\_VERSION += \textless{}version\textgreater{}
 
 \end{description}On WIN32 this results in ``/version:\$(SHRLIB\_VERSION)" link option. On Unix type hosts ``.\$(SHRLIB\_VERSION)" is 
-appended to the shared library name and a symbolic link is created for the unversioned library name.  
+appended to the shared library name and a symbolic link is created for the unversioned library name. \\
 \$(EPICS\_VERSION).\$(EPICS\_REVISION) is the default value for SHRLIB\_VERSION.
 
 \subsubsection{Library example:}
@@ -2203,8 +2204,8 @@ In this example, the test.class file is created in the O.Common subdirectory.
 
 \end{description}\subsection{Java jar file}
 
-\index{Java jar file}A single java jar file can be created using the java jar tool and installed into \$(INSTALL\_JAVA) (i.e. 
-\$(INSTALL\_LOCATION)/javalib) by specifying its name, and the names of its input files to be included in the created jar 
+\index{Java jar file}A single java jar file can be created using the java jar tool and installed into \$(INSTALL\_JAVA) \\
+(i.e. \$(INSTALL\_LOCATION)/javalib) by specifying its name, and the names of its input files to be included in the created jar 
 file. The jar input file names must appear with a directory prefix.
 
 Any of the following can be specified:
@@ -2326,14 +2327,17 @@ RELEASE line pointing to the TOP of this module.
 
 \section{Table of Makefile definitions}
 
-\index{Table of Makefile definitions}Definitions given below containing \textless{}osclass\textgreater{} are used when building for target archs of a specific \index{osclass}osclass, and the 
+\index{Table of Makefile definitions}
+Definitions given below containing \textless{}osclass\textgreater{} are used when building for target archs of a specific \index{osclass}osclass, and the 
 \textless{}osclass\textgreater{} part of the name should be replaced by the desired osclass, e.g. solaris, vxWorks, etc. If a \_DEFAULT setting is 
 given but a particular \textless{}osclass\textgreater{} requires that the default not apply and there are no items in the definition that apply for 
 that \textless{}osclass\textgreater{}, the value ``-nil-" should be specified in the relevant Makefile definition.
-\begin{center}\begin{longtable}{p{2.94784in}p{3.76247in}}
+\begin{center}
+\begin{longtable}{p{2.94784in}p{3.76247in}}
 \textbf{Build Option} & \textbf{Description}\\
-\hline
+\hline \hline
 \textbf{Products to be built (host type archs only)} & \\
+\hline
 \verb|PROD| & products (names without execution suffix) to build and install. Specify xyz to build executable xyz on Unix and xyz.exe on WIN32\\
 \verb|PROD_<osclass>| & os class specific products to build and install for \textless{}osclass\textgreater{} archs only\\
 \verb|PROD_DEFAULT| & products to build and install for archs with no PROD\_\textless{}osclass\textgreater{} specified\\
@@ -2344,6 +2348,7 @@ that \textless{}osclass\textgreater{}, the value ``-nil-" should be specified in
 \verb|PROD_HOST_<osclass>| & os class specific products to build and install for \textless{}osclass\textgreater{} type archs\\
 \verb|PROD_HOST_DEFAULT| & products to build and install for arch with no PROD\_HOST\_\textless{}osclass\textgreater{} specified\\
 \textbf{Test products to be built} & \\
+\hline
 \verb|TESTPROD| & test products (names without execution suffix) to build but not install \\
 \verb|TESTPROD_<osclass>| & os class specific test products to build but not install\\
 \verb|TESTPROD_DEFAULT| & test products to build but not install for archs with no TESTPROD\_\textless{}osclass\textgreater{} specified\\
@@ -2354,6 +2359,7 @@ that \textless{}osclass\textgreater{}, the value ``-nil-" should be specified in
 \verb|TESTPROD_HOST_<osclass>| & os class specific testproducts to build and install for \textless{}osclass\textgreater{} type archs\\
 \verb|TESTPROD_HOST_DEFAULT| & test products to build and install for arch with no TESTPROD\_HOST\_\textless{}osclass\textgreater{} specified\\
 \textbf{Test scripts to be built} & \\
+\hline
 \verb|TESTSCRIPTS| & test scripts (names with .t suffix) to build but not install\\
 \verb|TESTSCRIPTS_<osclass>| & os class specific test scripts to build but not install\\
 \verb|TESTSCRIPTS_DEFAULT| & test scripts to build but not install for archs with no TESTSCRIPTS\_\textless{}osclass\textgreater{} specified\\
@@ -2364,6 +2370,7 @@ that \textless{}osclass\textgreater{}, the value ``-nil-" should be specified in
 \verb|TESTSCRIPTS_HOST_<osclass>| & os class specific testscripts to build and install for \textless{}osclass\textgreater{} type archs\\
 \verb|TESTSCRIPTS_HOST_DEFAULT| & test scripts to build and install for arch with no TESTSCRIPTS\_HOST\_\textless{}osclass\textgreater{} specified\\
 \textbf{Libraries to be built} & \\
+\hline
 \verb|LIBRARY| & name of library to build and install. The name should NOT include a prefix or extension e.g. specify Ca to build libCa.a on Unix, Ca.lib or Ca.dll on WIN32\\
 \verb|LIBRARY_<osclass>| & os specific libraries to build and install\\
 \verb|LIBRARY_DEFAULT| & libraries to build and install for archs with no LIBRARY\_\textless{}osclass\textgreater{} specified\\
@@ -2376,6 +2383,7 @@ that \textless{}osclass\textgreater{}, the value ``-nil-" should be specified in
 \verb|SHARED_LIBRARIES| & build shared libraries? Must be YES or NO\\
 \verb|SHRLIB_VERSION| & shared library version number\\
 \textbf{Loadable libraries to be built} & \\
+\hline
 \verb|LOADABLE_LIBRARY| & name of loadable library to build and install. The name should NOT include a prefix or extension e.g. specify Ca to build libCa.so on Unix and Ca.dll on WIN32\\
 \verb|LOADABLE_LIBRARY_<osclass>| & os specific loadable libraries to build and install\\
 \verb|LOADABLE_LIBRARY_DEFAULT| & loadable libraries to build and install for archs with no LOADABLE\_LIBRARY\_\textless{}osclass\textgreater{} specified\\
@@ -2383,11 +2391,13 @@ that \textless{}osclass\textgreater{}, the value ``-nil-" should be specified in
 \verb|LOADABLE_LIBRARY_HOST_<osclass>| & os class specific loadable libraries to build and install for host type archs\\
 \verb|LOADABLE_LIBRARY_HOST_DEFAULT| & loadable libraries to build and install for host type arch systems with no LOADABLE\_LIBRARY\_HOST\_\textless{}osclass\textgreater{} specified\\
 \textbf{Combined object files (vxWorks only)} & \\
+\hline
 \verb|OBJLIB| & name of a combined object file library and corresponding munch file to build and install. The name will have a Library suffix appended\\
 \verb|OBJLIB_vxWorks| & same as OBJLIB\\
 \verb|OBJLIB_SRCS| & source files to build the OBJLIB\\
 \verb|OBJLIB_OBJS| & object files to include in OBJLIB\\
 \textbf{Product and library source files} & \\
+\hline
 \verb|SRCS| & source files to build all PRODs and LIBRARYs\\
 \verb|SRCS_<osclass>| & osclass specific source files to build all PRODs and LIBRARYs\\
 \verb|SRCS_DEFAULT| & source file to build all PRODs and LIBRARYs for archs with no SRCS\_\textless{}osclass\textgreater{} specified\\
@@ -2407,6 +2417,7 @@ that \textless{}osclass\textgreater{}, the value ``-nil-" should be specified in
 \verb|<name>_SRCS_<osclass>| & os specific source files to build a specific PROD or LIBRARY\\
 \verb|<name>_SRCS_DEFAULT| & source files needed to build a specific PROD or LIBRARY for archs with no \textless{}prod\textgreater{}\_SRCS\_\textless{}osclass\textgreater{} specified\\
 \textbf{Product and library object files} & \\
+\hline
 \verb|USR_OBJS| & object files, specified without suffix, to build all PRODs and LIBRARYs\\
 \verb|USR_OBJS_<osclass>| & osclass specific object files, specified without suffix, to build all PRODs and LIBRARYs\\
 \verb|USR_OBJS_DEFAULT| & object files, specified without suffix, needed to build PRODs and LIBRARYs for archs with no OBJS\_\textless{}osclass\textgreater{} specified\\
@@ -2420,6 +2431,7 @@ that \textless{}osclass\textgreater{}, the value ``-nil-" should be specified in
 \verb|<name>_OBJS_<osclass>| & os specific object files, specified without suffix, to build a specific PROD or LI\textbar{}BRARY\\
 \verb|<name>_OBJS_DEFAULT| & object files, without suffix, needed to build a specific PROD or LIBRARY for archs with no \textless{}prod\textgreater{}\_OBJS\_\textless{}osclass\textgreater{} specified\\
 \textbf{Product and library R3.13 combined object files} & \\
+\hline
 \verb|USR_OBJLIBS| & combined object files with filenames that do not have a suffix, needed for building all PRODs and LIBRARYs (e.g. USR\_OBJLIBS+=\$(XYZ\_BIN)/xyzLib)\\
 \verb|USR_OBJLIBS_<osclass>| & os-specific combined object files with filenames that do not have a suffix for building all PRODs and LIBRARYs\\
 \verb|USR_OBJLIBS_DEFAULT| & combined object files with filenames that do not have a suffix, for archs with no USR\_OBJLIBS\_\textless{}osclass\textgreater{} specified for building all PRODs and LIBRARYs\\
@@ -2436,6 +2448,7 @@ that \textless{}osclass\textgreater{}, the value ``-nil-" should be specified in
 \verb|<name>_LDOBJS_<osclass>| & os specific combined object files with filenames that do not have a suffix, to build a specific PROD or LI\textbar{}BRARY (deprecated)\\
 \verb|<name>_LDOBJS_DEFAULT| & combined object files with filenames that do not have a suffix, needed to build a specific PROD or LIBRARY for archs with no \textless{}name\textgreater{}\_LDOBJS\_\textless{}osclass\textgreater{} specified (deprecated)\\
 \textbf{Product and library dependant libraries} & \\
+\hline
 \verb|<name>_DIR| & directory to search for the specified lib. (For libs listed in all PROD\_LIBS, LIB\_LIBS, \textless{}name\textgreater{}\_LIBS and USR\_LIBS listed below)System libraries do not need a \textless{}name\textgreater{}\_dir definition.\\
 \verb|USR_LIBS| & load libraries (e.g. Xt X11) for all products and libraries\\
 \verb|USR_LIBS_<osclass>| & os specific load libraries for all makefile links\\
@@ -2465,6 +2478,7 @@ that \textless{}osclass\textgreater{}, the value ``-nil-" should be specified in
 \verb|SYS_PROD_LIBS_<osclass>| & os class specific system libs needed to link every PROD (deprecated)\\
 \verb|SYS_PROD_LIBS_DEFAULT| & system libs needed to link every PROD for systems with no SYS\_PROD\_LIBS\_\textless{}osclass\textgreater{} specified (deprecated)\\
 \textbf{Compiler flags} & \\
+\hline
 \verb|USR_CFLAGS| & C compiler flags for all systems\\
 \verb|USR_CFLAGS_<T_A>| & target architecture specific C compiler flags\\
 \verb|USR_CFLAGS_<osclass>| & os class specific C compiler flags\\
@@ -2499,6 +2513,7 @@ that \textless{}osclass\textgreater{}, the value ``-nil-" should be specified in
 \verb|CMPLR| & C compiler selection, TRAD, ANSI or STRICT (default is STRICT)\\
 \verb|CXXCMPLR| & C++ compiler selection, NORMAL or STRICT (default is STRICT)\\
 \textbf{Linker options} &    \\
+\hline
 \verb|USR_LDFLAGS| & linker options (for all makefile links)\\
 \verb|USR_LDFLAGS_<osclass>| & os specific linker options (for all makefile links)\\
 \verb|USR_LDFLAGS_DEFAULT| & linker options for systems with no USR\_LDFLAGS\_\textless{}osclass\textgreater{} specified\\
@@ -2513,10 +2528,12 @@ that \textless{}osclass\textgreater{}, the value ``-nil-" should be specified in
 \verb|<name>_LDFLAGS_DEFAULT| & linker options for systems with no \textless{}name\textgreater{}\_LDFLAGS\_\textless{}osclass\textgreater{} specified\\
 \verb|STATIC_BUILD| & Is static build desired (YES or NO) (default is NO). On win32 if STATIC\_BUILD=YES then set SHARED\_LIBRARIES=NO) \\
 \textbf{Header files to be installed} &    \\
+\hline
 \verb|INC| & list of include files to install into \$(INSTALL\_DIR)/include\\
 \verb|INC_<osclass>| & os specific includes to installed under \$(INSTALL\_DIR)/include/os/\textless{}osclass\textgreater{}\\
 \verb|INC_DEFAULT| & include files to install where no INC\_\textless{}osclass\textgreater{} is specified\\
 \textbf{Perl, csh, tcl etc. script installation} &    \\
+\hline
 \verb|SCRIPTS| & scripts to install for all systems\\
 \verb|SCRIPTS_<osclass>| & os-specific scripts to install\\
 \verb|SCRIPTS_DEFAULT| & scripts to install for systems with no SCRIPTS\_\textless{}osclass\textgreater{} specified\\
@@ -2529,6 +2546,7 @@ that \textless{}osclass\textgreater{}, the value ``-nil-" should be specified in
 \verb|TCLLIBNAME| & list of tcl scripts to install into \$(INSTALL\_DIR)/lib/\textless{}osclass\textgreater{} (Unix hosts only)\\
 \verb|TCLINDEX| & name of tcl index file to create from TCLLIBNAME scripts\\
 \textbf{Object files} & The names in the following OBJS definitions should NOT include a suffix (.o or.obj).\\
+\hline
 \verb|OBJS| & object files to build and install for all system. \\
 \verb|OBJS_<osclass>| & os-specific object files to build and install. \\
 \verb|OBJS_DEFAULT| & object files to build and install for systems with no OBJS\_\textless{}osclass\textgreater{} specified.\\
@@ -2539,21 +2557,25 @@ that \textless{}osclass\textgreater{}, the value ``-nil-" should be specified in
 \verb|OBJS_HOST_<osclass>| & os class specific object files to build and install for host type archs\\
 \verb|OBJS_HOST_DEFAULT| & object files to build and install for host type arch systems with no OBJS\_HOST\_\textless{}osclass\textgreater{} specified\\
 \textbf{Documentation} &    \\
+\hline
 \verb|DOCS| & text files to be installed into the \$(INSTALL\_DIR)/doc directory\\
 \verb|HTMLS_DIR| & name install Hypertext directory name i.e. \$(INSTALL\_DIR)/html/\$(HTMLS\_DIR)\\
 \verb|HTMLS| & hypertext files to be installed into the \$(INSTALL\_DIR)/html/\$(HTMLS\_DIR) directory\\
 \verb|TEMPLATES_DIR| & template directory to be created as \$(INSTALL\_DIR)/templates/\$(TEMPLATE\_DIR)\\
 \verb|TEMPLATES| & template files to be installed into \$(TEMPLATE\_DIR)\\
 \textbf{Database Definition files} & \\
+\hline
 \verb|DBD| & database definition files to be installed or created and installed into \$(INSTALL\_DBD).\\
 \verb|DBDINC| & names, without suffix, of menus or record database definitions and headers to be installed or created and installed. \\
 \verb|USR_DBDFLAGS| & optional flags for dbExpand. Currently only include path (-I \textless{}path\textgreater{}) and macro substitution (-S \textless{}substitution\textgreater{}) are supported. \\
 \verb|DBD_INSTALLS| & files from specified directory to install into \$(INSTALL\_DBD) (e.g. DBD\_INSTALLS = \$(APPNAME)/dbd/test.dbd\\
 \textbf{Database Files} & \\
+\hline
 \verb|DB| & database files to be installed or created and installed into \$(INSTALL\_DB).\\
 \verb|DB_INSTALLS| & files from specified directory to install into \$(INSTALL\_DB) (e.g. DB\_INSTALLS = \$(APPNAME)/db/test.db\\
 \verb|USR_DBFLAGS| & optional flags for msi (EPICS Macro Substitution Tool)\\
 \textbf{Options for other programs} &    \\
+\hline
 \verb|YACCOPT| & yacc options\\
 \verb|LEXOPT| & lex options\\
 \verb|SNCFLAGS| & state notation language, snc, options\\
@@ -2563,6 +2585,7 @@ that \textless{}osclass\textgreater{}, the value ``-nil-" should be specified in
 \verb|RANLIBFLAGS| & ranlib options\\
 \verb|USR_ARFLAGS| & ar options\\
 \textbf{Facilities for building Java programs} &    \\
+\hline
 \verb|JAVA| & names of Java source files to be built and installed\\
 \verb|TESTJAVA| & names of Java source files to be built\\
 \verb|JAVAINC| & names of C header file to be created in O.Common subdirectory\\
@@ -2572,6 +2595,7 @@ that \textless{}osclass\textgreater{}, the value ``-nil-" should be specified in
 \verb|USR_JAVACFLAGS| & javac tool options\\
 \verb|USR_JAVAHFLAGS| & javah tool options\\
 \textbf{Facilities for Windows 95/NT resource ( .rc) files} &    \\
+\hline
 \verb|RCS| & resource files (\textless{}name\textgreater{}.rc) needed to build every PROD and LIBRARY\\
 \verb|RCS_<osclass>| & resource files (\textless{}name\textgreater{}.rc) needed to build every PROD and LIBRARY for ioc type archs\\
 \verb|RCS_DEFAULT| & resource files needed to build every PROD and LIBRARY for ioc type arch systems with no RCS\_\textless{}osclass\textgreater{} specified\\
@@ -2579,6 +2603,7 @@ that \textless{}osclass\textgreater{}, the value ``-nil-" should be specified in
 \verb|<name>_RCS_<osclass>| & os specific resource files to build a specific PROD or LIBRARY\\
 \verb|<name>_RCS_DEFAULT| & resource files needed to build a specific PROD or LIBRARY for ioc type arch systems with no RCS\_\textless{}osclass\textgreater{} specified\\
 \textbf{Other definitions: } &    \\
+\hline
 \verb|USR_VPATH| & list of directories\\
 \verb|BIN_INSTALLS| & files from specified directories to be installed into \$(INSTALL\_BIN) (e.g. BIN\_INSTALLS = \$(EPICS\_BASE\_BIN)/aiRecord\$(OBJ))\\
 \verb|BIN_INSTALLS_<osclass>| & os class specific files from specified directories to be installed into \$(INSTALL\_BIN)\\
@@ -2736,7 +2761,7 @@ The base/configure/os directory contains the following os-arch specific definiti
 
 \end{description}\subsection{Base src/tool File Descriptions}
 
-\index{src/tool File}The src/tools directory contains Perl script tools used for the build. The are installed by the build into 
+\index{src/tool File}The src/tools directory contains Perl script tools used for the build. The are installed by the build into \\
 \$(INSTALL\_LOCATION)/bin/\$(T\_A) for Host type target archs. The tools currently in this directory are:
 
 \begin{verbatim}convertRelease.pl
