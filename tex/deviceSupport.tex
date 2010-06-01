@@ -43,63 +43,64 @@ phases, writes the new value. The EPICS Allen Bradley device/driver support is a
 
 \section{Example Synchronous Device Support Module}
 
-\begin{verbatim}/* Create the dset for devAiSoft */
+\begin{verbatim}
+/* Create the dset for devAiSoft */
 long init_record();
 long read_ai();
 struct {
-long   number;
-DEVSUPFUN   report;
-DEVSUPFUN   init;
-DEVSUPFUN   init_record;
-DEVSUPFUN   get_ioint_info;
-DEVSUPFUN   read_ai;
-DEVSUPFUN   special_linconv;
+    long   number;
+    DEVSUPFUN   report;
+    DEVSUPFUN   init;
+    DEVSUPFUN   init_record;
+    DEVSUPFUN   get_ioint_info;
+    DEVSUPFUN   read_ai;
+    DEVSUPFUN   special_linconv;
 }devAiSoft={
-6,
-NULL,
-NULL,
-init_record,
-NULL,
-read_ai,
-NULL
+    6,
+    NULL,
+    NULL,
+    init_record,
+    NULL,
+    read_ai,
+    NULL
 };
 epicsExportAddress(dset,devAiSoft);
 
 static long init_record(void *precord)
 {
-aiRecord  *pai = (aiRecord *)precord;
-long status;
+    aiRecord  *pai = (aiRecord *)precord;
+    long status;
 
-/* ai.inp must be a CONSTANT, PV_LINK, DB_LINK or CA_LINK*/
-switch (pai->inp.type) {
-case (CONSTANT) :
-if(recGblInitConstantLink(&pai->inp,DBF_DOUBLE,&pai->val))
-pai->udf = FALSE;
-break;
+    /* ai.inp must be a CONSTANT, PV_LINK, DB_LINK or CA_LINK*/
+    switch (pai->inp.type) {
+        case (CONSTANT) :
+            if(recGblInitConstantLink(&pai->inp,DBF_DOUBLE,&pai->val))
+                pai->udf = FALSE;
+            break;
 
-case (PV_LINK) :
-case (DB_LINK) :
-case (CA_LINK) :
-break;
-default :
-recGblRecordError(S_db_badField, (void *)pai,
-"devAiSoft (init_record) Illegal INP field");
-return(S_db_badField);
-}
-/* Make sure record processing routine does not perform any conversion*/
-pai->linr=0;
-return(0);
+        case (PV_LINK) :
+        case (DB_LINK) :
+        case (CA_LINK) :
+            break;
+        default :
+            recGblRecordError(S_db_badField, (void *)pai,
+                "devAiSoft (init_record) Illegal INP field");
+        return(S_db_badField);
+    }
+    /* Make sure record processing routine does not perform any conversion*/
+    pai->linr=0;
+    return(0);
 }
 
 static long read_ai(void *precord)
 {
-aiRecord*pai =(aiRecord *)precord;
-long status;
+    aiRecord*pai =(aiRecord *)precord;
+    long status;
 
-status=dbGetGetLink(&(pai->inp.value.db_link),
-(void *)pai,DBR_DOUBLE,&(pai->val),0,1);
-if (pai->inp.type!=CONSTANT && RTN_SUCCESS(status)) pai->udf = FALSE;
-return(2); /*don't convert*/
+    status=dbGetGetLink(&(pai->inp.value.db_link),
+    (void *)pai,DBR_DOUBLE,&(pai->val),0,1);
+    if (pai->inp.type!=CONSTANT && RTN_SUCCESS(status)) pai->udf = FALSE;
+    return(2); /*don't convert*/
 }
 \end{verbatim}\index{synchronous device support example}The example is \verb|devAiSoft|, which supports soft analog inputs. The \verb|INP| field can be a constant or a database link or a 
 channel access link. Only two routines are provided (the rest are declared \verb|NULL|). The \verb|init_record| routine first checks 
@@ -207,31 +208,35 @@ declared \verb|NULL|.
 \subsection{Generate Device Report}
 
 \begin{verbatim}long report(
-int   interest);
+    int   interest);
 \end{verbatim}\index{report - device support routine}This routine is responsible for reporting all I/O cards it has found. If \verb|interest| is (0,1) then generate a (short, long) 
 report. If a device support module is using a driver, it normally does not have to implement this routine because the driver 
 generates the report.
 
 \subsection{Initialize Device Processing}
 
-\index{25600: HEADING2: 12.4.2 Initialize Record Processing}\begin{verbatim}long init(
-int   after);
+\index{Initialize Record Processing}\begin{verbatim}
+long init(
+    int   after);
 \end{verbatim}\index{init - device support routine}This routine is called twice at IOC initialization time. Any action is device specific. This routine is called twice: once 
 before any database records are initialized and once after all records are initialized but before the scan tasks are started. 
 \verb|after| has the value (0,1) (before, after) record initialization.
 
 \subsection{Initialize Specific Record}
 
-\index{66790: HEADING2: 12.4.3 Initialize Specific Record}\begin{verbatim}long init_record(
-void *precord);   /* addr of record*/
+\index{Initialize Specific Record}
+\begin{verbatim}
+long init_record(
+    void *precord);   /* addr of record*/
 \end{verbatim}\index{init\_record - device support routine}The record support \verb|init_record| routine calls this routine.
 
 \subsection{Get I/O Interrupt Information}
 
-\begin{verbatim}long get_ioint_info(
-int   cmd,
-struct dbCommon   *precord,
-IOSCANPVT   *ppvt);
+\begin{verbatim}
+long get_ioint_info(
+    int   cmd,
+    struct dbCommon   *precord,
+    IOSCANPVT   *ppvt);
 \end{verbatim}\index{get\_ioint\_info - device support routine}This is called by the I/O interrupt scan task. If \verb|cmd| is (0,1) then this routine is being called when the associated record is 
 being (placed in, taken out of) an I/O scan list. See the chapter on scanning for details.
 
@@ -246,7 +251,7 @@ All other device support routines are record type specific.
 \section{Extended Device Support}
 
 \index{Extended device support}
-\index{65780: HEADING1: 12.5 Extended Device Support}This section describes the additional behaviour and routines required for a device support layer to support online changes 
+This section describes the additional behaviour and routines required for a device support layer to support online changes 
 to a record's hardware address.
 
 \subsection{Rationale}
@@ -337,10 +342,11 @@ routines should be zero for success, or an EPICS error status code.
 
 \subsection{Add Record Routine}
 
-\begin{verbatim}long add_record(
-struct dbCommon *precord);
+\begin{verbatim}
+long add_record(
+    struct dbCommon *precord);
 \end{verbatim}\index{add\_record}This function is called to offer a new record to the device support. It is also called during iocInit, in between the pass 0 and 
-pass 1 calls to the regular device support \verb|init_record| routine (described in Section12.4.3 on page189 above). When 
+pass 1 calls to the regular device support \verb|init_record| routine (described in Section12.4.3 on page189 FIXPAGEREF above). When 
 converting an existing device support layer, this routine will usually be very similar to the old \verb|init_record| routine, 
 although in some cases it may be necessary to do a little more work depending on the particular record type involved. The 
 extra code required in these cases can generally be copied straight from the record type implementation itself. This is 
@@ -356,9 +362,7 @@ presented as an aid to device support authors:
 \item analog record types: Calculate ESLO and EOFF
 
 \item Output record types: Possibly read the current value from hardware and back-convert to VAL, or send the current 
-record output value to the hardware. \emph{This behaviour is not required or defined, and it's not obvious what should be }
-done. There may be complications here with ao records using OROC and/or OIF=Incremental; solutions to this 
-issue have yet to be considered by the community.
+record output value to the hardware. \emph{This behaviour is not required or defined, and it's not obvious what should be done. There may be complications here with ao records using OROC and/or OIF=Incremental; solutions to this issue have yet to be considered by the community.}
 
 \end{itemize}If the \verb|add_record| routine discovers any errors, say in the link address, it should return a non-zero error status value to 
 reject the record. This will cause the record's PACT field to be set, preventing any further processing of this record until 
@@ -367,7 +371,7 @@ some other address change to it gets accepted.
 \subsection{Delete Record Routine}
 
 \begin{verbatim}long del_record(
-struct dbCommon *precord);
+    struct dbCommon *precord);
 \end{verbatim}\index{del\_record}This function is called to notify the device support of a request to change the hardware address of a record, and allow the 
 device support to free up any resources it may have dedicated to this particular record.
 
@@ -385,7 +389,7 @@ the new device support.
 
 \subsection{Init Record Routine}
 
-The \verb|init_record| routine from the DSET (Section12.4.3 on page189) is called by the record type, and must still be 
+The \verb|init_record| routine from the DSET (Section12.4.3 on page189 FIXPAGEREF) is called by the record type, and must still be 
 provided since the record type's per-record initialization is run some time \emph{after} the initial call to the DSXT's 
 \verb|add_record| routine. Most record types perform some initialization of record fields at this point, and an extended device 
 support layer may have to fix anything that the record overwrites. The following (incomplete) list is presented as an aid to 

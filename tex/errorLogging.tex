@@ -1,10 +1,5 @@
-
-
-
-
-
-
-\chapter{\index{IOC Error Logging}IOC Error Logging}
+\chapter{IOC Error Logging}
+\index{IOC Error Logging}
 
 \section{Overview }
 
@@ -53,11 +48,13 @@ NOTE: Many sites use CMLOG instead of iocLog.
 
 \subsection{Basic Routines}
 
-\begin{verbatim}   int errlogPrintf(const char *pformat, ...);
+\begin{verbatim}
+   int errlogPrintf(const char *pformat, ...);
    int errlogVprintf(const char *pformat,va_list pvar);
    int errlogMessage(const char *message);
    void errlogFlush(void);
-\end{verbatim}\index{errlogPrintf}
+\end{verbatim}
+\index{errlogPrintf}
 \index{errlogVprintf}
 \index{errlogMessage}
 \index{errlogFlush} \verb|errlogPrintf |and  \verb|errlogVprintf| are like \verb|printf| and \verb|vprintf| provided by the standard C library, except 
@@ -71,19 +68,20 @@ and Ritchie.
 
 \subsection{Log with Severity}
 
-\begin{verbatim}typedef enum {
-        errlogInfo,errlogMinor,errlogMajor,errlogFatal
-   }errlogSevEnum;
+\begin{verbatim}
+typedef enum {
+    errlogInfo,errlogMinor,errlogMajor,errlogFatal
+}errlogSevEnum;
 
-  int errlogSevPrintf(const errlogSevEnum severity,
-        const char *pformat, ...);
-   int errlogSevVprintf(const errlogSevEnum severity,
-        const char *pformat,va_list pvar);
+int errlogSevPrintf(const errlogSevEnum severity,
+    const char *pformat, ...);
+int errlogSevVprintf(const errlogSevEnum severity,
+    const char *pformat,va_list pvar);
 
-   char *errlogGetSevEnumString(const errlogSevEnum severity);
+char *errlogGetSevEnumString(const errlogSevEnum severity);
 
-   void  errlogSetSevToLog(const errlogSevEnum severity );
-   errlogSevEnum errlogGetSevToLog(void);
+void  errlogSetSevToLog(const errlogSevEnum severity );
+errlogSevEnum errlogGetSevToLog(void);
 \end{verbatim}\index{errlogInfo}
 \index{errlogMinor}
 \index{errlogMajor}
@@ -104,10 +102,11 @@ is true, which is true during iocInit, errlogSevVprintf does NOT send output to 
 
 \subsection{Status Routines }
 
-\begin{verbatim}void errMessage(long status, char *message);
+\begin{verbatim}
+void errMessage(long status, char *message);
 
-   void errPrintf(long status, const char *pFileName,
-        int lineno, const char *pformat, ...);
+void errPrintf(long status, const char *pFileName,
+    int lineno, const char *pformat, ...);
 \end{verbatim}\index{errMessage}
 \index{errPrintf}Routine \verb|errMessage| (actually a macro that calls \verb|errPrintf|) has the following format:
 
@@ -168,9 +167,10 @@ int epicsVprintf(const char *pformat,va_list pvar);
 
 \index{errlog Listeners}Any code can receive errlog message. The following are the calls to add and remove a listener.
 
-\begin{verbatim}typedef void(*errlogListener) (void *pvt,const char *message);
-   void errlogAddListener(errlogListener listener,void *pPrivate);
-   void errlogRemoveListener(errlogListener listener);
+\begin{verbatim}
+typedef void(*errlogListener) (void *pvt,const char *message);
+void errlogAddListener(errlogListener listener,void *pPrivate);
+void errlogRemoveListener(errlogListener listener);
 \end{verbatim}\index{errlogListener}
 \index{errlogAddListener}
 \index{errlogRemoveListener}These routines add/remove a callback that receives each error message. These routines are the interface to the actual 
@@ -255,7 +255,7 @@ values. The status values are encoded with lines of the following format:
 if(status) {/* Call was not successful */ }
 \end{verbatim}\section{iocLog}
 
-\index{14797: HEADING1: 2. iocLog}NOTE: Many sites use CMLOG instead of iocLog. See the CMLOG documentation for details.
+\index{iocLog}NOTE: Many sites use CMLOG instead of iocLog. See the CMLOG documentation for details.
 
 This consists of two modules: iocLogServer and iocLogClient. The client code runs on each ioc and listens for the 
 messages generated locally by the errlog system. It also reports the messages from the vxWorks logMsg facility.
@@ -269,19 +269,21 @@ Consult this script for details.
 To start a log server on a UNIX or PC workstation you must first set the following environment variables and then run the 
 executable ``iocLogServer" on your PC or UNIX workstation. 
 
-\begin{description}\item \index{EPICS\_IOC\_LOG\_FILE\_NAME}EPICS\_IOC\_LOG\_FILE\_NAME 
+\begin{description}
 
-\end{description}The name and path to the log file.
+\item \index{EPICS\_IOC\_LOG\_FILE\_NAME}EPICS\_IOC\_LOG\_FILE\_NAME 
 
-\begin{description}\item \index{EPICS\_IOC\_LOG\_FILE\_LIMIT}EPICS\_IOC\_LOG\_FILE\_LIMIT
+The name and path to the log file.
 
-\end{description}The maximum size in characters for the log file (after which it becomes a circular file and writes new 
+\item \index{EPICS\_IOC\_LOG\_FILE\_LIMIT}EPICS\_IOC\_LOG\_FILE\_LIMIT
+
+The maximum size in characters for the log file (after which it becomes a circular file and writes new 
 messages over old  messages at the beginning of the file). If the value is zero then there is no limit on the 
 size of the log file. 
 
-\begin{description}\item \index{EPICS\_IOC\_LOG\_FILE\_COMMAND}EPICS\_IOC\_LOG\_FILE\_COMMAND
+\item \index{EPICS\_IOC\_LOG\_FILE\_COMMAND}EPICS\_IOC\_LOG\_FILE\_COMMAND
 
-\end{description}A shell command string used to obtain the log file path name during initialization and in response to 
+A shell command string used to obtain the log file path name during initialization and in response to 
 SIGHUP. The new path name will replace any path name supplied in EPICS\_IOC\_LOG\_FILE\_NAME.
 
 Thus, if EPICS\_IOC\_LOG\_FILE\_NAME is 
@@ -293,9 +295,11 @@ If EPICS\_IOC\_LOG\_FILE\_COMMAND is empty then this behavior is disabled. This 
 some sites for switching the server to a new directory at a fixed time each day. This variable is currently 
 used only by the UNIX version of the log server.
 
-\begin{description}\item \index{EPICS\_IOC\_LOG\_PORT}EPICS\_IOC\_LOG\_PORT
+\item \index{EPICS\_IOC\_LOG\_PORT}EPICS\_IOC\_LOG\_PORT
 
-\end{description}THE TCP/IP port used by the log server.
+THE TCP/IP port used by the log server.
+
+\end{description}
 
 To configure an IOC so that its messages are placed in the log you must set the environment variable 
 EPICS\_IOC\_LOG\_INET to the IP address of the host that is running the log server, and EPICS\_IOC\_LOG\_PORT to the 
@@ -307,7 +311,7 @@ Defaults for all of the above parameters are specified in  the files \$(EPICS\_B
 \subsection{iocLogClient}
 
 \index{iocLogClient}
-\index{12809: HEADING2: 10.7.2 iocLogClient}This runs on each ioc. It is started by calling:
+This runs on each ioc. It is started by calling:
 
 \begin{verbatim}iocLogInit();
 \end{verbatim}The global variable \verb|iocLogDisable| can be used to enable/disable the messages from being sent to the server. Setting 
@@ -321,12 +325,16 @@ logging on or off.
 
 In a testing environment it is desirable to use a private log server. This can be done as follows:
 
-\begin{itemize}\item Add a epicsEnvSet command to your IOC startup file. For example
+\begin{itemize}
 
-\end{itemize}\begin{verbatim}ld  <  iocCore
+\item Add a epicsEnvSet command to your IOC startup file. For example
+
+\begin{verbatim}ld  <  iocCore
 epicsEnvSet("EPICS_IOC_LOG_INET=xxx.xxx.xxx.xxx")
-\end{verbatim}\begin{description}\item The inet address is that of your host workstation.
+\end{verbatim}
 
-\end{description}\begin{itemize}\item On your host workstation, start the log server.
+\item The inet address is that of your host workstation.
+
+\item On your host workstation, start the log server.
 
 \end{itemize}

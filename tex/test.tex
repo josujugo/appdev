@@ -1,9 +1,3 @@
-
-
-
-
-
-
 \chapter{IOC Test Facilities}
 
 \section{Overview}
@@ -440,39 +434,45 @@ groups are displayed.
 \begin{verbatim}casr(<level>)
 \end{verbatim}Level can have one of the following values:
 
-\begin{description}\item 0 
+\begin{description}
 
-\end{description}Prints server's protocol version level and a one line summary for each client attached. The summary lines 
+\item 0 
+
+Prints server's protocol version level and a one line summary for each client attached. The summary lines 
 contain the client's login name, client's host name, client's protocol version number, and the number of 
 channel created within the server by the client.
 
-\begin{description}\item 1
+\item 1
 
-\end{description}Level one provides all information in level 0 and adds the task id used by the server for each client, the 
+Level one provides all information in level 0 and adds the task id used by the server for each client, the 
 client's IP protocol type, the file number used by the server for the client, the number of seconds elapsed 
 since the last request was received from the client, the number of seconds elapsed since the last response 
 was sent to the client, the number of unprocessed request bytes from the client, the number of response bytes 
 which have not been flushed to the client, the client's IP address, the client's port number, and the client's 
 state.
 
-\begin{description}\item 2
+\item 2
 
-\end{description}Level two provides all information in levels 0 and 1 and adds the number of bytes allocated by each client 
+Level two provides all information in levels 0 and 1 and adds the number of bytes allocated by each client 
 and a list of channel names used by each client. Level 2 also provides information about the number of bytes 
 in the server's free memory pool, the distribution of entries in the server's resource hash table, and the list of 
 IP addresses to which the server is sending beacons. The channel names are shown in the form:
 
 \textless{}name\textgreater{}(nrw)
 
-
-
 where
 
-n is number of ca\_add\_events the client has on this channel
+\begin{description}
 
-r is (-,R) if client (does not, does) have read access to the channel.
+\item n is number of ca\_add\_events the client has on this channel
 
-w is(-, W) if client (does not, does) have write access to the channel.
+\item r is (-,R) if client (does not, does) have read access to the channel.
+
+\item w is(-, W) if client (does not, does) have write access to the channel.
+
+\end{description}
+
+\end{description}
 
 \subsection{dbel}
 

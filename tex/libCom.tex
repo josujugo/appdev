@@ -1,9 +1,3 @@
-
-
-
-
-
-
 \chapter{libCom}
 
 This chapter and the next describe the facilities provided in \verb|<base>/src/libCom|. This chapter describes facilities 
@@ -19,7 +13,7 @@ currently undocumented.
 
 \verb|postfix.h| defines several macros and the routines used by the calculation record type calcRecord, access security, and 
 other code, to compile and evaluate mathematical expressions. The syntax of the infix expressions accepted is described 
-in Section19.2.1 on page258 below.
+in Section19.2.1 on page258 FIXPAGEREF below.
 
 \index{postfix.h}\begin{verbatim}long postfix(const char *psrc, char *ppostfix, short *perror);
 long calcArgUsage(const char *ppostfix, unsigned long *pinputs, 
@@ -86,11 +80,11 @@ Inf
 
 There are three trigonometric constants available to any expression which return a value:
 
-\begin{itemize}\item \verb|pi| returns the value of the mathematical constant p.
+\begin{itemize}\item \verb|pi| returns the value of the mathematical constant $\pi$.
 
-\item \verb|D2R| evaluates to p/180 which, when used as a multiplier, converts an angle from degrees to radians.
+\item \verb|D2R| evaluates to $\pi$/180 which, when used as a multiplier, converts an angle from degrees to radians.
 
-\item \verb|R2D| evaluates to 180/p which as a multiplier converts an angle from radians to degrees.
+\item \verb|R2D| evaluates to 180/$\pi$ which as a multiplier converts an angle from radians to degrees.
 
 \end{itemize}\subsubsection{Variables}
 
@@ -645,7 +639,7 @@ protected:
 \begin{center}\begin{longtable}{p{1.1in}p{5.0in}}
 \textbf{Method} & \textbf{Meaning}\\
 \hline
-epicsTimerNotifyexpire() & Code using an epicsTimer must include a class that inherits from epicsTimerNotify. The derived class must implement the method expire(), which is called by the epicsTimer when the associated timer expires. epicsTimerNotify defines a class expireStatus which makes it easy to implement both one shot and periodic timers. A one-shot expire() returns with the statement:    return(noRestart);A periodic timer returns with a statement like:    return(restart,10.0);where is second argument is the delay until the next callback.\\
+epicsTimerNotify\-expire() & Code using an epicsTimer must include a class that inherits from epicsTimerNotify. The derived class must implement the method expire(), which is called by the epicsTimer when the associated timer expires. epicsTimerNotify defines a class expireStatus which makes it easy to implement both one shot and periodic timers. A one-shot expire() returns with the statement:    return(noRestart);A periodic timer returns with a statement like:    return(restart,10.0);where is second argument is the delay until the next callback.\\
 epicsTimer & epicsTimer is an abstract base class. An epics timer can only be created by calling createTimer, which is a method of epicsTimerQueue.\\
 destroy & This is provided instead of a destructor. This will automatically call cancel before freeing all resources used by the timer.\\
 start() & Starts the timer to expire either at the specified time or the specified number of seconds in the future. If the timer is already active when start is called, it is first canceled.\\
@@ -721,8 +715,8 @@ public:
 \begin{center}\begin{longtable}{p{1.6in}p{5.15in}}
 \textbf{Method} & \textbf{Meaning}\\
 \hline
-epicsTimerQueueNotifyreschedule() & The virtual function epicsTimerQueueNotify::reschedule() is called when the delay to the next timer to expire on the timer queue changes.\\
-epicsTimerQueueNotifyquantum & The virtual function epicsTimerQueueNotify::quantum() returns the timer expire interval scheduling quantum in seconds. This allows different types of timer queues to use application specific timer expire delay scheduling policies. The implementation of epicsTimerQueueActive employs epicsThreadSleep() for this purpose, and therefore epicsTimerQueueActive::quantum() returns the returned value from epicsThreadSleepQuantum(). Other types of timer queues might choose to schedule timer expiration using specialized hardware interrupts. In this case epicsTimerQueueNotify::quantum() might return a value reflecting the precision of a hardware timer. If unknown, then epicsTimerQueueNotify::quantum() should return zero.\\
+epicsTimerQueueNotify\-reschedule() & The virtual function epicsTimerQueueNotify::reschedule() is called when the delay to the next timer to expire on the timer queue changes.\\
+epicsTimerQueueNotify\-quantum & The virtual function epicsTimerQueueNotify::quantum() returns the timer expire interval scheduling quantum in seconds. This allows different types of timer queues to use application specific timer expire delay scheduling policies. The implementation of epicsTimerQueueActive employs epicsThreadSleep() for this purpose, and therefore epicsTimerQueueActive::quantum() returns the returned value from epicsThreadSleepQuantum(). Other types of timer queues might choose to schedule timer expiration using specialized hardware interrupts. In this case epicsTimerQueueNotify::quantum() might return a value reflecting the precision of a hardware timer. If unknown, then epicsTimerQueueNotify::quantum() should return zero.\\
 epicsTimerQueuePassive & epicsTimerQueuePassive is an abstract base class so cannot be instantiated directly, but contains a static member function to create a concrete passive timer queue object of a (hidden) derived class.\\
 create() & A ``factory" method to create a non-threaded timer queue. The calling software also passes an object derived from epicsTimerQueueNotify to receive reschedule() callbacks.\\
 \~{}epicsTimerQueuePassive() & Destructor. The caller MUST ensure that it does not own any active timers, i.e. it must cancel any active timers before deleting the epicsTimerQueuePassive object.\\
@@ -957,8 +951,7 @@ The header file logClient.h exports the following types and routines:
 \end{verbatim}\index{logClientId}    An abstract data type, representing a log client.
 
 \begin{verbatim}logClientId logClientCreate (
-
-      struct in_addr server_addr, unsigned short server_port);
+    struct in_addr server_addr, unsigned short server_port);
 \end{verbatim}\index{logClientCreate}    Create a new log client. Will block the calling task for a maximum of 2 seconds trying to connect to a server with the 
 given ip address and port. If a connection cannot be established, an error message is printed on the console, but the log 
 client will keep trying to connect in the background. This is done by a background task, that will also periodically (every 

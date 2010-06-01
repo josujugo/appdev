@@ -1,11 +1,5 @@
-
-
-
-
-
-
-\chapter{\index{IOC Shell}\index{IOC Shell}IOC Shell}
-
+\chapter{IOC Shell}
+\index{IOC Shell}
 \section{Introduction}
 
 The EPICS IOC shell is a simple command interpreter which provides a subset of the capabilities of the vxWorks shell. It 
@@ -114,7 +108,6 @@ iocLogInit & Initialize IOC logging.\\
 epicsThreadSleep sec & Pause execution of IOC shell for sec seconds.
 \end{longtable}\end{center}
 
-
 The \verb|var| command is intended for simple applications such as setting the value of debugging flags.  Applications which 
 require more complex expression handling should use the cexp package.
 
@@ -132,7 +125,7 @@ The IOC shell uses the following environment variables to control its operation.
 \begin{center}\begin{longtable}{p{1.305in}p{5.46in}}
 Variable & Description\\
 \hline
-IOCSH\_PS1 & Prompt string. Default is ``epics\textgreater{} ``.\\
+IOCSH\_PS1 & Prompt string. Default is ``epics\textgreater{} ''.\\
 IOCSH\_HISTSIZE & Number of previous command lines to remember. If the IOCSH\_HISTSIZE environment variable is not present the value of the HISTSIZE environment variable is used.  In the absence of both environment variables, 10 command lines will be remembered.\\
 TERM, INPUTRC & These and other environment variables are used by the readline and termcap libraries and are described in the documentation for those libraries.
 \end{longtable}\end{center}
@@ -219,9 +212,11 @@ Type Specifier & Type & Union element\\
 \hline
 iocshArgInt & int & args[i].ival\\
 iocshArgDouble & double & args[i].dval\\
-iocshArgStringiocshArgPersistentString & char * & args[i].sval\\
+iocshArgString  & char * & args[i].sval\\
+iocshArgPersistentString & char * & args[i].sval\\
 iocshArgPdbbase & void * & args[i].vval\\
-iocshArgArgv & intchar ** & args[i].aval.acargs[i].aval.av
+iocshArgArgv & int & args[i].aval.ac \\
+ & char ** & args[i].aval.av
 \end{longtable}\end{center}
 
 

@@ -37,21 +37,31 @@ In order to ``turn on" access security for a particular IOC the following must b
 
 \item IOC databases may have to be modified
 
-\end{itemize}Record instances may have to have values assigned to field ASG. If ASG is null the record is in group 
+\begin{itemize}
+
+\item Record instances may have to have values assigned to field ASG. If ASG is null the record is in group 
 DEFAULT. 
 
-Access security files can be reloaded after iocInit via a subroutine record with \verb|asSubInit| and 
+\item Access security files can be reloaded after iocInit via a subroutine record with \verb|asSubInit| and 
 \verb|asSubProcess| as the associated subroutines. Writing the value 1 to this record will cause a reload.
 
-\begin{itemize}\item The startup script must contain the following command before iocInit.
+\end {itemize}
 
-\end{itemize}\begin{verbatim}asSetFilename("/full/path/to/accessSecurityFile")
-\end{verbatim}\begin{description}\item The following is an optional command.
+\item The startup script must contain the following command before iocInit.
 
-\end{description}\begin{verbatim}asSetSubstitutions("var1=sub1,var2=sub2,..."))
-\end{verbatim}The following rules decide if access security is turned on for an IOC:
+\verb|asSetFilename("/full/path/to/accessSecurityFile")|
 
-\begin{itemize}\item If asSetFilename is not executed before iocInit, access security will NEVER be started..
+\item The following is an optional command.
+
+\verb|asSetSubstitutions("var1=sub1,var2=sub2,..."))|
+
+\end{itemize}
+
+The following rules decide if access security is turned on for an IOC:
+
+\begin{itemize}
+
+\item If asSetFilename is not executed before iocInit, access security will NEVER be started..
 
 \item If asSetFile is given and any error occurs while first initializing access security, then ALL access to that ioc is 
 denied.
@@ -59,7 +69,9 @@ denied.
 \item If after successfully starting access security, an attempt is made to restart and an error occurs then the previous 
 access security configuration is maintained.
 
-\end{itemize}After an IOC has been booted with access security enabled, the access security rules can be changed by issuing the 
+\end{itemize}
+
+After an IOC has been booted with access security enabled, the access security rules can be changed by issuing the 
 asSetFilename, asSetSubstitutions, and asInit. The functions asInitialize, asInitFile, and asInitFP, which are described 
 below, can also be used.
 
@@ -111,14 +123,15 @@ security groups. An IOC creates an access configuration database by reading an a
 
 \subsubsection{Simple Example}
 
-\begin{verbatim}UAG(uag) {user1,user2}
+\begin{verbatim}
+UAG(uag) {user1,user2}
 HAG(hag) {host1,host2}
 ASG(DEFAULT) {
-RULE(1,READ)
-RULE(1,WRITE) {
-UAG(uag)
-HAG(hag)
-}
+    RULE(1,READ)
+    RULE(1,WRITE) {
+        UAG(uag)
+        HAG(hag)
+    }
 }
 \end{verbatim}These rules provide read access to anyone located anywhere and write access to \verb|user1| and \verb|user2| if they are located at 
 \verb|host1| or \verb|host2|.
@@ -146,14 +159,14 @@ rules for unquoted strings are the same as for database definitions.
 HAG(<name>) [{ <host> [, <host> ...] }]
 ...
 ASG(<name>) [{
-[INP<index>(<pvname>)
-...]
-RULE(<level>,NONE | READ | WRITE [, NOTRAPWRITE | TRAPWRITE]) {
-[UAG(<name> [,<name> ...])]
-[HAG(<name> [,<name> ...])]
-CALC(<calculation>)
-}
-...
+    [INP<index>(<pvname>)
+    ...]
+    RULE(<level>,NONE | READ | WRITE [, NOTRAPWRITE | TRAPWRITE]) {
+        [UAG(<name> [,<name> ...])]
+        [HAG(<name> [,<name> ...])]
+        CALC(<calculation>)
+    }
+    ...
 }]
 ...
 \end{verbatim}\index{NOTRAPWRITE}
@@ -169,25 +182,30 @@ are converted to lower case.
 \item \index{ASG - access security configuration}ASG: An access security group. The group ``\verb|DEFAULT|" is a special case. If a member specifies a null group or a 
 group which has no ASG definition then the member is assigned to the group ``\verb|DEFAULT|".
 
-\end{itemize}\index{INP - access security configuration}INP\textless{}index\textgreater{}  Index must have one of the values ``\verb|A|" to ``\verb|L|". These are just like the \verb|INP| fields of a 
+\item \index{INP - access security configuration}INP\textless{}index\textgreater{}  Index must have one of the values ``\verb|A|" to ``\verb|L|". These are just like the \verb|INP| fields of a 
 calculation record. It is necessary to define \verb|INP| fields if a \verb|CALC| field is defined in any \verb|RULE| for the ASG.
 
-\index{RULE}RULE   This defines access permissions. \textless{}\verb|level|\textgreater{} must be 0 or 1. Permission for a level 1 field implies 
+\item \index{RULE}RULE   This defines access permissions. \textless{}\verb|level|\textgreater{} must be 0 or 1. Permission for a level 1 field implies 
 permission for level 0 fields. The permissions are \verb|NONE|, \verb|READ|, and \verb|WRITE|. \verb|WRITE| permission implies 
 \verb|READ| permission. The standard EPICS record types have all fields set to level 1 except for \verb|VAL|, \verb|CMD| 
 (command), and \verb|RES| (reset). An optional argument specifies if writes should be trapped. See the section 
 below on trapping Channel Access writes for how this is used. If not given the default is NOTRAPWRITE.
 
-\index{UAG}UAG specifies a list of user access groups that can have the access privilege. If UAG is not defined 
+\begin{itemize}
+
+\item \index{UAG}UAG specifies a list of user access groups that can have the access privilege. If UAG is not defined 
 then all users are allowed.
 
-\index{HAG}HAG specifies a list of host access groups that have the access privilege. If HAG is not defined then 
+\item \index{HAG}HAG specifies a list of host access groups that have the access privilege. If HAG is not defined then 
 all hosts are allowed.
 
-\index{CALC - access security configuration}CALC is just like the \verb|CALC| field of a calculation record except that the result must evaluate to TRUE 
+\item \index{CALC - access security configuration}CALC is just like the \verb|CALC| field of a calculation record except that the result must evaluate to TRUE 
 or \verb|FALSE|. The rule only applies if the calculation result is \verb|TRUE|, where the actual test for \verb|TRUE| is 
 \verb|(0.99 < result < 1.01)|. Anything else is regarded as \verb|FALSE| and will cause the rule to be 
 ignored. Assignment statements are not permitted in CALC expressions here.
+
+\end{itemize}
+\end{itemize}
 
 Each IOC record contains a field \verb|ASG|, which specifies the name of the ASG to which the record belongs. If this field is 
 null or specifies a group which is not defined in the access security file then the record is placed in group ``\verb|DEFAULT|".
@@ -198,21 +216,27 @@ The access privilege for a channel access client is determined as follows:
 
 \item Each RULE is checked for the following:
 
-\end{enumerate}The field's level must be less than or equal to the level for this RULE.
+\begin{enumerate}
 
-If UAG is defined, the user must belong to one of the specified UAGs. If UAG is not defined all users are 
+\item The field's level must be less than or equal to the level for this RULE.
+
+\item If UAG is defined, the user must belong to one of the specified UAGs. If UAG is not defined all users are 
 accepted.
 
-If HAG is defined, the user's host must belong to one one of the HAGs. If HAG is not defined all hosts are 
+\item If HAG is defined, the user's host must belong to one one of the HAGs. If HAG is not defined all hosts are 
 accepted.
 
-If CALC is specified, the calculation must yield the value 1, i.e. TRUE. If any of the INP fields associated 
+\item If CALC is specified, the calculation must yield the value 1, i.e. TRUE. If any of the INP fields associated 
 with this calculation are in INVALID alarm severity the calculation is considered false. The actual test for 
 TRUE is .99 \textless{} result \textless{} 1.01.
 
-\begin{enumerate}\item The maximum access allowed by step 2 is the access chosen.
+\end{enumerate}
 
-\end{enumerate}Multiple RULEs can be defined for a given ASG, even RULEs with identical levels and access permission.
+\item The maximum access allowed by step 2 is the access chosen.
+
+\end{enumerate}
+
+Multiple RULEs can be defined for a given ASG, even RULEs with identical levels and access permission.
 
 \subsection{ascheck - Check Syntax of Access Configuration File}
 
@@ -332,46 +356,46 @@ HAG(icr) {silver,phebos,gaea}
 HAG(cr) {mars,hera,gold}
 HAG(ioc) {ioclic1,ioclic2,ioclid1,ioclid2,ioclid3,ioclid4,ioclid5}
 ASG(DEFAULT) {
-INPA(LI:OPSTATE)
-INPB(LI:lev1permit)
-RULE(0,WRITE) {
-UAG(op)
-HAG(icr,cr)
-CALC("A=1")
-}
-RULE(0,WRITE) {
-UAG(op,linac,appdev)
-HAG(icr,cr)
-CALC("A=0")
-}
-RULE(1,WRITE) {
-UAG(opSup,linacSup,appdev)
-CALC("B=1")
-}
-RULE(1,READ)
-RULE(1,WRITE) {
-HAG(ioc)
-}
+    INPA(LI:OPSTATE)
+    INPB(LI:lev1permit)
+    RULE(0,WRITE) {
+        UAG(op)
+        HAG(icr,cr)
+        CALC("A=1")
+    }
+    RULE(0,WRITE) {
+        UAG(op,linac,appdev)
+        HAG(icr,cr)
+        CALC("A=0")
+    }
+    RULE(1,WRITE) {
+        UAG(opSup,linacSup,appdev)
+        CALC("B=1")
+    }
+    RULE(1,READ)
+    RULE(1,WRITE) {
+        HAG(ioc)
+    }
 }
 ASG(permit) {
-RULE(0,WRITE) {
-    UAG(opSup,linacSup,appDev)
-   }
-RULE(1,READ)
-RULE(1,WRITE) {
-HAG(ioc)
-}
+    RULE(0,WRITE) {
+        UAG(opSup,linacSup,appDev)
+    }
+    RULE(1,READ)
+    RULE(1,WRITE) {
+        HAG(ioc)
+    }
 }
 ASG(critical) {
-INPB(LI:lev1permit)
-RULE(1,WRITE) {
-UAG(opSup,linacSup,appdev)
-CALC("B=1")
-}
-   RULE(1,READ)
-RULE(1,WRITE) {
-HAG(ioc)
-}
+    INPB(LI:lev1permit)
+    RULE(1,WRITE) {
+        UAG(opSup,linacSup,appdev)
+        CALC("B=1")
+    }
+    RULE(1,READ)
+    RULE(1,WRITE) {
+        HAG(ioc)
+    }
 }
 \end{verbatim}\section{Design Summary}
 
@@ -389,15 +413,21 @@ A brief summary of the Functional Requirements is:
 
 \item For each access security group a set of access rules can be defined. Each rule specifies: 
 
-\end{enumerate}Access security level
+\begin{enumerate}
 
-READ or READ/WRITE access.
+\item Access security level
 
-An optional list of User Access Groups or * meaning anyone.
+\item READ or READ/WRITE access.
 
-An optional list of Host Access Groups or * meaning anywhere.
+\item An optional list of User Access Groups or * meaning anyone.
 
-Conditions based on values of process variables
+\item An optional list of Host Access Groups or * meaning anywhere.
+
+\item Conditions based on values of process variables
+
+\end{enumerate}
+
+\end{enumerate}
 
 \subsection{Additional Requirements}
 
@@ -1036,26 +1066,43 @@ used by the access security library.
 
 The following files form the access security system:
 
-\begin{itemize}\item asLib.h  Definitions for the portion of access security that is independent of IOC databases.
+\begin{description}
 
-\item asDbLib.h  Definitions for access routines that interface to an IOC database.
+\item[asLib.h]
 
-\item asLib\_lex.l   \verb|Lex| and \verb|Yacc| (actually EPICS \verb|flex| and \verb|antelope|) are used to parse the access configuration file. 
-This is the \verb|lex| input file.
+Definitions for the portion of access security that is independent of IOC databases.
 
-\item asLib.y   This is the \verb|yacc| input file. Note that it includes \verb|asLibRoutines|.\verb|c|, which do most of the work.
+\item[asDbLib.h]
 
-\item asLibRoutines.c   These are the routines that implement access security. This code has no knowledge of the 
-database or channel access. It is a general purpose access security implementation.
+Definitions for access routines that interface to an IOC database.
 
-\item asDbLib.c   This contains the code for interfacing access security to the IOC database.
+\item[asLib\_lex.l]
 
-\item asCa.c   This code contains the channel access client code that implements the \verb|INP| and \verb|CALC| definitions in an 
-access security database.
+\verb|Lex| and \verb|Yacc| (actually EPICS \verb|flex| and \verb|antelope|) are used to parse the access configuration file. This is the \verb|lex| input file.
 
-\item ascheck.c   The Unix program which performs a syntax check on a configuration file.
+\item[asLib.y]
 
-\end{itemize}\subsection{Locking}
+This is the \verb|yacc| input file. Note that it includes \verb|asLibRoutines.c|, which do most of the work.
+
+\item[asLibRoutines.c]
+
+These are the routines that implement access security. This code has no knowledge of the database or channel access. It is a general purpose access security implementation.
+
+\item[asDbLib.c]
+
+This contains the code for interfacing access security to the IOC database.
+
+\item[asCa.c]
+
+This code contains the channel access client code that implements the \verb|INP| and \verb|CALC| definitions in an access security database.
+
+\item[ascheck.c]
+
+The Unix program which performs a syntax check on a configuration file.
+
+\end{description}
+
+\subsection{Locking}
 
 Because it is possible for multiple tasks to simultaneously modify the access security database it is necessary to provide 
 locking. Rather than try to provide low level locking, the entire access security database is locked during critical 
@@ -1066,16 +1113,10 @@ exists. If the ASG field of a record is changed then \verb|asChangeGroup| is cal
 All operations invoked from outside the access security library that cause changes to the internal structures of the access 
 security database.routines lock.
 
+\newpage
+
 \section{Structures}
 
+\begin{center}
 \includegraphics{accessSecurity_1}
-
-
-
-
-
-
-
-
-
-
+\end{center}

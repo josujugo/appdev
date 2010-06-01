@@ -165,17 +165,21 @@ to run yet.
 
 \verb|initDatabase| is called which makes three passes over the database performing the following functions:
 
-\index{initDatabase}\begin{enumerate}\item Initializes the fields \verb|RSET|, \verb|RDES|, \verb|MLOK|, \verb|MLIS|, \verb|PACT| and \verb|DSET| for each record.
+\index{initDatabase}\begin{enumerate}
 
-\end{enumerate}\begin{description}\item Calls record support's \verb|init_record| (first pass).
+\item Initializes the fields \verb|RSET|, \verb|RDES|, \verb|MLOK|, \verb|MLIS|, \verb|PACT| and \verb|DSET| for each record.
 
-\end{description}\begin{enumerate}\item Convert each \verb|PV_LINK| into a \verb|DB_LINK| or \verb|CA_LINK|
+Calls record support's \verb|init_record| (first pass).
 
-\end{enumerate}\begin{description}\item Calls any extended device support's \verb|add_record| routine.
+\item Convert each \verb|PV_LINK| into a \verb|DB_LINK| or \verb|CA_LINK|
 
-\end{description}\begin{enumerate}\item Calls record support's \verb|init_record| (second pass).
+Calls any extended device support's \verb|add_record| routine.
 
-\end{enumerate}Finally it registers an \verb|epicsAtExit| routine to shut down the database when the IOC application exits.
+\item Calls record support's \verb|init_record| (second pass).
+
+\end{enumerate}
+
+Finally it registers an \verb|epicsAtExit| routine to shut down the database when the IOC application exits.
 
 Next \verb|dbLockInitRecords| is called to create the lock sets.
 

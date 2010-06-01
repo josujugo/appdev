@@ -1,4 +1,4 @@
-\chapter{\index{21088: LOCALTITLE: Chapter 6 Runtime Database Access}Runtime Database Access}
+\chapter{Runtime Database Access}\index{Runtime Database Access}
 
 \section{Overview}
 
@@ -106,11 +106,17 @@ See \verb|link.h| for a description of the bus types currently supported.
 
 \item Process Variable Links - This is one of three types:
 
-\end{enumerate}PV\_LINK: The process variable name.
+\begin{enumerate}
 
-DB\_LINK: A reference to a process variable in the same IOC.
+\item PV\_LINK: The process variable name.
 
-CA\_LINK: A reference to a variable located in another IOC.
+\item DB\_LINK: A reference to a process variable in the same IOC.
+
+\item CA\_LINK: A reference to a variable located in another IOC.
+
+\end{enumerate}
+
+\end{enumerate}
 
 DCT always creates a \verb|PV_LINK|. When the IOC is initialized each \verb|PV_LINK| is converted either to a \verb|DB_LINK| or a 
 \verb|CA_LINK|.
@@ -124,18 +130,18 @@ This file is the interface definition for the run time database access library, 
 An important structure defined in this header file is \verb|DBADDR| 
 
 \begin{verbatim}typedef struct dbAddr{
-struct dbCommon *precord;/* address of record*/
-void*pfield;/* address of field*/
-void*pfldDes;/* address of struct fldDes*/
-void*asPvt;/* Access Security Private*/
-longno_elements; /* number of elements (arrays)*/
-shortfield_type;/* type of database field*/
-shortfield_size;/* size (bytes) of the field*/
-shortspecial;/* special processing*/
-shortdbr_field_type; /*optimal database request type*/
+    struct dbCommon *precord;/* address of record*/
+    void* pfield;/* address of field*/
+    void* pfldDes;/* address of struct fldDes*/
+    void* asPvt;/* Access Security Private*/
+    long  no_elements; /* number of elements (arrays)*/
+    short field_type;/* type of database field*/
+    short field_size;/* size (bytes) of the field*/
+    short special;/* special processing*/
+    short dbr_field_type; /*optimal database request type*/
 }DBADDR;
-
-\end{verbatim}\index{struct dbAddr}
+\end{verbatim}
+\index{struct dbAddr}
 \index{dbAdd}
 \index{DBADDR}\begin{itemize}\item \index{precord - DBADDR}precord: Address of record. Note that its type is a pointer to a structure defining the fields common to all record 
 types. The common fields appear at the beginning of each record. A record support module can cast \verb|precord| to 
@@ -200,8 +206,6 @@ The \index{database access routines - List of}database access routines are:
 
 \item dbGet: Routine called by \verb|dbGetLinkValue| and \verb|dbGetField|
 
-
-
 \item dbPutField: Change the value of a database variable.
 
 \item dbPutLink: Change value referenced by database link (Macro)
@@ -209,8 +213,6 @@ The \index{database access routines - List of}database access routines are:
 \item dbPutLinkValue: Change value referenced by database link (Subroutine)
 
 \item dbPut: Routine called by \verb|dbPutxxx| functions.
-
-\item 
 
 \item putNotifyInit: Initialize ``struct putNotify"
 
@@ -223,8 +225,6 @@ The \index{database access routines - List of}database access routines are:
 \item dbNotifyAdd: Add a new record for to notify set.
 
 \item dbNotifyCompletion: Announce that put notify is complete.
-
-
 
 \item dbBufferSize: Determine number of bytes in request buffer.
 
@@ -260,11 +260,7 @@ The \index{database access routines - List of}database access routines are:
 
 \item dbGetTimeStamp: Get Time Stamp
 
-
-
 \item dbPutAttribute Give a value to a record attribute.
-
-
 
 \item dbScanPassive: Process record if it is passive.
 
@@ -343,13 +339,14 @@ example defines a buffer to accept an array of up to ten float values. In additi
 \verb|DBR_STATUS| and \verb|DBR_TIME|. 
 
 \begin{verbatim}struct buffer {
-DBRstatus
-DBRtime
-float  value[10];
+    DBRstatus
+    DBRtime
+    float  value[10];
 } buffer;
 \end{verbatim}The associated \verb|dbGetField| call is:
 
-\begin{verbatim}long options,number_elements,status;
+\begin{verbatim}
+long options,number_elements,status;
     ...
 options = DBR_STATUS | DBR_TIME;
 number_elements = 10;
@@ -368,10 +365,14 @@ The request types \verb|DBR_PUT_ACKT| and\index{DBR\_PUT\_ACKS} \verb|DBR_PUT_AC
 uses these requests. For each of these types the user (normally channel access) passes an unsigned short value. This value 
 represents:
 
-\index{DBR\_PUT\_ACKT}DBR\_PUT\_ACKT - Do transient alarms have to be acknowledged? (0,1) means (no, yes).
+\begin{description}
 
-\verb|DBR_PUT_ACKS| - The highest alarm severity to acknowledge. If the current alarm severity is less then or equal to this 
+\item[DBR\_PUT\_ACKT] \index{DBR\_PUT\_ACKT} - Do transient alarms have to be acknowledged? (0,1) means (no, yes).
+
+\item[DBR\_PUT\_ACKS] - The highest alarm severity to acknowledge. If the current alarm severity is less then or equal to this 
 value the alarm is acknowledged.
+
+\end{description}
 
 \section{Database Access Routines}
 
@@ -380,14 +381,18 @@ value the alarm is acknowledged.
 \index{dbNameToAddr}Locate a process variable, format:
 
 \begin{verbatim}long dbNameToAddr(
-char  *pname, /*ptr to process variable name */
-struct dbAddr  *paddr);
+    char  *pname, /*ptr to process variable name */
+    struct dbAddr  *paddr);
 \end{verbatim}\index{dbNameToAddr}The most important goal of database access can be stated simply: Provide quick access to database records and fields 
 within records. The basic rules are:
 
-Call \verb|dbNameToAddr| once and only once for each field to be accessed.
+\begin{enumerate}
 
-Read field values via \verb|dbGetField| and write values via \verb|dbPutField|.
+\item Call \verb|dbNameToAddr| once and only once for each field to be accessed.
+
+\item Read field values via \verb|dbGetField| and write values via \verb|dbPutField|.
+
+\end{enumerate}
 
 The routines described in this subsection are used by channel access, sequence programs, etc. Record processing routines, 
 however, use the routines described in the next section rather then \verb|dbGetField| and \verb|dbPutField|.
@@ -421,28 +426,31 @@ a binary search, it still takes about 80 microseconds (25MHz 68040) to located a
 Get values associated with a process variable, format:
 
 \begin{verbatim}long dbGetField(
-struct dbAddr *paddr,
-short dbrType,   /* DBR_xxx */
-void *pbuffer,   /* ptr to returned data */
-long *options,   /* ptr to options */
-long *nRequest,  /* ptr to number of elements */
-void *pfl);      /* used by monitor routines */
+    struct dbAddr *paddr,
+    short dbrType,   /* DBR_xxx */
+    void *pbuffer,   /* ptr to returned data */
+    long *options,   /* ptr to options */
+    long *nRequest,  /* ptr to number of elements */
+    void *pfl);      /* used by monitor routines */
 \end{verbatim}\index{dbGetField}Thus routine locks, calls \verb|dbGet|, and unlocks.
 
 \subsubsection{dbGetLink and dbGetLinkValue}
 
 Get value from the field referenced by a database link, format:
 
-\begin{verbatim}long dbGetLink(
-struct db_link *plink, /* ptr to link field */
-short dbrType,         /* DBR_xxx */
-void *pbuffer,         /* ptr to returned data */
-long *options,         /* ptr to options */
-long *nRequest);       /* ptr to number of elements desired */
+\begin{verbatim}
+long dbGetLink(
+    struct db_link *plink, /* ptr to link field */
+    short dbrType,         /* DBR_xxx */
+    void *pbuffer,         /* ptr to returned data */
+    long *options,         /* ptr to options */
+    long *nRequest);       /* ptr to number of elements desired */
 \end{verbatim}\index{dbGetLink}
 \index{dbGetLink}NOTES:
 
-\begin{itemize}\item \verb|options| can be NULL if no options are desired.
+\begin{itemize}
+
+\item \verb|options| can be NULL if no options are desired.
 
 \item \verb|nRequest| can be NULL for a scalar.
 
@@ -458,12 +466,12 @@ the link options (process and maximize severity). In addition it has code that o
 Get values associated with a process variable, format:
 
 \begin{verbatim}long dbGet(
-struct dbAddr *paddr,
-short dbrType,  /* DBR_xxx */
-void *pbuffer,  /* ptr to returned data */
-long *options,  /* ptr to options */
-long *nRequest, /* ptr to number of elements */
-void *pfl);     /* used by monitor routines */
+    struct dbAddr *paddr,
+    short dbrType,  /* DBR_xxx */
+    void *pbuffer,  /* ptr to returned data */
+    long *options,  /* ptr to options */
+    long *nRequest, /* ptr to number of elements */
+    void *pfl);     /* used by monitor routines */
 \end{verbatim}\index{dbGet}Thus routine retrieves the data referenced by \verb|paddr| and converts it to the format specified by \verb|dbrType|. 
 
 \begin{itemize}\item \verb|options| is a read/write field. Upon entry to \verb|dbGet|, \verb|options| specifies the desired options. When 
@@ -489,10 +497,10 @@ maximum number of elements allowed. The offset is for use by records which imple
 Change the value of a process variable, format:
 
 \begin{verbatim}long dbPutField(
-struct dbAddr *paddr,
-short dbrType,   /* DBR_xxx */
-void *pbuffer,  /* ptr to data */
-long nRequest); /* number of elements to write */
+    struct dbAddr *paddr,
+    short dbrType,   /* DBR_xxx */
+    void *pbuffer,  /* ptr to data */
+    long nRequest); /* number of elements to write */
 \end{verbatim}\index{dbPutField}This routine is responsible for accepting data in one of the \verb|DBR_xxx| formats, converting it as necessary, and modifying 
 the database. Similar to \verb|dbGetField|, this routine calls one of a number of conversion routines to do the actual 
 conversion and relies on record support routines to handle arrays and other special cases.
@@ -510,23 +518,27 @@ It should be noted that routine \verb|dbPut| does most of the work. The actual a
 If this is the \verb|PROC| field or if both of the following are \verb|TRUE|: 1) the field is a process passive field, 2) the record is 
 passive.
 
-\end{enumerate}If the record is already active ask for the record to be reprocessed when it completes.
+\begin{enumerate}
 
-Call \verb|dbScanPassive| after setting \verb|putf| \verb|TRUE| to show the process request came from \verb|dbPutField|.
+\item If the record is already active ask for the record to be reprocessed when it completes.
 
-\begin{enumerate}\item The record is unlocked.
+\item Call \verb|dbScanPassive| after setting \verb|putf| \verb|TRUE| to show the process request came from \verb|dbPutField|.
 
-\end{enumerate}\subsubsection{dbPutLink and dbPutLinkValue}
+\end{enumerate}
+
+\item The record is unlocked.
+
+\end{enumerate}
+
+\subsubsection{dbPutLink and dbPutLinkValue}
 
 Change the value referenced by a database link, format:
 
-
-
 \begin{verbatim}long dbPutLink(
-struct db_link  *plink, /* ptr to link field */
-short dbrType,          /* DBR_xxx */
-void *pbuffer,          /* ptr to data to write */
-long nRequest);         /* number of elements to write */
+    struct db_link  *plink, /* ptr to link field */
+    short dbrType,          /* DBR_xxx */
+    void *pbuffer,          /* ptr to data to write */
+    long nRequest);         /* number of elements to write */
 \end{verbatim}\index{dbPutLink}\verb|dbPutLink| is actually a macro that calls \verb|dbPutLinkValue| and can reference its arguments more than once The 
 macro skips the call for constant links. User code should never call \verb|dbPutLinkValue|.
 
@@ -541,23 +553,26 @@ For database links it performs the following functions:
 
 \item Implements maximize severity.
 
-\item If the field being referenced is \verb|PROC| or if both of the following are true: 1) \verb|process_passive| is \verb|TRUE| and 2) 
-the record is passive then:
+\item If the field being referenced is \verb|PROC| or if both of the following are true: 1) \verb|process_passive| is \verb|TRUE| and 2) the record is passive then:
 
-\end{enumerate}If the record is already active because of a \verb|dbPutField| request then ask for the record to be reprocessed 
-when it completes.
+\begin{enumerate}
 
-otherwise call \verb|dbScanPassive|.
+\item If the record is already active because of a \verb|dbPutField| request then ask for the record to be reprocessed when it completes.
+
+\item otherwise call \verb|dbScanPassive|.
+
+\end{enumerate}
+\end{enumerate}
 
 \subsubsection{dbPut}
 
 Put a value to a database field, format:
 
 \begin{verbatim}long dbPut(
-struct dbAddr  *paddr,
-shortdbrType,/* DBR_xxx*/
-void*pbuffer,/*addr of data*/
-longnRequest);/*number of elements to write*/
+    struct dbAddr  *paddr,
+    shortdbrType,/* DBR_xxx*/
+    void*pbuffer,/*addr of data*/
+    longnRequest);/*number of elements to write*/
 \end{verbatim}\index{dbPut}This routine is responsible for accepting data in one of the \verb|DBR_xxx| formats, converting it as necessary, and modifying 
 the database. Similar to \verb|dbGet|, this routine calls one of a number of conversion routines to do the actual conversion and 
 relies on record support routines to handle arrays and other special cases.
@@ -615,25 +630,25 @@ Format:
 where
 
 typedef enum {
-putNotifyOK,
-putNotifyCanceled,
-putNotifyError
-putNotifyPutDisabled
+    putNotifyOK,
+    putNotifyCanceled,
+    putNotifyError
+    putNotifyPutDisabled
 }putNotifyStatus;
 
 
 typedef struct putNotify{
-/*The following must be set by the user*/
-void(*userCallback)(struct putNotify *);
-struct dbAddr*paddr;/*dbAddr set by dbNameToAddr*/
-void*pbuffer;/*address of data*/
-longnRequest;/*number of elements to be written*/
-shortdbrType;/*database request type*/
-void*usrPvt;/*for private use of user*/
-/*The following is status of request.Set by dbPutNotify*/
-putNotifyStatus status;
-/*fields private to database access*/
-...
+    /*The following must be set by the user*/
+    void(*userCallback)(struct putNotify *);
+    struct dbAddr*paddr;/*dbAddr set by dbNameToAddr*/
+    void*pbuffer;/*address of data*/
+    longnRequest;/*number of elements to be written*/
+    shortdbrType;/*database request type*/
+    void*usrPvt;/*for private use of user*/
+    /*The following is status of request.Set by dbPutNotify*/
+    putNotifyStatus status;
+    /*fields private to database access*/
+    ...
 }putNotify;
 \end{verbatim}\index{dbPutNotify}
 \index{putNotifyStatus}
@@ -682,9 +697,9 @@ Format:
 \index{dbBufferSize}Determine the buffer size for a \verb|dbGetField| request, format:
 
 \begin{verbatim}long dbBufferSize(
-shortdbrType,/* DBR_xxx*/
-longoptions,/* options mask*/
-longnRequest);/* number of elements*/
+    shortdbrType,/* DBR_xxx*/
+    longoptions,/* options mask*/
+    longnRequest);/* number of elements*/
 \end{verbatim}\index{dbBufferSize}This routine returns the number of bytes that will be returned to \verb|dbGetField| if the request type, options, and number of 
 elements are specified as given to \verb|dbBufferSize|. Thus it can be used to allocate storage for buffers.
 
@@ -820,9 +835,8 @@ Format:
 \index{dbPutAttribute}Give a value to a record attribute.
 
 \begin{verbatim}long dbPutAttribute(char *recordTypename,
-
-       char *name,char*value);
-\end{verbatim}\index{dbPutAttribute}This sets the record attribute \verb|name| for record type \verb|recordTypename| to \verb|value.|For example the following would set 
+    char *name,char*value);
+\end{verbatim}\index{dbPutAttribute}This sets the record attribute \verb|name| for record type \verb|recordTypename| to \verb|value|. For example the following would set 
 the version for the ai record.
 
 \begin{verbatim}dbPutAttribute("ai","VERS","V800.6.95")
@@ -837,12 +851,10 @@ dbScanFwdLink
 Process record if it is passive, format:
 
 \begin{verbatim}long dbScanPassive(
-struct dbCommon  *pfrom,
-struct dbCommon  *pto);   /* addr of record*/
+    struct dbCommon  *pfrom,
+    struct dbCommon  *pto);   /* addr of record*/
 long dbScanLink(
-struct dbCommon *pfrom,
-
-struct dbCommon *pto);
+    struct dbCommon *pfrom, struct dbCommon *pto);
 void dbScanFwdLink(struct link *plink);
 \end{verbatim}\index{dbScanPassive}
 \index{dbScanLink}
@@ -951,8 +963,7 @@ Determine lock sets for each record in database.
 Merge records into same lock set.
 
 \begin{verbatim}void dbLockSetMerge(struct dbCommon *pfirst,
-
-struct dbCommon *psecond);
+    struct dbCommon *psecond);
 \end{verbatim}\index{dbLockSetMerge}If specified records are not in same lock set the lock sets are merged. Called by dbLockInitRecords and also when links 
 are modified by \verb|dbPutField|.
 
@@ -1017,7 +1028,7 @@ Add a new channel access link
 \end{verbatim}\index{dbCaAddLink}\subsubsection{dbCaAddLinkCallback}
 
 \begin{verbatim}void dbCaAddLinkCallback(struct link *plink,
-            dbCaCallback connect,dbCaCallback monitor,void *userPvt);
+    dbCaCallback connect,dbCaCallback monitor,void *userPvt);
 \end{verbatim}\index{dbCaAddLinkCallback}\verb|connect| will be called whenever the link connects or disconnects. \verb|monitor| will be called whenever a monitor event 
 occurs. \verb|connect| and or \verb|monitor| may be null.
 
@@ -1031,15 +1042,13 @@ Remove channel access link.
 Get link value
 
 \begin{verbatim}long dbCaGetLink(struct link *plink,short dbrType,
-
-void *pbuffer,unsigned short *psevr,long *nRequest);
+    void *pbuffer,unsigned short *psevr,long *nRequest);
 \end{verbatim}\index{dbCaGetLink}\subsubsection{dbCaPutLink}
 
 Put link value
 
 \begin{verbatim}long dbCaPutLink(struct link *plink,short dbrType,
-
-void *buffering nRequest);
+    void *buffering nRequest);
 \end{verbatim}\index{dbCaPutLink}\subsubsection{dbCaPutLinkCallback}
 
 This is meant for use by device or record support that wants a put to complete before completing record processing.
@@ -1068,20 +1077,27 @@ static long write_ao(aoRecord *pao)
     pao->pact = TRUE;
     return(0);
 }
-\end{verbatim}What happens is the following:
+\end{verbatim}
 
-\begin{description}\item When the record is processed write\_ao is called with pact=0.
+What happens is the following:
 
-\end{description}If the link is not a CA\_LINK it just calls dbPutLink. It leaves pact 0. Thus record support completes.
+\begin{description}
 
-If it is a CA\_LINK it calls dbCaPutLinkCallback and sets pact true. Thus record is asynchronous.
+\item When the record is processed write\_ao is called with pact=0.
 
-\begin{description}\item If the record is asynchrnous then sometime later  dbCaCallbackProcess is called. It calls the process routine of 
-record support, which calls write\_ao with pact true. write\_ao just returns success. Record support then completes 
-the second phase of record processing.
+\begin{description}
 
-\end{description}There is a possibility that the link is changed between the two phases of record processing. If this happens the user 
-supplied callback will still get called exactly once but the link may have been modified.
+\item If the link is not a CA\_LINK it just calls dbPutLink. It leaves pact 0. Thus record support completes.
+
+\item If it is a CA\_LINK it calls dbCaPutLinkCallback and sets pact true. Thus record is asynchronous.
+
+\end{description}
+
+\item If the record is asynchrnous then sometime later dbCaCallbackProcess is called. It calls the process routine of record support, which calls write\_ao with pact true. write\_ao just returns success. Record support then completes the second phase of record processing.
+
+\end{description}
+
+There is a possibility that the link is changed between the two phases of record processing. If this happens the user supplied callback will still get called exactly once but the link may have been modified.
 
 \subsection{Attributes of Link}
 
@@ -1128,8 +1144,7 @@ Get link type
 Get Attributes
 
 \begin{verbatim}long dbCaGetAttributes(struct link *plink,
-
-void (*callback)(void *usrPvt),void *usrPvt);
+    void (*callback)(void *usrPvt),void *usrPvt);
 \end{verbatim}\index{dbCaGetAttributes}When ever dbCa receives a connection it issues a CA get request to obtain the control, graphic, and alarm limits and to 
 obtain the precision and units. By calling dbCaGetAttributes the caller can be notified when this get completes.
 
@@ -1141,8 +1156,7 @@ Get Control Limits
 \end{verbatim}\index{dbCaGetControlLimits}This call returns an error if the link is not connected or if the CA get request for limits, etc. has not completed. If it returns 
 success it has set the control limits.
 
-\begin{verbatim}
-\end{verbatim}\subsubsection{dbCaGetGraphicLimits}
+\subsubsection{dbCaGetGraphicLimits}
 
 Get graphic Limits
 
@@ -1155,8 +1169,7 @@ success it has set the graphic limits.
 Get Alarm Limits
 
 \begin{verbatim}long dbCaGetAlarmLimits(struct link *plink,
-
-double *lolo, double *low, double *high, double *hihi);
+    double *lolo, double *low, double *high, double *hihi);
 \end{verbatim}\index{dbCaGetAlarmLimits}This call returns an error if the link is not connected or if the CA get request for limits, etc. has not completed. If it returns 
 success it has set the alarm limits.
 
@@ -1175,13 +1188,3 @@ Get Units
 \begin{verbatim}long dbCaGetUnits(struct link *plink,char *units,int unitsSize);
 \end{verbatim}\index{dbCaGetUnits}This call returns an error if the link is not connected or if the CA get request for limits, etc. has not completed. If it returns 
 success it has set the units.
-
-
-
-
-
-
-
-
-
-
