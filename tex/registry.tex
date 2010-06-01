@@ -1,10 +1,5 @@
-
-
-
-
-
-
-\chapter{\index{67897: LOCALTITLE: Chapter 21: Registry}Registry}
+\chapter{Registry}
+\index{Registry}
 
 Under vxWorks osiFindGlobalSymbol() can be used to dynamically bind to record, device, and driver support and 
 functions for use with subroutine records. However on most other systems this routine is not functional, so a registry 
@@ -16,11 +11,12 @@ which registers all record/device/driver/function support defined in that file.
 
 \section{Registry.h}
 
-\index{Registry.h}\begin{verbatim}int registryAdd(void *registryID,const char *name,void *data);
-void *registryFind(void *registryID,const char *name);
-int registrySetTableSize(int size);
-void registryFree();
-int registryDump(void);
+\index{Registry.h}\begin{verbatim}
+int registryAdd(void *registryID,const char *name,void *data);
+    void *registryFind(void *registryID,const char *name);
+    int registrySetTableSize(int size);
+    void registryFree();
+    int registryDump(void);
 \end{verbatim}\index{registryAdd}
 \index{registryFind}
 \index{registrySetTableSize}
@@ -33,8 +29,8 @@ be registered is stored in the same gpHash table.
 \begin{verbatim}typedef int (*computeSizeOffset)(dbRecordType *pdbRecordType);
 
 typedef struct recordTypeLocation {
-struct rset *prset;
-computeSizeOffset sizeOffset;
+    struct rset *prset;
+    computeSizeOffset sizeOffset;
 } recordTypeLocation;
 
 int registryRecordTypeAdd(const char *name, recordTypeLocation *prtl);

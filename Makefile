@@ -61,7 +61,11 @@ $(PDFD)/%.pdf: $(EPSD)/%.eps
 
 .PHONY: clean
 clean:
-# 	rm -rf AppDevGuide
-# 	rm -rf pdf
+	rm -rf AppDevGuide
+	rm -rf pdf
+	rm -f *.idx *.ind *.ilg *.log *.out *.pdf *.toc *.aux
+
+.PHONY: cleanidx
+cleanidx:
 	rm -f *.idx *.ind *.ilg *.log *.out *.pdf *.toc *.aux
 

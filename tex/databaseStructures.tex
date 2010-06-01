@@ -1,4 +1,5 @@
-\chapter{\index{62558: LOCALTITLE: Chapter 12 Database Structures}Database Structures}
+\chapter{Database Structures}
+\index{Database Structures}
 
 \section{Overview}
 
@@ -10,71 +11,71 @@ source listings. It also gives a list of the header files used by IOC Code.
 
 This section lists the files in base/include that are of most interest to IOC Application Developers:
 
-alarm.h alarmString.h - These files contain definitions for all alarm status and severity values.
+\begin{description}
 
-cadef.h caerr.h caeventmask.h - These files are of interest to anyone writing channel access clients.
+\item[alarm.h alarmString.h] - These files contain definitions for all alarm status and severity values.
 
-callback.h - The definitions for the General Purpose callback system.
+\item[cadef.h caerr.h caeventmask.h] - These files are of interest to anyone writing channel access clients.
 
-dbAccess.h - Definitions for the runtime database access routines.
+\item[callback.h] - The definitions for the General Purpose callback system.
 
-dbBase.h - Definitions for the structures used to store an EPICS database.
+\item[dbAccess.h] - Definitions for the runtime database access routines.
 
-dbDefs.h - A catchall file for definitions that have no other reasonable place to appear.
+\item[dbBase.h] - Definitions for the structures used to store an EPICS database.
 
-dbFldTypes.h - Definitions for \verb|DBF_xxx| and \verb|DBR_xxx| types.
+\item[dbDefs.h] - A catchall file for definitions that have no other reasonable place to appear.
 
-dbScan.h - Definitions for the scanning system.
+\item[dbFldTypes.h] - Definitions for \verb|DBF_xxx| and \verb|DBR_xxx| types.
 
-dbStaticLib.h - The static databases access system.
+\item[dbScan.h] - Definitions for the scanning system.
 
-db\_access.h db\_addr.h - Old database access.
+\item[dbStaticLib.h] - The static databases access system.
 
-devLib.h - The device support library
+\item[db\_access.h db\_addr.h] - Old database access.
 
-devSup.h - Device Support Modules
+\item[devLib.h] - The device support library
 
-drvSup.h - Driver Support Modules
+\item[devSup.h] - Device Support Modules
 
-ellLib.h - A library that is provides the same functions as the vxWorks \verb|lstLib|. All routines start with \verb|ell| instead of 
+\item[drvSup.h] - Driver Support Modules
+
+\item[ellLib.h] - A library that is provides the same functions as the vxWorks \verb|lstLib|. All routines start with \verb|ell| instead of 
 \verb|lst|.  The \verb|ellLib| routines work on both IOCs and on UNIX.
 
-epicsPrint.h errMdef.h - EPICS error handling system
+\item[epicsPrint.h errMdef.h] - EPICS error handling system
 
-fast\_lock.h - The FASTLOCK routines.
+\item[fast\_lock.h] - The FASTLOCK routines.
 
-freeList.h - A general purpose free list facility
+\item[freeList.h] - A general purpose free list facility
 
-gpHash.h - A general purpose hash library.
+\item[gpHash.h] - A general purpose hash library.
 
-guigroup.h - The guigroup definitions.
+\item[guigroup.h] - The guigroup definitions.
 
-initHooks.h - Definitions used by \verb|initHooks|.\verb|c| routines.
+\item[initHooks.h] - Definitions used by \verb|initHooks|.\verb|c| routines.
 
-link.h - Link definitions
+\item[link.h] - Link definitions
 
-module\_types.h - VME hardware configuration. SHOULD NOT BE USED BY NEW SUPPORT.
+\item[module\_types.h] - VME hardware configuration. SHOULD NOT BE USED BY NEW SUPPORT.
 
-recSup.h - The record global routines.
+\item[recSup.h] - The record global routines.
 
-special.h - Definitions for special fields, i.e. \verb|SPC_xxx|.
+\item[special.h] - Definitions for special fields, i.e. \verb|SPC_xxx|.
 
-task\_params.h - Definitions for task priorities, stack space, etc.
+\item[task\_params.h] - Definitions for task priorities, stack space, etc.
 
-taskwd.h - Task Watchdog System
+\item[taskwd.h] - Task Watchdog System
 
-tsDefs.h - Time stamp routines. Will also have to look at \verb|base|/\verb|src|/\verb|libCom|/\verb|tsSubr|.\verb|c|
+\item[tsDefs.h] - Time stamp routines. Will also have to look at \verb|base|/\verb|src|/\verb|libCom|/\verb|tsSubr|.\verb|c|
+
+\end{description}
+
+\newpage
 
 \section{Structures}
 
-
+\begin{center}
 
 \includegraphics{databaseStructures_1}
 
-
-
-
-
-
-
-
+\end{center}
