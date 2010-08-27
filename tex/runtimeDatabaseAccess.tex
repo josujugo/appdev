@@ -432,7 +432,7 @@ Get values associated with a process variable, format:
     long *options,   /* ptr to options */
     long *nRequest,  /* ptr to number of elements */
     void *pfl);      /* used by monitor routines */
-\end{verbatim}\index{dbGetField}Thus routine locks, calls \verb|dbGet|, and unlocks.
+\end{verbatim}\index{dbGetField}This routine locks, calls \verb|dbGet|, and unlocks.
 
 \subsubsection{dbGetLink and dbGetLinkValue}
 
@@ -472,7 +472,7 @@ Get values associated with a process variable, format:
     long *options,  /* ptr to options */
     long *nRequest, /* ptr to number of elements */
     void *pfl);     /* used by monitor routines */
-\end{verbatim}\index{dbGet}Thus routine retrieves the data referenced by \verb|paddr| and converts it to the format specified by \verb|dbrType|. 
+\end{verbatim}\index{dbGet}This routine retrieves the data referenced by \verb|paddr| and converts it to the format specified by \verb|dbrType|. 
 
 \begin{itemize}\item \verb|options| is a read/write field. Upon entry to \verb|dbGet|, \verb|options| specifies the desired options. When 
 \verb|dbGetField| returns, \verb|options| specifies the options actually honored. If an option is not honored, the 
