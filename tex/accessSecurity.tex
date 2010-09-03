@@ -172,12 +172,19 @@ ASG(<name>) [{
 \end{verbatim}\index{NOTRAPWRITE}
 \index{TRAPWRITE}\subsubsection{Discussion}
 
-\begin{itemize}\item \index{UAG}UAG:  User Access Group. This is a list of user names. The list may be empty. The same user can appear in 
-multiple UAGs. For vxWorks iocs the user name is taken from the user field of the boot parameters.
+\begin{itemize}\item \index{UAG}UAG: User Access Group.
+This is a list of user names.
+The list may be empty.
+A user name may appear in more than one UAG.
+To match, a user name must be identical to the user name read by the CA client library running on the client machine.
+For vxWorks clients, the user name is usually taken from the user field of the boot parameters.
 
-\item \index{HAG}HAG: Host Access Group. This is a list of host names. It may be empty. The same host name can appear in 
-multiple HAGs. For iocs the host name is taken from the target name of the boot parameters. NOTE: host names 
-are converted to lower case.
+\item \index{HAG}HAG: Host Access Group.
+This is a list of host names.
+It may be empty.
+The same host name can appear in multiple HAGs.
+To match, a host name must match the host name read by the CA client library running on the client machine; both names are converted to lower case before comparison however.
+For vxWorks clients, the host name is usually taken from the target name of the boot parameters.
 
 \item \index{ASG - access security configuration}ASG: An access security group. The group ``\verb|DEFAULT|" is a special case. If a member specifies a null group or a 
 group which has no ASG definition then the member is assigned to the group ``\verb|DEFAULT|".
