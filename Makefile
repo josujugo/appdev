@@ -47,25 +47,37 @@ $(TEXD)/libComOsi.tex \
 $(TEXD)/registry.tex \
 $(TEXD)/databaseStructures.tex
 
-all: AppDevGuide.pdf AppDevGuide
+# Options for latex2html:
+L2H_OPTS += -split +1
+L2H_OPTS += -link 2
+L2H_OPTS += -toc_depth 3
+L2H_OPTS += -show_section_numbers
+
+
+all: pdf html
+
+pdf: AppDevGuide.pdf
+html: AppDevGuide
 
 AppDevGuide.pdf: AppDevGuide.tex $(TEXS) $(PDFS)
-	./build_latex AppDevGuide
+	pdflatex $(basename $@)
+	makeindex $(basename $@).idx
+	pdflatex $(basename $@)
+	pdflatex $(basename $@)
 
-AppDevGuide: AppDevGuide.tex $(TEXS)
-	latex2html $< -split +1
+AppDevGuide: AppDevGuide.tex $(TEXS) Makefile
+	latex2html $< $(L2H_OPTS)
 
 $(PDFD)/%.pdf: $(EPSD)/%.eps
 	mkdir -p $(PDFD)
 	epstopdf $< -o=$@
 
-.PHONY: clean
-clean:
+clean: cleanidx
 	rm -rf AppDevGuide
 	rm -rf pdf
-	rm -f *.idx *.ind *.ilg *.log *.out *.pdf *.toc *.aux
 
-.PHONY: cleanidx
 cleanidx:
 	rm -f *.idx *.ind *.ilg *.log *.out *.pdf *.toc *.aux
 
+.PHONY: pdf html
+.PHONY: clean cleanidx
