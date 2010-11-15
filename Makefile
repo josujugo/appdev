@@ -78,6 +78,7 @@ clean: cleanidx
 
 cleanidx:
 	rm -f *.idx *.ind *.ilg *.log *.out *.pdf *.toc *.aux
+	rm -f *.backup *~ tex/*.backup tex/*~
 
 .PHONY: pdf html
 .PHONY: clean cleanidx
