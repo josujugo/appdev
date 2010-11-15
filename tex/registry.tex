@@ -1,4 +1,5 @@
 \chapter{Registry}
+\label{Registry}
 \index{Registry}
 
 Under vxWorks osiFindGlobalSymbol() can be used to dynamically bind to record, device, and driver support and 
@@ -11,22 +12,27 @@ which registers all record/device/driver/function support defined in that file.
 
 \section{Registry.h}
 
-\index{Registry.h}\begin{verbatim}
+\index{Registry.h}
+\begin{verbatim}
 int registryAdd(void *registryID,const char *name,void *data);
     void *registryFind(void *registryID,const char *name);
     int registrySetTableSize(int size);
     void registryFree();
     int registryDump(void);
-\end{verbatim}\index{registryAdd}
+\end{verbatim}
+
+\index{registryAdd}
 \index{registryFind}
 \index{registrySetTableSize}
 \index{registryFree}
-\index{registryDump}This is the code which implements the symbol table. Each different type of symbol has its own unique ID. Everything to 
+\index{registryDump}
+This is the code which implements the symbol table. Each different type of symbol has its own unique ID. Everything to 
 be registered is stored in the same gpHash table.
 
 \section{registryRecordType.h}
 
-\begin{verbatim}typedef int (*computeSizeOffset)(dbRecordType *pdbRecordType);
+\begin{verbatim}
+typedef int (*computeSizeOffset)(dbRecordType *pdbRecordType);
 
 typedef struct recordTypeLocation {
     struct rset *prset;
@@ -35,30 +41,45 @@ typedef struct recordTypeLocation {
 
 int registryRecordTypeAdd(const char *name, recordTypeLocation *prtl);
 recordTypeLocation *registryRecordTypeFind(const char *name);
-\end{verbatim}\index{computeSizeOffset}
-\index{registryRecordTypeAdd}Provides addresses for both the record support entry table and the routine which computes the size and offset of each 
+\end{verbatim}
+
+\index{computeSizeOffset}
+\index{registryRecordTypeAdd}
+Provides addresses for both the record support entry table and the routine which computes the size and offset of each 
 field.
 
 \section{registryDeviceSupport.h}
 
-\index{registryDeviceSupport.h}\begin{verbatim}int registryDeviceSupportAdd(const char *name, struct dset *pdset)
+\index{registryDeviceSupport.h}
+\begin{verbatim}
+int registryDeviceSupportAdd(const char *name, struct dset *pdset)
 struct dset *registryDeviceSupportFind(const char *name);
-\end{verbatim}\index{registryDeviceSupportAdd}
-\index{registryDeviceSupportFind}This provides addresses for device support entry tables.
+\end{verbatim}
+
+\index{registryDeviceSupportAdd}
+\index{registryDeviceSupportFind}
+This provides addresses for device support entry tables.
 
 \section{registryDriverSupport.h}
 
-\index{registryDriverSupport.h}\begin{verbatim}int registryDriverSupportAdd(const char *name, struct drvet *pdrvet);
+\index{registryDriverSupport.h}
+\begin{verbatim}
+int registryDriverSupportAdd(const char *name, struct drvet *pdrvet);
 struct drvet *registryDriverSupportFind(const char *name);
 
 int registerRecordDeviceDriver(DBBASE *pdbbase);
-\end{verbatim}\index{registryDriverSupportAdd}
+\end{verbatim}
+
+\index{registryDriverSupportAdd}
 \index{registryDriverSupportFind}
-\index{registerRecordDeviceDriver}This provides addresses for driver support tables.
+\index{registerRecordDeviceDriver}
+This provides addresses for driver support tables.
 
 \section{registryFunction.h}
 
-\index{registryFunction.h}\begin{verbatim}typedef void (*REGISTRYFUNCTION)(void);
+\index{registryFunction.h}
+\begin{verbatim}
+typedef void (*REGISTRYFUNCTION)(void);
 
 typedef struct registryFunctionRef {
     const char *name;
@@ -68,25 +89,31 @@ typedef struct registryFunctionRef {
 int registryFunctionAdd(const char *name, REGISTRYFUNCTION func);
 REGISTRYFUNCTION registryFunctionFind(const char *name);
 int registryFunctionRefAdd(registryFunctionRef ref[], int nfunctions);
-\end{verbatim}\index{registryFunctionRef}
+\end{verbatim}
+
+\index{registryFunctionRef}
 \index{registryFunctionAdd}
 \index{registryFunctionFind}
-\index{registryFunctionRefAdd}\verb|registryFunctionAdd| registers a single function. \verb|registryFunctionRefAdd| registers several functions.
+\index{registryFunctionRefAdd}
+\verb|registryFunctionAdd| registers a single function. \verb|registryFunctionRefAdd| registers several functions.
 
 If you use these routines to register functions directly instead of using a \verb|function()| statement in a database definition 
 file, the registered functions will not appear in the output from the \verb|dbDumpFunction| command.
 
 \section{registerRecordDeviceDriver.c}
 
-\index{registerRecordDeviceDriver.c}A version of this is provided for vxWorks. This version makes it unnecessary to use registerRecordDeviceDriver.pl or 
+\index{registerRecordDeviceDriver.c}
+A version of this is provided for vxWorks. This version makes it unnecessary to use registerRecordDeviceDriver.pl or 
 register other external names. Thus for vxWorks everything can work almost exactly like it did in release 3.13.x
 
 \section{registerRecordDeviceDriver.pl}
 
-\index{registerRecordDeviceDriver.pl}This is the perl script which creates a C source file that registers record/device/driver/function support. The following 
+\index{registerRecordDeviceDriver.pl}
+This is the perl script which creates a C source file that registers record/device/driver/function support. The following 
 steps are take as part of the standard Make rules:
 
-\begin{itemize}\item Execute this script using a dbd file created by dbExpand
+\begin{itemize}
+\item Execute this script using a dbd file created by dbExpand
 
 \item Compile the resulting C++ file
 

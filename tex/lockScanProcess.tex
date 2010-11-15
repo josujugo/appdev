@@ -13,7 +13,8 @@ considerable complication. Thus, before discussing locking, scanning, and proces
 
 \section{Record Links}
 
-\index{Database Links}A database record may contain links to other records. Each link is one of the following types:
+\index{Database Links}
+A database record may contain links to other records. Each link is one of the following types:
 
 \begin{itemize}
 \item \index{INLINK}INLINK
@@ -72,19 +73,23 @@ NOTE: This chapter discusses mainly database links.
 
 Database links are referenced by calling one of the following routines:
 
-\begin{itemize}\item \index{dbGetLink}dbGetLink: The value of the field referenced by the input link retrieved.
+\begin{itemize}
+\item \index{dbGetLink}dbGetLink: The value of the field referenced by the input link retrieved.
 
 \item \index{dbPutLink}dbPutLink: The value of the field referenced by the output link is changed.
 
 \item \index{dbScanPassive}dbScanPassive: The record referred to by the forward link is processed if it is passive.
 
-\end{itemize}A forward link only makes sense when it refers to a passive record that the should be processed when the record 
+\end{itemize}
+
+A forward link only makes sense when it refers to a passive record that the should be processed when the record 
 containing the link is processed. For input and output links, however, two other attributes can be specified by the 
 application developer, process passive and maximize severity.
 
 \subsection{Process Passive}
 
-\index{Process Passive}Process passive (\index{PP}\verb|PP| or\index{NPP} \verb|NPP|), is either \verb|TRUE| or \verb|FALSE|.  It determines if the linked record should be processed before 
+\index{Process Passive}
+Process passive (\index{PP}\verb|PP| or \index{NPP}\verb|NPP|), is either \verb|TRUE| or \verb|FALSE|.  It determines if the linked record should be processed before 
 getting a value from an input link or after writing a value to an output link. The linked record will be processed, via a call 
 to \verb|dbProcess|, only if the record is a passive record and process passive is \verb|TRUE|.
 
@@ -93,12 +98,14 @@ Channel Access Link. See last section of this chapter for details.
 
 \subsection{Maximize Severity}
 
-\index{Maximize Severity}Maximize severity (\index{MS}\verb|MS| or\index{NMS} \verb|NMS|), is \verb|TRUE| or \verb|FALSE|.  It determines if alarm severity is propagated across links. For input 
+\index{Maximize Severity}
+Maximize severity (\index{MS}\verb|MS| or \index{NMS}\verb|NMS|), is \verb|TRUE| or \verb|FALSE|.  It determines if alarm severity is propagated across links. For input 
 links the alarm severity of the record referred to by the link is propagated to the record containing the link. For output 
 links the alarm severity of the record containing the link is propagated to the record referred to by the link. In either case, 
 if the severity is changed, the alarm status is set to \verb|LINK_ALARM|.
 
-\index{LINK\_ALARM}The method of determining if the alarm status and severity should be changed is called ``maximize severity". In addition 
+\index{LINK\_ALARM}
+The method of determining if the alarm status and severity should be changed is called ``maximize severity". In addition 
 to its actual status and severity, each record also has a new status and severity. The new status and severity are initially 0, 
 which means \verb|NO_ALARM|. Every time a software component wants to modify the status and severity, it first checks the 
 new severity and only makes a change if the severity it wants to set is greater than the current new severity. If it does make 
@@ -109,22 +116,28 @@ severity outstanding alarm. If multiple alarms of the same severity are present 
 
 \section{Database Locking}
 
-\index{Database Locking}The purpose of database locking is to prevent a record from being processed simultaneously by two different tasks. In 
+\index{Database Locking}
+The purpose of database locking is to prevent a record from being processed simultaneously by two different tasks. In 
 addition, it prevents ``outside" tasks from changing any field while the record is being processed.
 
 The following routines are provided for database locking.
 
-\begin{verbatim}dbScanLock(precord);
+\begin{verbatim}
+dbScanLock(precord);
 dbScanUnlock(precord);
-\end{verbatim}\index{dbScanLock}
-\index{dbScanUnlock}The basic idea is to call \verb|dbScanLock| before accessing database records and calling \verb|dbScanUnlock| afterwords. 
+\end{verbatim}
+
+\index{dbScanLock}
+\index{dbScanUnlock}
+The basic idea is to call \verb|dbScanLock| before accessing database records and calling \verb|dbScanUnlock| afterwords. 
 Because of database links (Input, Output, and Forward) a modification to one record can cause modification to other 
 records. Records linked together with database links are placed in the same lock set. \verb|dbScanLock| locks the entire lock 
 set not just the record requested. \verb|dbScanUnlock| unlocks the entire set.
 
 The following rules determine when the lock routines must be called:
 
-\begin{enumerate}\item The periodic, I/O event, and event tasks lock before and unlock after processing:
+\begin{enumerate}
+\item The periodic, I/O event, and event tasks lock before and unlock after processing:
 
 \item \verb|dbPutField| locks before modifying a record and unlocks afterwards.
 
@@ -132,16 +145,21 @@ The following rules determine when the lock routines must be called:
 
 \item Any asynchronous record support completion routine must lock before modifying a record and unlock afterwards.
 
-\end{enumerate}\index{dbPutField}
-\index{dbGetField}All records connected by any kind of database link are placed in the same lock set. Versions of EPICS Base prior to R3.14 
+\end{enumerate}
+
+\index{dbPutField}
+\index{dbGetField}
+All records connected by any kind of database link are placed in the same lock set. Versions of EPICS Base prior to R3.14 
 allowed an NPP NMS input link to span two different lock sets, but this was not safe where the read and write operations 
 on the field value were not atomic in nature and is no longer available to break a lockset.
 
 \section{Database Scanning}
 
-\index{Database Scanning}Database scanning refers to requests that database records be processed. Four types of scanning are possible:
+\index{Database Scanning}
+Database scanning refers to requests that database records be processed. Four types of scanning are possible:
 
-\begin{enumerate}\item \index{Periodic Scanning}Periodic - Records are scanned at regular intervals.
+\begin{enumerate}
+\item \index{Periodic Scanning}Periodic - Records are scanned at regular intervals.
 
 \item \index{I/O Event Scanning}I/O event - A record is scanned as the result of an I/O interrupt.
 
@@ -150,9 +168,12 @@ on the field value were not atomic in nature and is no longer available to break
 \item \index{Passive Scanning}Passive - A record is scanned as a result of a call to \verb|dbScanPassive|. \verb|dbScanPassive| will issue a record 
 processing request if and only if the record is passive and is not already being processed.
 
-\end{enumerate}A \verb|dbScanPassive| request results from a task calling one of the following routines:
+\end{enumerate}
 
-\begin{itemize}\item \index{dbScanPassive}dbScanPassive:  Only record processing routines, \verb|dbGetLink|, \verb|dbPutLink|, and \verb|dbPutField| call \\
+A \verb|dbScanPassive| request results from a task calling one of the following routines:
+
+\begin{itemize}
+\item \index{dbScanPassive}dbScanPassive:  Only record processing routines, \verb|dbGetLink|, \verb|dbPutLink|, and \verb|dbPutField| call \\
 \verb|dbScanPassive|. Record processing routines call it for each forward link in the record. 
 
 \item \index{dbPutField}dbPutField:  This routine changes the specified field and then, if the field has been declared \verb|process_passive|, 
@@ -171,18 +192,23 @@ again, when the current processing completes.
 active because of a \verb|dbPutField| directed to this record then it arranges for the record to be processed again,  
 when the current processing completes.
 
-\end{itemize}All non-record processing tasks (Channel Access, Sequence Programs, etc.) call \verb|dbGetField| to obtain database values. 
+\end{itemize}
+
+All non-record processing tasks (Channel Access, Sequence Programs, etc.) call \verb|dbGetField| to obtain database values. 
 \verb|dbGetField| just reads values without asking that a record be processed.
 
 \section{Record Processing}
 
-\index{Record Processing}A record is processed as a result of a call to \verb|dbProcess|. Each record support module must supply a routine \verb|process|. 
+\index{Record Processing}
+A record is processed as a result of a call to \verb|dbProcess|. Each record support module must supply a routine \verb|process|. 
 This routine does most of the work related to record processing. Since the details of record processing are record type 
 specific this topic is discussed in greater detail in Chapter ``Record Support" for details.
 
-\index{process - record support routine}\section{Guidelines for Creating Database Links}
+\index{process - record support routine}
+\section{Guidelines for Creating Database Links}
 
-\index{Database Link Guidelines}The ability to link records together is an extremely powerful feature of the IOC software. In order to use links properly it 
+\index{Database Link Guidelines}
+The ability to link records together is an extremely powerful feature of the IOC software. In order to use links properly it 
 is important that the Application Developer understand how they are processed. As an introduction consider the following 
 example :
 
@@ -194,7 +220,8 @@ Assume that A, B, and C are all passive records. The notation states that A has 
 input link obtaining a value from A. Assume, for some reason, A gets processed. The following sequence of events 
 occurs:
 
-\begin{enumerate}\item A begins processing. While processing a request is made to process B.
+\begin{enumerate}
+\item A begins processing. While processing a request is made to process B.
 
 \item B starts processing. While processing a request is made to process C.
 
@@ -212,7 +239,9 @@ and will not be processed again.
 
 \item A completes processing.
 
-\end{enumerate}This brief example demonstrates that database links needs more discussion.
+\end{enumerate}
+
+This brief example demonstrates that database links needs more discussion.
 
 \subsection{Rules Relating to Database Links}
 
@@ -220,7 +249,8 @@ and will not be processed again.
 
 The processing order is guaranteed to follow the following rules:
 
-\begin{enumerate}\item Forward links are processed in order from left to right and top to bottom. For example the following records are 
+\begin{enumerate}
+\item Forward links are processed in order from left to right and top to bottom. For example the following records are 
 processed in the order \verb|FLNK1|, \verb|FLNK2|, \verb|FLNK3|, \verb|FLNK4| .
 
 \begin{center}
@@ -260,7 +290,8 @@ process passive \verb|TRUE| (\verb|PP|) or process passive \verb|FALSE| (\verb|N
 Assume that all records except fanout are passive. When the fanout record is processed the following sequence of events 
 occur:
 
-\begin{enumerate}\item Fanout starts processing and asks that B be processed.
+\begin{enumerate}
+\item Fanout starts processing and asks that B be processed.
 
 \item B begins processing. It calls \verb|dbGetLink| to obtain data from A.
 
@@ -280,7 +311,9 @@ occur:
 
 \item The fanout completes
 
-\end{enumerate}Note that A got processed twice. This is unnecessary. If the input link to C is declared no process passive then A will only 
+\end{enumerate}
+
+Note that A got processed twice. This is unnecessary. If the input link to C is declared no process passive then A will only 
 be processed once. Thus we should have .
 
 \begin{center}
@@ -307,14 +340,16 @@ is propagated the alarm status is set equal to \verb|LINK_ALARM|.
 
 \section{Guidelines for Synchronous Records}
 
-\index{Guidelines for Synchronous Records}A synchronous record is a record that can be completely processed without waiting. Thus the application developer never 
+\index{Guidelines for Synchronous Records}
+A synchronous record is a record that can be completely processed without waiting. Thus the application developer never 
 needs to consider the possibility of delays when he defines a set of related records. The only consideration is deciding 
 when records should be processed and in what order a set of records should be processed.
 
 The following reviews the methods available to the application programmer for deciding when to process a record and for 
 enforcing the order of record processing.
 
-\begin{enumerate}\item A record can be scanned periodically (at one of several rates), via I/O event, or via Event.
+\begin{enumerate}
+\item A record can be scanned periodically (at one of several rates), via I/O event, or via Event.
 
 \item For each periodic group and for each Event group the phase field can be used to specify processing order.
 
@@ -338,16 +373,20 @@ set of records are scanned.
 \item General link structures can be defined. The application programmer should be wary, however, of defining arbitrary 
 structures without carefully analyzing the processing order. 
 
-\end{enumerate}\section{Guidelines for Asynchronous Records}
+\end{enumerate}
 
-\index{Guidelines for Asynchronous Records}The previous discussion does not allow for asynchronous records. An example is a GPIB input record. When the record is 
+\section{Guidelines for Asynchronous Records}
+
+\index{Guidelines for Asynchronous Records}
+The previous discussion does not allow for asynchronous records. An example is a GPIB input record. When the record is 
 processed the GPIB request is started and the processing routine returns. Processing, however, is not really complete until 
 the GPIB request completes. This is handled via an asynchronous completion routine. Lets state a few attributes of 
 asynchronous record processing. 
 
 During the initial processing for all asynchronous records the following is done:
 
-\begin{enumerate}\item \verb|pact| is set \verb|TRUE|
+\begin{enumerate}
+\item \verb|pact| is set \verb|TRUE|
 
 \item Data is obtained for all input links
 
@@ -355,9 +394,12 @@ During the initial processing for all asynchronous records the following is done
 
 \item The record processing routine returns
 
-\end{enumerate}The asynchronous completion routine performs the following algorithm:
+\end{enumerate}
 
-\begin{enumerate}\item Record processing continues
+The asynchronous completion routine performs the following algorithm:
+
+\begin{enumerate}
+\item Record processing continues
 
 \item Record specific alarm conditions are checked
 
@@ -367,9 +409,12 @@ During the initial processing for all asynchronous records the following is done
 
 \item \verb|pact| is set \verb|FALSE|.
 
-\end{enumerate}A few attributes of the above rules are:
+\end{enumerate}
 
-\begin{enumerate}\item Asynchronous record processing does not delay the scanners.
+A few attributes of the above rules are:
+
+\begin{enumerate}
+\item Asynchronous record processing does not delay the scanners.
 
 \item Between the time record processing begins and the asynchronous completion routine completes, no attempt will be 
 made to again process the record. This is because \verb|pact| is \verb|TRUE|. The routine \verb|dbProcess| checks \verb|pact| and does 
@@ -379,7 +424,9 @@ times in succession, it raises a \verb|SCAN_ALARM|.
 \item Forward and output links are triggered only when the asynchronous completion routine completes record 
 processing.
 
-\end{enumerate}With these rules the following works just fine:
+\end{enumerate}
+
+With these rules the following works just fine:
 
 \begin{center}
 \includegraphics{lockScanProcess_34}
@@ -393,7 +440,8 @@ Problems still remain. A few examples are:
 
 \subsection{Infinite Loop}
 
-\index{Infinite Loop}Infinite processing loops are possible.
+\index{Infinite Loop}
+Infinite processing loops are possible.
 
 \begin{center}
 \includegraphics{lockScanProcess_1}
@@ -402,7 +450,8 @@ Problems still remain. A few examples are:
 Assume both A and B are asynchronous passive records and a request is made to process A. The following sequence of 
 events occur.
 
-\begin{enumerate}\item A starts record processing and returns leaving \verb|pact| \verb|TRUE|.
+\begin{enumerate}
+\item A starts record processing and returns leaving \verb|pact| \verb|TRUE|.
 
 \item Sometime later the record completion for A occurs. During record completion a request is made to process B. B 
 starts processing and control returns to A which completes leaving its \verb|pact| field \verb|FALSE|.
@@ -410,7 +459,9 @@ starts processing and control returns to A which completes leaving its \verb|pac
 \item Sometime later the record completion for B occurs. During record completion a request is made to process A. A 
 starts processing and control returns to B which completes leaving its \verb|pact| field \verb|FALSE|.
 
-\end{enumerate}Thus an infinite loop of record processing has been set up. It is up to the application developer to prevent such loops.
+\end{enumerate}
+
+Thus an infinite loop of record processing has been set up. It is up to the application developer to prevent such loops.
 
 \subsection{Obtain Old Data}
 
@@ -445,7 +496,8 @@ allow scanners to be automatically restarted.
 
 \section{Cached Puts}
 
-\index{Cached Puts}The rules followed by \verb|dbPutLink| and \verb|dbPutField| provide for ``cached" puts. This is necessary because of 
+\index{Cached Puts}
+The rules followed by \verb|dbPutLink| and \verb|dbPutField| provide for ``cached" puts. This is necessary because of 
 asynchronous records. Two cases arise.
 
 The first results from a \verb|dbPutField|, which is a put coming from outside the database, i.e. Channel Access puts. If this 
@@ -464,28 +516,36 @@ value is placed in the record but it will still only be processed once, i.e. las
 
 \section{putNotify}
 
-\index{putNotify}\index{dbPutNotify}dbPutNotify, which is called when a Channel Access client calls \index{ca\_put\_callback}ca\_put\_callback, is a request to notify the caller when all 
+\index{putNotify}
+\index{dbPutNotify}dbPutNotify, which is called when a Channel Access client calls \index{ca\_put\_callback}ca\_put\_callback, is a request to notify the caller when all 
 records processed as a result of the put complete. Because of asynchronous records this can be complicated and the set of 
 records that are processed because of a put may not be deterministic. The result of a dbPutNotify is the same as a 
 dbPutField except for the following:
 
-\begin{itemize}\item dbPutNotifys are queued rather than cached. Thus when additional dbPutNotifys are directed to a record that 
+\begin{itemize}
+\item dbPutNotifys are queued rather than cached. Thus when additional dbPutNotifys are directed to a record that 
 already has an active dbPutNotify, they are queued. As each one finishes it releases the next one in the queue.
 
 \item If a dbPutNotify links to a record that is not active but has a dbPutNotify attached to it, no attempt is made to 
 process the record.
 
-\end{itemize}\section{Channel Access Links}
+\end{itemize}
+
+\section{Channel Access Links}
 
 A channel access link is:
 
-\begin{enumerate}\item A record link that references a record in a different IOC.
+\begin{enumerate}
+\item A record link that references a record in a different IOC.
 
 \item A link that the application developer forces to be a channel access link.
 
-\end{enumerate}A channel access client task (dbCa)  handles all I/O for channel access links. It does the following:
+\end{enumerate}
 
-\begin{itemize}\item At IOC initialization dbCa issues channel access search requests for each channel access link.
+A channel access client task (dbCa)  handles all I/O for channel access links. It does the following:
+
+\begin{itemize}
+\item At IOC initialization dbCa issues channel access search requests for each channel access link.
 
 \item For each input link it establishes a channel access monitor. It uses \verb|ca_field_type| and \verb|ca_element_count| 
 when it establishes the monitor. It also monitors the alarm status. Whenever the monitor is invoked the new data is 
@@ -497,7 +557,9 @@ connection has been made. This buffer is allocated according to  \verb|ca_field_
 Each time iocCore/record support issues a put, the data is converted and placed in the buffer and a request is made 
 to dbCa to issue a new ca\_put.
 
-\end{itemize}Even if a link references a record in the same IOC it can be useful to force it to act like a channel access link. In particular 
+\end{itemize}
+
+Even if a link references a record in the same IOC it can be useful to force it to act like a channel access link. In particular 
 the records will not be forced to be in the same lock set. As an example consider a scan record that links to a set of 
 unrelated records, each of which can cause a lot of records to be processed. It is often NOT desirable to force all these 
 records into the same lock set. Forcing the links to be handled as channel access links solves the problem.
@@ -517,7 +579,8 @@ Let's discuss the channel access semantics of INLINK, OUTLINK, and FWDLINK separ
 
 The options for process passive are:
 
-\begin{itemize}\item PP or NPP - This link is made a channel access link because the referenced record is not found in the local IOC. It 
+\begin{itemize}
+\item PP or NPP - This link is made a channel access link because the referenced record is not found in the local IOC. It 
 is not possible to honor PP, thus the link always acts like NPP.
 
 \item CA - Force the link to be a channel access link.
@@ -528,18 +591,23 @@ whenever a monitor occurs.
 \item CPP - Force the link to be a channel access link and also request that the record containing the link, if it is passive, 
 be processed whenever a monitor occurs.
 
-\end{itemize}Maximize Severity is honored.
+\end{itemize}
+
+Maximize Severity is honored.
 
 \subsection{OUTLINK}
 
 The options for process passive are:
 
-\begin{itemize}\item PP or NPP - This link is made a channel access link because the referenced record is not found in the local IOC. It 
+\begin{itemize}
+\item PP or NPP - This link is made a channel access link because the referenced record is not found in the local IOC. It 
 is not possible to honor PP thus the link always acts like NPP.
 
 \item CA - Force the link to be a channel access link.
 
-\end{itemize}Maximize Severity is not honored.
+\end{itemize}
+
+Maximize Severity is not honored.
 
 \subsection{FWDLINK}
 
@@ -548,11 +616,14 @@ value of 1 is written each time a forward link request is issued.
 
 The options for process passive are:
 
-\begin{itemize}\item PP or NPP - This link is made a channel access link because the referenced record is not found in the local IOC. It 
+\begin{itemize}
+\item PP or NPP - This link is made a channel access link because the referenced record is not found in the local IOC. It 
 is not possible to honor PP thus it always acts like NPP.
 
 \item CA - Force the link to be a channel access link.
 
-\end{itemize}Maximize Severity is not honored.
+\end{itemize}
+
+Maximize Severity is not honored.
 
 

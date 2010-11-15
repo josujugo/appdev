@@ -4,7 +4,8 @@
 
 Database scanning is the mechanism for deciding when to process a record. Five types of scanning are possible:
 
-\begin{itemize}\item \index{Periodic - Scan Type}Periodic:  A record can be processed periodically. A number of time intervals are supported.
+\begin{itemize}
+\item \index{Periodic - Scan Type}Periodic:  A record can be processed periodically. A number of time intervals are supported.
 
 \item \index{Event - Scan Type}Event:  Event scanning is based on the posting of an event by another component of the software via a call to the 
 routine \verb|post_event|.
@@ -20,21 +21,26 @@ request).
 \item \index{Scan Once - Scan Type}Scan Once:  In order to provide for caching puts, The scanning system provides a routine \verb|scanOnce| which 
 arranges for a record to be processed one time.
 
-\end{itemize}This chapter explains database scanning in increasing order of detail. It first explains database fields involved with 
+\end{itemize}
+
+This chapter explains database scanning in increasing order of detail. It first explains database fields involved with 
 scanning. It next discusses the interface to the scanning system. The last section gives a brief overview of how the 
 scanners are implemented. 
 
 \section{Scan Related Database Fields}
 
-\index{Scan Related Database Fields}The following fields are normally defined via DCT. It should be noted, however, that it is quite permissible to change any 
+\index{Scan Related Database Fields}
+The following fields are normally defined via DCT. It should be noted, however, that it is quite permissible to change any 
 of the scan related fields of a record dynamically. For example, a display manager screen could tie a menu control to the 
 \verb|SCAN| field of a record and allow the operator to dynamically change the scan mechanism.
 
 \subsection{SCAN}
 
-\index{SCAN - Scan Related Field}This field, which specifies the scan mechanism, has an associated menu of the following form:
+\index{SCAN - Scan Related Field}
+This field, which specifies the scan mechanism, has an associated menu of the following form:
 
-\begin{description}\item \index{Passive}Passive:  Passively scanned.
+\begin{description}
+\item \index{Passive}Passive:  Passively scanned.
 
 \item \index{Event}Event:  Event Scanned. The field \verb|EVNT| specifies event number
 
@@ -46,9 +52,12 @@ of the scan related fields of a record dynamically. For example, a display manag
 
 \item .1 Second:  Periodically scanned - Every .1 seconds
 
-\end{description}\subsection{PHAS}
+\end{description}
 
-\index{PHAS - Scan Related Field}This field determines processing order for records that are in the same scan set. For example all records periodically 
+\subsection{PHAS}
+
+\index{PHAS - Scan Related Field}
+This field determines processing order for records that are in the same scan set. For example all records periodically 
 scanned at a 2 second rate are in the same scan set. All Event scanned records with the same \verb|EVNT| are in the same scan 
 set, etc. For records in the same scan set, all records with \verb|PHAS|=0 are processed before records with \verb|PHAS|=1, which are 
 processed before all records with \verb|PHAS|=2, etc.
@@ -57,23 +66,27 @@ In general it is not a good idea to rely on \verb|PHAS| to enforce processing or
 
 \subsection{EVNT - Event Number}
 
-\index{EVNT - Scan Related Field}This field only has meaning when \verb|SCAN| is set to \verb|Event| scanning, in which case it specifies the event number. In order 
+\index{EVNT - Scan Related Field}
+This field only has meaning when \verb|SCAN| is set to \verb|Event| scanning, in which case it specifies the event number. In order 
 for a record to be event scanned, \verb|EVNT| must be in the range 0,...255. It should also be noted that some EPICS software 
 components will not request event scanning for event 0. One example is the \verb|eventRecord| record support module. Thus 
 the application developer will normally want to define events in the range 1,...,255. 
 
 \subsection{PRIO - Scheduling Priority }
 
-\index{PRIO - Scan Related Field}This field can be used by any software component that needs to specify scheduling priority, e.g. the event and I/O event 
+\index{PRIO - Scan Related Field}
+This field can be used by any software component that needs to specify scheduling priority, e.g. the event and I/O event 
 scan facility uses this field. 
 
 \section{ Scan Related Software Components }
 
 \subsection{menuScan.dbd}
 
-\index{menuScan.dbd}This file contains definitions for a menu related to field \verb|SCAN|. The definitions are of the form:
+\index{menuScan.dbd}
+This file contains definitions for a menu related to field \verb|SCAN|. The definitions are of the form:
 
-\begin{verbatim}menu(menuScan) {
+\begin{verbatim}
+menu(menuScan) {
     choice(menuScanPassive,"Passive")
     choice(menuScanEvent,"Event")
     choice(menuScanI_O_Intr,"I/O Intr")
@@ -85,7 +98,9 @@ scan facility uses this field.
     choice(menuScan_2_second,".2 second")
     choice(menuScan_1_second,".1 second")
 }
-\end{verbatim}The first three choices must appear first and in the order shown. The remaining definitions are for the periodic scan rates, 
+\end{verbatim}
+
+The first three choices must appear first and in the order shown. The remaining definitions are for the periodic scan rates, 
 which must appear in the order slowest to fastest (the order directly controls the thread priority assigned to the particular 
 scan rate, and faster scan rates should be assigned higher thread priorities). At IOC initialization, the menu choice strings 
 are read at scan initialization. The number of periodic scan rates and the period of each rate is determined from the menu 
@@ -95,11 +110,13 @@ in units of seconds.
 
 \subsection{dbScan.h}
 
-\index{dbScan.h}All software components that interact with the scanning system must include this file.
+\index{dbScan.h}
+All software components that interact with the scanning system must include this file.
 
 The most important definitions in this file are:
 
-\begin{verbatim}#define SCAN_PASSIVE       menuScanPassive
+\begin{verbatim}
+#define SCAN_PASSIVE       menuScanPassive
 #define SCAN_EVENT         menuScanEvent
 #define SCAN_IO_EVENT      menuScanI_O_Intr
 #define SCAN_1ST_PERIODIC  (menuScanI_O_Intr + 1)
@@ -124,45 +141,64 @@ int scanpiol(void);   /* print io_event list*/
 
 void scanIoInit(IOSCANPVT *);
 void scanIoRequest(IOSCANPVT);
-\end{verbatim}\index{SCAN\_1ST\_PERIODIC}The first set of definitions defines the various scan types. The next definition \verb|IOSCANPVT| is used when interfacing with 
+\end{verbatim}
+
+\index{SCAN\_1ST\_PERIODIC}The first set of definitions defines the various scan types. The next definition \verb|IOSCANPVT| is used when interfacing with 
 the I/O interrupt scanner. The remaining definitions define the public scan access routines. These are described in the 
 following subsections.
 
 \subsection{Initializing And Controlling Database Scaning}
 
-\begin{verbatim}scanInit(void);
-\end{verbatim}\index{scanInit}The routine \verb|scanInit| is called by \verb|iocInit|. It initializes the scanning system.
+\begin{verbatim}
+scanInit(void);
+\end{verbatim}
 
-\begin{verbatim}scanRun(void);
+\index{scanInit}The routine \verb|scanInit| is called by \verb|iocInit|. It initializes the scanning system.
+
+\begin{verbatim}
+scanRun(void);
 scanPause(void);
-\end{verbatim}\index{scanRun}
-\index{scanPause}These routines start and stop all the scan tasks respectively. They are used by the \verb|iocInit|, \verb|iocRun| and \verb|iocPause| 
-commands.\verb||
+\end{verbatim}
+
+\index{scanRun}
+\index{scanPause}
+These routines start and stop all the scan tasks respectively. They are used by the \verb|iocInit|, \verb|iocRun| and \verb|iocPause| 
+commands.
 
 \subsection{Adding And Deleting Records From Scan List}
 
 The following routines are called each time a record is added or deleted from a scan list.
 
-\begin{verbatim}scanAdd(struct dbCommon *);
+\begin{verbatim}
+scanAdd(struct dbCommon *);
 scanDelete(struct dbCommon *);
-\end{verbatim}\index{scanAdd}
-\index{scanDelete}These routines are called by \verb|scanInit| at IOC initialization time in order to enter all records created via DCT into the 
+\end{verbatim}
+
+\index{scanAdd}
+\index{scanDelete}
+These routines are called by \verb|scanInit| at IOC initialization time in order to enter all records created via DCT into the 
 correct scan list. The routine \verb|dbPut| calls \verb|scanDelete| and \verb|scanAdd| each time a scan related field is changed (each 
 scan related field is declared to be \verb|SPC_SCAN| in  \verb|dbCommon.dbd|). \verb|scanDelete| is called before the field is modified 
 and \verb|scanAdd| after the field is modified.
 
 \subsection{Obtaining the scan period from the SCAN field}
 
-\begin{verbatim}double scanPeriod(int scan);
-\end{verbatim}\index{scanPeriod}The argument is an offset into the set of enum choices for menuScan.h. Most users will just use the SCAN field of a 
+\begin{verbatim}
+double scanPeriod(int scan);
+\end{verbatim}
+
+\index{scanPeriod}The argument is an offset into the set of enum choices for menuScan.h. Most users will just use the SCAN field of a 
 database record. It returns the scan period in seconds. The result will be 0.0 if  scan doesn't refer to a periodic rate.
 
 \subsection{Declaring Database Event}
 
 Whenever any software component wants to declare a database event, it just calls:
 
-\begin{verbatim}post_event(event)
-\end{verbatim}\index{post\_event}This can be called by virtually any IOC software component. For example sequence programs can call it. The record 
+\begin{verbatim}
+post_event(event)
+\end{verbatim}
+
+\index{post\_event}This can be called by virtually any IOC software component. For example sequence programs can call it. The record 
 support module for \verb|eventRecord| calls it.
 
 \subsection{Interfacing to I/O Event Scanning}
@@ -171,7 +207,8 @@ support module for \verb|eventRecord| calls it.
 
 Interfacing to the I/O event scanner is done via some combination of device and driver support.
 
-\begin{enumerate}\item Include \verb|<dbScan.h>|
+\begin{enumerate}
+\item Include \verb|<dbScan.h>|
 
 \item For each separate event source the following must be done:
 
@@ -179,12 +216,14 @@ Interfacing to the I/O event scanner is done via some combination of device and 
 
 \item Declare an \verb|IOSCANPVT| variable, e.g.
 
-\begin{verbatim}static IOSCANPVT ioscanpvt;
+\begin{verbatim}
+static IOSCANPVT ioscanpvt;
 \end{verbatim}
 
 \item Call \verb|scanIoInit|, e.g.
 
-\begin{verbatim}scanIoInit(&ioscanpvt);
+\begin{verbatim}
+scanIoInit(&ioscanpvt);
 \end{verbatim}
 \end{enumerate}
 
@@ -198,7 +237,7 @@ long get_ioint_info(
 \end{verbatim}
 
 This routine is called each time the record pointed to by \verb|precord| is added or deleted from an I/O event scan list. 
-\verb|cmd| has the value (0,1) if the record is being (added to, deleted from) an I/O event list. This routine must give a value to *\verb|ppvt|.
+\verb|cmd| has the value (0,1) if the record is being (added to, deleted from) an I/O event list. This routine must give a value to \verb|*ppvt|.
 
 \item Whenever an I/O event is detected call \verb|scanIoRequest|, e.g.
 
@@ -261,7 +300,9 @@ IOSCANPVT   *ppvt)
     *ppvt = ioscanpvt;
     return(0);
 }
-\end{verbatim}\index{get\_ioint\_info}\section{Implementation Overview}
+\end{verbatim}
+
+\index{get\_ioint\_info}\section{Implementation Overview}
 
 The code for the entire scanning system resides in \verb|dbScan.c|, i.e. periodic, event, and I/O event. This section gives an 
 overview of how the code in \verb|dbScan.c| is organized. The listing of \verb|dbScan.c| must be studied for a complete 
@@ -283,9 +324,11 @@ typedef struct scan_element{
     scan_list       *pscan_list;
     struct dbCommon *precord;
 }
-\end{verbatim}Later we will see how \verb|scan_lists| are determined. For now just realize that \verb|scan_list.list| is the head of a list of 
+\end{verbatim}
+
+Later we will see how \verb|scan_list|s are determined. For now just realize that \verb|scan_list.list| is the head of a list of 
 records that belong to the same scan set (for example, all records that are periodically scanned at a 1 second rate are in the 
-same scan set). The node field in \verb|scan_element| contain the list links. The normal vxWorks \verb|lstLib| routines are used 
+same scan set). The node field in \verb|scan_element| contain the list links. The normal libCom \verb|ellLib| routines are used 
 to access the list. Each record that appears in some scan list has an associated \verb|scan_element|. The \verb|SPVT| field which 
 appears in \verb|dbCommon| holds the address of the associated \verb|scan_element|.
 
@@ -296,11 +339,13 @@ course, the normal case.
 
 The \verb|dbScan.c| module contains several private routines. The following access a single scan set: 
 
-\begin{itemize}\item printList:  Prints the names of all records in a scan set.
+\begin{itemize}
+\item printList:  Prints the names of all records in a scan set.
 
 \item scanList:  This routine is the heart of the scanning system. For each record in a scan set it does the following:
 
-\begin{verbatim}dbScanLock(precord);
+\begin{verbatim}
+dbScanLock(precord);
 dbProcess(precord);
 dbScanUnlock(precord);
 \end{verbatim}
@@ -315,16 +360,20 @@ It also has code to recognize when a scan list is modified while the scan set is
 
 \subsection{Event Scanning}
 
-\index{Event Scanning}Event scanning is built around the following definitions:
+\index{Event Scanning}
+Event scanning is built around the following definitions:
 
-\begin{verbatim}#define MAX_EVENTS 256
+\begin{verbatim}
+#define MAX_EVENTS 256
 typedef struct event_scan_list {
     CALLBACK        callback;
     scan_list       scan_list;
 } event_scan_list;
 static event_scan_list
 *pevent_list[NUM_CALLBACK_PRIORITIES][MAX_EVENTS];
-\end{verbatim}\verb|pevent_list| is a 2d array of pointers to \verb|scan_lists|. Note that the array allows for 256 events, i.e. one for each 
+\end{verbatim}
+
+\verb|pevent_list| is a 2d array of pointers to \verb|scan_lists|. Note that the array allows for 256 events, i.e. one for each 
 possible event number. In other words, each event number and priority has its own scan list. No \verb|scan_list| is actually 
 created until the first request to add an element for that event number. The event scan lists have the memory layout 
 illustrated in Figure17-1.
@@ -335,15 +384,19 @@ illustrated in Figure17-1.
 
 \subsubsection{post\_event} \index{post\_event}
 
-\begin{verbatim}post_event(int event)
-\end{verbatim}\index{post\_event}This routine is called to request  event scanning. It can be called from interrupt level. It looks at each 
-\verb|event_scan_list| referenced by \verb|pevent_list|[*][\verb|event|] (one for each callback priority) and if any elements are 
+\begin{verbatim}
+post_event(int event)
+\end{verbatim}
+
+\index{post\_event}This routine is called to request  event scanning. It can be called from interrupt level. It looks at each 
+\verb|event_scan_list| referenced by \verb|pevent_list[*][event]| (one for each callback priority) and if any elements are 
 present in the \verb|scan_list| a \verb|callbackRequest| is issued. The appropriate callback task calls routine 
 \verb|eventCallback|, which just calls \verb|scanList|. 
 
 \subsection{I/O Event Scanning}
 
-\index{I/O Event Scanning}I/O event scanning is built around the following definitions:
+\index{I/O Event Scanning}
+I/O event scanning is built around the following definitions:
 
 \begin{verbatim}
 typedef struct io_scan_list {
@@ -353,7 +406,9 @@ typedef struct io_scan_list {
 }
 static io_scan_list *iosl_head[NUM_CALLBACK_PRIORITIES] = {
     NULL,NULL,NULL};
-\end{verbatim}The array \verb|iosl_head| and the field \verb|next| are only kept so that \verb|scanpiol| can be implemented and will not be discussed 
+\end{verbatim}
+
+The array \verb|iosl_head| and the field \verb|next| are only kept so that \verb|scanpiol| can be implemented and will not be discussed 
 further. I/O event scanning uses the general purpose callback tasks to perform record processing, i.e. no task is spawned 
 for I/O event. The callback field of \verb|io_scan_list| is used to communicate with the callback tasks.
 
@@ -361,8 +416,11 @@ The following routines implement I/O event scanning:
 
 \subsubsection{scanIoInit}
 
-\begin{verbatim}scanIoInit (IOSCANPVT  *ppioscanpvt)
-\end{verbatim}\index{scanIoInit}This routine is called by device or driver support. It is called once for each interrupt source. \verb|scanIoInit| allocates and 
+\begin{verbatim}
+scanIoInit (IOSCANPVT  *ppioscanpvt)
+\end{verbatim}
+
+\index{scanIoInit}This routine is called by device or driver support. It is called once for each interrupt source. \verb|scanIoInit| allocates and 
 initializes an array of \verb|io_scan_list| structures; one for each callback priority and puts the address in \verb|pioscanpvt|. 
 Remember that three callback priorities are supported (low, medium, and high). Thus for each interrupt source the 
 structures are illustrated in Figure17-1:
@@ -376,17 +434,22 @@ When \verb|scanAdd| or \verb|scanDelete| are called, they call the device suppor
 
 \subsubsection{scanIoRequest}
 
-\begin{verbatim}scanIoRequest (IOSCANPVT pioscanpvt)
-\end{verbatim}\index{scanIoRequest}This routine is called to request I/O event scanning. It can be called from interrupt level. It looks at each \verb|io_scan_list| 
+\begin{verbatim}
+scanIoRequest (IOSCANPVT pioscanpvt)
+\end{verbatim}
+
+\index{scanIoRequest}This routine is called to request I/O event scanning. It can be called from interrupt level. It looks at each \verb|io_scan_list| 
 referenced by \verb|pioscanpvt| (one for each callback priority) and if any elements are present in the \verb|scan_list| a 
 \verb|callbackRequest| is issued. The appropriate callback task calls routine \verb|ioeventCallback|, which just calls 
 \verb|scanList|. 
 
 \subsection{Periodic Scanning}
 
-\index{Periodic Scanning}Periodic scanning is built around the following definitions:
+\index{Periodic Scanning}
+Periodic scanning is built around the following definitions:
 
-\begin{verbatim}typedef struct periodic_scan_list {
+\begin{verbatim}
+typedef struct periodic_scan_list {
     scan_list           scan_list;
     double              period;
     volatile enum ctl   scanCtl;
@@ -395,7 +458,9 @@ referenced by \verb|pioscanpvt| (one for each callback priority) and if any elem
 static int nPeriodic;
 static periodic_scan_list **papPeriodic;
 static epicsThreadId *periodicTaskId;
-\end{verbatim}\verb|nPeriodic|, which is determined at \verb|iocInit| time, is the number of periodic rates. \verb|papPeriodic| is a pointer to an 
+\end{verbatim}
+
+\verb|nPeriodic|, which is determined at \verb|iocInit| time, is the number of periodic rates. \verb|papPeriodic| is a pointer to an 
 array of pointers to \verb|scan_lists|. There is an array element for each scan rate. Thus the structure illustrated in 
 Figure17-1 exists after \verb|iocInit|.
 
@@ -407,16 +472,22 @@ A periodic scan task is created for each scan rate. The following routines imple
 
 \subsubsection{initPeriodic}
 
-\begin{verbatim}initPeriodic()
-\end{verbatim}\index{initPeriodic}This routine first determines the scan rates. It does this by accessing the \verb|SCAN| field of the first record it finds. It issues a 
+\begin{verbatim}
+initPeriodic()
+\end{verbatim}
+
+\index{initPeriodic}This routine first determines the scan rates. It does this by accessing the \verb|SCAN| field of the first record it finds. It issues a 
 call to \verb|dbGetField| with a \verb|DBR_ENUM| request. This returns the menu choices for \verb|SCAN|. From this the periodic rates are 
 determined. The array of pointers referenced by \verb|papPeriodic| is allocated. For each scan rate a \verb|scan_list| is 
 allocated and a \verb|periodicTask| is spawned.
 
 \subsubsection{periodicTask}
 
-\begin{verbatim}periodicTask (struct scan_list *psl)
-\end{verbatim}\index{periodicTask}This task just performs an infinite loop of calling \verb|scanList| and then waiting until the beginning of the next scan 
+\begin{verbatim}
+periodicTask (struct scan_list *psl)
+\end{verbatim}
+
+\index{periodicTask}This task just performs an infinite loop of calling \verb|scanList| and then waiting until the beginning of the next scan 
 interval, allowing for the time it took to scan the list. If a periodic scan list takes longer to process than its defined scan 
 period, the next scan will not start untill at least 0.1 seconds have elapsed.  This does not limit what scan rates can actually 
 be implemented as long as all the records in the list can be processed within the requested period.
@@ -425,8 +496,11 @@ be implemented as long as all the records in the list can be processed within th
 
 \subsubsection{scanOnce}
 
-\begin{verbatim}void scanOnce (dbCommon *precord)
-\end{verbatim}\index{scanOnce}A task \verb|onceTask| waits for requests to issue a \verb|dbProcess| request. The routine \verb|scanOnce| puts the address of the 
+\begin{verbatim}
+void scanOnce (dbCommon *precord)
+\end{verbatim}
+
+\index{scanOnce}A task \verb|onceTask| waits for requests to issue a \verb|dbProcess| request. The routine \verb|scanOnce| puts the address of the 
 record to be processed in a ring buffer and wakes up \verb|onceTask|.
 
 This routine can be called from interrupt level.
@@ -436,8 +510,11 @@ This routine can be called from interrupt level.
 \verb|scanOnce| places its request on a vxWorks ring buffer.This is set by default to 1000 entries. It can be changed by 
 executing the following command in the vxWorks startup file.
 
-\begin{verbatim}int scanOnceSetQueueSize(int size);
-\end{verbatim}\index{scanOnceSetQueueSize}
+\begin{verbatim}
+int scanOnceSetQueueSize(int size);
+\end{verbatim}
+
+\index{scanOnceSetQueueSize}
 
 
 

@@ -7,23 +7,23 @@ of \index{EPICS}EPICS. It is intended for anyone developing EPICS IOC databases 
 
 The plan of the book is:
 
-\begin{description} % hfill allows item body on new line
+\begin{description}
 
 \item[Getting Started] \hfill \\
 A brief description of how to create EPICS support and ioc applications.
 
-\item[EPICS Overview] \index{EPICS: Overview} \hfill \\
+\item[EPICS Overview] \hfill \\
 An overview of EPICS is presented, showing how the IOC software fits into EPICS.
 
 \item[EPICS Build Facility] \hfill \\
-This chapter, which was written by Janet Anderson, describes the EPICS build facility including directory 
+This chapter describes the EPICS build facility including directory
 structure, environment and system requirements, configuration files, Makefiles, and related build tools.
 
 \item[Database Locking, Scanning, and Processing] \hfill \\
 Overview of three closely related IOC concepts. These concepts are at the heart of what constitutes an EPICS IOC.
 
 \item[Database Definition] \hfill \\
-This chapter gives a complete description of the format of the files that describe IOC databases. This is the format 
+This chapter gives a complete description of the format of the files that describe IOC databases. This is the format
 used by Database Configuration Tools and is also the format used to load databases into an IOC.
 
 \item[IOC Initialization] \hfill \\
@@ -96,22 +96,18 @@ A description of the internal database structures.
 Other than the overview chapter this document describes only core IOC software. Thus it does not describe other EPICS 
 tools which run in an IOC such as the sequencer. It also does not describe Channel Access. 
 
-The reader of this manual should also have the following documents:
+The reader of this manual should also be aware the following additional documentation:
 
 \begin{itemize}
 \item \emph{EPICS Record Reference Manual}, Philip Stanley, Janet Anderson and Marty Kraimer
 
-See the EPICS online wiki for latest version.
-
-\item EPICS IOC Software Configuration Management, Marty Kraimer, Andrew Johnson, Janet Anderson, Ralph Lange 
-
-http://www.aps.anl.gov/asd/controls/epics/EpicsDocumentation/AppDevManuals/iocScm-3.13.2/index.html
+\item \emph{EPICS R3.14 Channel Access Reference Manual}, Jeffrey O. Hill
 
 \item \emph{vxWorks Programmer's Guide}, Wind River Systems
 
 \item \emph{vxWorks Reference Manual}, Wind River Systems
 
-\item RTEMS C User's Guide, Online Applications Research 
+\item RTEMS C User's Guide, Online Applications Research
 
 \end{itemize}
 
@@ -138,7 +134,7 @@ format now used as the standard format. At that time he also created \verb|dbLoa
 
 The \verb|build| utility method resulted in the generation of binary files of UNIX that were loaded into IOCs. As new IOC 
 architectures started being supported this caused problems. During 1995, after learning from an abandoned effort now 
-referred to as \verb|EpicsRX|, the build utilities and binary file (called \verb|default|.\verb|dctsdr|) were replaced by all ASCII files. 
+referred to as \verb|EpicsRX|, the build utilities and binary file (called \verb|default.dctsdr|) were replaced by all ASCII files. 
 The new method provides architecture independence and a more flexible environment for configuring the record/device/
 driver support. This principle implementer was Marty Kraimer with many ideas contributed by John Winans and Jeff Hill. 
 Bob Dalesio made sure that we did not go too far, i.e. 1) make it difficult to upgrade existing applications and 2) lose 

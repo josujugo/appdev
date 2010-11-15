@@ -29,18 +29,23 @@ access.
 
 \section{Overview of Record Processing}
 
-\index{Overview of Record Processing}The most important record support routine is \verb|process|. This routine determines what record processing means. Before 
+\index{Overview of Record Processing}
+The most important record support routine is \verb|process|. This routine determines what record processing means. Before 
 the record specific ``\verb|process|" routine is called, the following has already been done:
 
-\begin{itemize}\item Decision to process a record.
+\begin{itemize}
+\item Decision to process a record.
 
 \item Check that record is not active, i.e. \verb|pact| must be FALSE.
 
 \item Check that the record is not disabled.
 
-\end{itemize}The \verb|process| routine, together with its associated device support, is responsible for the following tasks:
+\end{itemize}
 
-\begin{itemize}\item Set record active while it is being processed
+The \verb|process| routine, together with its associated device support, is responsible for the following tasks:
+
+\begin{itemize}
+\item Set record active while it is being processed
 
 \item Perform I/O (with aid of device support)
 
@@ -50,10 +55,13 @@ the record specific ``\verb|process|" routine is called, the following has alrea
 
 \item Request processing of forward links
 
-\end{itemize}A complication of record processing is that some devices are intrinsically asynchronous. It is NEVER permissible to wait 
+\end{itemize}
+
+A complication of record processing is that some devices are intrinsically asynchronous. It is NEVER permissible to wait 
 for a slow device to complete. Asynchronous records perform the following steps:
 
-\begin{enumerate}\item Initiate the I/O operation and set \verb|pact| \verb|TRUE|
+\begin{enumerate}
+\item Initiate the I/O operation and set \verb|pact| \verb|TRUE|
 
 \item Determine a method for again calling process when the operation completes
 
@@ -63,7 +71,9 @@ for a slow device to complete. Asynchronous records perform the following steps:
 
 \item Set \verb|pact| \verb|FALSE| and return
 
-\end{enumerate}The examples given below show how this can be done.
+\end{enumerate}
+
+The examples given below show how this can be done.
 
 \section{Record Support and Device Support Entry Tables}
 
@@ -101,10 +111,15 @@ rset {   /* record support entry table */
     RECSUPFUN   get_control_double;
     RECSUPFUN   get_alarm_double;
 };
-\end{verbatim}Each record support module must define its RSET. The external name must be of the form:
+\end{verbatim}
 
-\begin{verbatim}<record_type>RSET
-\end{verbatim}Any routines not needed for the particular record type should be initialized to the value \verb|NULL|. Look at the example below 
+Each record support module must define its RSET. The external name must be of the form:
+
+\begin{verbatim}
+<record_type>RSET
+\end{verbatim}
+
+Any routines not needed for the particular record type should be initialized to the value \verb|NULL|. Look at the example below 
 for details.
 
 Device support routines are located via a Device Support Entry Table (\index{DSET}\index{Device Support Entry Table}DSET), which has the following structure:
@@ -118,7 +133,9 @@ struct dset {   /* device support entry table */
     DEVSUPFUN    get_ioint_info;   /* get io interrupt info*/
     /* other functions are record dependent*/
 };
-\end{verbatim}Each device support module must define its associated DSET. The external name must be the same as the name which 
+\end{verbatim}
+
+Each device support module must define its associated DSET. The external name must be the same as the name which 
 appears in \verb|devSup.ascii|.
 
 Any record support module which has associated device support must also include definitions for accessing its associated 
@@ -189,7 +206,9 @@ typedef struct xxxdset { /* analog input dset */
 /* forward declaration for internal routines*/
 static void checkAlarams(xxxRecord *pxxx);
 static void monitor(xxxRecord *pxxx);
-\end{verbatim}\index{RSET - example}The above declarations define the Record Support Entry Table (RSET), a template for the associated Device Support 
+\end{verbatim}
+
+\index{RSET - example}The above declarations define the Record Support Entry Table (RSET), a template for the associated Device Support 
 Entry Table (DSET), and forward declarations to private routines.
 
 The RSET must be declared with an external name of \verb|xxxRSET|. It defines the record support routines supplied for this 
@@ -200,7 +219,8 @@ The template for the DSET is declared for use by this module.
 
 \subsection{init\_record}
 
-\index{init\_record - example}\begin{verbatim}
+\index{init\_record - example}
+\begin{verbatim}
 static long init_record(void *precord, int  pass)
 {
     xxxRecord*pxxx = (xxxRecord *)precord;
@@ -224,7 +244,9 @@ static long init_record(void *precord, int  pass)
     }
     return(0);
 }
-\end{verbatim}This routine, which is called by \verb|iocInit| twice for each record of type \verb|xxx|, checks to see if it has a proper set of device 
+\end{verbatim}
+
+This routine, which is called by \verb|iocInit| twice for each record of type \verb|xxx|, checks to see if it has a proper set of device 
 support routines and, if present, calls the \verb|init_record| entry of the DSET.
 
 During the first call to \verb|init_record| (pass=0) only initializations relating to this record can be performed. During the 
@@ -237,7 +259,8 @@ allocate the array during the first pass (pass=0) and having the link reference 
 
 \subsection{process}
 
-\index{process - example}\begin{verbatim}
+\index{process - example}
+\begin{verbatim}
 static long process(void *precord)
 {
     xxxRecord*pxxx = (xxxRecord *)precord;
@@ -269,7 +292,9 @@ static long process(void *precord)
     pxxx->pact=FALSE;
     return(status);
 }
-\end{verbatim}The record processing routines are the heart of the IOC software. The record specific process routine is called by 
+\end{verbatim}
+
+The record processing routines are the heart of the IOC software. The record specific process routine is called by 
 \verb|dbProcess| whenever it decides that a record should be processed. Process decides what record processing really means. 
 The above is a good example of what should be done. In addition to being called by \verb|dbProcess| the process routine may 
 also be called by asynchronous record completion routines.
@@ -277,7 +302,8 @@ also be called by asynchronous record completion routines.
 The above model supports both synchronous and asynchronous device support routines. For example, if \verb|read_xxx| is an 
 asynchronous routine, the following sequence of events will occur:
 
-\begin{itemize}\item \verb|process| is called with \verb|pact| \verb|FALSE|
+\begin{itemize}
+\item \verb|process| is called with \verb|pact| \verb|FALSE|
 
 \item \verb|read_xxx| is called. Since \verb|pact| is \verb|FALSE| it starts I/O, arranges callback, and sets \verb|pact| \verb|TRUE|
 
@@ -299,7 +325,9 @@ asynchronous routine, the following sequence of events will occur:
 
 \item \verb|process| returns
 
-\end{itemize}At this point the record has been completely processed. The next time \verb|process| is called everything starts all over from 
+\end{itemize}
+
+At this point the record has been completely processed. The next time \verb|process| is called everything starts all over from 
 the beginning.
 
 \subsection{Miscellaneous Utility Routines}
@@ -327,8 +355,11 @@ static long get_graphic_double(DBADDR *paddr,
 }
 /* similar routines would be provided for */
 /* get_control_double and get_alarm_double*/
-\end{verbatim}\index{get\_units - .example}
-\index{get\_graphic\_double - example}These are a few examples of various routines supplied by a typical record support package. The functions that must be 
+\end{verbatim}
+
+\index{get\_units - .example}
+\index{get\_graphic\_double - example}
+These are a few examples of various routines supplied by a typical record support package. The functions that must be 
 performed by the remaining routines are described in the next section.
 
 \subsection{Alarm Processing}
@@ -383,7 +414,9 @@ static void checkAlarms(xxxRecord *pxxx)
     pxxx->lalm=val;
     return;
 }
-\end{verbatim}\index{checkAlarms}This is a typical set of code for checking alarms conditions for an analog type record. The actual set of code can be very 
+\end{verbatim}
+
+\index{checkAlarms}This is a typical set of code for checking alarms conditions for an analog type record. The actual set of code can be very 
 record specific. Note also that other parts of the system can raise alarms. The algorithm is to always maximize alarm 
 severity, i.e. the highest severity outstanding alarm will be reported.
 
@@ -398,7 +431,9 @@ if(pxxx->udf == TRUE ){
     recGblSetSevr(pxxx,UDF_ALARM,VALID_ALARM);
     return;
 }
-\end{verbatim}\index{udf}Database common defines the field \index{UDF}UDF, which means that field VAL is undefined. The STAT and SEVR fields are 
+\end{verbatim}
+
+\index{udf}Database common defines the field \index{UDF}UDF, which means that field VAL is undefined. The STAT and SEVR fields are 
 initialized as though \verb|recGblSetSevr(pxxx,UDF_ALARM,VALID_ALARM)|was called. Thus if the record is never 
 processed the record will be in an INVALID UNDEFINED alarm state. Field UDF is initialized to the value 1, i.e. TRUE. 
 Thus the above code will keep the record in the INVALID UNDEFINED alarm state as long as UDF is not given the 
@@ -425,7 +460,8 @@ that detects an alarm is responsible for raising the alarm.
 
 \subsection{Raising Monitors}
 
-\begin{verbatim}static void monitor(xxxRecord *pxxx)
+\begin{verbatim}
+static void monitor(xxxRecord *pxxx)
 {
     unsigned short   monitor_mask;
     float            delta;
@@ -455,7 +491,9 @@ that detects an alarm is responsible for raising the alarm.
     }
     return;
 }
-\end{verbatim}\index{monitor - example}All record types should call \verb|recGblResetAlarms| as shown. Note that \verb|nsta| and \verb|nsev| will have the value 0 after this 
+\end{verbatim}
+
+\index{monitor - example}All record types should call \verb|recGblResetAlarms| as shown. Note that \verb|nsta| and \verb|nsev| will have the value 0 after this 
 routine completes. This is necessary to ensure that alarm checking starts fresh after processing completes. The code also 
 takes care of raising alarm monitors when a record changes from an alarm state to the no alarm state. It is essential that 
 record support routines follow the above model or else alarm processing will not follow the rules.
@@ -498,13 +536,19 @@ declared \verb|NULL|.
 
 \subsection{Generate Report of Each Field in Record}
 
-\begin{verbatim}report(void *precord);   /* addr of record*/
-\end{verbatim}\index{report - Record Support Routine}This routine is not used by most record types. Any action is record type specific.
+\begin{verbatim}
+report(void *precord);   /* addr of record*/
+\end{verbatim}
+
+\index{report - Record Support Routine}This routine is not used by most record types. Any action is record type specific.
 
 \subsection{Initialize Record Processing}
 
-\begin{verbatim}initialize(void);
-\end{verbatim}\index{init - Record Support Routine}This routine is called once at IOC initialization time. Any action is record type specific. Most record types do not need 
+\begin{verbatim}
+initialize(void);
+\end{verbatim}
+
+\index{init - Record Support Routine}This routine is called once at IOC initialization time. Any action is record type specific. Most record types do not need 
 this routine.
 
 \subsection{Initialize Specific Record}
@@ -513,10 +557,13 @@ this routine.
 init_record(
     void *precord,   /* addr of record*/
     int     pass);
-\end{verbatim}\index{init\_record - record support routine}\verb|iocInit| calls this routine twice (pass=0 and pass=1) for each database record of the type handled by this routine. It must 
+\end{verbatim}
+
+\index{init\_record - record support routine}\verb|iocInit| calls this routine twice (pass=0 and pass=1) for each database record of the type handled by this routine. It must 
 perform the following functions:
 
-\begin{itemize}\item Check and/or issue initialization calls for the associated device support routines.
+\begin{itemize}
+\item Check and/or issue initialization calls for the associated device support routines.
 
 \item Perform any record type specific initialization.
 
@@ -524,10 +571,15 @@ perform the following functions:
 
 \item During the second pass it can perform initializations that affect other records.
 
-\end{itemize}\subsection{Process Record}
+\end{itemize}
 
-\begin{verbatim}process(void *precord);   /* addr of record*/
-\end{verbatim}\index{process - Record Support Routine}This routine must follow the guidelines specified previously.
+\subsection{Process Record}
+
+\begin{verbatim}
+process(void *precord);   /* addr of record*/
+\end{verbatim}
+
+\index{process - Record Support Routine}This routine must follow the guidelines specified previously.
 
 \subsection{Special Processing}
 
@@ -535,7 +587,9 @@ perform the following functions:
 special(
     struct dbAddr   *paddr,
     int   after);/*(FALSE,TRUE)=>(Before,After)Processing*/
-\end{verbatim}\index{special - Record Support Routine}This routine implements the record type specific special processing for the field referred to by \verb|dbAddr|. Note that it is 
+\end{verbatim}
+
+\index{special - Record Support Routine}This routine implements the record type specific special processing for the field referred to by \verb|dbAddr|. Note that it is 
 called twice. Once before any changes are made to the associated field and once after. File \verb|special.h| defines special 
 types. This routine is only called for user special fields, i.e. fields with \verb|SPC_xxx| \textgreater{}= 100. A field is declared special in the 
 ASCII record definition file. New values should not by added to \verb|special.h|, instead use \verb|SPC_MOD|.
@@ -548,8 +602,11 @@ This routine is no longer used. It should be left as a NULL procedure in the rec
 
 \subsection{Convert dbAddr Definitions}
 
-\begin{verbatim}cvt_dbaddr(struct dbAddr *paddr);
-\end{verbatim}\index{cvt\_dbaddr - Record Support Routine}This routine is called by \verb|dbNameToAddr| if the field has special set equal to \verb|SPC_DBADDR|. A typical use is when a field 
+\begin{verbatim}
+cvt_dbaddr(struct dbAddr *paddr);
+\end{verbatim}
+
+\index{cvt\_dbaddr - Record Support Routine}This routine is called by \verb|dbNameToAddr| if the field has special set equal to \verb|SPC_DBADDR|. A typical use is when a field 
 refers to an array. This routine can change any combination of the \verb|dbAddr| fields: \verb|no_elements|, \verb|field_type|, 
 \verb|field_size|, \verb|special,pfield, |and\verb| dbr_type|. For example if the \verb|VAL| field of a waveform record is passed to 
 \verb|dbNameToAddr|, \verb|cvt_dbaddr| would change \verb|dbAddr| so that it refers to the actual array rather then \verb|VAL|.
@@ -558,24 +615,31 @@ The database access routine, \verb|dbGetFieldIndex| can be used to determine whi
 
 NOTES:
 
-\begin{itemize}\item Channel access calls db\_name\_to\_addr, which is part of old database access. Db\_name\_to\_addr calls 
+\begin{itemize}
+\item Channel access calls db\_name\_to\_addr, which is part of old database access. Db\_name\_to\_addr calls 
 dbNameToAddr. This is done when a client connects to the record.
 
 \item no\_elements must be set to the maximum number of elements that will ever be stored in the array.
 
-\end{itemize}\subsection{Get Array Information}
+\end{itemize}
 
-\begin{verbatim}get_array_info(
+\subsection{Get Array Information}
+
+\begin{verbatim}
+get_array_info(
     struct dbAddr  *paddr,
     long   *no_elements,
     long   *offset);
-\end{verbatim}\index{get\_array\_info - Record Support Routine}This routine returns the current number of elements and the offset of the first value of the specified array. The offset field 
+\end{verbatim}
+
+\index{get\_array\_info - Record Support Routine}This routine returns the current number of elements and the offset of the first value of the specified array. The offset field 
 is meaningful if the array is actually a circular buffer.
 
 The database access routine, \verb|dbGetFieldIndex| can be used to determine which field is being modified. It is 
 permissible for \verb|get_array_info| to change \verb|pfield|. This feature can be used to implement double buffering.
 
-\index{get\_array\_info - Record Support Routine}When an array field is being written \verb|get_array_info| is called before the field values are changed.
+\index{get\_array\_info - Record Support Routine}
+When an array field is being written \verb|get_array_info| is called before the field values are changed.
 
 \subsection{Put Array Information}
 
@@ -583,7 +647,9 @@ permissible for \verb|get_array_info| to change \verb|pfield|. This feature can 
 put_array_info(
     struct dbAddr   *paddr,
     long   nNew);
-\end{verbatim}\index{put\_array\_info - Record Support Routine}This routine is called after new values have been placed in the specified array.
+\end{verbatim}
+
+\index{put\_array\_info - Record Support Routine}This routine is called after new values have been placed in the specified array.
 
 The database access routine, \verb|dbGetFieldIndex| can be used to determine which field is being modified.
 
@@ -593,7 +659,9 @@ The database access routine, \verb|dbGetFieldIndex| can be used to determine whi
 get_units(
     struct dbAddr  *paddr,
     char  *punits);
-\end{verbatim}\index{get\_units - Record Support Routine}This routine sets units equal to the engineering units for the field.
+\end{verbatim}
+
+\index{get\_units - Record Support Routine}This routine sets units equal to the engineering units for the field.
 
 The database access routine, \verb|dbGetFieldIndex| can be used to determine which field is being modified.
 
@@ -603,7 +671,9 @@ The database access routine, \verb|dbGetFieldIndex| can be used to determine whi
 get_precision(
     struct dbAddr  *paddr,
     long   *precision);
-\end{verbatim}\index{get\_precision - Record Support Routine}This routine gets the precision, i.e. number of decimal places, which should be used to convert the field value to an ASCII 
+\end{verbatim}
+
+\index{get\_precision - Record Support Routine}This routine gets the precision, i.e. number of decimal places, which should be used to convert the field value to an ASCII 
 string. \verb|recGblGetPrec| should be called for fields not directly related to the value field.
 
 The database access routine, \verb|dbGetFieldIndex| can be used to determine which field is being modified.
@@ -614,7 +684,9 @@ The database access routine, \verb|dbGetFieldIndex| can be used to determine whi
 get_enum_str(
     struct dbAddr  *paddr,
     char  *p);
-\end{verbatim}\index{get\_enum\_str - record Support Routine}This routine sets \verb|*p| equal to the ASCII string for the field value. The field must have type \verb|DBF_ENUM|.
+\end{verbatim}
+
+\index{get\_enum\_str - record Support Routine}This routine sets \verb|*p| equal to the ASCII string for the field value. The field must have type \verb|DBF_ENUM|.
 
 Look at the code for the \verb|bi| or \verb|mbbi| records for examples.
 
@@ -626,7 +698,9 @@ The database access routine, \verb|dbGetFieldIndex| can be used to determine whi
 get_enum_strs(
     struct dbAddr   *paddr,
     struct dbr_enumStrs  *p);
-\end{verbatim}\index{get\_enum\_strs - record Support Routine}This routine gives values to all fields of structure \verb|dbr_enumStrs|.
+\end{verbatim}
+
+\index{get\_enum\_strs - record Support Routine}This routine gives values to all fields of structure \verb|dbr_enumStrs|.
 
 Look at the code for the \verb|bi| or \verb|mbbi| records for examples.
 
@@ -638,7 +712,9 @@ The database access routine, \verb|dbGetFieldIndex| can be used to determine whi
 put_enum_str(
     struct dbAddr  *paddr,
     char  *p);
-\end{verbatim}\index{put\_enum\_str - Record Support Routine}Given an ASCII string, this routine updates the database field. It compares the string with the string values associated with 
+\end{verbatim}
+
+\index{put\_enum\_str - Record Support Routine}Given an ASCII string, this routine updates the database field. It compares the string with the string values associated with 
 each enumerated value and if it finds a match sets the database field equal to the index of the string which matched.
 
 Look at the code for the \verb|bi| or \verb|mbbi| records for examples.
@@ -651,7 +727,9 @@ The database access routine, \verb|dbGetFieldIndex| can be used to determine whi
 get_graphic_double(
     struct dbAddr  *paddr,
     struct dbr_grDouble  *p);   /* addr of return info*/
-\end{verbatim}\index{get\_graphic\_double - Record Support Routine}This routine fills in the graphics related fields of structure \verb|dbr_grDouble|. \verb|recGblGetGraphicDouble| should be 
+\end{verbatim}
+
+\index{get\_graphic\_double - Record Support Routine}This routine fills in the graphics related fields of structure \verb|dbr_grDouble|. \verb|recGblGetGraphicDouble| should be 
 called for fields not directly related to the value field.
 
 The database access routine, \verb|dbGetFieldIndex| can be used to determine which field is being modified.
@@ -662,7 +740,9 @@ The database access routine, \verb|dbGetFieldIndex| can be used to determine whi
 get_control_double(
     struct dbAddr  *paddr,
     struct dbr_ctrlDouble  *p);  /* addr of return info*/
-\end{verbatim}\index{get\_control\_double - Record Support Routine}This routine gives values to all fields of structure \verb|dbr_ctrlDouble|. \verb|recGblGetControlDouble| should be called 
+\end{verbatim}
+
+\index{get\_control\_double - Record Support Routine}This routine gives values to all fields of structure \verb|dbr_ctrlDouble|. \verb|recGblGetControlDouble| should be called 
 for fields not directly related to the value field.
 
 The database access routine, \verb|dbGetFieldIndex| can be used to determine which field is being modified.
@@ -673,13 +753,16 @@ The database access routine, \verb|dbGetFieldIndex| can be used to determine whi
 get_alarm_double(
     struct dbAddr  *paddr,
     struct dbr_alDouble  *p);  /* addr of return info*/
-\end{verbatim}\index{get\_alarm\_double Record Support Routine}This routine gives values to all fields of structure \verb|dbr_alDouble|.
+\end{verbatim}
+
+\index{get\_alarm\_double Record Support Routine}This routine gives values to all fields of structure \verb|dbr_alDouble|.
 
 The database access routine, \verb|dbGetFieldIndex| can be used to determine which field is being modified.
 
 \section{Global Record Support Routines}
 
-\index{Global Record Support Routines}A number of global record support routines are available. These routines are intended for use by the record specific 
+\index{Global Record Support Routines}
+A number of global record support routines are available. These routines are intended for use by the record specific 
 processing routines but can be called by any routine that wishes to use their services.
 
 The name of each of these routines begins with ``\verb|recGbl|".
@@ -694,20 +777,26 @@ alarms: \verb|sevr|, \verb|stat|, \verb|nsev|, and \verb|nsta|. The first two ar
 The last two fields (\verb|nsta| and \verb|nsev|) are the status and severity values to set during record processing. Two routines are 
 used for handling alarms. Whenever a routine wants to raise an alarm it calls \verb|recGblSetSevr|. This routine will only 
 change \verb|nsta| and \verb|nsev| if it will result in the alarm severity being increased. At the end of processing, the record support 
-module must call \verb|recGblResetAlarms|. This routine sets \verb|stat|=\verb|nsta|, \verb|sevr|=\verb|nsev|, \verb|nsta|=0, and \verb|nsev|=0. If \verb|stat| 
+module must call \verb|recGblResetAlarms|. This routine sets \verb|stat = nsta|, \verb|sevr = nsev|, \verb|nsta= 0|, and \verb|nsev = 0|. If \verb|stat| 
 or \verb|sevr| has changed value since the last call it calls \verb|db_post_event| for \verb|stat| and \verb|sevr| and returns a value of 
 \verb|DBE_ALARM|. If no change occured it returns 0. Thus after calling \verb|recGblResetAlarms| everything is ready for raising 
 alarms the next time the record is processed. The example record support module presented above shows how these 
 macros are used.
 
-\begin{verbatim}recGblSetSevr(
+\begin{verbatim}
+recGblSetSevr(
 void   *precord,
 short   nsta,
 short   nsevr);
-\end{verbatim}\index{recGblSetSevr}Returns: (\verb|TRUE|, \verb|FALSE|) if (did, did not) change \verb|nsta| and \verb|nsev|.
+\end{verbatim}
 
-\begin{verbatim}unsigned short recGblResetAlarms(void  *precord);
-\end{verbatim}\index{recGblResetAlarms}Returns: Initial value for \verb|monitor_mask|
+\index{recGblSetSevr}Returns: (\verb|TRUE|, \verb|FALSE|) if (did, did not) change \verb|nsta| and \verb|nsev|.
+
+\begin{verbatim}
+unsigned short recGblResetAlarms(void  *precord);
+\end{verbatim}
+
+\index{recGblResetAlarms}Returns: Initial value for \verb|monitor_mask|
 
 \subsection{Alarm Acknowledgment}
 
@@ -724,7 +813,9 @@ recGblDbaddrError(
     long   status,
     struct dbAddr  *paddr,
     char   *pcaller_name); /* calling routine name */
-\end{verbatim}\index{recGblDbaddrError}This routine interfaces with the system wide error handling system to display the following information: Status 
+\end{verbatim}
+
+\index{recGblDbaddrError}This routine interfaces with the system wide error handling system to display the following information: Status 
 information, process variable name, calling routine.
 
 \subsection{Generate Error: Status String, Record Name, Caller}
@@ -734,8 +825,11 @@ recGblRecordError(
     long   status,
     void   *precord,   /* addr of record  */
     char   *pcaller_name);   /* calling routine name */
-\end{verbatim}\index{errlogPrintf}
-\index{recGblRecordError}This routine interfaces with the system wide error handling system to display the following information: Status 
+\end{verbatim}
+
+\index{errlogPrintf}
+\index{recGblRecordError}
+This routine interfaces with the system wide error handling system to display the following information: Status 
 information, record name, calling routine.
 
 \subsection{Generate Error: Record Name, Caller, Record Support Message}
@@ -746,8 +840,11 @@ recGblRecsupError(
     struct   dbAddr   *paddr,
     char   *pcaller_name,   /* calling routine name */
     char   *psupport_name);   /* support routine name*/
-\end{verbatim}\index{errlogPrintf}
-\index{recGblRecsupError}This routine interfaces with the system wide error handling system to display the following information: Status 
+\end{verbatim}
+
+\index{errlogPrintf}
+\index{recGblRecsupError}
+This routine interfaces with the system wide error handling system to display the following information: Status 
 information, record name, calling routine, record support entry name.
 
 \subsection{Get Graphics Double}
@@ -756,7 +853,9 @@ information, record name, calling routine, record support entry name.
 recGblGetGraphicDouble(
     struct dbAddr  *paddr,
     struct dbr_grDouble  *pgd);
-\end{verbatim}\index{recGblGetGraphicDouble}This routine can be used by the \verb|get_graphic_double| record support routine to obtain graphics values for fields that 
+\end{verbatim}
+
+\index{recGblGetGraphicDouble}This routine can be used by the \verb|get_graphic_double| record support routine to obtain graphics values for fields that 
 it doesn't know how to set.
 
 \subsection{Get Control Double}
@@ -765,7 +864,9 @@ it doesn't know how to set.
 recGblGetControlDouble(
     struct dbAddr  *paddr,
     struct dbr_ctrlDouble   *pcd);
-\end{verbatim}\index{recGblGetControlDouble}This routine can be used by the \verb|get_control_double| record support routine to obtain control values for fields that it 
+\end{verbatim}
+
+\index{recGblGetControlDouble}This routine can be used by the \verb|get_control_double| record support routine to obtain control values for fields that it 
 doesn't know how to set.
 
 \subsection{Get Alarm Double}
@@ -774,7 +875,9 @@ doesn't know how to set.
 recGblGetAlarmDouble(
     struct dbAddr  *paddr,
     struct dbr_alDouble  *pcd);
-\end{verbatim}\index{recGblGetAlarmDouble}This routine can be used by the \verb|get_alarm_double| record support routine to obtain control values for fields that it 
+\end{verbatim}
+
+\index{recGblGetAlarmDouble}This routine can be used by the \verb|get_alarm_double| record support routine to obtain control values for fields that it 
 doesn't know how to set.
 
 \subsection{Get Precision}
@@ -783,15 +886,21 @@ doesn't know how to set.
 recGblGetPrec(
     struct dbAddr  *paddr,
     long  *pprecision);
-\end{verbatim}\index{recGblGetPrec}This routine can be used by the \verb|get_precision| record support routine to obtain the precision for fields that it doesn't 
+\end{verbatim}
+
+\index{recGblGetPrec}This routine can be used by the \verb|get_precision| record support routine to obtain the precision for fields that it doesn't 
 know how to set the precision.
 
 \subsection{Get Time Stamp}
 
-\begin{verbatim}recGblGetTimeStamp(void *precord)
-\end{verbatim}\index{recGblGetTimeStamp}This routine gets the current time stamp and puts it in the record It does the following:
+\begin{verbatim}
+recGblGetTimeStamp(void *precord)
+\end{verbatim}
 
-\begin{itemize}\item If TSEL is not a constant link and TSEL refers to the TIME field of a record, the time is obtained from the record 
+\index{recGblGetTimeStamp}This routine gets the current time stamp and puts it in the record It does the following:
+
+\begin{itemize}
+\item If TSEL is not a constant link and TSEL refers to the TIME field of a record, the time is obtained from the record 
 reference by TSEL and this put in field TIME. The routine then returns.
 
 \item If TSEL is not a constant link dbGetLink is called and the value put in field TSE.
@@ -800,12 +909,16 @@ reference by TSEL and this put in field TIME. The routine then returns.
 
 \item \verb|epicsTimeGetEvent| is called.
 
-\end{itemize}\subsection{Forward link}
+\end{itemize}
+
+\subsection{Forward link}
 
 \begin{verbatim}
 recGblFwdLink(
     void *precord);
-\end{verbatim}\index{recGblFwdLink}This routine can be used by process to request processing of forward links.
+\end{verbatim}
+
+\index{recGblFwdLink}This routine can be used by process to request processing of forward links.
 
 \subsection{Initialize Constant Link}
 
@@ -814,5 +927,7 @@ int recGblInitConstantLink(
     struct link  *plink,
     short  dbfType,
     void   *pdest);
-\end{verbatim}\index{recGblInitConstantLink}Initialize a constant link. This routine is usually called by \verb|init_record| (or by associated device support) to initialize 
+\end{verbatim}
+
+\index{recGblInitConstantLink}Initialize a constant link. This routine is usually called by \verb|init_record| (or by associated device support) to initialize 
 the field associated with a constant link. It returns(FALSE, TRUE) if it (did not, did) modify the destination.

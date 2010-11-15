@@ -40,7 +40,7 @@ This section lists the files in base/include that are of most interest to IOC Ap
 \item[drvSup.h] - Driver Support Modules
 
 \item[ellLib.h] - A library that is provides the same functions as the vxWorks \verb|lstLib|. All routines start with \verb|ell| instead of 
-\verb|lst|.  The \verb|ellLib| routines work on both IOCs and on UNIX.
+\verb|lst|.  The \verb|ellLib| routines work on all architectures.
 
 \item[epicsPrint.h errMdef.h] - EPICS error handling system
 
@@ -52,7 +52,7 @@ This section lists the files in base/include that are of most interest to IOC Ap
 
 \item[guigroup.h] - The guigroup definitions.
 
-\item[initHooks.h] - Definitions used by \verb|initHooks|.\verb|c| routines.
+\item[initHooks.h] - Definitions used by \verb|initHooks.c| routines.
 
 \item[link.h] - Link definitions
 
@@ -66,7 +66,7 @@ This section lists the files in base/include that are of most interest to IOC Ap
 
 \item[taskwd.h] - Task Watchdog System
 
-\item[tsDefs.h] - Time stamp routines. Will also have to look at \verb|base|/\verb|src|/\verb|libCom|/\verb|tsSubr|.\verb|c|
+\item[tsDefs.h] - Time stamp routines. Will also have to look at \verb|base/src/libCom/tsSubr.c|
 
 \end{description}
 

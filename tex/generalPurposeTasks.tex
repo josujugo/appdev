@@ -35,20 +35,19 @@ invoking record processing. For example the I/O event scanner uses the general p
 The following steps must be taken in order to use the general purpose callback tasks: 
 
 \begin{enumerate}
-
 \item Include callback definitions:
 
+\index{callback.h}
 \begin{verbatim}
 #include <callback.h>
 \end{verbatim}
-\index{callback.h}
 
 \item Provide storage for a structure that is a private structure for the callback tasks:
 
+\index{CALLBACK}
 \begin{verbatim}
 CALLBACK mycallback;
 \end{verbatim}
-\index{CALLBACK}
 
 It is permissible for this to be part of a larger structure, e.g.
 
@@ -62,73 +61,86 @@ struct {
 
 \item Make calls (in most cases these are actually macros) to initialize the fields in the \verb|CALLBACK|:
 
+\index{callbackSetCallback}
 \begin{verbatim}
 callbackSetCallback(CALLBACKFUNC func, CALLBACK *pcb);
 \end{verbatim}
-\index{callbackSetCallback}
 
 This defines the callback routine to be executed. The first argument is the address of a function that will be given the address of the \verb|CALLBACK| and returns \verb|void|. The second argument is the address of the \verb|CALLBACK| structure.
 
+\index{callbackSetPriority}
 \begin{verbatim}
 callbackSetPriority(int, CALLBACK *pcb);
 \end{verbatim}
-\index{callbackSetPriority}
 
 The first argument is the priority, which can have one of the values: \verb|priorityLow|, \verb|priorityMedium|, or 
 \verb|priorityHigh|. These values are defined in \verb|callback.h|. The second argument is again the address of the 
 \verb|CALLBACK| structure.
 
+\index{callbackSetUser}
 \begin{verbatim}
 callbackSetUser(void *, CALLBACK *pcb);
 \end{verbatim}
-\index{callbackSetUser}
 
 This call is used to save a pointer value that can be retrieved again using the macro:
 
+\index{callbackGetUser}
 \begin{verbatim}
 callbackGetUser(void *,CALLBACK *pcb);
 \end{verbatim}
-\index{callbackGetUser}
 
 If your callback function exists to process a single record inside calls to \verb|dbScanLock|/\verb|dbScanUnlock|, you can use this shortcut which provides the callback routine for you and sets the other two parameters at the same time 
 (the user parameter here is a pointer to the record instance):
 
+\index{callbackSetProcess}
 \begin{verbatim}
 callbackSetProcess(CALLBACK *pcb, int prio, void *prec);
 \end{verbatim}
-\index{callbackSetProcess}
 
 \item Whenever a callback request is desired just call one of the following:
 
+\index{callbackRequest}
+\index{callbackRequestProcessCallback}
 \begin{verbatim}
 callbackRequest(CALLBACK *pcb);
 callbackRequestProcessCallback(CALLBACK *pcb, int prio, void *prec);
 \end{verbatim}
-\index{callbackRequest}
-\index{callbackRequestProcessCallback}
 
 Both can be called from interrupt level code. The callback routine is passed a single argument, which is the same 
 argument that was passed to \verb|callbackRequest|, i.e., the address of the \verb|CALLBACK| structure. The second 
 routine is a shortcut for calling both \verb|callbackSetProcess| and \verb|callbackRequest|. The following delayed 
 versions wait for the given time before queueing the callback routine for the relevent task to execute.
 
+\index{callbackRequestDelayed}
+\index{callbackRequestProcessCallbackDelayed}
 \begin{verbatim}
 callbackRequestDelayed(CALLBACK *pCallback, double seconds);
 callbackRequestProcessCallbackDelayed(CALLBACK *pCallback,
 int Priority, void *pRec, double seconds);
 \end{verbatim}
-\index{callbackRequestDelayed}
-\index{callbackRequestProcessCallbackDelayed}
 
 These routines cannot be called from interrupt level code.
-
 \end{enumerate}
 
 \subsection{Syntax}
 
 The following calls are provided:
 
-\begin{verbatim}void callbackInit(void);
+\index{callbackInit}
+\index{callbackSetCallback}
+\index{callbackSetPriority}
+\index{callbackSetUser}
+\index{callbackGetUser}
+\index{callbackSetProcess}
+\index{callbackRequest}
+\index{callbackRequestProcessCallback}
+\index{callbackRequestDelayed}
+\index{callbackRequestProcessCallbackDelayed}
+\index{callbackCancelDelayed}
+\index{callbackSetQueueSize}
+Notes:
+\begin{verbatim}
+void callbackInit(void);
 
 void callbackSetCallback(void *pcallbackFunction,
     CALLBACK *pcallback);
@@ -145,21 +157,10 @@ void callbackRequestProcessCallbackDelayed(
     CALLBACK *pCallback, int Priority, void *prec, double seconds);
 void callbackCancelDelayed(CALLBACK *pcallback);
 int callbackSetQueueSize(int size);
+\end{verbatim}
 
-\end{verbatim}\index{callbackInit}
-\index{callbackSetCallback}
-\index{callbackSetPriority}
-\index{callbackSetUser}
-\index{callbackGetUser}
-\index{callbackSetProcess}
-\index{callbackRequest}
-\index{callbackRequestProcessCallback}
-\index{callbackRequestDelayed}
-\index{callbackRequestProcessCallbackDelayed}
-\index{callbackCancelDelayed}
-\index{callbackSetQueueSize}Notes:
-
-\begin{itemize}\item \verb|callbackInit| is performed automatically at IOC initialization, thus user code never calls this function.
+\begin{itemize}
+\item \verb|callbackInit| is performed automatically at IOC initialization, thus user code never calls this function.
 
 \item \verb|callbackSetCallback|, \verb|callbackSetPriority|, \verb|callbackSetUser|, and \verb|callbackGetUser| are 
 actually macros.
@@ -227,10 +228,15 @@ example(char *pbegid, char*pendid)
     callbackSetUser(&myStruct,&myStruct.callback);
     callbackRequest(&myStruct.callback);
 }
-\end{verbatim}The example can be tested by issuing the following command to the vxWorks shell:
+\end{verbatim}
 
-\begin{verbatim}example("begin","end")
-\end{verbatim}This simple example shows how to use the callback tasks with your own structure that contains the \verb|CALLBACK| structure 
+The example can be tested by issuing the following command to the vxWorks shell:
+
+\begin{verbatim}
+example("begin","end")
+\end{verbatim}
+
+This simple example shows how to use the callback tasks with your own structure that contains the \verb|CALLBACK| structure 
 at an arbitrary location.
 
 \subsection{Callback Queue}
@@ -239,29 +245,35 @@ The callback requests put the requests for each callback priority into a separat
 hold up to 2000 requests. This limit can be changed by calling \verb|callbackSetQueueSize| before \verb|iocInit| in the 
 startup file. The syntax is:
 
-\begin{verbatim}int callbackSetQueueSize(int size)
-\end{verbatim}\index{callbackSetQueueSize}\section{Task Watchdog}
+\index{callbackSetQueueSize}
+\begin{verbatim}
+int callbackSetQueueSize(int size)
+\end{verbatim}
 
-\index{Task Watchdog}EPICS provides a task that acts as a watchdog for other tasks. Any task can request to be watched, and most of the IOC 
+\section{Task Watchdog}
+\label{Task Watchdog}
+\index{Task Watchdog}
+
+EPICS provides a task that acts as a watchdog for other tasks. Any task can request to be watched, and most of the IOC 
 tasks do this. A status monitoring subsystem in the IOC can register to be notified about any changes that occur. The 
 watchdog task runs periodically and checks each task in its task list. If any task is suspended, an error message is 
 displayed and any notifications made. The task watchdog provides the following features:
 
 \begin{enumerate}
-
 \item Include module:
 
+\index{taskwd.h}
 \begin{verbatim}
 #include <taskwd.h>
 \end{verbatim}
-\index{taskwd.h}
 
 \item Request by a task to be monitored:
 
+\index{taskwdInsert}
 \begin{verbatim}
 taskwdInsert (epicsThreadId tid, TASKWDFUNC callback, VOID *usr);
 \end{verbatim}
-\index{taskwdInsert}
+
 This adds the task with the specified \verb|tid| to the list of tasks to be watched, and makes any requested notifications 
 that a new task has been registered. If \verb|tid| is given as zero, the \verb|epicsThreadId| of the calling thread is used 
 instead. If \verb|callback| is not NULL and the task later becomes suspended, the callback routine will be called with 
@@ -269,10 +281,10 @@ the single argument \verb|usr|.
 
 \item Remove task from list:
 
+\index{taskwdRemove}
 \begin{verbatim}
 taskwdRemove(epicsThreadId tid);
 \end{verbatim}
-\index{taskwdRemove}
 
 This routine must be called before the monitored task exits. It makes any requested notifications and removes the 
 task from the list of tasks being watched. If \verb|tid| is given as zero, the \verb|epicsThreadId| of the calling thread is 
@@ -280,6 +292,8 @@ used instead.
 
 \item Request to be notified of changes:
 
+\index{taskwdMonitor}
+\index{taskwdMonitorAdd}
 \begin{verbatim}
 typedef struct {
     void (*insert)(void *usr, epicsThreadId tid);
@@ -289,8 +303,6 @@ typedef struct {
 
 taskwdMonitorAdd(const taskwdMonitor *funcs, void *usr);
 \end{verbatim}
-\index{taskwdMonitor}
-\index{taskwdMonitorAdd}
 
 This call provides a set of callbacks for the task watchdog to call when a task is registered or removed or when any 
 task gets suspended. The \verb|usr| pointer given at registration is passed to the callback routine along with the \verb|tid| of 
@@ -301,40 +313,39 @@ cases, unlike the callbacks registered with \verb|taskwdInsert| and \verb|taskwd
 
 \item Rescind notification request:
 
+\index{taskwdMonitorDel}
 \begin{verbatim}
 taskwdMonitorDel(const taskwdMonitor *funcs, void *usr);
 \end{verbatim}
-\index{taskwdMonitorDel}
 
 This call removes a previously registered notification. Both \verb|funcs| and \verb|usr| must match the values given to 
 \verb|taskwdMonitorAdd| when originally registered.
 
 \item Print a report:
 
+\index{taskwdShow}
 \begin{verbatim}
 taskwdShow(int level);
 \end{verbatim}
-\index{taskwdShow}
 
 If \verb|level| is zero, the number of tasks and monitors registered is displayed. For higher values the registered task 
 names and their current states are also shown in tabular form.
 
 \item The following routines are provided for backwards compatibility purposes, but are now deprecated:
 
+\index{taskwdAnyInsert}
 \begin{verbatim}
 taskwdAnyInsert(void *key, TASKWDANYFUNC callback, VOID *usr);
 \end{verbatim}
-\index{taskwdAnyInsert}
 
 The callback routine will be called whenever any of the tasks being monitored by the task watchdog become 
 suspended. \verb|key| must have a unique value because the task watchdog system uses this value to determine which 
 entry to remove when \verb|taskwdAnyRemove| is called.
 
+\index{taskwdAnyRemove}
 \begin{verbatim}
 taskwdAnyRemove(void *key);
 \end{verbatim}
-\index{taskwdAnyRemove}
 
 \verb|key| is the same value that was passed to \verb|taskwdAnyInsert|.
-
 \end{enumerate}

@@ -14,8 +14,11 @@ arguments then calls functions corresponding to the decoded command. Commands an
 or more `space' characters. Characters interpreted as spaces include the actual space character and the tab character as 
 well as commas and open and close parentheses. Thus, the command line
 
-\begin{verbatim}dbLoadRecords("db/dbExample1.db","user=mrk")
-\end{verbatim}would be interpreted by the IOC shell as the \verb|dbLoadRecords| command with arguments d\verb|b/dbExample1.db| and 
+\begin{verbatim}
+dbLoadRecords("db/dbExample1.db","user=mrk")
+\end{verbatim}
+
+would be interpreted by the IOC shell as the \verb|dbLoadRecords| command with arguments \verb|db/dbExample1.db| and 
 \verb|user=mrk|.
 
 Unrecognized commands result in a diagnostic message but are otherwise ignored.  Missing arguments are given a default 
@@ -30,11 +33,14 @@ Lines of input not beginning with a comment character (\verb|#|) are searched fo
 \$(name).  Such sequences are replaced with the value of the environment variable name before any other processing takes 
 place.  Expansion is recursive so, for example,
 
-\begin{verbatim}epics> epicsEnvSet v1 \${v2}
+\begin{verbatim}
+epics> epicsEnvSet v1 \${v2}
 epics> epicsEnvSet v2 \${v3}
 epics> epicsEnvSet v3 somePV
 epics> dbpr ${v1}
-\end{verbatim}will print information about the \verb|somePV| process variable - the \verb|${v1}| argument to the dbpr command expands to 
+\end{verbatim}
+
+will print information about the \verb|somePV| process variable - the \verb|${v1}| argument to the dbpr command expands to 
 \verb|${v2}| which expands to \verb|${v3}| which expands to \verb|somePV|.  The backslashes in the definitions are needed to postpone 
 the expansion, otherwise it would be done before the values of v1 and v2 are set.
 
@@ -68,8 +74,11 @@ Failure to open or create a file causes the redirection to fail and the command 
 Redirection of input causes the file whose name results from the  expansion  of  \verb|filename|  to  be  opened for reading on 
 file descriptor \verb|n|, or the standard input (file descriptor 0) if \verb|n| is not specified.  The general format for redirecting input is:
 
-\begin{verbatim}[n]<filename
-\end{verbatim}As a special case, the IOC shell recognizes a standard input redirection appearing by itself (i.e. with no command) as a 
+\begin{verbatim}
+[n]<filename
+\end{verbatim}
+
+As a special case, the IOC shell recognizes a standard input redirection appearing by itself (i.e. with no command) as a 
 request to read commands from \verb|filename| until an exit command or EOF is encountered. The IOC shell then resumes 
 reading commands from the current source. Commands read from \verb|filename| are not added to the readline command 
 history. The level of nesting is limited only by the maximum number of files that can be open simultaneously.
@@ -78,19 +87,27 @@ Redirection of output causes the  file  whose  name  results from  the expansion
 file descriptor \verb|n|, or the standard output (file descriptor 1)  if \verb|n|  is  not  specified.   If  the  file  does not exist it is created; 
 if it does exist it is truncated to zero size. The general format for redirecting output is:
 
-\begin{verbatim}[n]>filename
-\end{verbatim} The general format for appending output is:
+\begin{verbatim}
+[n]>filename
+\end{verbatim}
 
-\begin{verbatim}[n]>>filename
-\end{verbatim}Redirection of output in this fashion causes the \verb|filename| to be opened for appending on file descriptor \verb|n|, or the 
+ The general format for appending output is:
+
+\begin{verbatim}
+[n]>>filename
+\end{verbatim}
+
+Redirection of output in this fashion causes the \verb|filename| to be opened for appending on file descriptor \verb|n|, or the 
 standard output (file descriptor  1)  if \verb|n| is not specified.  If the file does not exist it is created.
 
 \subsection{Utility Commands}
+\label{Utility Commands}
 
 The IOC shell recognizes the following commands as well as the commands described in chapter 6 (Database Design) and 
 chapter 9 (IOC Test Facilities) among others.  In addition, the commands described in the sequencer documentation are 
 recognized.
-\begin{center}\begin{longtable}{p{1.59082in}p{5.21418in}}
+\begin{center}
+\begin{longtable}{p{1.59082in}p{5.21418in}}
 Command & Description\\
 \hline
 help [command ...] & Display synopsis of specified commands.  Wild-card matching is applied so `help db*' displays a synopsis of all commands beginning with the letters `db'.With no arguments display a list of all commands.\\
@@ -106,7 +123,9 @@ epicsEnvShow  [name] & If no name is specified the names and values of all envir
 epicsParamShow & Show names and values of all EPICS configuration parameters.\\
 iocLogInit & Initialize IOC logging.\\
 epicsThreadSleep sec & Pause execution of IOC shell for sec seconds.
-\end{longtable}\end{center}
+\end{longtable}
+
+\end{center}
 
 The \verb|var| command is intended for simple applications such as setting the value of debugging flags.  Applications which 
 require more complex expression handling should use the cexp package.
@@ -114,35 +133,46 @@ require more complex expression handling should use the cexp package.
 A \index{spy}\verb|spy| command to show periodic activity reports is available on RTEMS as part of the RTEMS\_UTILS support module.  
 The following changes must be made to add this command to an application.
 
-\begin{itemize}\item Add an RTEMS\_UTILS entry to the application configure/RELEASE file.
+\begin{itemize}
+\item Add an RTEMS\_UTILS entry to the application configure/RELEASE file.
 
 \item Add \verb|spy.dbd| to the list of application dbd files and \verb|rtemsutils| to the list of application libraries in the 
 application Makefile.
 
-\end{itemize}\subsection{ENVIRONMENT VARIABLES}
+\end{itemize}
+
+\subsection{ENVIRONMENT VARIABLES}
 
 The IOC shell uses the following environment variables to control its operation.
-\begin{center}\begin{longtable}{p{1.305in}p{5.46in}}
+\begin{center}
+\begin{longtable}{p{1.305in}p{5.46in}}
 Variable & Description\\
 \hline
 IOCSH\_PS1 & Prompt string. Default is ``epics\textgreater{} ''.\\
 IOCSH\_HISTSIZE & Number of previous command lines to remember. If the IOCSH\_HISTSIZE environment variable is not present the value of the HISTSIZE environment variable is used.  In the absence of both environment variables, 10 command lines will be remembered.\\
 TERM, INPUTRC & These and other environment variables are used by the readline and termcap libraries and are described in the documentation for those libraries.
-\end{longtable}\end{center}
+\end{longtable}
+
+\end{center}
 
 
 \section{IOC Shell Programming}
 
 The declarations described in this section are included in the \verb|iocsh.h| header file.
+\index{iocsh.h}
 
-\index{iocsh.h}\subsection{Invoking the IOC shell}
+\subsection{Invoking the IOC shell}
 
 The prototypes for calling the IOC shell command interpreter are:
 
-\begin{verbatim}int iocsh(const char *pathname);
+\begin{verbatim}
+int iocsh(const char *pathname);
 int iocshCmd(const char *cmd);
-\end{verbatim}\index{iocsh}
-\index{iocshCmd}The pathname argument to the \verb|iocsh| function is the name of the file from which commands are to be read.  If the 
+\end{verbatim}
+
+\index{iocsh}
+\index{iocshCmd}
+The pathname argument to the \verb|iocsh| function is the name of the file from which commands are to be read.  If the 
 pathname argument is NULL, commands are read from the standard input and prompts are issued to the standard output.  
 Commands are read until an \verb|exit| command is encountered or until end-of-file is reached, at which point iocsh returns a 
 value of 0.  If the specified file can not be opened iocsh returns -1.
@@ -150,16 +180,22 @@ value of 0.  If the specified file can not be opened iocsh returns -1.
 The IOC shell can be invoked from  the vxWorks shell, either from within a vxWorks startup script or from vxWorks 
 command-line interpreter, using
 
-\begin{verbatim}iocsh "script"
-\end{verbatim}to read from an IOC shell script.  It can also be invoked from the vxWorks command-line interpreter with no argument in 
+\begin{verbatim}
+iocsh "script"
+\end{verbatim}
+
+to read from an IOC shell script.  It can also be invoked from the vxWorks command-line interpreter with no argument in 
 which case the IOC shell takes over the duties of command-line interaction.
 
 The \verb|iocshCmd| function takes a single IOC shell command and executes it. The function may be called from any thread, 
 but many of the commands are not necessarily thread-safe so this should only be used with care. The function is most 
 useful to execute a single IOC shell command from a vxWorks startup script or command line, like this:
 
-\begin{verbatim}iocshCmd "iocsh command string"
-\end{verbatim}The stdio stream redirection and environment variable expansion processes described above are performed on the string 
+\begin{verbatim}
+iocshCmd "iocsh command string"
+\end{verbatim}
+
+The stdio stream redirection and environment variable expansion processes described above are performed on the string 
 as part of the execution process.
 
 \subsection{Registering Commands}
@@ -167,29 +203,44 @@ as part of the execution process.
 Commands must be registered before they can be recognized by the IOC shell.  Registration is achieved by calling  the 
 registration function:
 
-\begin{verbatim} void iocshRegister(const iocshFuncDef *piocshFuncDef, iocshCallFunc func);
-\end{verbatim}\index{iocshRegister}The first argument is a pointer to a data structure which describes the command and any arguments it may take.  The 
+\begin{verbatim}
+void iocshRegister(const iocshFuncDef *piocshFuncDef, iocshCallFunc func);
+\end{verbatim}
+
+\index{iocshRegister}
+The first argument is a pointer to a data structure which describes the command and any arguments it may take.  The 
 second argument is a pointer to a function which will be called by iocsh when the corresponding command is 
 encountered.
 
 The command is described by the  \verb|iocshFuncDef |structure:
 
-\begin{verbatim}struct iocshFuncDef {
+\begin{verbatim}
+struct iocshFuncDef {
     const char *name;
     int nargs;
     const iocshArg * const *arg;
 };
-\end{verbatim}\index{iocshFuncDef}The name element is the name of the command.  The arg element is a pointer to an array of pointers to structures each of 
+\end{verbatim}
+
+\index{iocshFuncDef}
+The name element is the name of the command.  The arg element is a pointer to an array of pointers to structures each of 
 which defines a single argument.  The nargs element declares the number of entries in the array of pointers to the 
 argument descriptions.  If nargs is zero, arg can be NULL.  The structures which define each of the arguments is:
 
-\begin{verbatim}struct iocshArg {
+\begin{verbatim}
+struct iocshArg {
     const char *name;
     iocshArgType type;
 }iocshArg;
-\end{verbatim}\index{iocshArg}The name element is used by the help command to print a synopsis for the command.  The type element describes the type 
+\end{verbatim}
+
+\index{iocshArg}
+The name element is used by the help command to print a synopsis for the command.  The type element describes the type 
 of the argument and takes one of the following values:
-\begin{center}\begin{longtable}{p{1.5in}p{3.76in}}
+
+\begin{center}
+\begin{longtable}
+{p{1.5in}p{3.76in}}
 Type Specifier & Description\\
 \hline
 iocshArgInt & The argument will be converted to an integer value.\\
@@ -198,16 +249,23 @@ iocshArgString & The argument will be left as a string.  The memory used to hold
 iocshArgPersistentString & A copy of the argument will be made and a pointer to the copy will be passed to the handler.  The called function can release this copy by using the pointer as an argument to free().\\
 iocshArgPdbbase & The argument must be pdbbase.\\
 iocshArgArgv & An arbitrary number of arguments is expected.  Subsequent iocshArg structures will be ignored.
-\end{longtable}\end{center}
+\end{longtable}
+\end{center}
 
 
 The `handler' function which is called when its corresponding command is recognized should be of the form:
 
-\begin{verbatim}    void showCallFunc(const iocshArgBuf *args);
-\end{verbatim}The argument to the handler function is a pointer to an array of unions.  The number of elements in this array is equal to 
+\begin{verbatim}
+void showCallFunc(const iocshArgBuf *args);
+\end{verbatim}
+
+The argument to the handler function is a pointer to an array of unions.  The number of elements in this array is equal to 
 the number of arguments specified in the structure describing the command.  The type and name of the union element 
 which contains the argument value depends on the `type' element of the corresponding argument descriptor:
-\begin{center}\begin{longtable}{p{1.45833in}p{0.56in}p{1.19in}}
+
+\begin{center}
+\begin{longtable}
+{p{1.45833in}p{0.56in}p{1.19in}}
 Type Specifier & Type & Union element\\
 \hline
 iocshArgInt & int & args[i].ival\\
@@ -217,8 +275,8 @@ iocshArgPersistentString & char * & args[i].sval\\
 iocshArgPdbbase & void * & args[i].vval\\
 iocshArgArgv & int & args[i].aval.ac \\
  & char ** & args[i].aval.av
-\end{longtable}\end{center}
-
+\end{longtable}
+\end{center}
 
 If an \verb|iocshArgArgv |argument type is present it is often the first and only argument specified for the command.  In this 
 case, \verb|args[0].aval.av[0]| will be the name of the command,  \verb|args[0].aval.av[1]| will be the first argument, 
@@ -226,13 +284,16 @@ and so on.
 
 \subsection{Registrar Command Registration}
 
-\index{registrar:iocsh commands}Commands are normally registered with the IOC shell in a registrar function. The application's database description file 
+\index{registrar!iocsh commands}
+Commands are normally registered with the IOC shell in a registrar function. The application's database description file 
 uses the \verb|registrar| keyword to specify a function which will be called from the EPICS initialization code during the 
 application startup process.  This function then calls \verb|iocshRegister| to register its commands with the iocsh.
 
-\index{registrar}The following code fragments shows how this can be performed for an example driver.
+\index{registrar}
+The following code fragments shows how this can be performed for an example driver.
 
-\begin{verbatim}#include <iocsh.h>
+\begin{verbatim}
+#include <iocsh.h>
 #include <epicsExport.h>
 
 /* drvXxx code, FuncDef and CallFunc definitions ... */
@@ -242,17 +303,23 @@ static void drvXxxRegistrar(void)
     iocshRegister(&drvXxxConfigureFuncDef, drvXxxConfigureCallFunc);
 }
 epicsExportRegistrar(drvXxxRegistrar);
-\end{verbatim}To include this driver in an application a developer would then add
+\end{verbatim}
 
-\begin{verbatim}registrar(drvXxxRegistrar)
-\end{verbatim}to an application database description file.
+To include this driver in an application a developer would then add
+
+\begin{verbatim}
+registrar(drvXxxRegistrar)
+\end{verbatim}
+
+to an application database description file.
 
 \subsection{Automatic Command Registration}
 
 A C++ static constructor can also be used to register IOC shell commands before the EPICS application begins. The 
 following example shows how the \verb|epicsThreadSleep| command could be described and registered.
 
-\begin{verbatim}#include <iocsh.h>
+\begin{verbatim}
+#include <iocsh.h>
 
 static const iocshArg epicsThreadSleepArg0 = { "seconds",iocshArgDouble};
 static const iocshArg *const epicsThreadSleepArgs[1] =
@@ -271,5 +338,4 @@ static int doRegister(void)
 }
 static int done = doRegister();
 \end{verbatim}
-
 

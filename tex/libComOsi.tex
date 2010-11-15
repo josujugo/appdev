@@ -12,7 +12,8 @@ System Dependent or OSD.
 Directory \verb|<base>/src/libCom/osi| contains the code for the operating system independent libraries. The structure 
 of this directory is:
 
-\begin{verbatim}osi/
+\begin{verbatim}
+osi/
    epics*.h
    *.cpp  - A few generic c++ implementations
    os/
@@ -24,22 +25,26 @@ of this directory is:
        posix/
        solaris/
        vxWorks/
-\end{verbatim}Code for additional operating systems may also be present.
+\end{verbatim}
+
+Code for additional operating systems may also be present.
 
 \subsection{Rules for building OSI code}
 
 The osi directory contains header files with names starting with \verb|epics|. These headers provide definitions for user code. 
-Each of the directories \verb|under| \verb|osi/<arch>| contain architecture-specific code in filenames starting with \verb|osd|. In most 
+Each of the directories under \verb|osi/<arch>| contain architecture-specific code in filenames starting with \verb|osd|. In most 
 cases both a header and source file are present.
 
 Installing header files residing under \verb|src/libCom/osi| into \verb|<base>/include|
 
-\begin{itemize}\item Header files in \verb|osi| are installed into \verb|<base>/include|
+\begin{itemize}
+\item Header files in \verb|osi| are installed into \verb|<base>/include|
 
 \item Header files in a subdirectory below \verb|osi/os| are installed into \verb|<base>/include/os/<arch>.|The search 
 order for locating the specific file to be installed is:
 
-\begin{itemize} 
+\begin{itemize}
+ 
 
 \item \verb|libCom/osi/os/<arch>|
 
@@ -67,19 +72,29 @@ The search order for locating \verb|osd| source files is:
 
 When code is compiled the search order for locating header files in \verb|base/include| is:
 
-\begin{itemize}\item \verb|<base>/include/os/<arch>|
+\begin{itemize}
+\item \verb|<base>/include/os/<arch>|
 
 \item \verb|<base>/include|
 
-\end{itemize}\section{epicsAssert}
+\end{itemize}
 
-\index{epicsAssert}This is a replacement for ANSI C's \verb|assert|. To use this version just include:
+\section{epicsAssert}
 
-\begin{verbatim}#include "epicsAssert.h"
-\end{verbatim}instead of
+\index{epicsAssert}
+This is a replacement for ANSI C's \verb|assert|. To use this version just include:
 
-\begin{verbatim}#include <assert.h>
-\end{verbatim}If an \verb|assert| fails, it calls \verb|errlog| indicating the program's author, file name, and line number. Under each OS there are 
+\begin{verbatim}
+#include "epicsAssert.h"
+\end{verbatim}
+
+instead of
+
+\begin{verbatim}
+#include <assert.h>
+\end{verbatim}
+
+If an \verb|assert| fails, it calls \verb|errlog| indicating the program's author, file name, and line number. Under each OS there are 
 specialized instructions assisting the user to diagnose the problem and generate a good bug report. For instance, under 
 vxWorks, there are instructions on how to generate a stack trace, and on posix there are instructions about saving the core 
 file. After printing the message the calling thread is suspended.
@@ -93,7 +108,9 @@ a string that provides their name and email address if they wish to be contacted
 which the compiler is targeting, and works for both C and C++ code. It defines the following preprocessor macros, the 
 values of which are integers:
 
-\index{epicsEndian.h}\begin{itemize}\item EPICS\_ENDIAN\_LITTLE
+\index{epicsEndian.h}
+\begin{itemize}
+\item EPICS\_ENDIAN\_LITTLE
 
 \item EPICS\_ENDIAN\_BIG
 
@@ -101,16 +118,21 @@ values of which are integers:
 
 \item EPICS\_FLOAT\_WORD\_ORDER
 
-\end{itemize}The latter two macros are defined to be one or other of the first two and may be compared with them to determine 
+\end{itemize}
+
+The latter two macros are defined to be one or other of the first two and may be compared with them to determine 
 conditional compilation or execution of code that performs byte or word swapping as necessary.
 
 \section{epicsEvent}
 
-\index{epicsEvent}\verb|epicsEvent.h |contains a C++ and a C description for an event semaphore.
+\index{epicsEvent}
+\verb|epicsEvent.h |contains a C++ and a C description for an event semaphore.
 
-\index{epicsEvent.h}\subsection{C++ Interface}
+\index{epicsEvent.h}
+\subsection{C++ Interface}
 
-\begin{verbatim}typedef enum {
+\begin{verbatim}
+typedef enum {
     epicsEventWaitOK,epicsEventWaitTimeout,epicsEventWaitError
 }epicsEventWaitStatus;
 
@@ -131,11 +153,14 @@ public:
 private:
     ...
 };
-\end{verbatim}\index{epicsEventWaitOK}
+\end{verbatim}
+
+\index{epicsEventWaitOK}
 \index{epicsEventWaitTimeout}
 \index{epicsEventWaitError}
 \index{epicsEventWaitStatus}
-\begin{center}\begin{longtable}{p{1.25in}p{5.0in}}
+\begin{center}
+\begin{longtable}{p{1.25in}p{5.0in}}
 \textbf{Method} & \textbf{Meaning}\\
 \hline
 epicsEvent & An epicsEvent can be created empty or full. If it is created empty then a wait issued before a signal will block. If created full then the first wait will always succeed. Multiple signals may be issued between waits but have the same effect as a single signal.\\
@@ -145,13 +170,16 @@ wait() & Wait for the event.\\
 wait(double timeOut) & Similar to wait except that if event does not happen the call completes after the specified time out. The return value is (false,true) if the event (did not, did) happen.\\
 tryWait() & Similar to wait except that if event does not happen the call completes immediately. The return value is (false,true) if the event (did not, did) happen.\\
 show & Display information about the semaphore. The information displayed is architecture dependent.
-\end{longtable}\end{center}
+\end{longtable}
+
+\end{center}
 
 
 The primary use of an event semaphore is for synchronization. An example of using an event semaphore is a consumer 
 thread that processes requests from one or more producer threads. For example:
 
-\begin{itemize}\item When creating the consumer thread also create an epicsEvent.
+\begin{itemize}
+\item When creating the consumer thread also create an epicsEvent.
 
 \begin{verbatim}
     epicsEvent *pevent = new epicsEvent;
@@ -178,7 +206,8 @@ thread that processes requests from one or more producer threads. For example:
 
 \subsection{C Interface}
 
-\begin{verbatim}typedef struct epicsEventOSD *epicsEventId;
+\begin{verbatim}
+typedef struct epicsEventOSD *epicsEventId;
 
 epicsEventId epicsEventCreate(epicsEventInitialState initialState);
 epicsEventId epicsEventMustCreate (epicsEventInitialState initialState);
@@ -190,7 +219,9 @@ void epicsEventMustWait(epicsEventId id);
 epicsEventWaitStatus epicsEventWaitWithTimeout(epicsEventId id, double timeOut);
 epicsEventWaitStatus epicsEventTryWait(epicsEventId id);
 void epicsEventShow(epicsEventId id, unsigned int level);
-\end{verbatim}\index{epicsEventId}
+\end{verbatim}
+
+\index{epicsEventId}
 \index{epicsEventCreate}
 \index{epicsEventMustCreate}
 \index{epicsEventDestroy}
@@ -199,19 +230,28 @@ void epicsEventShow(epicsEventId id, unsigned int level);
 \index{epicsEventMustWait}
 \index{epicsEventWaitWithTimeout}
 \index{epicsEventTryWait}
-\index{epicsEventShow}Each C routine corresponds to one of the C++ methods. \verb|epicsEventMustCreate| and \verb|epicsEventMustWait| do 
+\index{epicsEventShow}
+Each C routine corresponds to one of the C++ methods. \verb|epicsEventMustCreate| and \verb|epicsEventMustWait| do 
 not return if they fail.
 
 \section{epicsFindSymbol}
 
-\index{epicsFindSymbol}\index{epicsFindSymbol.h}\verb|epicsFindSymbol.h| contains the following definition:
+\index{epicsFindSymbol}
+\index{epicsFindSymbol.h}\verb|epicsFindSymbol.h| contains the following definition:
 
-\begin{verbatim}void * epicsFindSymbol(const char *name);\end{verbatim}\index{osiFindGlobalSymbol}
-\begin{center}\begin{longtable}{p{1.38889in}p{2.5in}}
+\begin{verbatim}
+void * epicsFindSymbol(const char *name);
+\end{verbatim}
+
+\index{osiFindGlobalSymbol}
+\begin{center}
+\begin{longtable}{p{1.38889in}p{2.5in}}
 \textbf{Method} & \textbf{Meaning}\\
 \hline
 epicsFindSymbol & Return the address of the variable name
-\end{longtable}\end{center}
+\end{longtable}
+
+\end{center}
 
 
 vxWorks provides a function symFindByName, which finds and returns the address of global variables. The registry, 
@@ -225,7 +265,8 @@ A default version just returns null, i.e. it always fails.
 
 \section{epicsGeneralTime}
 
-\index{epicsGeneralTime}The \index{generalTime}generalTime framework provides a mechanism for several \index{time provider}time providers to be present within the system.  There are 
+\index{epicsGeneralTime}
+The \index{generalTime}generalTime framework provides a mechanism for several \index{time provider}time providers to be present within the system.  There are 
 two types of provider, one type for the current time and one type for providing \index{Time Event}Time Event times.  Each time provider has 
 a priority, and installed providers are queried in priority order whenever a time is requested, until one returns successfully.  
 Thus there is a fallback from higher priority providers (smaller value of priority) to lower priority providers (larger value 
@@ -235,7 +276,8 @@ based on the system clock, which is used in the absence of any other provider.
 Targets running vxWorks and RTEMS have an \index{NTP}NTP provider installed at priority 100.
 
 Registered providers may also add an interrupt-safe routine that will be called from the \index{epicsTimeGetCurrentInt}epicsTimeGetCurrentInt() or 
-\index{epicsTimeGetEventInt}epicsTimeGetEventInt()  API routines. These interfaces do not check the priority queue, and will only succeed if the last-
+\index{epicsTimeGetEventInt}
+epicsTimeGetEventInt()  API routines. These interfaces do not check the priority queue, and will only succeed if the last-
 used provider has registered a suitable routine.
 
 There are two interfaces to this framework, epicsGeneralTime.h for consumers that wish to get a time and query the 
@@ -243,9 +285,11 @@ framework, and generalTimeSup.h for providers that supply timestamps.
 
 \subsection{Consumer interface}
 
-\verb|The epicsGeneralTime.h| header contains the following:
+The \verb|epicsGeneralTime.h| header contains the following:
 
-\index{epicsGeneralTime.h}\begin{verbatim}void generalTime_Init(void);
+\index{epicsGeneralTime.h}
+\begin{verbatim}
+void generalTime_Init(void);
 int installLastResortEventProvider(void);
 void generalTimeResetErrorCounts();
 int generalTimeGetErrorCounts();
@@ -259,7 +303,9 @@ const char * generalTimeEventProviderName(void);
 #define generalTimeEventTpName generalTimeEventProviderName
 
 long generalTimeReport(int interest);
-\end{verbatim}\index{generalTime\_Init}
+\end{verbatim}
+
+\index{generalTime\_Init}
 \index{installLastResortEventProvider}
 \index{generalTimeResetErrorCounts}
 \index{generalTimeGetErrorCounts}
@@ -269,7 +315,8 @@ long generalTimeReport(int interest);
 \index{generalTimeCurrentTpName}
 \index{generalTimeEventTpName}
 \index{generalTimeReport}
-\begin{center}\begin{longtable}{p{2.0in}p{4.75in}}
+\begin{center}
+\begin{longtable}{p{2.0in}p{4.75in}}
 \textbf{Method} & \textbf{Meaning}\\
 \hline
 generalTime\_Init & Initialise the framework.This is called automatically by any function that requires the framework. It does not need to be called explicitly.\\
@@ -280,14 +327,18 @@ generalTimeCurrentProviderName & Return the name of the provider that last retur
 generalTimeEventProviderName & Return the name of the provider that last returned a valid Time Event time, or NULL if none.  Used by stringin device support with DTYP = ``General Time" INP = ``@BESTTEP"\\
 generalTimeHighestCurrentName & Return the name of the registered current time provider that has the highest priority.  Used by stringin device support with DTYP = ``General Time" INP = ``@TOPTCP"\\
 generalTimeReport & Provide information about the installed providers and their current best times.
-\end{longtable}\end{center}
+\end{longtable}
+
+\end{center}
 
 
 \subsection{Time Provider Interface}
 
-\verb|The generalTimeSup.h| header for time providers contains the following:
+The \verb|generalTimeSup.h| header for time providers contains the following:
 
-\index{generalTimeSup.h}\begin{verbatim}typedef int (*TIMECURRENTFUN)(epicsTimeStamp *pDest);
+\index{generalTimeSup.h}
+\begin{verbatim}
+typedef int (*TIMECURRENTFUN)(epicsTimeStamp *pDest);
 typedef int (*TIMEEVENTFUN)(epicsTimeStamp *pDest, int event);
 
 int generalTimeRegisterCurrentProvider(const char *name,
@@ -306,14 +357,17 @@ int generalTimeAddIntEventProvider(const char *name,
 
 int generalTimeGetExceptPriority(epicsTimeStamp *pDest, int *pPrio,
         int ignorePrio);
-\end{verbatim}\index{generalTimeRegisterCurrentProvider}
+\end{verbatim}
+
+\index{generalTimeRegisterCurrentProvider}
 \index{generalTimeRegisterEventProvider}
 \index{generalTimeCurrentTpRegister}
 \index{generalTimeEventTpRegister}
 \index{generalTimeAddIntCurrentProvider}
 \index{generalTimeRegisterIntEventProvider}
 \index{generalTimeGetExceptPriority}
-\begin{center}\begin{longtable}{p{2.125in}p{4.625in}}
+\begin{center}
+\begin{longtable}{p{2.125in}p{4.625in}}
 \textbf{Method} & \textbf{Meaning}\\
 \hline
 generalTimeRegisterCurrentProvider & Register a current time provider with the framework. The getTime routine must return epicsTimeOK if it provided a valid time, or epicsTimeERROR if it could not.\\
@@ -321,7 +375,9 @@ generalTimeRegisterEventProvider & Register a provider of Time Event times with 
 generalTimeAddIntCurrentProvider & Add or replace an interrupt-safe provider routine for an already-registered current time provider with the given name and priority.\\
 generalTimeAddIntEventProvider & Add or replace an interrupt-safe provider routine for an already-registered event time provider with the given name and priority.\\
 generalTimeGetExceptProirity & Request the current time from the framework, but exclude providers with priority ignorePrio.This allows a provider without an absolute time source to synchronise itself with other providers that do provide an absolute time.  pPrio returns the priority of the provider that supplied the result, which may be higher or lower than ignorePrio.
-\end{longtable}\end{center}
+\end{longtable}
+
+\end{center}
 
 
 If multiple providers are registered at the same priority, they will be queried in the order in which they were registered 
@@ -346,7 +402,8 @@ event system.
 
 Soft device support is provided for ai, bo, longin and stringin records. A typical example is:
 
-\begin{verbatim}record(ai, "$(IOC):GTIM_CURTIME") {
+\begin{verbatim}
+record(ai, "$(IOC):GTIM_CURTIME") {
   field(DESC, "Get Time")
   field(DTYP, "General Time")
   field(INP,  "@TIME")
@@ -375,30 +432,40 @@ record(stringin, "$(IOC):GTIM_BESTTEP") {
   field(DTYP, "General Time")
   field(INP,  "@BESTTEP")
 }
-\end{verbatim}\section{epicsInterrupt}
+\end{verbatim}
 
-\index{epicsInterrupt}\verb|epicsInterrupt.h| contains the following:
+\section{epicsInterrupt}
 
-\index{epicsInterrupt.h}\subsection{C Interface}
+\index{epicsInterrupt}
+\verb|epicsInterrupt.h| contains the following:
 
-\begin{verbatim}int epicsInterruptLock();
+\index{epicsInterrupt.h}
+\subsection{C Interface}
+
+\begin{verbatim}
+int epicsInterruptLock();
 
 void epicsInterruptUnlock(int key);
 
 int epicsInterruptIsInterruptContext();
 void epicsInterruptContextMessage(const char *message);
-\end{verbatim}\index{epicsInterruptLock}
+\end{verbatim}
+
+\index{epicsInterruptLock}
 \index{epicsInterruptUnlock}
 \index{epicsInterruptIsInterruptContext}
 \index{epicsInterruptContextMessage}
-\begin{center}\begin{longtable}{p{1.97222in}p{3.66667in}}
+\begin{center}
+\begin{longtable}{p{1.97222in}p{3.66667in}}
 \textbf{Method} & \textbf{Meaning}\\
 \hline
 epicsInterruptLock & Lock interrupts and return a key to be passed to epicsInterruptUnlock To lock the following is done.       int key;      ...      key = epicsInterruptLock();       ...       epicsInterruptUnlock(key);\\
 epicsInterruptUnlock & Unlock interrupts.\\
 epicsInterruptIsInterruptContext & Return (true, false) if current context is interrupt context.\\
 epicsInterruptContextMessage & Generate a message while interrupt context is true.
-\end{longtable}\end{center}
+\end{longtable}
+
+\end{center}
 
 
 \subsection{Implementation notes}
@@ -415,24 +482,30 @@ The vxWorks implementation will most likely not work on symmetric multiprocessin
 
 The reason epicsInterrupt is needed is:
 
-\begin{itemize}\item callbackRequest and scanOnce can be issued from interrupt level.
+\begin{itemize}
+\item callbackRequest and scanOnce can be issued from interrupt level.
 
 \item The errlog routines can be called while at interrupt level.
 
-\end{itemize}\section{epicsMath}
+\end{itemize}
 
-\index{epicsMath}\index{epicsMath.h}epicsMath.h includes math.h and also ensures that \index{isnan}isnan and \index{isinf}isinf are defined.
+\section{epicsMath}
+
+\index{epicsMath}
+\index{epicsMath.h}epicsMath.h includes math.h and also ensures that \index{isnan}isnan and \index{isinf}isinf are defined.
 
 \section{epicsMessageQueue}
 
-\index{epicsMessageQueue}\index{epicsRingPointer.h}\verb|epicsMessageQueue.h| describes a C++ and a C facility for interlocked communication between threads.
+\index{epicsMessageQueue}
+\index{epicsRingPointer.h}\verb|epicsMessageQueue.h| describes a C++ and a C facility for interlocked communication between threads.
 
 \subsection{C++ Interface}
 
 EpicsMessageQueue provides methods for sending messages between threads on a first in, first out basis.  It is designed 
 so that a message queue can be used with multiple writer and reader threads
 
-\begin{verbatim}class epicsMessageQueue {
+\begin{verbatim}
+class epicsMessageQueue {
 public:
     epicsMessageQueue(unsigned int capacity, unsigned int maximumMessageSize);
     ~epicsMessageQueue();
@@ -454,17 +527,21 @@ private: // Prevent compiler-generated member functions
 private: // Data
     ...
 };
-\end{verbatim}\index{epicsMessageQueue}An epicsMessageQueue cannot be assigned to, copy-constructed, or constructed without giving the \emph{capacity} and 
+\end{verbatim}
+
+\index{epicsMessageQueue}An epicsMessageQueue cannot be assigned to, copy-constructed, or constructed without giving the \emph{capacity} and 
 maximumMessageSize arguments. The C++ compiler will object to some of the statements below:
 
-\begin{verbatim}epicsMessageQueue mq0();   // Error: default constructor is private
+\begin{verbatim}
+epicsMessageQueue mq0();   // Error: default constructor is private
 epicsMessageQueue mq1(10, 20); // OK
 epicsMessageQueue mq2(t1); // Error: copy constructor is private
 epicsMessageQueue *pmq;    // OK, pointer
 *pmq = mq1;               // Error: assignment operator is private
 pmq = &mq1;               // OK, pointer assignment and address-of
 \end{verbatim}
-\begin{center}\begin{longtable}{p{1.35in}p{5.0in}}
+\begin{center}
+\begin{longtable}{p{1.35in}p{5.0in}}
 \textbf{Method} & \textbf{Meaning}\\
 \hline
 epicsMessageQueue() & Constructor. The capacity is the maximum number of messages, each containing 0 to maximumMessageSize bytes, that can be stored in the message queue.\\
@@ -475,12 +552,15 @@ tryReceive() & Try to receive a message.  If the message queue is non-empty, the
 receive() & Wait until a message is sent and store it in the specified location.  The number of bytes in the message is returned.  Returns -1 if a message is not received within the timeout interval. If the received message is larger than the specified messageBufferSize it may either return -1, or truncate the message.  It is most efficient if the messageBufferSize is equal to the maximumMessageSize with which the message queue was created.\\
 show() & Displays some information about the message queue.  The level argument controls the amount of information dispalyed.\\
 pending() & Returns the number of messages presently in the queue.
-\end{longtable}\end{center}
+\end{longtable}
+
+\end{center}
 
 
 \subsection{C interface}
 
-\begin{verbatim}typedef void *epicsMessageQueueId;
+\begin{verbatim}
+typedef void *epicsMessageQueueId;
 epicsMessageQueueId epicsMessageQueueCreate(unsigned int capacity,
                                          unsigned int maximumMessageSize);
 void epicsMessageQueueDestroy(epicsMessageQueueId);
@@ -494,7 +574,9 @@ int epicsMessageQueueReceiveWithTimeout(epicsMessageQueueId, void*,
                                         unsigned int, double);
 void epicsMessageQueueShow(epicsMessageQueueId);
 int epicsMessageQueuePending(epicsMessageQueueId);
-\end{verbatim}\index{epicsMessageQueue}
+\end{verbatim}
+
+\index{epicsMessageQueue}
 \index{epicsMessageQueueCreate}
 \index{epicsMessageQueueDestroy}
 \index{epicsMessageQueueTrySend}
@@ -504,15 +586,19 @@ int epicsMessageQueuePending(epicsMessageQueueId);
 \index{epicsMessageQueueReceive}
 \index{epicsMessageQueueReceiveWithTimeout}
 \index{epicsMessageQueueShow}
-\index{epicsMessageQueuePending}Each C function corresponds to one of the C++ methods.
+\index{epicsMessageQueuePending}
+Each C function corresponds to one of the C++ methods.
 
 \section{epicsMutex}
 
-\index{epicsMutex}\verb|epicsMutex.h| contains both C++ and C descriptions for a mutual exclusion semaphore.
+\index{epicsMutex}
+\verb|epicsMutex.h| contains both C++ and C descriptions for a mutual exclusion semaphore.
 
-\index{epicsMutex.h}\subsection{C++ Interface}
+\index{epicsMutex.h}
+\subsection{C++ Interface}
 
-\begin{verbatim}typedef enum {
+\begin{verbatim}
+typedef enum {
     epicsMutexLockOK,epicsMutexLockTimeout,epicsMutexLockError
 } epicsMutexLockStatus;
 class epicsMutex {
@@ -526,12 +612,16 @@ public:
 
     class invalidSemaphore {}; /* exception */
 private:
-};\end{verbatim}\index{epicsMutexLockOK}
+};
+\end{verbatim}
+
+\index{epicsMutexLockOK}
 \index{epicsMutexLockTimeout}
 \index{epicsMutexLockError}
 \index{epicsMutexLockStatus}
 \index{epicsMutex}
-\begin{center}\begin{longtable}{p{1.38889in}p{5.0in}}
+\begin{center}
+\begin{longtable}{p{1.38889in}p{5.0in}}
 \textbf{Method} & \textbf{Meaning}\\
 \hline
 epicsMutex & Create a mutual exclusion semaphore.\\
@@ -540,7 +630,9 @@ lock() & Wait until the resource is free. After a successful lock additional, i.
 tryLock() & Similar to lock except that, if the resource is owned by another thread, the call completes immediately. The return value is (false,true) if the resource (is not, is) owned by the caller.\\
 unlock & Release the resource. If a thread issues recursive locks, there must be an unlock for each lock\\
 show & Display information about the semaphore. The results are architecture dependent.
-\end{longtable}\end{center}
+\end{longtable}
+
+\end{center}
 
 
 Mutual exclusion semaphores are for situations requiring mutually exclusive access to resources. A mutual exclusion 
@@ -549,7 +641,8 @@ takes are useful for a set of routines that call each other while working on a m
 
 The typical use of a mutual exclusion semaphore is:
 
-\begin{verbatim}    epicsMutex *plock = new epicsMutex;
+\begin{verbatim}
+    epicsMutex *plock = new epicsMutex;
     ...
     ...
     plock->lock();
@@ -559,7 +652,8 @@ The typical use of a mutual exclusion semaphore is:
 
 \subsection{C Interface}
 
-\begin{verbatim}typedef struct epicsMutexOSD* epicsMutexId;
+\begin{verbatim}
+typedef struct epicsMutexOSD* epicsMutexId;
 
 epicsMutexId epicsMutexCreate(void);
 epicsMutexId epicsMutexMustCreate (void);
@@ -571,7 +665,9 @@ void epicsMutexMustLock(epicsMutexId id);
 epicsMutexLockStatus epicsMutexTryLock(epicsMutexId id);
 void epicsMutexShow(epicsMutexId id,unsigned  int level);
 void epicsMutexShowAll(int onlyLocked,unsigned  int level);
-\end{verbatim}\index{epicsMutexId}
+\end{verbatim}
+
+\index{epicsMutexId}
 \index{epicsMutexCreate}
 \index{epicsMutexMustCreate}
 \index{epicsMutexDestroy}
@@ -580,42 +676,54 @@ void epicsMutexShowAll(int onlyLocked,unsigned  int level);
 \index{epicsMutexMustLock}
 \index{epicsMutexTryLock}
 \index{epicsMutexShow}
-\index{epicsMutexShowAll}Each C routine corresponds to one of the C++ methods. \verb|epicsMutexMustCreate| and \verb|epicsMutexMustLock| do 
+\index{epicsMutexShowAll}
+Each C routine corresponds to one of the C++ methods. \verb|epicsMutexMustCreate| and \verb|epicsMutexMustLock| do 
 not return if they fail.
 
 \subsection{Implementation Notes}
 
 The implementation:
 
-\begin{itemize}\item Must implement recursive locking
+\begin{itemize}
+\item Must implement recursive locking
 
 \item May implement priority inheritance and be deletion safe
 
-\end{itemize}A posix version is implemented via pthreads.
+\end{itemize}
+
+A posix version is implemented via pthreads.
 
 \section{epicsStdlib}
 
-\index{epicsStdlib}\index{epicsStdlib.h}epicsStdlib.h includes stdlib.h and contains definitions for the following functions/macros.
+\index{epicsStdlib}
+\index{epicsStdlib.h}epicsStdlib.h includes stdlib.h and contains definitions for the following functions/macros.
 
-\begin{verbatim}double epicsStrtod(const char *str, char **endp);
+\begin{verbatim}
+double epicsStrtod(const char *str, char **endp);
 int epicsScanFloat(const char *str, float *dest);
 int epicsScanDouble(const char *str, double *dest);
-\end{verbatim}\index{epicsStrtod}
+\end{verbatim}
+
+\index{epicsStrtod}
 \index{epicsScanFloat}
-\index{epicsScanDouble}\verb|epicsStrtod |has the same semantics as the C99 function \verb|strtod|.  It is provided because some architectures have 
+\index{epicsScanDouble}
+\verb|epicsStrtod| has the same semantics as the C99 function \verb|strtod|.  It is provided because some architectures have 
 implementations which do not accept NAN or INFINITY.   On architectures which provide an acceptable version of 
 \verb|strtod| this is implemented as a simple macro expansion.
 
-\index{strtod}\verb|epicsScanFloat| and \verb|epicsScanDouble| behave like sscanf with a \verb|"%f"| and \verb|"%lf"| format string, respectively.  
+\index{strtod}
+\verb|epicsScanFloat| and \verb|epicsScanDouble| behave like sscanf with a \verb|"%f"| and \verb|"%lf"| format string, respectively.  
 They are provided because some architectures have implementations of scanf which do not accept NAN or INFINITY.
 
 
 
 \section{epicsStdio}
 
-\index{epicsStdio}\index{epicsStdio.h}epicsStdio.h contains definitions for the following functions.
+\index{epicsStdio}
+\index{epicsStdio.h}epicsStdio.h contains definitions for the following functions.
 
-\begin{verbatim}int epicsSnprintf(char *str, size_t size,
+\begin{verbatim}
+int epicsSnprintf(char *str, size_t size,
     const char *format, ...);
 int epicsVsnprintf(char *str, size_t size,
     const char *format, va_list ap);
@@ -633,7 +741,9 @@ void epicsSetThreadStdin(FILE *);
 void epicsSetThreadStdout(FILE *);
 void epicsSetThreadStderr(FILE *);
 int epicsStdoutPrintf(const char *pformat, ...);
-\end{verbatim}\index{epicsSnprintf}
+\end{verbatim}
+
+\index{epicsSnprintf}
 \index{epicsVsnprintf}
 \index{epicsTempName}
 \index{epicsTempFile}
@@ -647,7 +757,8 @@ int epicsStdoutPrintf(const char *pformat, ...);
 \index{epicsSetThreadStdin}
 \index{epicsSetThreadStdout}
 \index{epicsSetThreadStderr}
-\index{epicsStdoutPrintf}\verb|epicsSnprintf| and \verb|epicsVsnprintf| are meant to have the same semantics as the C99 functions \verb|snprintf| and 
+\index{epicsStdoutPrintf}
+\verb|epicsSnprintf| and \verb|epicsVsnprintf| are meant to have the same semantics as the C99 functions \verb|snprintf| and 
 \verb|vsnprintf|. They are provided because some architectures do not implement these functions, while others do not 
 implement the correct semantics. If you haven't heard of these C99 functions, \verb|snprintf| is like \verb|sprintf| except that 
 the \verb|size| argument gives the maximum number of characters (including the trailing zero byte) that may be placed in \verb|str|. 
@@ -671,33 +782,40 @@ zero is passed in, so callers should not use that technique.
 if the file could not be truncated. 
 
 The Stdin/Stdout/Stderr routines allow these file steams to be redirected on a per thread basis, e.g. calling 
-epicsSetThreadStdout will affect only the thread which calls it.
+\verb|epicsSetThreadStdout| will affect only the thread which calls it.
 
-\verb|epicsGetStdin, ..., epicsStdoutPrintf| are not normally called by user code. Instead code that wants to 
+\verb|epicsGetStdin|, ..., \verb|epicsStdoutPrintf| are not normally called by user code. Instead code that wants to 
 allow redirection needs only to include \verb|epicsStdioRedirect.h|
 
 \section{epicsStdioRedirect}
 
-\index{epicsStdioRedirect}Including this file cause the following names to be changed:
+\index{epicsStdioRedirect}
+Including this file cause the following names to be changed:
 
-\begin{itemize}\item stdin becomes  epicsGetStdin()
+\begin{itemize}
+\item \verb|stdin| becomes \verb|epicsGetStdin()|
 
-\item stdout becomes epicsGetStdout()
+\item \verb|stdout| becomes \verb|epicsGetStdout()|
 
-\item stderr becomes epicsGetStderr()
+\item \verb|stderr| becomes \verb|epicsGetStderr()|
 
-\item printf becomes epicsStdoutPrintf
+\item \verb|printf| becomes \verb|epicsStdoutPrintf|
 
-\end{itemize}This is done so that redirection can occur. A primary use of this facility is iocsh. It allows redirection of input and output. 
+\end{itemize}
+
+This is done so that redirection can occur. A primary use of this facility is iocsh. It allows redirection of input and output. 
 In order for it to work, all modules involved in I/O can just include this header.
 
 \section{epicsThread}
 
-\index{epicsThread}\verb|epicsThread.h |contains C++ and C descriptions for a thread.
+\index{epicsThread}
+\verb|epicsThread.h |contains C++ and C descriptions for a thread.
 
-\index{epicsThread.h}\subsection{C Interface}
+\index{epicsThread.h}
+\subsection{C Interface}
 
-\begin{verbatim}typedef void (*EPICSTHREADFUNC)(void *parm);
+\begin{verbatim}
+typedef void (*EPICSTHREADFUNC)(void *parm);
 
 static const unsigned epicsThreadPriorityMax = 99;
 static const unsigned epicsThreadPriorityMin = 0;
@@ -766,7 +884,9 @@ epicsThreadPrivateId epicsThreadPrivateCreate(void);
 void epicsThreadPrivateDelete(epicsThreadPrivateId id);
 void epicsThreadPrivateSet(epicsThreadPrivateId,void *);
 void * epicsThreadPrivateGet(epicsThreadPrivateId);
-\end{verbatim}\index{EPICSTHREADFUNC}
+\end{verbatim}
+
+\index{EPICSTHREADFUNC}
 \index{epicsThreadPriorityMax}
 \index{epicsThreadPriorityMin}
 \index{epicsThreadPriorityLow}
@@ -814,7 +934,8 @@ void * epicsThreadPrivateGet(epicsThreadPrivateId);
 \index{epicsThreadPrivateDelete}
 \index{epicsThreadPrivateSet}
 \index{epicsThreadPrivateGet}
-\begin{center}\begin{longtable}{p{2.375in}p{4.0in}}
+\begin{center}
+\begin{longtable}{p{2.375in}p{4.0in}}
 \textbf{Method} & \textbf{Meaning}\\
 \hline
 epicsThreadGetStackSize & Get a stack size value that can be given to epicsThreadCreate. The size argument should be one of the values epicsThreadStackSmall, epicsThreadStackMedium or epicsThreadStackBig.\\
@@ -844,7 +965,9 @@ epicsThreadPrivateCreate & Thread private variables are intended for use by lega
 epicsThreadPrivateDelete & Delete a thread private variable.\\
 epicsThreadPrivateSet & Set the value for a thread private variable. \\
 epicsThreadPrivateGet & Get the value of a thread private variable, the value is the value set by the call to epicsThreadPrivateSet that was made by the same thread. If called before epicsThreadPrivateSet it returns 0.
-\end{longtable}\end{center}
+\end{longtable}
+
+\end{center}
 
 
 epicsThread is meant as a somewhat minimal interface for multithreaded applications. It can be implemented on a wide 
@@ -853,7 +976,8 @@ version is provided.
 
 The interface provides the following thread facilities, with restrictions as noted:
 
-\begin{itemize}\item Life cycle - A thread starts life as a result of a call to epicsThreadCreate. It terminates when the thread function 
+\begin{itemize}
+\item Life cycle - A thread starts life as a result of a call to epicsThreadCreate. It terminates when the thread function 
 returns. It should not return until it has released all resources it uses. If a thread is expected to terminate as a natural 
 part of its life cycle then the thread function must return.
 
@@ -876,9 +1000,12 @@ expected to use the system default.
 thread. If a threadId is used for a thread that has terminated the result is not defined (but will normally lead to bad 
 things happening). Thus code that looks after other threads MUST be aware of threads terminating.
 
-\end{itemize}\subsection{C++ Interface}
+\end{itemize}
 
-\begin{verbatim}class epicsThreadRunable {
+\subsection{C++ Interface}
+
+\begin{verbatim}
+class epicsThreadRunable {
 public:
     virtual void run() = 0;
     virtual void stop();
@@ -925,8 +1052,11 @@ public:
 private:
     ...
 };
-\end{verbatim}\index{epicsThreadRunable}
-\index{epicsThread}The C++ interface is just a wrapper around the C interface. Two differences are the method \verb|start| and the class 
+\end{verbatim}
+
+\index{epicsThreadRunable}
+\index{epicsThread}
+The C++ interface is just a wrapper around the C interface. Two differences are the method \verb|start| and the class 
 \verb|epicsThreadRunable|.
 
 The method \verb|start| must be called only after the \verb|epicsThead| object is constructed. It in turn calls the \verb|run| method of 
@@ -935,7 +1065,8 @@ the \verb|epicsThreadRunable| object.
 Code using the C++ interface code must provide a class that derives from \verb|epicsThreadRunable|. One way to 
 accomplish this is as follows:
 
-\begin{verbatim}class myThread: public epicsThreadRunable {
+\begin{verbatim}
+class myThread: public epicsThreadRunable {
 public:
     myThread(int arg,const char *name);
     virtual ~myThread();
@@ -959,13 +1090,18 @@ void myThread::run()
     ...
 
 }
-\end{verbatim}\section{epicsTime}
+\end{verbatim}
 
-\index{epicsTime}\verb|epicsTime.h |contains C++ and C descriptions for time.
+\section{epicsTime}
 
-\index{epicsTime.h}\subsection{Time Related Structures}
+\index{epicsTime}
+\verb|epicsTime.h| contains C++ and C descriptions for time.
 
-\begin{verbatim}/* epics time stamp for C interface*/
+\index{epicsTime.h}
+\subsection{Time Related Structures}
+
+\begin{verbatim}
+/* epics time stamp for C interface*/
 typedef struct epicsTimeStamp {
     epicsUInt32    secPastEpoch;   /* seconds since 0000 Jan 1, 1990 */
     epicsUInt32    nsec;           /* nanoseconds within second */
@@ -998,12 +1134,15 @@ struct gm_tm_nano_sec {
 struct time_t_wrapper {
     time_t ts;
 };
-\end{verbatim}\index{epicsTimeStamp}
+\end{verbatim}
+
+\index{epicsTimeStamp}
 \index{secPastEpoch}
 
 The above structures are for the various time formats.
 
-\begin{itemize}\item \verb|epicsTimeStamp| - This is the structure used by the C interface for epics time stamps. The C++ interface stores 
+\begin{itemize}
+\item \verb|epicsTimeStamp| - This is the structure used by the C interface for epics time stamps. The C++ interface stores 
 this information in private members. The two elements of the class are:
 
 \begin{itemize}
@@ -1046,7 +1185,7 @@ NOTE: \verb|TS_STAMP| is defined for compatibility with existing code.
 
 \end{itemize}
 
-\item \verb|local_tm_nano_sec and gm_tm_nano_sec| - Defined by epics. It just adds a nanosecond field to \verb|struct tm|.
+\item \verb|local_tm_nano_sec| and \verb|gm_tm_nano_sec| - Defined by epics. These just add a nanosecond field to \verb|struct tm|.
 
 \item \verb|time_t_wrapper| - This is for converting to/from the ANSI C \verb|time_t|. Since \verb|time_t| is usually an 
 elementary type providing a conversion operator from \verb|time_t| to/from \verb|epicsTime| could cause undesirable 
@@ -1061,7 +1200,8 @@ standard C time support the epics implementation should be valid until 2106.
 
 \subsection{C++ Interface}
 
-\begin{verbatim}class epicsTime;
+\begin{verbatim}
+class epicsTime;
 
 class epicsTimeEvent {
 public:
@@ -1147,10 +1287,15 @@ public:
 private:
     ...
 };
-\end{verbatim}\index{epicsTimeEvent}
-\index{epicsTime}\subsection{class epicsTimeEvent}
+\end{verbatim}
 
-\index{epicsTimeEvent}\begin{verbatim}class epicsShareClass epicsTimeEvent
+\index{epicsTimeEvent}
+\index{epicsTime}
+\subsection{class epicsTimeEvent}
+
+\index{epicsTimeEvent}
+\begin{verbatim}
+class epicsShareClass epicsTimeEvent
 {
 public:
     epicsTimeEvent (const int &number);
@@ -1159,17 +1304,21 @@ private:
     int eventNumber;
 };
 \end{verbatim}
-\begin{center}\begin{longtable}{p{1.79167in}p{4.94833in}}
+\begin{center}
+\begin{longtable}{p{1.79167in}p{4.94833in}}
 \textbf{Method} & \textbf{Meaning}\\
 \hline
 Convert to/from integer & Does not currently check that the range of the integer is valid, although it might one day.
-\end{longtable}\end{center}
+\end{longtable}
+
+\end{center}
 
 
 \subsection{class epicsTime}
 
 \index{epicsTime}
-\begin{center}\begin{longtable}{p{1.95833in}p{4.79167in}}
+\begin{center}
+\begin{longtable}{p{1.95833in}p{4.79167in}}
 \textbf{Method} & \textbf{Meaning}\\
 \hline
 epicsTime() & The default constructor sets the time to the beginning of the epics epoch.\\
@@ -1186,12 +1335,15 @@ arithmetic operators- ++=-= & The arithmetic operators allow the difference of t
 Comparison operators==, \textbar{}=, \textless{}=, \textless{}, \textgreater{}=, \textgreater{} & Two epics times can be compared:    epicsTime time1, time2;    ...    if(time1\textless{}=time2) \{ ...\\
 strftime & This is a facility similar to the ANSI C library routine strftime. See K\&R for details about strftime. The epicsTime method also provides support for the printing the nanoseconds portion of the time. It looks in the format string for the sequence ``\%0nf" where n is the desired precision. It uses this format to convert the nanoseconds value to the requested precision. For example:    epicsTime time = epicsTime::getCurrent();    char buf[30];    time.strftime(buf,30,"\%Y/\%m/\%d \%H:\%M:\%S.\%06f");    printf("\%s\textbackslash{}n",buf);Will print the time in the format:    2001/01/26 20:50:29.813505\\
 show & Shows the date/time.
-\end{longtable}\end{center}
+\end{longtable}
+
+\end{center}
 
 
 \subsection{C Interface}
 
-\begin{verbatim}/* All epicsTime routines return (-1,0) for (failure,success) */
+\begin{verbatim}
+/* All epicsTime routines return (-1,0) for (failure,success) */
 #define epicsTimeOK 0
 #define epicsTimeERROR (-1)
 /*Some special values for eventNumber*/
@@ -1254,7 +1406,9 @@ void epicsTimeShow (const epicsTimeStamp *, unsigned interestLevel);
 int epicsTime_localtime ( const time_t *clock, struct tm *result );
 int epicsTime_gmtime ( const time_t *clock, struct tm *result );
 
-\end{verbatim}\index{epicsTime}The C interface provides most of the features as the C++ interface. The features of the C++ operators are provided as 
+\end{verbatim}
+
+\index{epicsTime}The C interface provides most of the features as the C++ interface. The features of the C++ operators are provided as 
 functions.
 
 Note that the epicsTimeGetCurrent and epicsTimeGetEvent routines are now implemented in epicsGeneralTime.c
@@ -1262,15 +1416,23 @@ Note that the epicsTimeGetCurrent and epicsTimeGetEvent routines are now impleme
 \section{osiPoolStatus}
 
 \index{osiMutex.h}
-\index{osiPoolStatus.h}\verb|osiPoolStatus.h |contains the following description:
+\index{osiPoolStatus.h}
+\verb|osiPoolStatus.h| contains the following description:
 
-\index{osiPoolStatus.h}\begin{verbatim}int osiSufficentSpaceInPool(void);
-\end{verbatim}\index{osiSufficentSpaceInPool}
-\begin{center}\begin{longtable}{p{1.52778in}p{3.40278in}}
+\index{osiPoolStatus.h}
+\begin{verbatim}
+int osiSufficentSpaceInPool(void);
+\end{verbatim}
+
+\index{osiSufficentSpaceInPool}
+\begin{center}
+\begin{longtable}{p{1.52778in}p{3.40278in}}
 \textbf{Method} & \textbf{Meaning}\\
 \hline
 osiSufficentSpaceInPool & Return (true,false) if there is sufficient free memory.
-\end{longtable}\end{center}
+\end{longtable}
+
+\end{center}
 
 
 This determines if enough free memory exists to continue.
@@ -1281,9 +1443,12 @@ The default version always returns true.
 
 \section{osiProcess}
 
-\index{osiProcess.h}\verb|osiProcess.h |contains the following:
+\index{osiProcess.h}
+\verb|osiProcess.h| contains the following:
 
-\index{osiProcess.h}\begin{verbatim}typedef enum osiGetUserNameReturn {
+\index{osiProcess.h}
+\begin{verbatim}
+typedef enum osiGetUserNameReturn {
     osiGetUserNameFail,
     osiGetUserNameSuccess
 }osiGetUserNameReturn;
@@ -1304,19 +1469,27 @@ typedef enum osiSpawnDetachedProcessReturn {
 osiSpawnDetachedProcessReturn osiSpawnDetachedProcess(
     const char *pProcessName, const char *pBaseExecutableName);
 
-\end{verbatim}Not documented.
+\end{verbatim}
+
+Not documented.
 
 \section{osiSigPipeIgnore}
 
 \index{osiSem.h}
-\index{osiSigPipeIgnore.h}\verb|osiSigPipeIgnore.h| contains the following:
+\index{osiSigPipeIgnore.h}
+\verb|osiSigPipeIgnore.h| contains the following:
 
-\index{osiSigPipeIgnore.h}\begin{verbatim}void installSigPipeIgnore (void);
-\end{verbatim}Not documented.
+\index{osiSigPipeIgnore.h}
+\begin{verbatim}
+void installSigPipeIgnore (void);
+\end{verbatim}
+
+Not documented.
 
 \section{osiSock.h}
 
-\index{osiSock.h}See the header file in \textless{}base\textgreater{}/src/libCom/osi.
+\index{osiSock.h}
+See the header file in \verb|<base>/src/libCom/osi|.
 
 \section{ Device Support Library}
 
@@ -1333,29 +1506,38 @@ multiple device/drivers trying to use the same VME addresses will be detected.
 
 \subsubsection{Read Probe}
 
-\begin{verbatim}long  devReadProbe(
+\begin{verbatim}
+long  devReadProbe(
     unsigned wordSize,
     volatile const void *ptr,
     void *pValueRead);
-\end{verbatim}\index{devReadProbe}Performs a bus-error-safe atomic read operation width \verb|wordSize| bytes from the \verb|ptr| location, placing the value read (if 
+\end{verbatim}
+
+\index{devReadProbe}Performs a bus-error-safe atomic read operation width \verb|wordSize| bytes from the \verb|ptr| location, placing the value read (if 
 successful) at \verb|pValueRead|. The routine returns a failure status (non-zero) if a bus error occurred during the read cycle.
 
 \subsubsection{Write Probe}
 
-\begin{verbatim}long  devWriteProbe(
+\begin{verbatim}
+long  devWriteProbe(
     unsigned wordSize,
     volatile void *ptr,
     const void *pValueWritten);
-\end{verbatim}\index{devWriteProbe}Performs a bus-error-safe atomic write operation width \verb|wordSize| which copies the value from \verb|pValueWritten| to the 
+\end{verbatim}
+
+\index{devWriteProbe}Performs a bus-error-safe atomic write operation width \verb|wordSize| which copies the value from \verb|pValueWritten| to the 
 \verb|ptr| location. The routine returns a failure status (non-zero) if a bus error occurred during the write cycle.
 
 \subsubsection{No Response Probe}
 
-\begin{verbatim}long devNoResponseProbe(
+\begin{verbatim}
+long devNoResponseProbe(
     epicsAddressType addrType,
     size_t base,
     size_t size);
-\end{verbatim}\index{devNoResponseProbe}This routine performs a series of read probes for all word sizes from char to long at every naturally aligned location in the 
+\end{verbatim}
+
+\index{devNoResponseProbe}This routine performs a series of read probes for all word sizes from char to long at every naturally aligned location in the 
 range [\verb|base|, \verb|base+size|) for the given bus address type. It returns an error if any location responds or if any such 
 location cannot be mapped.
 
@@ -1363,7 +1545,8 @@ location cannot be mapped.
 
 \subsubsection{Definitions of Address Types}
 
-\begin{verbatim}typedef enum {
+\begin{verbatim}
+typedef enum {
     atVMEA16, atVMEA24, atVMEA32,
     atISA,
     atLast /* atLast is the last enum in this list */
@@ -1373,41 +1556,56 @@ char  *epicsAddressTypeName[] = {
     "VME A16", "VME A24", "VME A32",
     "ISA"
 };
-\end{verbatim}\index{epicsAddressType}
-\index{epicsAddressTypeName}\subsubsection{Register Address}
+\end{verbatim}
 
-\begin{verbatim}long  devRegisterAddress(
+\index{epicsAddressType}
+\index{epicsAddressTypeName}
+\subsubsection{Register Address}
+
+\begin{verbatim}
+long  devRegisterAddress(
     const char *pOwnerName,
     epicsAddressType addrType,
     size_t logicalBaseAddress,
     size_t size, /* bytes */
     volatile void **pLocalAddress);
-\end{verbatim}\index{devRegisterAddress}This routine is called to register a VME address. The routine keeps a list of all VME address ranges requested and returns 
+\end{verbatim}
+
+\index{devRegisterAddress}This routine is called to register a VME address. The routine keeps a list of all VME address ranges requested and returns 
 an error message if an attempt is made to register any addresses that overlap a range that is already being used. 
-*\verb|pLocalAddress| is set equal to the address as seen by the caller.
+\verb|*pLocalAddress| is set equal to the address as seen by the caller.
 
 \subsubsection{Print Address Map}
 
-\begin{verbatim}long  devAddressMap(void)
-\end{verbatim}\index{devAddressMap}This routine displays the table of registered VME address ranges, including the owner of each registered address.
+\begin{verbatim}
+long  devAddressMap(void)
+\end{verbatim}
+
+\index{devAddressMap}This routine displays the table of registered VME address ranges, including the owner of each registered address.
 
 \subsubsection{Unregister Address}
 
-\begin{verbatim}long  devUnregisterAddress(
+\begin{verbatim}
+long  devUnregisterAddress(
     epicsAddressType addrType,
     size_t logicalBaseAddress,
     const char *pOwnerName);
-\end{verbatim}\index{devUnregisterAddress}This routine releases address ranges previously registered by a call to \verb|devRegisterAddress| or \verb|devAllocAddress|.
+\end{verbatim}
+
+\index{devUnregisterAddress}This routine releases address ranges previously registered by a call to \verb|devRegisterAddress| or \verb|devAllocAddress|.
 
 \subsubsection{Allocate Address}
 
-\begin{verbatim}long  devAllocAddress(
+\begin{verbatim}
+long  devAllocAddress(
     const char *pOwnerName,
     epicsAddressType addrType,
     size_t size,
     unsigned alignment, /*number of low zero bits needed in addr*/
     volatile void **pLocalAddress);
-\end{verbatim}\index{devAllocAddress}This routine is called to request the library to allocate an address block of a particular address type. This is useful for 
+\end{verbatim}
+
+\index{devAllocAddress}This routine is called to request the library to allocate an address block of a particular address type. This is useful for 
 devices that appear in more than one address space and can program the base address of one window using registers found 
 in another window.
 
@@ -1415,94 +1613,130 @@ in another window.
 
 \subsubsection{Connect}
 
-\begin{verbatim}long  devConnectInterruptVME(
+\begin{verbatim}
+long  devConnectInterruptVME(
     unsigned vectorNumber,
     void (*pFunction)(void *),
     void  *parameter);
-\end{verbatim}\index{devConnectInterruptVME}Connect ISR \verb|pFunction| up to the VME interrupt \verb|vectorNumber|.
+\end{verbatim}
+
+\index{devConnectInterruptVME}Connect ISR \verb|pFunction| up to the VME interrupt \verb|vectorNumber|.
 
 \subsubsection{Disconnect}
 
-\begin{verbatim}long  devDisconnectInterruptVME(
+\begin{verbatim}
+long  devDisconnectInterruptVME(
     unsigned vectorNumber,
     void (*pFunction)(void *));
-\end{verbatim}\index{devDisconnectInterruptVME}Disconnects an ISR from its VME interrupt vector. The parameter \verb|pFunction| should be set to the C function pointer 
+\end{verbatim}
+
+\index{devDisconnectInterruptVME}Disconnects an ISR from its VME interrupt vector. The parameter \verb|pFunction| should be set to the C function pointer 
 that was connected. It is used as a key to prevent a driver from inadvertently removing an interrupt handler that it didn't 
 install.
 
 \subsubsection{Check If Used}
 
-\begin{verbatim}int devInterruptInUseVME(
+\begin{verbatim}
+int devInterruptInUseVME(
     unsigned vectorNumber);
-\end{verbatim}\index{devInterruptInUseVME}Determines if a VME interrupt vector is in use, returning a boolean value.
+\end{verbatim}
+
+\index{devInterruptInUseVME}Determines if a VME interrupt vector is in use, returning a boolean value.
 
 \subsubsection{Enable}
 
-\begin{verbatim}long devEnableInterruptLevelVME(
+\begin{verbatim}
+long devEnableInterruptLevelVME(
     unsigned level);
-\end{verbatim}\index{devEnableInterruptLevelVME}Enable the given VME interrupt level onto the CPU.
+\end{verbatim}
+
+\index{devEnableInterruptLevelVME}Enable the given VME interrupt level onto the CPU.
 
 \subsubsection{Disable}
 
-\begin{verbatim}long devDisableInterruptLevelVME(
+\begin{verbatim}
+long devDisableInterruptLevelVME(
     unsigned level);
-\end{verbatim}\index{devDisableInterruptLevelVME}Disable VME interrupt level. This routine should generally never be used, since it is impossible for a driver to know 
+\end{verbatim}
+
+\index{devDisableInterruptLevelVME}Disable VME interrupt level. This routine should generally never be used, since it is impossible for a driver to know 
 whether any other active drivers are still making use of a particular interrupt level.
 
 \subsection{Macros for Normalized Analog Values}
 
 \subsubsection{Convert Digital Value to a Normalized Double Value}
 
-\begin{verbatim}#define devCreateMask(NBITS)((1<<(NBITS))-1)
+\begin{verbatim}
+#define devCreateMask(NBITS)((1<<(NBITS))-1)
 #define devDigToNml(DIGITAL,NBITS) \
     (((double)(DIGITAL))/devCreateMask(NBITS))
-\end{verbatim}\index{devCreateMask}\subsubsection{Convert Normalized Double Value to a Digital Value}
+\end{verbatim}
 
-\begin{verbatim}#define devNmlToDig(NORMAL,NBITS) \
+\index{devCreateMask}\subsubsection{Convert Normalized Double Value to a Digital Value}
+
+\begin{verbatim}
+#define devNmlToDig(NORMAL,NBITS) \
     (((long)(NORMAL)) * devCreateMask(NBITS))
-\end{verbatim}\index{devNmlToDig}\subsection{Deprecated Interrupt Routines}
+\end{verbatim}
+
+\index{devNmlToDig}\subsection{Deprecated Interrupt Routines}
 
 \subsubsection{Definitions of Interrupt Types (deprecated)}
 
-\begin{verbatim}typedef enum {intCPU, intVME, intVXI} epicsInterruptType;
-\end{verbatim}\index{epicsInterruptType}The routines that use this typedef have all been deprecated, and currently only exist for backwards compatibility purposes. 
+\begin{verbatim}
+typedef enum {intCPU, intVME, intVXI} epicsInterruptType;
+\end{verbatim}
+
+\index{epicsInterruptType}The routines that use this typedef have all been deprecated, and currently only exist for backwards compatibility purposes. 
 The typedef will be removed in a future release, along with those routines.
 
 \subsubsection{Connect (deprecated)}
 
-\begin{verbatim}long  devConnectInterrupt(
+\begin{verbatim}
+long  devConnectInterrupt(
     epicsInterruptType  intType,
     unsigned  vectorNumber,
     void  (*pFunction)(),
     void  *parameter);
-\end{verbatim}\index{devConnectInterrupt}This routine has been deprecated, and currently only exists for backwards compatibility purposes. Uses of this routine 
+\end{verbatim}
+
+\index{devConnectInterrupt}This routine has been deprecated, and currently only exists for backwards compatibility purposes. Uses of this routine 
 should be converted to call \verb|devConnectInterruptVME| or related routines instead. This routine will be removed in a 
 future release.
 
 \subsubsection{Disconnect (deprecated)}
 
-\begin{verbatim}long  devDisconnectInterrupt(
+\begin{verbatim}
+long  devDisconnectInterrupt(
     epicsInterruptType intType,
     unsigned  vectorNumber);
-\end{verbatim}\index{devDisconnectInterrupt}This routine has been deprecated, and currently only exists for backwards compatibility purposes. Uses of this routine 
+\end{verbatim}
+
+\index{devDisconnectInterrupt}This routine has been deprecated, and currently only exists for backwards compatibility purposes. Uses of this routine 
 should be converted to call \verb|devDisconnectInterruptVME| or related routines instead. This routine will be removed 
 in a future release.
 
 \subsubsection{Enable Level (deprecated)}
 
-\begin{verbatim}long  devEnableInterruptLevel(
+\begin{verbatim}
+long  devEnableInterruptLevel(
     epicsInterruptType  intType,
     unsigned  level);
-\end{verbatim}\index{devEnableInterruptLevel}This routine has been deprecated, and currently only exists for backwards compatibility purposes. Uses of this routine 
+\end{verbatim}
+
+\index{devEnableInterruptLevel}This routine has been deprecated, and currently only exists for backwards compatibility purposes. Uses of this routine 
 should be converted to call \verb|devEnableInterruptLevelVME| or related routines instead. This routine will be removed 
 in a future release.
 
 \subsubsection{Disable Level (deprecated)}
 
-\begin{verbatim}long  devDisableInterruptLevel(
+\begin{verbatim}
+long  devDisableInterruptLevel(
     epicsInterruptType  intType,
     unsigned  level);
-\end{verbatim}\index{devDisableInterruptLevel}This routine has been deprecated, and currently only exists for backwards compatibility purposes. Uses of this routine 
+\end{verbatim}
+
+\index{devDisableInterruptLevel}This routine has been deprecated, and currently only exists for backwards compatibility purposes. Uses of this routine 
 should be converted to call \verb|devDisableInterruptLevelVME| or related routines instead. This routine will be 
 removed in a future release.
 
@@ -1510,47 +1744,52 @@ removed in a future release.
 
 The routines described in this section are included in a application by the Makfile command:
 
-\begin{verbatim}    <appl>_OBJS_vxWorks += $(EPICS_BASE_BIN)/vxComLibrary
-\end{verbatim}\index{vxComLibrary}\subsection{iocClock}
+\begin{verbatim}
+    <appl>_OBJS_vxWorks += $(EPICS_BASE_BIN)/vxComLibrary
+\end{verbatim}
 
-\index{iocClock}This provides a clock for vxWorks by using Network Time Protocal (NTP) client calls. It is required for all vxWorks 
+\index{vxComLibrary}\subsection{iocClock}
+
+\index{iocClock}
+This provides a clock for vxWorks by using Network Time Protocal (NTP) client calls. It is required for all vxWorks 
 IOCs. It also provides the \verb|date| command.
 
 \subsection{veclist}
 
-\index{veclist}For VME systems this shows the interrupt vectors.
+\index{veclist}
+For VME systems this shows the interrupt vectors.
 
 \subsection{logMsgToErrlog}
 
 This traps all calls to logMsg and sends them to errlogPrintf.
 
-\subsection{drvTS}
-
-\index{drvTS}This is a driver that supports hardware event systems. It is documented in \verb|TSdriver.html,| which is in the 
-\verb|documentation| directory of base. Unless TSinit is called before iocInit it will not be used.
-
 \subsection{camacLib.h}
 
-\index{camacLib.h}This was included with 3.13.
+\index{camacLib.h}
+This was included with 3.13.
 
 \subsection{epicsDynLink}
 
-\index{epicsDynLink}This is provides symFindByNameEPICS. It is only provided for device/driver support that has not been converted to use 
+\index{epicsDynLink}
+This is provides symFindByNameEPICS. It is only provided for device/driver support that has not been converted to use 
 epicsFindSymbol. Some day epicsDynLink will no longer be supported.
 
 \subsection{module\_types.h}
 
-\index{module\_types.h}It is only provided for device/driver support that has not been converted to use OSI features of base. Some day it will no 
+\index{module\_types.h}
+It is only provided for device/driver support that has not been converted to use OSI features of base. Some day it will no 
 longer be supported. Instead of using this drivers should accept a configure command that specifies the information 
 provided by \verb|module_types.h|
 
 \subsection{task\_params.h}
 
-\index{task\_params.h}It is only provided for device/driver support that has not been converted to use OSI features of base. Some day it will no 
+\index{task\_params.h}
+It is only provided for device/driver support that has not been converted to use OSI features of base. Some day it will no 
 longer be supported.
 
 \subsection{vxComLibrary}
 
-\index{vxComLibrary}This is a routine that causes iocClock, drvTS, epicsDynLink, logMsgToErrlog and veclist to be loaded.
+\index{vxComLibrary}
+This is a routine that causes iocClock, drvTS, epicsDynLink, logMsgToErrlog and veclist to be loaded.
 
 

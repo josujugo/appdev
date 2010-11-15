@@ -10,7 +10,8 @@ error. This type of error should be reported to a system wide error handler.
 
 Dividing errors into these two classes is complicated by a number of factors.
 
-\begin{itemize}\item In many cases it is not possible for the routine detecting an error to decide which type of error occurred. 
+\begin{itemize}
+\item In many cases it is not possible for the routine detecting an error to decide which type of error occurred. 
 
 \item Normally, only the routine detecting the error knows how to generate a fully descriptive error message. Thus, if a 
 routine decides that the error belongs to a particular client and merely returns an error status value, the ability to 
@@ -23,11 +24,14 @@ storms.
 production system, however, the system wide error handler should not normally receive error messages cause by a 
 particular client.
 
-\end{itemize}If used properly, the error handling facilities described in this chapter can process both types of errors.
+\end{itemize}
+
+If used properly, the error handling facilities described in this chapter can process both types of errors.
 
 This chapter describes the following:
 
-\begin{itemize}\item Error Message Generation Routines - Routines which pass messages to the errlog Task.
+\begin{itemize}
+\item Error Message Generation Routines - Routines which pass messages to the errlog Task.
 
 \item Error Log Listeners - Any code can register to recieve errlog messages.
 
@@ -42,7 +46,9 @@ queue can be specified by the user.
 
 NOTE: Many sites use CMLOG instead of iocLog.
 
-\end{itemize}NOTE: \verb|recGbl| error routines are also provided. They in turn call one of the error message routines.
+\end{itemize}
+
+NOTE: \verb|recGbl| error routines are also provided. They in turn call one of the error message routines.
 
 \section{Error Message Routines}
 
@@ -57,7 +63,8 @@ NOTE: Many sites use CMLOG instead of iocLog.
 \index{errlogPrintf}
 \index{errlogVprintf}
 \index{errlogMessage}
-\index{errlogFlush} \verb|errlogPrintf |and  \verb|errlogVprintf| are like \verb|printf| and \verb|vprintf| provided by the standard C library, except 
+\index{errlogFlush}
+ \verb|errlogPrintf| and  \verb|errlogVprintf| are like \verb|printf| and \verb|vprintf| provided by the standard C library, except 
 that their output is sent to the errlog task; unless configured not to, the output will appear on the console as well. Consult 
 any book that describes the standard C library such as ``The C Programming Language ANSI C Edition" by Kernighan 
 and Ritchie.
@@ -82,7 +89,9 @@ char *errlogGetSevEnumString(const errlogSevEnum severity);
 
 void  errlogSetSevToLog(const errlogSevEnum severity );
 errlogSevEnum errlogGetSevToLog(void);
-\end{verbatim}\index{errlogInfo}
+\end{verbatim}
+
+\index{errlogInfo}
 \index{errlogMinor}
 \index{errlogMajor}
 \index{errlogFatal}
@@ -91,8 +100,9 @@ errlogSevEnum errlogGetSevToLog(void);
 \index{errlogSevVprintf}
 \index{errlogGetSevEnumString}
 \index{errlogSetSevToLog}
-\index{errlogGetSevToLog}\verb|errlogSevPrintf| and \verb|errlogSevVprintf| are like \verb|errlogPrintf |and  \verb|errlogVprintf| except that they 
-add the severity to the beginning of the message in the form ``sevr=\textless{}value\textgreater{}" where value is on of ``info, minor, major, 
+\index{errlogGetSevToLog}
+\verb|errlogSevPrintf| and \verb|errlogSevVprintf| are like \verb|errlogPrintf| and  \verb|errlogVprintf| except that they 
+add the severity to the beginning of the message in the form ``sevr=\textless{}value\textgreater{}" where value is one of ``info, minor, major, 
 fatal". Also the message is suppressed if  severity is less than the current severity to suppress. If epicsThreadIsOkToBlock 
 is true, which is true during iocInit, errlogSevVprintf does NOT send output to the errlog task.
 
@@ -107,19 +117,29 @@ void errMessage(long status, char *message);
 
 void errPrintf(long status, const char *pFileName,
     int lineno, const char *pformat, ...);
-\end{verbatim}\index{errMessage}
-\index{errPrintf}Routine \verb|errMessage| (actually a macro that calls \verb|errPrintf|) has the following format:
+\end{verbatim}
 
-\index{errMessage}\begin{verbatim}void errMessage(long  status, char  *message);
-\end{verbatim}Where status is defined as:
+\index{errMessage}
+\index{errPrintf}
+Routine \verb|errMessage| (actually a macro that calls \verb|errPrintf|) has the following format:
 
-\begin{itemize}\item 0:  Find latest vxWorks or Unix error.
+\index{errMessage}
+\begin{verbatim}
+void errMessage(long  status, char  *message);
+\end{verbatim}
+
+Where status is defined as:
+
+\begin{itemize}
+\item 0:  Find latest vxWorks or Unix error.
 
 \item -1:  Don't report status.
 
 \item Other:  See ``Return Status Values" above.
 
-\end{itemize}\verb|errMessage|, via a call to \verb|errPrintf|, prints the message, the status symbol and string values, and the name of the task 
+\end{itemize}
+
+\verb|errMessage|, via a call to \verb|errPrintf|, prints the message, the status symbol and string values, and the name of the task 
 which invoked \verb|errMessage|. It also prints the name of the source file and the line number from which the call was 
 issued.
 
@@ -133,52 +153,74 @@ not caused by a specific client.
 
 Routine \verb|errPrintf| is normally called as follows:
 
-\index{errPrintf}\begin{verbatim}errPrintf(status, __FILE__, __LINE__,"<fmt>",...);
-\end{verbatim}Where status is defined as:
+\index{errPrintf}
+\begin{verbatim}
+errPrintf(status, __FILE__, __LINE__,"<fmt>",...);
+\end{verbatim}
 
-\begin{itemize}\item 0:  Find latest vxWorks or Unix error.
+Where status is defined as:
+
+\begin{itemize}
+\item 0:  Find latest vxWorks or Unix error.
 
 \item -1:  Don't report status.
 
 \item Other:  See ``Return Status Values", above.
 
-\end{itemize}FILE and LINE are defined as:
+\end{itemize}
 
-\begin{itemize}\item \_\_FILE\_\_   As shown or \verb|NULL| if the file name and line number should not be printed.
+FILE and LINE are defined as:
+
+\begin{itemize}
+\item \_\_FILE\_\_   As shown or \verb|NULL| if the file name and line number should not be printed.
 
 \item \_\_LINE\_\_  As shown
 
-\end{itemize}The remaining arguments are just like the arguments to the C \verb|printf| routine. \verb|errVerbose| determines if the filename 
+\end{itemize}
+
+The remaining arguments are just like the arguments to the C \verb|printf| routine. \verb|errVerbose| determines if the filename 
 and line number are shown.
 
 An EPICS status code can also be converted to a string. If the supplied status code isn't registered in the status code 
 database then the raw status code number is converted into a string in the destination buffer.
 
-\begin{verbatim}#include "errMdef.h"
+\begin{verbatim}
+#include "errMdef.h"
 void errSymLookup(long status, char *pBuf, unsigned bufLength);
-\end{verbatim}\subsection{Obsolete Routines }
+\end{verbatim}
 
-\begin{verbatim}int epicsPrintf(const char *pformat, ...);
+\subsection{Obsolete Routines }
+
+\begin{verbatim}
+int epicsPrintf(const char *pformat, ...);
 int epicsVprintf(const char *pformat,va_list pvar);
-\end{verbatim}\index{epicsPrintf}
-\index{epicsVprintf}These are macros that call errlogPrintf and errlogVprintf. They are provided for compatibility.
+\end{verbatim}
+
+\index{epicsPrintf}
+\index{epicsVprintf}
+These are macros that call errlogPrintf and errlogVprintf. They are provided for compatibility.
 
 \section{errlog Listeners}
 
-\index{errlog Listeners}Any code can receive errlog message. The following are the calls to add and remove a listener.
+\index{errlog Listeners}
+Any code can receive errlog message. The following are the calls to add and remove a listener.
 
 \begin{verbatim}
 typedef void(*errlogListener) (void *pvt,const char *message);
 void errlogAddListener(errlogListener listener,void *pPrivate);
 void errlogRemoveListener(errlogListener listener);
-\end{verbatim}\index{errlogListener}
+\end{verbatim}
+
+\index{errlogListener}
 \index{errlogAddListener}
-\index{errlogRemoveListener}These routines add/remove a callback that receives each error message. These routines are the interface to the actual 
+\index{errlogRemoveListener}
+These routines add/remove a callback that receives each error message. These routines are the interface to the actual 
 system wide error handlers.
 
 \section{errlogThread}
 
-\index{errlogThread}The error message routines can be called by any non-interrupt level code. These routines pass the message to the errlog 
+\index{errlogThread}
+The error message routines can be called by any non-interrupt level code. These routines pass the message to the errlog 
 Thread. If any of the error message routines are called at interrupt level,  \verb|epicsInterruptContextMessage| is 
 called with the message ``errlogPrintf called from interrupt level".
 
@@ -201,12 +243,16 @@ routines. If it is not OK to block, errlorThread displays the messages.
 
 Normally the errlog system displays all messages on the console. \verb|eltc| can be used to suppress these messages.
 
-\begin{verbatim}int eltc(int yesno); /* error log to console (0 or 1) */
+\begin{verbatim}
+int eltc(int yesno); /* error log to console (0 or 1) */
 int errlogInit(int bufsize);
 int errlogInit2(int bufsize, int maxMsgSize);
-\end{verbatim}\index{eltc}
+\end{verbatim}
+
+\index{eltc}
 \index{errlogInit}
-\index{errlogInit2}eltc determines if errlog task writes message to the console. During error messages storms  this  command can be used to 
+\index{errlogInit2}
+eltc determines if errlog task writes message to the console. During error messages storms  this  command can be used to 
 suppress console messages. A argument of 0 suppresses the messages and any other value lets the message go to the 
 console. 
 
@@ -215,9 +261,11 @@ The default buffer size is 1280 bytes, and the default maximum message size is 2
 
 \section{Status Codes}
 
-\index{status codes}EPICS defined status values provide the following features:
+\index{status codes}
+EPICS defined status values provide the following features:
 
-\begin{itemize}\item Whenever possible, IOC routines return a status value: (0, non-0) means (\verb|OK|, \verb|ERROR|).
+\begin{itemize}
+\item Whenever possible, IOC routines return a status value: (0, non-0) means (\verb|OK|, \verb|ERROR|).
 
 \item The include files for each IOC subsystem contain macros defining error status symbols and strings.
 
@@ -225,7 +273,9 @@ The default buffer size is 1280 bytes, and the default maximum message size is 2
 
 \item A global variable \verb|errVerbose| helps code decide if error messages should be generated.
 
-\end{itemize}WARNING: During the fall of 1995 a series of tech-talk messages were generated concerning EPICS status values. No 
+\end{itemize}
+
+WARNING: During the fall of 1995 a series of tech-talk messages were generated concerning EPICS status values. No 
 consensus was reached.
 
 Whenever it makes sense, IOC routines return a status value encoded similar to the vxWorks error status encoding. The 
@@ -236,33 +286,50 @@ numbers are greater than 500.
 A file \verb|epics/share/epicsH/errMdef.h| defines each subsystem number. For example the \verb|define| for the 
 database access routines is:
 
-\begin{verbatim}#define M_dbAccess  (501 << 16)   \
+\begin{verbatim}
+#define M_dbAccess  (501 << 16)   \
 /*Database Access Routines*/
-\end{verbatim}Directory ``\verb|epics/share/epicsH|" contains an \verb|include| library for every IOC subsystem that returns standard status 
+\end{verbatim}
+
+Directory ``\verb|epics/share/epicsH|" contains an \verb|include| library for every IOC subsystem that returns standard status 
 values. The status values are encoded with lines of the following format: 
 
-\begin{verbatim}#define S_xxxxxxx value /*string value*/
-\end{verbatim}For example:
+\begin{verbatim}
+#define S_xxxxxxx value /*string value*/
+\end{verbatim}
 
-\begin{verbatim}#define S_dbAccessBadDBR (M_dbAccess|3) \
+For example:
+
+\begin{verbatim}
+#define S_dbAccessBadDBR (M_dbAccess|3) \
 /*Invalid Database Request*/
-\end{verbatim}For example, when \verb|dbGetField| detects a bad database request type, it executes the statement:
+\end{verbatim}
 
-\begin{verbatim}return(S_dbAccessBadDBR);
-\end{verbatim}The calling routine checks the return status as follows:
+For example, when \verb|dbGetField| detects a bad database request type, it executes the statement:
 
-\begin{verbatim}status = dbGetField( ...);
+\begin{verbatim}
+return(S_dbAccessBadDBR);
+\end{verbatim}
+
+The calling routine checks the return status as follows:
+
+\begin{verbatim}
+status = dbGetField( ...);
 if(status) {/* Call was not successful */ }
-\end{verbatim}\section{iocLog}
+\end{verbatim}
 
-\index{iocLog}NOTE: Many sites use CMLOG instead of iocLog. See the CMLOG documentation for details.
+\section{iocLog}
+
+\index{iocLog}
+NOTE: Many sites use CMLOG instead of iocLog. See the CMLOG documentation for details.
 
 This consists of two modules: iocLogServer and iocLogClient. The client code runs on each ioc and listens for the 
 messages generated locally by the errlog system. It also reports the messages from the vxWorks logMsg facility.
 
 \subsection{iocLogServer}
 
-\index{iocLogServer}This runs on a host. It receives messages for all enabled iocLogClients in the local area network. The messages are written 
+\index{iocLogServer}
+This runs on a host. It receives messages for all enabled iocLogClients in the local area network. The messages are written 
 to a file. Epics base provides a startup file ``base/src/util/rc2.logServer", which is a SystemV init script to start the server. 
 Consult this script for details.
 
@@ -309,12 +376,16 @@ Defaults for all of the above parameters are specified in  the files \$(EPICS\_B
 \$(EPICS\_BASE)/config/CONFIG\_ENV.
 
 \subsection{iocLogClient}
+\label{iocLogClient}
 
 \index{iocLogClient}
 This runs on each ioc. It is started by calling:
 
-\begin{verbatim}iocLogInit();
-\end{verbatim}The global variable \verb|iocLogDisable| can be used to enable/disable the messages from being sent to the server. Setting 
+\begin{verbatim}
+iocLogInit();
+\end{verbatim}
+
+The global variable \verb|iocLogDisable| can be used to enable/disable the messages from being sent to the server. Setting 
 this variable to (0,1) (enables,disables) the messages generation. If \verb|iocLogDisable| is set to 1 before calling 
 \verb|iocLogInit| then \verb|iocLogClient| will not even initialize itself. \verb|iocLogDisable| can also be changed to turn 
 logging on or off.
@@ -329,7 +400,8 @@ In a testing environment it is desirable to use a private log server. This can b
 
 \item Add a epicsEnvSet command to your IOC startup file. For example
 
-\begin{verbatim}ld  <  iocCore
+\begin{verbatim}
+ld  <  iocCore
 epicsEnvSet("EPICS_IOC_LOG_INET=xxx.xxx.xxx.xxx")
 \end{verbatim}
 

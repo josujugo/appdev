@@ -18,7 +18,7 @@ called multiple times.
 
 Database Configuration Tools (DCTs) should manipulate an EPICS database only via the static database access interface. 
 An IOC database is created on a host system via a database configuration tool and stored in a host file with a file 
-extension of ``.\verb|db|". Three routines (\verb|dbReadDatabase, dbReadDatabaseFP| and \verb|dbWriteRecord|) access the 
+extension of ``\verb|.db|". Three routines (\verb|dbReadDatabase|, \verb|dbReadDatabaseFP| and \verb|dbWriteRecord|) access the 
 host database file. These routines read/write a database file to/from a memory resident EPICS database. All other access 
 routines manipulate the memory resident database.
 
@@ -32,16 +32,22 @@ directly. They are used by the static database access library to keep state info
 
 Multiple memory resident databases can be accessed simultaneously. The user must provide definitions in the form:
 
-\begin{verbatim}DBBASE *pdbbase;
-\end{verbatim}NOTE: On an IOC \index{pdbbase}pdbbase is a global variable, which is accessable if you include dbAccess.h
+\begin{verbatim}
+DBBASE *pdbbase;
+\end{verbatim}
+
+NOTE: On an IOC \index{pdbbase}pdbbase is a global variable, which is accessable if you include dbAccess.h
 
 \subsection{DBENTRY}
 
 A typical declaration for a database entry structure is:
 
-\begin{verbatim}DBENTRY *pdbentry;
+\begin{verbatim}
+DBENTRY *pdbentry;
 pdbentry=dbAllocEntry(pdbbase);
-\end{verbatim}Most static access to a database is via a \verb|DBENTRY| structure. As many \verb|DBENTRYs| as desired can be allocated.
+\end{verbatim}
+
+Most static access to a database is via a \verb|DBENTRY| structure. As many \verb|DBENTRYs| as desired can be allocated.
 
 The user should NEVER access the fields of \verb|DBENTRY| directly. They are meant to be used by the static database access 
 library.
@@ -52,13 +58,15 @@ to locate the information it needs and gives values to as many fields in this st
 
 \subsection{Field Types}
 
-\index{Database Configuration Field Types}Each database field has a type as defined in the next chapter. For static database access a new and simpler set of field 
+\index{Database Configuration Field Types}
+Each database field has a type as defined in the next chapter. For static database access a new and simpler set of field 
 types are defined. In addition, at runtime, a database field can be an array. With static database access, however, all fields 
 are scalars. Static database access field types are called DCT field types.
 
 The DCT field types are:
 
-\begin{itemize}\item \index{DCT\_STRING}DCT\_STRING: Character string.
+\begin{itemize}
+\item \index{DCT\_STRING}DCT\_STRING: Character string.
 
 \item \index{DCT\_INTEGER}DCT\_INTEGER: Integer value
 
@@ -76,7 +84,9 @@ The DCT field types are:
 
 \item \index{DCT\_NOACCESS}DCT\_NOACCESS: A private field for use by record access routines
 
-\end{itemize}A \verb|DCT_STRING| field contains the address of a \verb|NULL| terminated string. The field types \verb|DCT_INTEGER| and \verb|DCT_REAL| 
+\end{itemize}
+
+A \verb|DCT_STRING| field contains the address of a \verb|NULL| terminated string. The field types \verb|DCT_INTEGER| and \verb|DCT_REAL| 
 are used for numeric fields. A field that has any of these types can be accessed via the \verb|dbGetString|, \verb|dbPutString|, 
 \verb|dbVerify|, and \verb|dbGetRange| routines.
 
@@ -95,35 +105,51 @@ accessed via the \verb|dbGetString|, \verb|dbPutString|, \verb|dbVerify|, and \v
 
 \subsection{dbAllocBase}
 
-\index{dbAllocBase}\begin{verbatim}DBBASE *dbAllocBase(void);
-\end{verbatim}This routine allocates and initializes a DBBASE structure. It does not return if it is unable to allocate storage.
+\index{dbAllocBase}
+\begin{verbatim}
+DBBASE *dbAllocBase(void);
+\end{verbatim}
+
+This routine allocates and initializes a DBBASE structure. It does not return if it is unable to allocate storage.
 
 \verb|dbAllocBase| allocates and initializes a DBBASE structure. Normally an application does not need to call 
 \verb|dbAllocBase| because a call to \verb|dbReadDatabase| or \verb|dbReadDatabaseFP| automatically calls this routine if 
 \verb|pdbbase| is null. Thus the user only has to supply code like the following:
 
-\begin{verbatim}DBBASE  *pdbbase=0;
+\begin{verbatim}
+DBBASE  *pdbbase=0;
 ...
 status = dbReadDatabase(&pdbbase,"sample.db",
     "<path>","<macro substitutions>");
-\end{verbatim}The static database access library allows applications to work with multiple databases, each referenced via a different 
+\end{verbatim}
+
+The static database access library allows applications to work with multiple databases, each referenced via a different 
 (DBBASE *) pointer. Such applications may find it necessary to call \verb|dbAllocBase| directly.
 
 \verb|dbAllocBase| does not return if it is unable to allocate storage.
 
 \subsection{dbFreeBase}
 
-\index{dbFreeBase}\begin{verbatim}void dbFreeBase(DBBASE *pdbbase);
-\end{verbatim}\verb|dbFreeBase| frees the entire database reference by \verb|pdbbase| including the DBBASE structure itself.
+\index{dbFreeBase}
+\begin{verbatim}
+void dbFreeBase(DBBASE *pdbbase);
+\end{verbatim}
+
+\verb|dbFreeBase| frees the entire database reference by \verb|pdbbase| including the DBBASE structure itself.
 
 \section{DBENTRY Routines}
 
 \subsection{Alloc/Free DBENTRY}
 
-\index{Alloc/Free DBENTRY}\begin{verbatim}DBENTRY *dbAllocEntry(DBBASE *pdbbase);
+\index{Alloc/Free DBENTRY}
+\begin{verbatim}
+DBENTRY *dbAllocEntry(DBBASE *pdbbase);
 void dbFreeEntry(DBENTRY *pdbentry);
-\end{verbatim}\index{dbAllocEntry}
-\index{dbFreeEntry}These routines allocate, initialize, and free \verb|DBENTRY| structures. The user can allocate and free \verb|DBENTRY| structures as 
+\end{verbatim}
+
+\index{dbAllocEntry}
+\index{dbFreeEntry}
+These routines allocate, initialize, and free \verb|DBENTRY| structures. The user can allocate and free \verb|DBENTRY| structures as 
 necessary. Each \verb|DBENTRY| is, however, tied to a particular database.
 
 \verb|dbAllocEntry| and \verb|dbFreeEntry| act as a pair, i.e. the user calls \verb|dbAllocEntry| to create a new DBENTRY and 
@@ -132,14 +158,20 @@ calls \verb|dbFreeEntry| when done.
 \subsection{dbInitEntry dbFinishEntry}
 
 \index{dbInitEntry}
-\index{dbFinishEntry}\begin{verbatim}void dbInitEntry(DBBASE *pdbbase,DBENTRY *pdbentry);
+\index{dbFinishEntry}
+\begin{verbatim}
+void dbInitEntry(DBBASE *pdbbase,DBENTRY *pdbentry);
 void dbFinishEntry(DBENTRY *pdbentry);
-\end{verbatim}\index{dbInitEntry}
-\index{dbFinishEntry}The routines \verb|dbInitEntry| and \verb|dbFinishEntry| are provided in case the user wants to allocate a \verb|DBENTRY| structure 
+\end{verbatim}
+
+\index{dbInitEntry}
+\index{dbFinishEntry}
+The routines \verb|dbInitEntry| and \verb|dbFinishEntry| are provided in case the user wants to allocate a \verb|DBENTRY| structure 
 on the stack. Note that the caller MUST call \verb|dbFinishEntry| before returning from the routine that calls 
 \verb|dbInitEntry|. An example of how to use these routines is:
 
-\begin{verbatim}int xxx(DBBASE *pdbbase)
+\begin{verbatim}
+int xxx(DBBASE *pdbbase)
 {
     DBENTRY dbentry;
     DBENTRY *pdbentry = &dbentry;
@@ -149,16 +181,22 @@ on the stack. Note that the caller MUST call \verb|dbFinishEntry| before returni
     dbFinishEntry(pdbentry);
 }
 
-\end{verbatim}\subsection{dbCopyEntry}
+\end{verbatim}
+
+\subsection{dbCopyEntry}
 
 dbCopyEntry
 
 Contents
 
-\begin{verbatim}DBENTRY *dbCopyEntry(DBENTRY *pdbentry);
+\begin{verbatim}
+DBENTRY *dbCopyEntry(DBENTRY *pdbentry);
 void dbCopyEntryContents(DBENTRY *pfrom,DBENTRY *pto);
-\end{verbatim}\index{dbCopyEntry}
-\index{dbCopyEntryContents}The routine d\verb|bCopyEntry| allocates a new entry, via a call to \verb|dbAllocEntry|, copies the information from the original 
+\end{verbatim}
+
+\index{dbCopyEntry}
+\index{dbCopyEntryContents}
+The routine \verb|dbCopyEntry| allocates a new entry, via a call to \verb|dbAllocEntry|, copies the information from the original 
 entry, and returns the result. The caller must free the entry, via \verb|dbFreeEntry| when finished with the DBENTRY.
 
 The routine \verb|dbCopyEntryContents| copies the contents of pfrom to pto. Code should never perform structure copies.
@@ -174,21 +212,21 @@ long dbReadDatabaseFP(DBBASE **ppdbbase,FILE *fp,
     char *path, char *substitutions);
 long dbPath(DBBASE *pdbbase,const char *path);
 long dbAddPath(DBBASE *pdbbase,const char *path);
-\end{verbatim}\index{dbReadDatabase}
-\index{dbReadDatabaseFP}
-\index{dbPath}
-\index{dbAddPath}\verb|dbReadDatabase| and \verb|dbReadDatabaseFP| both read a file containing database definitions as described in chapter 
-"Database Definitions". If *\verb|ppdbbase| is NULL, \verb|dbAllocBase| is automatically invoked and the return address 
-assigned to *\verb|pdbbase|. The only difference between the two routines is that one accepts a file name and the other a 
+\end{verbatim}
+
+\index{dbReadDatabase}\verb|dbReadDatabase| and \index{dbReadDatabaseFP}\verb|dbReadDatabaseFP| both read a file containing database definitions as described in chapter 
+"Database Definitions". If \verb|*ppdbbase| is NULL, \verb|dbAllocBase| is automatically invoked and the return address 
+assigned to \verb|*pdbbase|. The only difference between the two routines is that one accepts a file name and the other a 
 "FILE *". Any combination of these routines can be called multiple times. Each adds definitions with the rules described 
 in chapter ``Database Definitions".
 
-The routines \verb|dbPath| and \verb|dbAddPath| specify paths for use by include statements in database definition files. These are 
+The routines \index{dbPath}\verb|dbPath| and \index{dbAddPath}\verb|dbAddPath| specify paths for use by include statements in database definition files. These are 
 not normally called by user code.
 
 \subsection{Write Database Definitons}
 
-\begin{verbatim}long dbWriteMenu(DBBASE *pdbbase,char *filename,char *menuName);
+\begin{verbatim}
+long dbWriteMenu(DBBASE *pdbbase,char *filename,char *menuName);
 long dbWriteMenuFP(DBBASE *pdbbase,FILE *fp,char *menuName);
 long dbWriteRecordType(DBBASE *pdbbase,char *filename,char *recordTypeName);
 long dbWriteRecordTypeFP(DBBASE *pdbbase,FILE *fp,char *recordTypeName);
@@ -201,87 +239,112 @@ long dbWriteFunctionFP(DBBASE *pdbbase,FILE *fp);
 long dbWriteVariableFP(DBBASE *pdbbase,FILE *fp);
 long dbWriteBreaktable(DBBASE *pdbbase,const char *filename);
 long dbWriteBreaktableFP(DBBASE *pdbbase,FILE *fp);
-\end{verbatim}\index{dbWriteMenu}
-\index{dbWriteMenuFP}
-\index{dbWriteRecordType}
-\index{dbWriteRecordTypeFP}
-\index{dbWriteDevice}
-\index{dbWriteDeviceFP}
-\index{dbWriteDriver}
-\index{dbWriteDriverFP}
-\index{dbWriteRegistrarFP}
-\index{dbWriteFunctionFP}
-\index{dbWriteVariableFP}
-\index{dbWriteBreaktable}
-\index{dbWriteBreaktableFP}Each of these routines writes files in the same format accepted by \verb|dbReadDatabase| and \verb|dbReadDatabaseFP|. Two 
+\end{verbatim}
+
+Each of these routines writes files in the same format accepted by \verb|dbReadDatabase| and \verb|dbReadDatabaseFP|. Two 
 versions of each type are provided. The only difference is that one accepts a filename and the other a ``\verb|FILE| *". Thus only 
 one of each type has to be described.
 
+\index{dbWriteMenu}
+\index{dbWriteMenuFP}
 \verb|dbWriteMenu| writes the description of the specified menu or, if \verb|menuName| is NULL, the descriptions of all menus.
 
+\index{dbWriteRecordType}
+\index{dbWriteRecordTypeFP}
 \verb|dbWriteRecordType| writes the description of the specified record type or, if \verb|recordTypeName| is NULL, the 
-descriptions of all record types.
+descriptions of all record types to the named file.
 
-\verb|dbWriteDevice| writes the description of all devices to stdout.
+\index{dbWriteDevice}
+\index{dbWriteDeviceFP}
+\verb|dbWriteDevice| writes the description of all devices to the named file.
 
-\verb|dbWriteDriver| writes the description of all drivers to stdout.
+\index{dbWriteDriver}
+\index{dbWriteDriverFP}
+\verb|dbWriteDriver| writes the description of all drivers to the named file.
 
+\index{dbWriteRegistrarFP}
 \verb|dbWriteRegistrarFP| writes the list of all registrars to the given open file (no filename version is provided).
 
+\index{dbWriteFunctionFP}
 \verb|dbWriteFunctionFP| writes the list of all functions to the given open file (no filename version is provided).
 
+\index{dbWriteVariableFP}
 \verb|dbWriteVariableFP| writes the list of all variables to the given open file (no filename version is provided).
+
+\index{dbWriteBreaktable}
+\index{dbWriteBreaktableFP}
+\verb|dbWriteBreaktable| writes the definitions of all breakpoint tables to the named file.
 
 \subsection{Write Record Instances}
 
-\begin{verbatim}long dbWriteRecord(DBBASE *pdbbase,char * file,
+\begin{verbatim}
+long dbWriteRecord(DBBASE *pdbbase,char * file,
 
 char *precordTypeName,int level);
 long dbWriteRecordFP(DBBASE *pdbbase,FILE *fp,
 
 char *precordTypeName,int level);
-\end{verbatim}\index{dbWriteRecord}
-\index{dbWriteRecordFP}Each of these routines writes files in the same format accepted by \verb|dbReadDatabase| and \verb|dbReadDatabaseFP|. Two 
+\end{verbatim}
+
+Each of these routines writes files in the same format accepted by \verb|dbReadDatabase| and \verb|dbReadDatabaseFP|. Two 
 versions of each type are provided. The only difference is that one accepts a filename and the other a ``\verb|FILE| *". Thus only 
 one of each type has to be described.
 
+\index{dbWriteRecord}
+\index{dbWriteRecordFP}
 \verb|dbWriteRecord| writes record instances. If \verb|precordTypeName| is NULL, then the record instances for all record 
 types are written, otherwise only the records for the specified type are written. \verb|level| has the following meaning:
 
-\begin{itemize}\item 0 - Write only prompt fields that are different than the default value.
+\begin{itemize}
+\item 0 - Write only prompt fields that are different than the default value.
 
 \item 1 - Write only the fields which are prompt fields.
 
 \item 2 - Write the values of all fields.
 
-\end{itemize}\section{Manipulating Record Types}
+\end{itemize}
+
+\section{Manipulating Record Types}
 
 \subsection{Get Number of Record Types}
 
-\begin{verbatim}int  dbGetNRecordTypes(DBENTRY *pdbentry);
-\end{verbatim}\index{dbGetNRecordTypes}This routine returns the number of record types in the database.
+\begin{verbatim}
+int  dbGetNRecordTypes(DBENTRY *pdbentry);
+\end{verbatim}
+
+\index{dbGetNRecordTypes}This routine returns the number of record types in the database.
 
 \subsection{Locate Record Type}
 
-\begin{verbatim}long dbFindRecordType(DBENTRY *pdbentry,
+\begin{verbatim}
+long dbFindRecordType(DBENTRY *pdbentry,
 char *recordTypeName);
 long dbFirstRecordType(DBENTRY *pdbentry);
 long dbNextRecordType(DBENTRY *pdbentry);
-\end{verbatim}\index{dbFindRecordType}
+\end{verbatim}
+
+\index{dbFindRecordType}
 \index{dbFirstRecordType}
-\index{dbNextRecordType}\verb|dbFindRecordType| locates a particular record type. \verb|dbFirstRecordType| locates the first, in alphabetical order, 
+\index{dbNextRecordType}
+\verb|dbFindRecordType| locates a particular record type. \verb|dbFirstRecordType| locates the first, in alphabetical order, 
 record type. Given that DBENTRY points to a particular record type, \verb|dbNextRecordType| locates the next record type. 
 Each routine returns 0 for success and a non zero status value for failure. A typical code segment using these routines is:
 
-\begin{verbatim}status = dbFirstRecordType(pdbentry);
+\begin{verbatim}
+status = dbFirstRecordType(pdbentry);
 while(!status) {
     /*Do something*/
     status = dbNextRecordType(pdbentry)
 }
-\end{verbatim}\subsection{Get Record Type Name}
+\end{verbatim}
 
-\begin{verbatim}char *dbGetRecordTypeName(DBENTRY *pdbentry);
-\end{verbatim}\index{dbGetRecordTypeName}This routine returns the name of the record type that DBENTRY currently references. This routine should only be called 
+\subsection{Get Record Type Name}
+
+\begin{verbatim}
+char *dbGetRecordTypeName(DBENTRY *pdbentry);
+\end{verbatim}
+
+\index{dbGetRecordTypeName}This routine returns the name of the record type that DBENTRY currently references. This routine should only be called 
 after a successful call to \verb|dbFindRecordType|, \verb|dbFirstRecordType|, or \verb|dbNextRecordType|. It returns NULL if 
 DBENTRY does not point to a record description.
 
@@ -293,42 +356,62 @@ has been successfully located.
 
 \subsection{Get Number of Fields}
 
-\begin{verbatim}int  dbGetNFields(DBENTRY *pdbentry,int dctonly);
-\end{verbatim}\index{dbGetNFields}Returns the number of fields for the record instance that DBENTRY currently references.
+\begin{verbatim}
+int  dbGetNFields(DBENTRY *pdbentry,int dctonly);
+\end{verbatim}
+
+\index{dbGetNFields}Returns the number of fields for the record instance that DBENTRY currently references.
 
 \subsection{Locate Field}
 
-\begin{verbatim}long dbFirstField(DBENTRY *pdbentry,int dctonly);
+\begin{verbatim}
+long dbFirstField(DBENTRY *pdbentry,int dctonly);
 long dbNextField(DBENTRY *pdbentry,int dctonly);
-\end{verbatim}\index{dbFirstField}
+\end{verbatim}
+
+\index{dbFirstField}
 \index{dbNextField}
-\index{dbFoundField}These routines are used to locate fields. If any of these routines returns success, then DBENTRY references that field 
+\index{dbFoundField}
+These routines are used to locate fields. If any of these routines returns success, then DBENTRY references that field 
 description. 
 
 \subsection{Get Field Type}
 
-\begin{verbatim}int  dbGetFieldType(DBENTRY *pdbentry);
-\end{verbatim}\index{dbGetFieldType}This routine returns the integer value for a DCT field type, see Section14.2.3 on page198, for a description of the field 
+\begin{verbatim}
+int  dbGetFieldType(DBENTRY *pdbentry);
+\end{verbatim}
+
+\index{dbGetFieldType}This routine returns the integer value for a DCT field type, see Section14.2.3 on page198, for a description of the field 
 types.
 
 \subsection{Get Field Name}
 
-\begin{verbatim}char *dbGetFieldName(DBENTRY *pdbentry);
-\end{verbatim}\index{dbGetFieldName}This routine returns the name of the field that DBENTRY currently references. It returns NULL if DBENTRY does not 
+\begin{verbatim}
+char *dbGetFieldName(DBENTRY *pdbentry);
+\end{verbatim}
+
+\index{dbGetFieldName}This routine returns the name of the field that DBENTRY currently references. It returns NULL if DBENTRY does not 
 point to a field.
 
 \subsection{Get Default Value}
 
-\begin{verbatim}char *dbGetDefault(DBENTRY *pdbentry);
-\end{verbatim}\index{dbGetDefaultName}This routine returns the default value for the field that DBENTRY currently references. It returns NULL if DBENTRY 
+\begin{verbatim}
+char *dbGetDefault(DBENTRY *pdbentry);
+\end{verbatim}
+
+\index{dbGetDefaultName}This routine returns the default value for the field that DBENTRY currently references. It returns NULL if DBENTRY 
 does not point to a field or if the default value is NULL.
 
 \subsection{Get Field Prompt}
 
-\begin{verbatim}char *dbGetPrompt(DBENTRY *pdbentry);
+\begin{verbatim}
+char *dbGetPrompt(DBENTRY *pdbentry);
 int   dbGetPromptGroup(DBENTRY *pdbentry); 
-\end{verbatim}\index{dbGetPrompt}
-\index{dbGetPromptGroup}The \verb|dbGetPrompt| routine returns the character string prompt value, which describes the field. \verb|dbGetPromptGroup| 
+\end{verbatim}
+
+\index{dbGetPrompt}
+\index{dbGetPromptGroup}
+The \verb|dbGetPrompt| routine returns the character string prompt value, which describes the field. \verb|dbGetPromptGroup| 
 returns the field group as described in guigroup.h.
 
 \section{Manipulating Record Attributes}
@@ -344,16 +427,22 @@ initialized to the value ``none specified" but can be changed by record support.
 
 Attribute
 
-\begin{verbatim}long dbPutRecordAttribute(DBENTRY *pdbentry, const char *name, const char *value)
-\end{verbatim}\index{dbPutRecordAttribute}This creates or modifies the attribute \emph{name} on the record type referenced by \emph{pdbentry} to \emph{value}. Attribute names should be 
+\begin{verbatim}
+long dbPutRecordAttribute(DBENTRY *pdbentry, const char *name, const char *value)
+\end{verbatim}
+
+\index{dbPutRecordAttribute}This creates or modifies the attribute \emph{name} on the record type referenced by \emph{pdbentry} to \emph{value}. Attribute names should be 
 valid C identifiers, starting with a letter or underscore followed by any number of alphanumeric or underscore characters.
 
 \subsection{dbGetRecord}
 
 Attribute
 
-\begin{verbatim}long dbGetRecordAttribute(DBENTRY *pdbentry, const char *name);
-\end{verbatim}\index{dbGetRecordAttribute}Looks up the attribute \emph{name} for the record type referenced by \emph{pdbentry} and sets the the field pointer in \emph{pdbentry} to refer to 
+\begin{verbatim}
+long dbGetRecordAttribute(DBENTRY *pdbentry, const char *name);
+\end{verbatim}
+
+\index{dbGetRecordAttribute}Looks up the attribute \emph{name} for the record type referenced by \emph{pdbentry} and sets the the field pointer in \emph{pdbentry} to refer to 
 this string if it exists. The routine \verb|dbGetString| can be used subsequently to read the current attribute value.
 
 \section{Manipulating Record Instances}
@@ -364,54 +453,74 @@ and returned success.
 
 \subsection{Get Number of Records}
 
-\begin{verbatim}int  dbGetNRecords(DBENTRY *pdbentry);
-\end{verbatim}\index{dbGetNRecords}Returns the total number of record instances and aliases for the record type that DBENTRY currently references.
+\begin{verbatim}
+int  dbGetNRecords(DBENTRY *pdbentry);
+\end{verbatim}
+
+\index{dbGetNRecords}Returns the total number of record instances and aliases for the record type that DBENTRY currently references.
 
 \subsection{Get Number of Record Aliases}
 
-\begin{verbatim}int dbGetNAliases(DBENTRY *pdbentry)
-\end{verbatim}\index{dbGetNAliases}Returns the number of record aliases for the record type that DBENTRY currently references.
+\begin{verbatim}
+int dbGetNAliases(DBENTRY *pdbentry)
+\end{verbatim}
+
+\index{dbGetNAliases}Returns the number of record aliases for the record type that DBENTRY currently references.
 
 \subsection{Locate Record}
 
-\begin{verbatim}long dbFindRecord(DBENTRY *pdbentry,char *precordName);
+\begin{verbatim}
+long dbFindRecord(DBENTRY *pdbentry,char *precordName);
 long dbFirstRecord(DBENTRY *pdbentry);
 long dbNextRecord(DBENTRY *pdbentry);
-\end{verbatim}\index{dbFindRecord}
+\end{verbatim}
+
+\index{dbFindRecord}
 \index{dbFirstRecord}
-\index{dbNextRecord}These routines are used to locate record instances and aliases. If any of these routines returns success, then DBENTRY 
+\index{dbNextRecord}
+These routines are used to locate record instances and aliases. If any of these routines returns success, then DBENTRY 
 references a record or a record alias (use \verb|dbIsAlias| to distinguish the two). \verb|dbFindRecord| may be called without 
 DBENTRY referencing a valid record type. \verb|dbFirstRecord| only works if DBENTRY references a record type. The 
 \verb|dbDumpRecords| example given at the end of this chapter shows how these routines can be used.
 
-\verb|dbFindRecord| also calls \verb|dbFindField| if the record name includes a field name, i.e. it ends in ``.\verb|XXX|". The routine 
+\verb|dbFindRecord| also calls \verb|dbFindField| if the record name includes a field name, i.e. it ends in ``\verb|.XXX|". The routine 
 \verb|dbFoundField| returns (\verb|TRUE|, \verb|FALSE|) if the field (was, was not) found. If it was not found, then \verb|dbFindField| must 
 be called before individual fields can be accessed.
 
 \subsection{Get Record Name}
 
-\begin{verbatim}char *dbGetRecordName(DBENTRY *pdbentry);
-\end{verbatim}\index{dbGetRecordName}This routine only works properly if called after \verb|dbFindRecord|, \verb|dbFirstRecord|, or \verb|dbNextRecord| has returned 
+\begin{verbatim}
+char *dbGetRecordName(DBENTRY *pdbentry);
+\end{verbatim}
+
+\index{dbGetRecordName}This routine only works properly if called after \verb|dbFindRecord|, \verb|dbFirstRecord|, or \verb|dbNextRecord| has returned 
 success. If DBENTRY refers to an alias, the name returned is that of the alias, not of the record it refers to.
 
 \subsection{Distinguishing Record Aliases}
 
-\begin{verbatim}int dbIsAlias(DBENTRY *pdbentry)
-\end{verbatim}\index{dbIsAlias}This routine only works properly if called after \verb|dbFindRecord|, \verb|dbFirstRecord|, or \verb|dbNextRecord| has returned 
+\begin{verbatim}
+int dbIsAlias(DBENTRY *pdbentry)
+\end{verbatim}
+
+\index{dbIsAlias}This routine only works properly if called after \verb|dbFindRecord|, \verb|dbFirstRecord|, or \verb|dbNextRecord| has returned 
 success. If DBENTRY refers to an alias it returns a non-zero value, otherwise it returns zero.
 
 \subsection{Create/Delete/Free Records and Aliases}
 
-\begin{verbatim}long dbCreateRecord(DBENTRY *pdbentry,char *precordName);
+\begin{verbatim}
+long dbCreateRecord(DBENTRY *pdbentry,char *precordName);
 long dbCreateAlias(DBENTRY *pdbentry, const char *paliasName);
 long dbDeleteRecord(DBENTRY *pdbentry);
 long dbDeleteAliases(DBENTRY *pdbentry);
 long dbFreeRecords(DBBASE *pdbbase);
-\end{verbatim}\index{dbCreateRecord}
+\end{verbatim}
+
+\index{dbCreateRecord}
 \index{dbCreateAlias}
 \index{dbDeleteRecord}
 \index{dbDeleteAliases}
-\index{dbFreeRecords}\verb|dbCreateRecord|, which assumes that \verb|DBENTRY| references a valid record type, creates a new record instance and 
+\index{dbFreeRecords}
+\verb|dbCreateRecord|, which assumes that \verb|DBENTRY| references a valid record type, creates a new record instance and 
 initializes it as specified by the record description. If it returns success, then \verb|DBENTRY| references the record just created. 
 \verb|dbCreateAlias| assumes that DBENTRY references a particular record instance and creates an alias for that record. If 
 it returns success, then DBENTRY references the alias just created. \verb|dbDeleteRecord| deletes either a single alias, or a 
@@ -420,54 +529,74 @@ current record. \verb|dbFreeRecords| deletes all record instances.
 
 \subsection{Copy Record}
 
-\begin{verbatim}long dbCopyRecord(DBENTRY *pdbentry, char *newRecordName
+\begin{verbatim}
+long dbCopyRecord(DBENTRY *pdbentry, char *newRecordName
     int overWriteOK)
-\end{verbatim}\index{dbCopyRecord}This routine copies the record instance currently referenced by \verb|DBENTRY| (it fails if DBENTRY references an alias). Thus 
+\end{verbatim}
+
+\index{dbCopyRecord}This routine copies the record instance currently referenced by \verb|DBENTRY| (it fails if DBENTRY references an alias). Thus 
 it creates a new record with the name \verb|newRecordName| that is of the same type as the original record and copies the 
 original records field values to the new record. If \verb|newRecordName| already exists and \verb|overWriteOK| is true, then the 
 original \verb|newRecordName| is deleted and recreated. If \verb|dbCopyRecord| completes successfully, DBENTRY references 
 the new record.
 
-\index{dbCopyRecord}\subsection{Rename Record}
+\index{dbCopyRecord}
+\subsection{Rename Record}
 
-\begin{verbatim}long dbRenameRecord(DBENTRY *pdbentry, char *newname)
-\end{verbatim}\index{dbRenameRecord}This routine renames the record instance currently referenced by \verb|DBENTRY| (it fails if DBENTRY references an alias). If 
+\begin{verbatim}
+long dbRenameRecord(DBENTRY *pdbentry, char *newname)
+\end{verbatim}
+
+\index{dbRenameRecord}This routine renames the record instance currently referenced by \verb|DBENTRY| (it fails if DBENTRY references an alias). If 
 \verb|dbRenameRecord| completes successfully, DBENTRY references the renamed record.
 
-\index{dbRenameRecord}\subsection{Record Visibility}
+\index{dbRenameRecord}
+\subsection{Record Visibility}
 
 These routines are for use by graphical configuration tools.
 
-\begin{verbatim}long dbVisibleRecord(DBENTRY *pdbentry);
+\begin{verbatim}
+long dbVisibleRecord(DBENTRY *pdbentry);
 long dbInvisibleRecord(DBENTRY *pdbentry);
 int dbIsVisibleRecord(DBENTRY *pdbentry);
-\end{verbatim}\index{dbVisibleRecord}
+\end{verbatim}
+
+\index{dbVisibleRecord}
 \index{dbInvisibleRecord}
-\index{dbIsVisibleRecord}\verb|dbVisibleRecord| sets a record to be visible. \verb|dbInvisibleRecord| sets a record invisible. 
+\index{dbIsVisibleRecord}
+\verb|dbVisibleRecord| sets a record to be visible. \verb|dbInvisibleRecord| sets a record invisible. 
 \verb|dbIsVisibleRecord| returns TRUE if a record is visible and FALSE otherwise.
 
 \subsection{Find Field}
 
-\begin{verbatim}long dbFindField(DBENTRY *pdbentry,char *pfieldName);
+\begin{verbatim}
+long dbFindField(DBENTRY *pdbentry,char *pfieldName);
 int dbFoundField(DBENTRY *pdbentry);
 
-\end{verbatim}\index{dbFindField}
-\index{dbFoundField}Given that a record instance has been located, \verb|dbFindField| finds the specified field. If it returns success, then 
+\end{verbatim}
+
+\index{dbFindField}
+\index{dbFoundField}
+Given that a record instance has been located, \verb|dbFindField| finds the specified field. If it returns success, then 
 \verb|DBENTRY| references that field. \verb|dbFoundField| returns (\verb|FALSE|, \verb|TRUE|) if (no field instance is currently available, a 
 field instance is available).
 
 \subsection{Get/Put Field Values}
 
-\begin{verbatim}char *dbGetString(DBENTRY *pdbentry);
+\begin{verbatim}
+char *dbGetString(DBENTRY *pdbentry);
 long dbPutString(DBENTRY *pdbentry,char *pstring);
 char *dbVerify(DBENTRY *pdbentry,char *pstring);
 char *dbGetRange(DBENTRY *pdbentry);
 int   dbIsDefaultValue(DBENTRY *pdbentry);
-\end{verbatim}\index{dbGetString}
+\end{verbatim}
+
+\index{dbGetString}
 \index{dbPutString}
 \index{dbVerify}
 \index{dbGetRange}
-\index{dbIsDefaultValue}These routines are used to get or change field values. They work on all the database field types except \verb|DCT_NOACCESS| 
+\index{dbIsDefaultValue}
+These routines are used to get or change field values. They work on all the database field types except \verb|DCT_NOACCESS| 
 but should NOT be used to prompt the user for information for \verb|DCT_MENU|, \verb|DCT_MENUFORM|, or \verb|DCT_LINK_xxx| fields. 
 \verb|dbVerify| returns (\verb|NULL|, a message) if the string is (valid, invalid). Please note that the strings returned are volatile, i.e. 
 the next call to any routine that returns a string will overwrite the value returned by a previous call. Thus it is the caller's 
@@ -485,28 +614,38 @@ These routines should only be used for \verb|DCT_MENU| and \verb|DCT_MENUFORM| f
 
 \subsection{Get Number of Menu Choices}
 
-\begin{verbatim}int  dbGetNMenuChoices(DBENTRY *pdbentry);
-\end{verbatim}\index{dbGetNMenuChoices}This routine returns the number of menu choices for menu.
+\begin{verbatim}
+int  dbGetNMenuChoices(DBENTRY *pdbentry);
+\end{verbatim}
+
+\index{dbGetNMenuChoices}This routine returns the number of menu choices for menu.
 
 \subsection{Get Menu Choice}
 
-\begin{verbatim}char **dbGetMenuChoices(DBENTRY *pdbentry);
-\end{verbatim}\index{dbGetMenuChoices}This routine returns the address of an array of pointers to strings which contain the menu choices.
+\begin{verbatim}
+char **dbGetMenuChoices(DBENTRY *pdbentry);
+\end{verbatim}
+
+\index{dbGetMenuChoices}This routine returns the address of an array of pointers to strings which contain the menu choices.
 
 \subsection{Get/Put Menu}
 
-\begin{verbatim}int  dbGetMenuIndex(DBENTRY *pdbentry);
+\begin{verbatim}
+int  dbGetMenuIndex(DBENTRY *pdbentry);
 long dbPutMenuIndex(DBENTRY *pdbentry,int index);
 char *dbGetMenuStringFromIndex(DBENTRY *pdbentry,int index);
 int dbGetMenuIndexFromString(DBENTRY *pdbentry,
 
 char *choice);
-\end{verbatim}\index{dbGetMenuIndex}
+\end{verbatim}
+
+\index{dbGetMenuIndex}
 \index{dbPutMenuIndex}
 \index{dbGetMenuStringFromIndex}
-\index{dbGetMenuIndexFromString}NOTE: These routines do not work if the current field value contains a macro definition.
+\index{dbGetMenuIndexFromString}
+NOTE: These routines do not work if the current field value contains a macro definition.
 
-\verb|dbGetMenuIndex |returns the index of the menu choice for the current field, i.e. it specifies which choice to which the 
+\verb|dbGetMenuIndex| returns the index of the menu choice for the current field, i.e. it specifies which choice to which the 
 field is currently set. \verb|dbPutMenuIndex| sets the field to the choice specified by the index.
 
 \verb|dbGetMenuStringFromIndex| returns the string value for a menu index. If the index value is invalid NULL is 
@@ -514,10 +653,14 @@ returned. \verb|dbGetMenuIndexFromString| returns the index for the given string
 is returned.
 
 \index{dbGetMenuStringFromIndex}
-\index{dbGetMenuIndexFromString}\subsection{Locate Menu}
+\index{dbGetMenuIndexFromString}
+\subsection{Locate Menu}
 
-\begin{verbatim}dbMenu *dbFindMenu(DBBASE *pdbbase,char *name);
-\end{verbatim}\index{dbFindMenu}\verb|dbFindMenu| is most useful for runtime use but is a static database access routine. This routine just finds a menu with the 
+\begin{verbatim}
+dbMenu *dbFindMenu(DBBASE *pdbbase,char *name);
+\end{verbatim}
+
+\index{dbFindMenu}\verb|dbFindMenu| is most useful for runtime use but is a static database access routine. This routine just finds a menu with the 
 given name.
 
 \section{Manipulating Link Fields}
@@ -530,7 +673,8 @@ field, determines if the \verb|INP| or \verb|OUT| field is a device link. The se
 device link is bus dependent. In order to shelter database configuration tools from these complications the following is 
 done for static database access.
 
-\begin{itemize}\item Static database access will treat \verb|DTYP| as a \verb|DCT_MENUFORM| field.
+\begin{itemize}
+\item Static database access will treat \verb|DTYP| as a \verb|DCT_MENUFORM| field.
 
 \item The information for the link field related to the \verb|DCT_MENUFORM| can be entered via a set of form manipulation 
 routines associated with the \verb|DCT_MENUFORM| field. Thus the link information can be entered via the \verb|DTYP| field 
@@ -538,15 +682,20 @@ rather than the link field.
 
 \item The Form routines described in the next section can also be used with any link field.
 
-\end{itemize}Each link is one of the following types:
+\end{itemize}
 
-\begin{itemize}\item \index{DCT\_LINK\_CONSTANT}DCT\_LINK\_CONSTANT: Constant value.
+Each link is one of the following types:
+
+\begin{itemize}
+\item \index{DCT\_LINK\_CONSTANT}DCT\_LINK\_CONSTANT: Constant value.
 
 \item \index{DCT\_LINK\_PV}DCT\_LINK\_PV: A process variable link.\index{DCT\_LINK\_DEVICE}
 
 \item \index{DCT\_LINK\_FORM}DCT\_LINK\_FORM: A link that can only be processed via the form routines described in the next chapter.
 
-\end{itemize}Database configuration tools can change any link between being a constant and a process variable link. Routines are 
+\end{itemize}
+
+Database configuration tools can change any link between being a constant and a process variable link. Routines are 
 provided to accomplish these tasks.
 
 The routines \verb|dbGetString|, \verb|dbPutString|, and \verb|dbVerify| can be used for link fields but the form routines can be 
@@ -554,21 +703,29 @@ used to provide a friendlier user interface.
 
 \subsection{All Link Fields}
 
-\begin{verbatim}int  dbGetNLinks(DBENTRY *pdbentry);
+\begin{verbatim}
+int  dbGetNLinks(DBENTRY *pdbentry);
 long dbGetLinkField(DBENTRY *pdbentry,int index)
 int  dbGetLinkType(DBENTRY *pdbentry);
-\end{verbatim}\index{dbGetNLinks}
+\end{verbatim}
+
+\index{dbGetNLinks}
 \index{dbGetLinkField}
-\index{dbGetLinkType}These are routines for manipulating \verb|DCT_xxxLINK| fields. \verb|dbGetNLinks| and \verb|dbGetLinkField| are used to walk 
+\index{dbGetLinkType}
+These are routines for manipulating \verb|DCT_xxxLINK| fields. \verb|dbGetNLinks| and \verb|dbGetLinkField| are used to walk 
 through all the link fields of a record. \verb|dbGetLinkType| returns one of the values: \verb|DCT_LINK_CONSTANT|, 
 \verb|DCT_LINK_PV|, \verb|DCT_LINK_FORM|, or the value -1 if it is called for an illegal field.
 
 \subsection{Constant and Process Variable Links}
 
-\begin{verbatim}long dbCvtLinkToConstant(DBENTRY *pdbentry);
+\begin{verbatim}
+long dbCvtLinkToConstant(DBENTRY *pdbentry);
 long dbCvtLinkToPvlink(DBENTRY *pdbentry);
-\end{verbatim}\index{dbCvtLinkToConstant}
-\index{dbCvtLinkToPvlink}These routines should be used for modifying \verb|DCT_LINK_CONSTANT| or \verb|DCT_LINK_PV| links. They should not be used 
+\end{verbatim}
+
+\index{dbCvtLinkToConstant}
+\index{dbCvtLinkToPvlink}
+These routines should be used for modifying \verb|DCT_LINK_CONSTANT| or \verb|DCT_LINK_PV| links. They should not be used 
 for \verb|DCT_LINK_FORM| links, which should be processed via the associated \verb|DCT_MENUFORM| field described above.
 
 \section{Manipulating MenuForm Fields}
@@ -578,34 +735,48 @@ These routines are used with a \verb|DCT_MENUFORM| field (a \verb|DTYP| field) t
 
 \subsection{Alloc/Free Form}
 
-\begin{verbatim}int dbAllocForm(DBENTRY *pdbentry)
+\begin{verbatim}
+int dbAllocForm(DBENTRY *pdbentry)
 long dbFreeForm(DBENTRY *pdbentry)
-\end{verbatim}\index{dbAllocForm}
-\index{dbFreeForm}\verb|dbAllocForm| allocates storage needed to manipulate forms. The return value is the number of elements in the form. If 
+\end{verbatim}
+
+\index{dbAllocForm}
+\index{dbFreeForm}
+\verb|dbAllocForm| allocates storage needed to manipulate forms. The return value is the number of elements in the form. If 
 the current field value contains a macro definition, the number of lines returned is 0.
 
 \subsection{Get/Put Form}
 
-\begin{verbatim}char **dbGetFormPrompt(DBENTRY *pdbentry)
+\begin{verbatim}
+char **dbGetFormPrompt(DBENTRY *pdbentry)
 char **dbGetFormValue(DBENTRY *pdbentry)
 long dbPutForm(DBENTRY *pdbentry, char **value)
-\end{verbatim}\index{dbGetFormPrompt}
+\end{verbatim}
+
+\index{dbGetFormPrompt}
 \index{dbGetFormValue}
-\index{dbPutForm}\verb|dbGetFormPrompt| returns a pointer to an array of pointers to character strings specifying the prompt string. 
+\index{dbPutForm}
+\verb|dbGetFormPrompt| returns a pointer to an array of pointers to character strings specifying the prompt string. 
 \verb|dbGetFormValue| returns the current values. \verb|dbPutForm|, which can use the same array of values returned by 
 \verb|dbGetForm|, sets new values.
 
 \subsection{Verify Form}
 
-\begin{verbatim}char **dbVerifyForm(DBENTRY *pdbentry,char **value)
-\end{verbatim}\index{dbVerifyForm}\verb|dbVerifyForm| can be called to verify user input. It returns \verb|NULL| if no errors are present. If errors are present, it returns 
+\begin{verbatim}
+char **dbVerifyForm(DBENTRY *pdbentry,char **value)
+\end{verbatim}
+
+\index{dbVerifyForm}\verb|dbVerifyForm| can be called to verify user input. It returns \verb|NULL| if no errors are present. If errors are present, it returns 
 a pointer to an array of character strings containing error messages. Lines in error have a message and correct lines have a 
 \verb|NULL| string.
 
 \subsection{Get Related Field}
 
-\begin{verbatim}char *dbGetRelatedField(DBENTRY *pdbentry)
-\end{verbatim}This routine returns the field name of the related field for a DCT\_MENUFORM field. If it is called for any other type of 
+\begin{verbatim}
+char *dbGetRelatedField(DBENTRY *pdbentry)
+\end{verbatim}
+
+This routine returns the field name of the related field for a DCT\_MENUFORM field. If it is called for any other type of 
 field it returns NULL.
 
 \subsection{Example}
@@ -638,7 +809,9 @@ if(error) {
     dbPutForm(pdbentry,value)
 }
 dbFreeForm(pdbentry);
-\end{verbatim}All value strings are \verb|MAX_STRING_SIZE| in length.
+\end{verbatim}
+
+All value strings are \verb|MAX_STRING_SIZE| in length.
 
 A set of form calls for a particular \verb|DBENTRY|, MUST begin with a call to \verb|dbAllocForm| and end with a call to 
 \verb|dbFreeForm|. The values returned by \verb|dbGetFormPrompt|, \verb|dbGetFormValue|, and \verb|dbVerifyForm| are valid only 
@@ -651,43 +824,62 @@ that the DBENTRY argument refer to a valid record instance.
 
 \subsection{Locate Item}
 
-\begin{verbatim}long dbFirstInfo(DBENTRY *pdbentry);
+\begin{verbatim}
+long dbFirstInfo(DBENTRY *pdbentry);
 long dbNextInfo(DBENTRY *pdbentry);
 long dbFindInfo(DBENTRY *pdbentry,const char *name);
-\end{verbatim}\index{dbFirstInfo}
+\end{verbatim}
+
+\index{dbFirstInfo}
 \index{dbNextInfo}
-\index{dbFindInfo}There are two ways to locate info items, by scanning through the list using first/next, or by asking for the item by name. 
+\index{dbFindInfo}
+There are two ways to locate info items, by scanning through the list using first/next, or by asking for the item by name. 
 These routines set \verb|pdbentry| to refer to the info item and return 0, or return an error code if no info item is found.
 
 \subsection{Get Item Name}
 
-\begin{verbatim}const char * dbGetInfoName(DBENTRY *pdbentry);
-\end{verbatim}\index{dbGetInfoName}Returns the name of the info item referred to by \verb|pdbentry|, or a NULL pointer if no item is referred to.
+\begin{verbatim}
+const char * dbGetInfoName(DBENTRY *pdbentry);
+\end{verbatim}
+
+\index{dbGetInfoName}Returns the name of the info item referred to by \verb|pdbentry|, or a NULL pointer if no item is referred to.
 
 \subsection{Get/Set Item String Value}
 
-\begin{verbatim}const char * dbGetInfoString(DBENTRY *pdbentry);
+\begin{verbatim}
+const char * dbGetInfoString(DBENTRY *pdbentry);
 long dbPutInfoString(DBENTRY *pdbentry,const char *string);
-\end{verbatim}\index{dbGetInfoString}
-\index{dbPutInfoString}These routines provide access to the currently selected items' string value. When changing the string value using 
+\end{verbatim}
+
+\index{dbGetInfoString}
+\index{dbPutInfoString}
+These routines provide access to the currently selected items' string value. When changing the string value using 
 \verb|dbPutInfoSting|, the character string provided will be copied, with additional memory being allocated as necessary. 
 Users are advised not to make continuously repeated calls to \verb|dbPutInfoString| at IOC runtime as this could fragment 
 the free memory heap. The Put routine returns 0 if Ok or an error code; the Get routine returns NULL on error.
 
 \subsection{Get/Set Item Pointer Value}
 
-\begin{verbatim}void * dbGetInfoPointer(DBENTRY *pdbentry);
+\begin{verbatim}
+void * dbGetInfoPointer(DBENTRY *pdbentry);
 long dbPutInfoPointer(DBENTRY *pdbentry, void *pointer);
-\end{verbatim}\index{dbGetInfoPointer}
-\index{dbPutInfoPointer}Each info item includes space to store a single \verb|void*| pointer as well as the value string. Applications using the info item 
+\end{verbatim}
+
+\index{dbGetInfoPointer}
+\index{dbPutInfoPointer}
+Each info item includes space to store a single \verb|void*| pointer as well as the value string. Applications using the info item 
 may set this as often as they wish. The Put routine returns 0 if Ok or an error code; the Get routine returns NULL on error.
 
 \subsection{Create/Delete Item}
 
-\begin{verbatim}long dbPutInfo(DBENTRY *pdbentry,const char *name,const char *string);
+\begin{verbatim}
+long dbPutInfo(DBENTRY *pdbentry,const char *name,const char *string);
 long dbDeleteInfo(DBENTRY *pdbentry);
-\end{verbatim}\index{dbPutInfo}
-\index{dbDeleteInfo}A new info item can be created by calling \verb|dbPutInfo|. If an item by that name already exists its value will be replaced 
+\end{verbatim}
+
+\index{dbPutInfo}
+\index{dbDeleteInfo}
+A new info item can be created by calling \verb|dbPutInfo|. If an item by that name already exists its value will be replaced 
 with the new string, otherwise storage is allocated and the name and value strings copied into it. The function returns 0 on 
 success, or an error code.
 
@@ -696,19 +888,26 @@ or \verb|dbFindInfo|). The function returns 0 on success, or an error code.
 
 \subsection{Convenience Routine}
 
-\begin{verbatim}const char * dbGetInfo(DBENTRY *pdbentry,const char *name);
-\end{verbatim}\index{dbGetInfo}It is common to want to look up the value of a named info item in one call, and \verb|dbGetInfo| is provided for this purpose. 
+\begin{verbatim}
+const char * dbGetInfo(DBENTRY *pdbentry,const char *name);
+\end{verbatim}
+
+\index{dbGetInfo}It is common to want to look up the value of a named info item in one call, and \verb|dbGetInfo| is provided for this purpose. 
 It returns a NULL pointer if no info item exists with the given name.
 
 \section{Find Breakpoint Table}
 
-\begin{verbatim}brkTable *dbFindBrkTable(DBBASE *pdbbase,char *name)
-\end{verbatim}\index{dbFindBrkTable}This routine returns the address of the specified breakpoint table. It is normally used by the runtime breakpoint conversion 
+\begin{verbatim}
+brkTable *dbFindBrkTable(DBBASE *pdbbase,char *name)
+\end{verbatim}
+
+\index{dbFindBrkTable}This routine returns the address of the specified breakpoint table. It is normally used by the runtime breakpoint conversion 
 routines so will not be discussed further.
 
 \section{Dump Routines}
 
-\begin{verbatim}void dbDumpPath(DBBASE *pdbbase)
+\begin{verbatim}
+void dbDumpPath(DBBASE *pdbbase)
 void dbDumpRecord(DBBASE *pdbbase,char *precordTypeName,int level);
 void dbDumpMenu(DBBASE *pdbbase,char *menuName);
 void dbDumpRecordType(DBBASE *pdbbase,char *recordTypeName);
@@ -721,7 +920,9 @@ void dbDumpVariable(DBBASE *pdbbase);
 void dbDumpBreaktable(DBBASE *pdbbase,char *name);
 void dbPvdDump(DBBASE *pdbbase,int verbose);
 void dbReportDeviceConfig(DBBASE *pdbbase,FILE *report);
-\end{verbatim}\index{dbDumpPath}
+\end{verbatim}
+
+\index{dbDumpPath}
 \index{dbDumpRecord}
 \index{dbDumpMenu}
 \index{dbDumpRecordType}
@@ -733,8 +934,8 @@ void dbReportDeviceConfig(DBBASE *pdbbase,FILE *report);
 \index{dbDumpVariable}
 \index{dbDumpBreaktable}
 \index{dbPvdDump}
-\index{dbReportDeviceConfig}These routines are used to dump information about the database. \verb|dbDumpRecord|, \verb|dbDumpMenu|, \verb|dbDumpDriver|,\verb| |
-dbDumpRegistrar and \verb|dbDumpVariable| just call the corresponding dbWritexxxFP routine specifying stdout for 
+\index{dbReportDeviceConfig}
+These routines are used to dump information about the database. \verb|dbDumpRecord|, \verb|dbDumpMenu|, \verb|dbDumpDriver|, \verb|dbDumpRegistrar| and \verb|dbDumpVariable| just call the corresponding \verb|dbWritexxxFP| routine specifying stdout for 
 the file. \verb|dbDumpRecordType|, \verb|dbDumpField|, and \verb|dbDumpDevice| give internal information useful on an ioc. 
 These commands can be executed via iocsh. Just specify pdbbase as the first argument.
 
@@ -742,11 +943,13 @@ These commands can be executed via iocsh. Just specify pdbbase as the first argu
 
 \subsection{Expand Include}
 
-\index{dbExpand}This example is like the \verb|dbExpand| utility, except that it doesn't allow path or macro substitution options, It reads a set of 
+\index{dbExpand}
+This example is like the \verb|dbExpand| utility, except that it doesn't allow path or macro substitution options, It reads a set of 
 database definition files and writes all definitions to stdout. All include statements appearing in the input files are 
 expanded.
 
-\begin{verbatim}/* dbExpand.c */
+\begin{verbatim}
+/* dbExpand.c */
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -780,9 +983,12 @@ int main(int argc,char **argv)
     return(0);
 }
 
-\end{verbatim}\subsection{dbDumpRecords}
+\end{verbatim}
 
-\index{dbDumpRecords}NOTE: This example is similar but not identical to the actual \verb|dbDumpRecords| routine.
+\subsection{dbDumpRecords}
+
+\index{dbDumpRecords}
+NOTE: This example is similar but not identical to the actual \verb|dbDumpRecords| routine.
 
 The following example demonstrates how to use the database access routines. The example shows how to locate each 
 record and display each field.
