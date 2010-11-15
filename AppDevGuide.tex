@@ -4,8 +4,10 @@
 \usepackage{graphicx}
 \graphicspath{{pdf/}{eps/}}
 \usepackage{longtable}
-% straight quotes in verbatim code listing
-%\usepackage{upquote}
+\usepackage{fancyvrb}
+
+% left-align first line of new paragraph
+\usepackage{parskip}
 
 % numbersubsubsections, reduce TOC depth
 \setcounter{secnumdepth}{3}
@@ -22,6 +24,11 @@
 \renewcommand{\labelitemii}{\labelitemi}
 \renewcommand{\labelitemiii}{\labelitemi}
 \renewcommand{\labelitemiv}{\labelitemi}
+
+% indent all code sections
+\RecustomVerbatimEnvironment
+  {verbatim}{Verbatim}
+  {xleftmargin=\leftmargini}
 
 \begin{document}
 
@@ -55,7 +62,6 @@
 \input{tex/registry.tex}
 \input{tex/databaseStructures.tex}
 
-\chapter{Index}
 \printindex
 
 \end{document}
