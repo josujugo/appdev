@@ -1740,27 +1740,24 @@ long  devDisableInterruptLevel(
 should be converted to call \verb|devDisableInterruptLevelVME| or related routines instead. This routine will be 
 removed in a future release.
 
-\section{vxWorks Specific routines}
+\section{vxWorks Specific routines and Headers}
 
 The routines described in this section are included in a application by the Makfile command:
 
+\index{vxComLibrary}
 \begin{verbatim}
     <appl>_OBJS_vxWorks += $(EPICS_BASE_BIN)/vxComLibrary
 \end{verbatim}
 
-\index{vxComLibrary}\subsection{iocClock}
-
-\index{iocClock}
-This provides a clock for vxWorks by using Network Time Protocal (NTP) client calls. It is required for all vxWorks 
-IOCs. It also provides the \verb|date| command.
-
 \subsection{veclist}
 
 \index{veclist}
-For VME systems this shows the interrupt vectors.
+This routine shows the vxWorks interrupt vector table, but only works properly on 68K family CPUs.
 
 \subsection{logMsgToErrlog}
 
+\index{logMsg}
+\index{errlogPrintf}
 This traps all calls to logMsg and sends them to errlogPrintf.
 
 \subsection{camacLib.h}
@@ -1771,25 +1768,27 @@ This was included with 3.13.
 \subsection{epicsDynLink}
 
 \index{epicsDynLink}
-This is provides symFindByNameEPICS. It is only provided for device/driver support that has not been converted to use 
-epicsFindSymbol. Some day epicsDynLink will no longer be supported.
+\index{symFindByNameEPICS}
+\index{symFindByNameAndTypeEPICS}
+This provides the routines \verb|symFindByNameEPICS| and \verb|symFindByNameAndTypeEPICS|.
+It is only provided for modules that have not been converted to use \verb|epicsFindSymbol|.
+These routines are deprecated.
 
 \subsection{module\_types.h}
 
 \index{module\_types.h}
-It is only provided for device/driver support that has not been converted to use OSI features of base. Some day it will no 
-longer be supported. Instead of using this drivers should accept a configure command that specifies the information 
-provided by \verb|module_types.h|
+This is only provided for device/driver support that have not been converted to use OSI features of base.
+This header is deprecated.
+Instead of using this, drivers should register a configuration command to obtain
+the information originally provided by \verb|module_types.h|
 
 \subsection{task\_params.h}
 
 \index{task\_params.h}
-It is only provided for device/driver support that has not been converted to use OSI features of base. Some day it will no 
-longer be supported.
+This is only provided for device/driver support that have not been converted to use OSI features of base.
+This header is deprecated.
 
 \subsection{vxComLibrary}
 
 \index{vxComLibrary}
-This is a routine that causes iocClock, drvTS, epicsDynLink, logMsgToErrlog and veclist to be loaded.
-
-
+This routine causes epicsDynLink, logMsgToErrlog and veclist to be loaded.
