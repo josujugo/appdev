@@ -89,9 +89,9 @@ application developer, process passive and maximize severity.
 \subsection{Process Passive}
 
 \index{Process Passive}
-Process passive (\index{PP}\verb|PP| or \index{NPP}\verb|NPP|), is either \verb|TRUE| or \verb|FALSE|.  It determines if the linked record should be processed before 
-getting a value from an input link or after writing a value to an output link. The linked record will be processed, via a call 
-to \verb|dbProcess|, only if the record is a passive record and process passive is \verb|TRUE|.
+The Process Passive attribute is one of \index{NPP}\verb|NPP| (Non-Process Passive) or \index{PP}\verb|NPP| (Process Passive).
+It determines if the linked record should be processed before getting a value from an input link or after writing a value to an output link.
+The linked record will be processed only if link's Process Passive attribute is \verb|PP| and the target record's \verb|SCAN| field is Passive.
 
 NOTE: Three other options may also be specified: CA, CP, and CPP. These options force the link to be handled like a 
 Channel Access Link. See last section of this chapter for details.
@@ -99,20 +99,27 @@ Channel Access Link. See last section of this chapter for details.
 \subsection{Maximize Severity}
 
 \index{Maximize Severity}
-Maximize severity (\index{MS}\verb|MS| or \index{NMS}\verb|NMS|), is \verb|TRUE| or \verb|FALSE|.  It determines if alarm severity is propagated across links. For input 
-links the alarm severity of the record referred to by the link is propagated to the record containing the link. For output 
-links the alarm severity of the record containing the link is propagated to the record referred to by the link. In either case, 
-if the severity is changed, the alarm status is set to \verb|LINK_ALARM|.
+The Maximize Severity attribute is one of \index{NMS}\verb|NMS| (Non-Maximize Severity), \index{MS}\verb|MS| (Maximize Severity),
+\index{MSS}\verb|MSS| (Maximize Status and Severity) or \index{MSI}\verb|MSI| (Maximize Severity if Invalid).
+It determines whether alarm severity is propagated across links.
+If the attribute is \verb|MSI| only a severity of \verb|INVALID_ALARM| is propagated; settings of \verb|MS| or \verb|MSS|
+propagate all alarms that are more severe than the record's current severity.
+For input links the alarm severity of the record referred to by the link is propagated to the record containing the link.
+For output links the alarm severity of the record containing the link is propagated to the record referred to by the link.
+If the severity is changed the associated alarm status is set to \verb|LINK_ALARM|, except if the attribute is \verb|MSS|
+when the alarm status will be copied along with the severity.
 
 \index{LINK\_ALARM}
-The method of determining if the alarm status and severity should be changed is called ``maximize severity". In addition 
-to its actual status and severity, each record also has a new status and severity. The new status and severity are initially 0, 
-which means \verb|NO_ALARM|. Every time a software component wants to modify the status and severity, it first checks the 
-new severity and only makes a change if the severity it wants to set is greater than the current new severity. If it does make 
-a change, it changes the new status and new severity, not the current status and severity. When database monitors are 
-checked, which is normally done by a record processing routine, the current status and severity are set equal to the new 
-values and the new values reset to zero. The end result is that the current alarm status and severity reflect the highest 
-severity outstanding alarm. If multiple alarms of the same severity are present the status reflects the first one detected.
+The method of determining if the alarm status and severity should be changed is called ``maximize severity".
+In addition to its actual status and severity, each record also has a new status and severity.
+The new status and severity are initially 0, which means \verb|NO_ALARM|.
+Every time a software component wants to modify the status and severity, it first checks the new severity and only makes a
+change if the severity it wants to set is greater than the current new severity.
+If it does make a change, it changes the new status and new severity, not the current status and severity.
+When database monitors are checked, which is normally done by a record processing routine, the current status and severity
+are set equal to the new values and the new values reset to zero.
+The end result is that the current alarm status and severity reflect the highest severity outstanding alarm.
+If multiple alarms of the same severity are present the alarm status reflects the first one detected.
 
 \section{Database Locking}
 
