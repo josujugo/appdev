@@ -44,13 +44,13 @@ include "filename"
 #comment
 menu(name) {
     include "filename"
-    choice(choice_name,"choice_value")
+    choice(choice_name, "choice_value")
     ...
 }
 
 recordtype(record_type) {
     include "filename"
-    field(field_name,field_type) {
+    field(field_name, field_type) {
         asl(asl_level)
         initial("init_value")
         promptgroup(gui_group)
@@ -63,10 +63,11 @@ recordtype(record_type) {
         extra("extra_info")
         menu(name)
     }
+    %C_declaration
     ...
 }
 
-device(record_type,link_type,dset_name,"choice_string")
+device(record_type, link_type, dset_name, "choice_string")
 
 driver(drvet_name)
 
@@ -83,11 +84,11 @@ breaktable(name) {
 The Following defines a Record Instance
 
 \begin{verbatim}
-record(record_type,record_name) {
+record(record_type, record_name) {
 include "filename"
-field(field_name,"value")
+field(field_name, "value")
     alias(alias_name)
-    info(info_name,"value")
+    info(info_name, "value")
     ...
 }
 alias(record_name,alias_name)
@@ -341,6 +342,7 @@ recordtype(record_type) {
         extra("extra_info")
         menu("name")
     }
+    %C_declaration
     ...
 }
 \end{verbatim}
@@ -538,6 +540,8 @@ The legal values are:
 \index{extra\_info -- field definition}
 \item [extra\_info] For \verb|DBF_NOACCESS| fields, this is the C language definition for the field.
 The definition must end with the fieldname in lower case.
+
+\item [\%C\_declaration] A percent sign \verb|%| inside the record body introduces a line of code that is to be included in the generated C header file.
 \end{description}
 
 \subsection{Example}
