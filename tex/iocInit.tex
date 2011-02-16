@@ -3,13 +3,13 @@
 
 \section{Overview - Environments requiring a main program}
 
-If a main program is required (most likely on all environments except vxWorks and RTEMS), then initialization is 
-performed by statements residing in startup scripts passed to \verb|iocsh|. An example main program is:
+If a main program is required (most likely on all environments except vxWorks and RTEMS), then initialization is performed by statements residing in startup scripts which are executed by \verb|iocsh|.
+An example main program is:
 
 \begin{verbatim}
 int main(int argc,char *argv[])
 {
-    if(argc>=2) {
+    if (argc >= 2) {
         iocsh(argv[1]);
         epicsThreadSleep(.2);
     }
@@ -20,9 +20,9 @@ int main(int argc,char *argv[])
 \end{verbatim}
 
 \index{iocsh}
-The first call to \verb|iocsh| executes commands from the startup script filename which must be passed as an argument to the 
-program. The second call to \verb|iocsh| with a \verb|NULL| argument puts \verb|iocsh| into interactive mode. This allows the user to 
-issue the commands described in chapter ``IOC Test Facilities'' as well as some additional commands like \verb|help|.
+The first call to \verb|iocsh| executes commands from the startup script filename which must be passed as an argument to the program.
+The second call to \verb|iocsh| with a \verb|NULL| argument puts \verb|iocsh| into interactive mode.
+This allows the user to issue the commands described in the chapter on ``IOC Test Facilities'' as well as some additional commands like \verb|help|.
 
 The command file passed is usually called the startup script, and contains statements like these:
 
@@ -36,9 +36,8 @@ cd ${TOP}/iocBoot/${IOC}
 iocInit
 \end{verbatim}
 
-The \index{envPaths}envPaths file is automatically generated in the IOC boot directory and defines several environment variables that are 
-useful later in the startup script. The definitions shown below are always provided; additional entries will be created for 
-each support module referenced in the application's \verb|configure/RELEASE| file:
+The \index{envPaths}envPaths file is automatically generated in the IOC's boot directory and defines several environment variables that are useful later in the startup script.
+The definitions shown below are always provided; additional entries will be created for each support module referenced in the application's \verb|configure/RELEASE| file:
 
 \begin{verbatim}
 epicsEnvSet("ARCH","linux-x86")
@@ -49,8 +48,7 @@ epicsEnvSet("EPICS_BASE","/path/to/base")
 
 \section{Overview - vxWorks}
 
-After vxWorks is loaded at IOC boot time, commands like the following, normally in the \index{vxWorks startup script}vxWorks startup script, are 
-issued to load and initialize the application code:
+After vxWorks is loaded at IOC boot time, commands like the following, normally placed in the \index{vxWorks startup script}vxWorks startup script, are issued to load and initialize the application code:
 
 \begin{verbatim}
 # Many vxWorks board support packages need the following:
@@ -68,10 +66,8 @@ cd startup
 iocInit
 \end{verbatim}
 
-The \verb|cdCommands| script is automatically generated in the IOC boot directory and defines several vxWorks global 
-variables that allow \verb|cd| commands to various locations, and also sets several environment variables. The definitions 
-shown below are always provided; additional entries will be created for each support module referenced in the 
-application's \verb|configure/RELEASE| file:
+The \verb|cdCommands| script is automatically generated in the IOC boot directory and defines several vxWorks global variables that allow \verb|cd| commands to various locations, and also sets several environment variables.
+The definitions shown below are always provided; additional entries will be created for each support module referenced in the application's \verb|configure/RELEASE| file:
 
 \index{cdCommands}
 \begin{verbatim}
@@ -86,8 +82,7 @@ putenv "EPICS_BASE=/path/to/base"
 epics_basebin = "/path/to/base/bin/vxWorks-68040"
 \end{verbatim}
 
-The \verb|ld| command in the startup script loads EPICS core, the record, device and driver support the IOC needs, and any 
-application specific modules that have been linked into it.
+The \verb|ld| command in the startup script loads EPICS core, the record, device and driver support the IOC needs, and any application specific modules that have been linked into it.
 
 \verb|dbLoadDatabase| loads database definition files describing the record/device/driver support used by the application..
 
@@ -125,14 +120,11 @@ These function prototypes and some useful external variable declarations can be 
 
 \section{IOC Initialization}
 
-An IOC is normally started with the \verb|iocInit| command as shown in the startup scripts above, which is actually 
-implemented in two distinct parts. The first part can be run separately as the \verb|iocBuild| command, which puts the IOC 
-into a quiescent state without allowing the various internal threads it starts to actually run. From this state the second 
-command \verb|iocRun| can be used to bring it online very quickly. A running IOC can be quiesced using the \verb|iocPause| 
-command, which freezes all internal operations; at this point the \verb|iocRun| command can restart it from where it left off, or 
-the IOC can be shut down (exit the program, or reboot on vxWorks/RTEMS).  Most device support and drivers have not 
-yet been written with the possibility of pausing an IOC in mind though, so this feature may not be safe to use on an IOC 
-which talks to external devices or software.
+An IOC is normally started with the \verb|iocInit| command as shown in the startup scripts above, which is actually implemented in two distinct parts.
+The first part can be run separately as the \verb|iocBuild| command, which puts the IOC into a quiescent state without allowing the various internal threads it starts to actually run.
+From this state the second command \verb|iocRun| can be used to bring it online very quickly.
+A running IOC can be quiesced using the \verb|iocPause| command, which freezes all internal operations; at this point the \verb|iocRun| command can restart it from where it left off, or the IOC can be shut down (exit the program, or reboot on vxWorks/RTEMS).
+Most device support and drivers have not yet been written with the possibility of pausing an IOC in mind though, so this feature may not be safe to use on an IOC which talks to external devices or software.
 
 \index{iocInit}
 \index{iocBuild}
@@ -247,11 +239,11 @@ Then \verb|dbBkptInit| is run to initialize the database debugging module.
 \subsection{Scanning and Access Security}
 
 \index{scanInit}
-The periodic, event, and I/O event scanners are initialized by calling \verb|scanInit|, but the scan threads created are not 
-allowed to process any records yet.
+The periodic, event, and I/O event scanners are initialized by calling \verb|scanInit|, but the scan threads created are not allowed to process any records yet.
 
 \index{asInit}
-A call to \verb|asInit| initailizes access security. If this reports failure, the IOC initialization is aborted.
+A call to \verb|asInit| initailizes access security.
+If this reports failure, the IOC initialization is aborted.
 
 \index{dbPutNotifyInit}
 \verb|dbPutNotifyInit| initializes support for put notification.
@@ -293,8 +285,8 @@ If the \verb|iocRun| command is used to bring the IOC out of its initial quiesce
 \index{dbCaRun}
 \index{interruptAccept}
 The routines \verb|scanRun| and \verb|dbCaRun| are called in turn to enable their associated tasks and set the global variable 
-\verb|interruptAccept| to \verb|TRUE| (this now happens inside \verb|scanRun|). Until this is set all I/O interrupts should have been 
-ignored.
+\verb|interruptAccept| to \verb|TRUE| (this now happens inside \verb|scanRun|).
+Until this is set all I/O interrupts should have been ignored.
 
 \index{initHookAfterDatabaseRunning}
 \index{initHookAfterInterruptAccept}
@@ -319,9 +311,10 @@ A command completion message is logged, and \verb|initHookAfterIocRunning| is an
 \index{iocPause}
 \index{iocRun}
 The command \verb|iocPause| brings a running IOC to a quiescent state with all record processing frozen (other than possibly 
-the completion of asynchronous I/O operations).  A paused IOC may be able to be restarted using the \verb|iocRun| command, 
-but whether it will fully recover or not can depend on how long it has been quiescent and the status of any device drivers 
-which have been running. The operations which make up the pause operation are as follows:
+the completion of asynchronous I/O operations).
+A paused IOC may be able to be restarted using the \verb|iocRun| command, but whether it will fully recover or not can depend on how long it has been quiescent and the status of any device drivers 
+which have been running.
+The operations which make up the pause operation are as follows:
 
 \begin{enumerate}
 \index{initHookAtIocPause}
@@ -348,8 +341,8 @@ which have been running. The operations which make up the pause operation are as
 
 \section{Changing iocCore fixed limits}
 
-The following commands can be issued after iocCore is loaded to change iocCore fixed limits. The commands should be 
-given before any \verb|dbLoadDatabase| commands.
+The following commands can be issued after iocCore is loaded to change iocCore fixed limits.
+The commands should be given before any \verb|dbLoadDatabase| commands.
 
 \index{callbackSetQueueSize}
 \index{dbPvdTableSize}
@@ -366,28 +359,34 @@ errlogInit2(buffersize, maxMessageSize)
 
 \subsection{callbackSetQueueSize}
 
-Requests for the general putpose callback tasks are placed in a ring buffer. This command can be used to set the size for 
-the ring buffers. The default is 2000. A message is issued when a ring buffer overflows. It should rarely be necessary to 
-override this default. Normally the ring buffer overflow messages appear when a callback task fails.
+Requests for the general putpose callback tasks are placed in a ring buffer.
+This command can be used to set the size for the ring buffers.
+The default is 2000.
+A message is issued when a ring buffer overflows.
+It should rarely be necessary to override this default.
+Normally the ring buffer overflow messages appear when a callback task fails.
 
 \subsection{dbPvdTableSize}
 
-Record instance names are stored in a process variable directory, which is a hash table. The default number of hash entries 
-is 512. \verb|dbPvdTableSize| can be called to change the size. It must be called before any \verb|dbLoad| commands and must 
-be a power of 2 between 256 and 65536. If an IOC contains very large databases (several thousand records) then a larger 
-hash table size speeds up searches for records.
+Record instance names are stored in a process variable directory, which is a hash table.
+The default number of hash entries is 512.
+\verb|dbPvdTableSize| can be called to change the size.
+It must be called before any \verb|dbLoad| commands and must be a power of 2 between 256 and 65536.
+If an IOC contains very large databases (several thousand records) then a larger hash table size speeds up searches for records.
 
 \subsection{scanOnceSetQueueSize}
 
 \index{scanOnce}
-\verb|scanOnce| requests are placed in a ring buffer. This command can be used to set the size for the ring buffer. The default 
-is 1000. It should rarely be necessary to override this default. Normally the ring buffer overflow messages appear when 
-the scanOnce task fails.
+\verb|scanOnce| requests are placed in a ring buffer.
+This command can be used to set the size for the ring buffer.
+The default is 1000.
+It should rarely be necessary to override this default.
+Normally the ring buffer overflow messages appear when the scanOnce task fails.
 
 \subsection{errlogInit or errlogInit2}
 
-These commands can increase (but not decrease) the default buffer and maximum message sizes for the errlog message 
-queue. The default buffer size is 1280 bytes, the maximum message size defaults to 256 bytes.
+These commands can increase (but not decrease) the default buffer and maximum message sizes for the errlog message queue.
+The default buffer size is 1280 bytes, the maximum message size defaults to 256 bytes.
 
 \section{initHooks}
 
@@ -438,8 +437,8 @@ int initHookRegister(initHookFunction func);
 const char *initHookName(int state);
 \end{verbatim}
 
-Any functions that are registered before \verb|iocInit| reaches the desired state will be called when it reaches that state. The 
-\verb|initHookName| function returns a static string representation of the state passed into it which is intended for printing. 
+Any functions that are registered before \verb|iocInit| reaches the desired state will be called when it reaches that state.
+The \verb|initHookName| function returns a static string representation of the state passed into it which is intended for printing.
 The following skeleton code shows how to use this facility:
 
 \begin{verbatim}
@@ -500,7 +499,8 @@ For an explaination of the \verb|EPICS_IOC_LOG_|... variables see "iocLogClient"
 \verb|EPICS_TS_NTP_INET| is used only on vxWorks and RTEMS, where it sets the address of the Network Time Protocol server.
 If it is not defined the IOC uses the boot server as its NTP server.
 
-These variables can be set through iocsh via the \verb|epicsEnvSet| command, or on vxWorks using \verb|putenv|. For example:
+These variables can be set through iocsh via the \verb|epicsEnvSet| command, or on vxWorks using \verb|putenv|.
+For example:
 
 \begin{verbatim}
 epicsEnvSet("EPICS_CA_CONN_TMO,"10")
@@ -520,7 +520,8 @@ The following commands can be issued to iocsh:
 \section{Initialize Logging}
 
 \index{Initialize Logging}
-Initialize the logging system. See the chapter on ``IOC Error Logging'' for details.
+Initialize the logging system.
+See the chapter on ``IOC Error Logging'' for details.
 The following can be used to direct the log client to use a specific host log server.
 
 \begin{verbatim}
