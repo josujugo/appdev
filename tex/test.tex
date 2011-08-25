@@ -803,20 +803,21 @@ This routine is of interest to system developers for testing database access.
 \subsection{dbtpn}
 
 \index{dbtpn}
-Test Put Notify:
+Test Process Notify:
 
 \begin{verbatim}
+dbtpn("<record_name.field_name>")
 dbtpn("<record_name.field_name>","<value>")
 \end{verbatim}
 
 Example:
 
 \begin{verbatim}
+dbtpn("aitest")
 dbtpn("aitest","5.0")
 \end{verbatim}
 
-This command performs a \verb|dbNameToAddr|, then calls \verb|dbPutNotify| and has a callback routine that prints a message 
-when it is called. This routine is of interest to system developers for testing database access.
+This command performs a \verb|dbProcessNotify| request. If a value argument is provided it issues a \verb|putProcessRequest| to the named record; if no value is provided it issues a \verb|processGetRequest|. This routine is mainly of interest to system developers for testing database access.
 
 \section{Record Link Reports}
 
@@ -929,7 +930,7 @@ possible request type. This routine is of interest to system developers for test
 \subsection{tpn}
 
 \index{tpn}
-Test Put Notify:
+Test Process Notify:
 
 \begin{verbatim}
 tpn("<record_name.field_name>","<value>")
@@ -941,7 +942,8 @@ Example:
 tpn("aitest","5.0")
 \end{verbatim}
 
-This routine tests \verb|dbPutNotify| via the old database access interface.
+This routine tests \verb|dbProcessNotify| via the old database access interface.
+It only supports issuing a \verb|putProcessRequest| to the named record.
 
 \section{Routines to dump database information}
 

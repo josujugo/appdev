@@ -538,22 +538,23 @@ If the record is already active because it appears twice in a chain of record pr
 Note that the term caching not queuing is used.
 If multiple requests are directed to a record while it is active, each new value is placed in the record but it will still only be processed once, i.e. last value wins.
 
-\section{putNotify}
+\section{processNotify}
 
-\index{putNotify}
-\index{dbPutNotify}
+\index{processNotify}
+\index{dbProcessNotify}
 \index{ca\_put\_callback}
-\verb|dbPutNotify| (called when a Channel Access client calls \verb|ca_put_callback|) is a request to notify the caller when all 
-records processed as a result of the put are complete.
-Because of asynchronous records this can be complicated and the set of records that are processed because of a put may not be deterministic.
-The result of a \verb|dbPutNotify| is the same as a \verb|dbPutField| except for the following:
+\verb|dbProcessNotify| is used when a Channel Access client calls \verb|ca_put_callback| and makes a request to notify the caller when all 
+records processed as a result of this put are complete.
+Because of asynchronous records and conditional use of database links between records this can be complicated and the set of records that are processed because of a put cannot be determined in advance.
+The processNotify system is described in section \ref{Process Notify Subsystem} on page \pageref{Process Notify Subsystem}.
+The result of a \verb|dbProcessNotify| with type \verb|putProcessRequest| is the same as a \verb|dbPutField| except for the following:
 
 \begin{itemize}
-\item \verb|dbPutNotify| requests are queued rather than cached.
-Thus when additional requests are directed to a record that already has an active \verb|dbPutNotify|, they are queued.
+\item \verb|dbProcessNotify| requests are queued rather than cached.
+Thus when additional requests are directed to a record that already has an active \verb|dbProcessNotify|, they are queued.
 As each one finishes it releases the next one in the queue.
 
-\item If a \verb|dbPutNotify| links to a record that is not active but has a \verb|dbPutNotify| attached to it, no attempt is made to process the record.
+\item If a \verb|dbProcessNotify| links to a record that is not active but has a \verb|dbProcessNotify| attached to it, no attempt is made to process the record.
 
 \end{itemize}
 

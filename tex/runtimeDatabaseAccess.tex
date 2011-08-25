@@ -235,17 +235,9 @@ The \index{database access routines - List of}database access routines are:
 
 \item dbPut: Routine called by \verb|dbPutxxx| functions.
 
-\item putNotifyInit: Initialize ``struct putNotify"
+\item dbProcessNotify: Process a record and request notification on completion, together with optional pre-process put or post-process get.
 
-\item putNotifyCleanup: Cleanup ``struct putNotify"
-
-\item dbPutNotify: A database put with notification on completion
-
-\item dbNotifyCancel: Cancel \verb|dbPutNotify|
-
-\item dbNotifyAdd: Add a new record for to notify set.
-
-\item dbNotifyCompletion: Announce that put notify is complete.
+\item dbNotifyCancel: Cancell a dbProcessNotify.
 
 \item dbBufferSize: Determine number of bytes in request buffer.
 
@@ -643,140 +635,168 @@ long dbPut(
 the database. Similar to \verb|dbGet|, this routine calls one of a number of conversion routines to do the actual conversion and 
 relies on record support routines to handle arrays and other special cases.
 
-\subsection{Put Notify Routines}
+\label{Process Notify Subsystem}
+\subsection{Process Notify Subsystem}
 
-\verb|dbPutNotify| is a request to notify the caller when all records that are processed as a result of a put complete 
-processing. Complications occur because of record linking and asynchronous records. A put can cause an entire chain of 
-records to process. If any record is an asynchronous record then record completion means asynchronous completion.
+\subsubsection{Introduction}
 
-\index{dbPutNotify}
-The following rules are implemented:
+The Process Notify subsystem provides the following features:
 
 \begin{enumerate}
-\item The user code must allocate a putNotify control block. Before calling \verb|dbPutNotify| the user must set fields 
-\verb|paddr|, \verb|pbuffer|, \verb|nRequest|, and \verb|dbrType|. \verb|paddr| is the value returned by \verb|dbNameToAddr|. The field 
-\verb|userPvt| is never accessed by the dbNotify code and is for the user. If a putNotify is already in use, i.e. a 
-\verb|dbPutNotify| has been issued and the \verb|userCallback| has not been called, it is illegal to issue a new 
-\verb|dbPutNotify| with the same putNotify control block. Any such attempt will cause an assert failure.
-
-\item The \verb|userCallback| routine will be always be called unless \verb|dbNotifyCancel| is called. The \verb|userCallback| 
-is called when the dbPutNotify is complete. The user is then free to reuse or delete the putNotify control block. The 
-user supplied callback is called when all processing is complete or when an error is detected. If everything 
-completes synchronously the callback routine will be called BEFORE \verb|dbPutNotify| returns. The 
-\verb|userCallback| is called without anything locked.
-
-\item If the user calls \verb|dbNotifyCancel| then the \verb|userCallback| will NOT be called after \verb|dbNotifyCancel| 
-returns. It may get called while \verb|dbNotifyCancel| is active. If it is active \verb|dbNotifyCancel| will not return 
-until \verb|userCallback| completes. Thus after \verb|dbNotifyCancel| returns the user may reuse or delete the 
-putNotify control block. The putNotify control block MUST NOT be deleted by \verb|userCallback|.
-
-\item If another putNotify is already active on the record associated with the putNotify, the new putNotify is put on a 
-restart list and automatically restarted.
-
-\item If the record associated with the putNotify is already active for some other reason, the putNotify takes ownership of 
-the record and starts the put request when the record completes processing.
-
-\item In general a set of records may be processed as a result of a single \verb|dbPutNotify|. If a record in the set is found to 
-be active, either because PACT is true or because a putNotify already owns the record, then that record is not made 
-part of the set of records that must complete before the putNotify request completes.
-
+\item Processes a record with notification of completion.
+\item Put after the record is claimed but before before the process.
+\item Get after the process but before the record is released.
+\item put, then process, then get.
 \end{enumerate}
 
-\subsubsection{putNotifyInit}
-
-This is called by iocInit.
-
-Format:
-
-\begin{verbatim}
-void putNotifyInit(void);
-\end{verbatim}
-
-\index{putNotifyInit}\subsubsection{dbPutNotify}
-
-Perform a database put and notify when record processing is complete.
-
-Format:
-
-\begin{verbatim}
-void dbPutNotify(putNotify *pputnotify);
-
-where
-
-typedef enum {
-    putNotifyOK,
-    putNotifyCanceled,
-    putNotifyError
-    putNotifyPutDisabled
-}putNotifyStatus;
-
-
-typedef struct putNotify{
-    /*The following must be set by the user*/
-    void(*userCallback)(struct putNotify *);
-    struct dbAddr*paddr;/*dbAddr set by dbNameToAddr*/
-    void*pbuffer;/*address of data*/
-    longnRequest;/*number of elements to be written*/
-    shortdbrType;/*database request type*/
-    void*usrPvt;/*for private use of user*/
-    /*The following is status of request.Set by dbPutNotify*/
-    putNotifyStatus status;
-    /*fields private to database access*/
-    ...
-}putNotify;
-\end{verbatim}
-
-\index{dbPutNotify}
-\index{putNotifyStatus}
-\index{struct putNotify}
-The caller must allocate a \verb|putNotify| structure and set the fields:
-
-\begin{verbatim}
-userCallback - Routine that is called upon completion
-paddr - address of a dbAddr. Returned by dbNameToAddr.
-pbuffer - address of data
-nRequest - number of data elements
-dbrType - database request type
-usrPvt - a void * field that caller can use as needed.
-\end{verbatim}
-
-The status value in putNotify.status is one of
+A process request will be issued if any of the following is true:
 
 \begin{itemize}
-\item  \index{putNotifyOK}putNotifyOK Success
-
-\item \index{putNotifyCanceled}putNotifyCanceled User issued a dbNotifyCancel.
-
-\item putNotifyError Either dbPut of dbProcess returned an error.
-
-\item putNotifyPutDisabled Puts have been disabled for the record.
-
+\item The requester has issued a processs request and record is passive.
+\item The requester is doing a put, the record is passive, and either the field description is process passive or the field is PROC.
+\item The requester has requested a processGet or a putProcessGet request and the record is passive.
 \end{itemize}
 
-The user callback is always called unless \verb|dbNotifyCancel| is called before the put notify competes. It may be called 
-while dbPutNotify or dbNotifyCancel is active.
+At most one process is performed per \verb|dbProcessNotify| request.
 
-\subsubsection{dbNotifyCancel}
+\index{dbNotify.h}
+\subsubsection{dbNotify.h}
 
-Cancel an outstanding \verb|dbPutNotify|.
+The dbNotify.h header defines the following:
 
-Format:
-
+\index{dbProcessNotify}
+\index{processNotifyStatus}
+\index{processNotify}
 \begin{verbatim}
-void dbNotifyCancel(putNotify *pputnotify);
+typedef enum {
+    processRequest,
+    putProcessRequest,
+    processGetRequest,
+    putProcessGetRequest
+} notifyRequestType;
+
+typedef enum {
+    putDisabledType,
+    putFieldType,
+    putType
+} notifyPutType;
+
+typedef enum {
+    getFieldType,
+    getType
+} notifyGetType;
+
+typedef enum {
+    notifyOK,
+    notifyCanceled,
+    notifyError,
+    notifyPutDisabled
+} notifyStatus;
+
+typedef struct processNotify {
+    /* Fields for private use by dbNotify implementation: */
+    ellCheckNode restartNode;
+    void *       pnotifyPvt;
+    /* Fields set by dbNotify: */
+    notifyStatus status;
+    int          wasProcessed; /* (0,1) => (no,yes) */
+    /*Fields set by user: */
+    notifyRequestType requestType;
+    struct dbAddr *paddr;      /* set by dbNameToAddr*/
+    int         (*putCallback)(struct processNotify *,notifyPutType type);
+    void        (*getCallback)(struct processNotify *,notifyGetType type);
+    void        (*doneCallback)(struct processNotify *);
+    void *        usrPvt;       /* for private use of user */
+} processNotify;
+
+epicsShareFunc void dbProcessNotify(processNotify *pprocessNotify);
+epicsShareFunc void dbNotifyCancel(processNotify *pprocessNotify);
 \end{verbatim}
 
-\index{dbNotifyCancel}This cancels an active \verb|dbPutNotify|.
+\subsubsection{Client Semantics}
 
-\subsubsection{dbNotifyAdd}
+The client must allocate an instance of \verb|processNotify|, which can be used for an arbitrary number of calls to \verb|dbProcessNotify|.
+Before calling \verb|dbProcessNotify| the following fields must be given values:
 
-\index{dbNotifyAdd}
-This routine is called by database access itself. It should never be called by user code.
+\begin{itemize}
+\item \verb|requestType| - The request type.
 
-\subsubsection{dbNotifyCompletion}
+\item \verb|paddr| - A struct dbAddr, which is given values by a call to \verb|dbNameToAddr|.
 
-\index{dbNotifyCompletion}
-This routine is called by database access itself. It should never be called by user code.
+\item \verb|putCallback| - If the request is a \verb|putProcessRequest| or a \verb|putProcessGetRequest| this must be given a value.
+It is called before the record is processed.
+This routine is expected to issue a database put.
+The return value should be (0, 1) if the callback operation (was not, was) successful.
+
+\item \verb|getCallback| - If the request is a \verb|processGetRequest| or a \verb|putProcessGetrequest| this must be given a value.
+It is called after the record is processed but before the record is released.
+This routine is expected to issue a database get.
+
+\item \verb|doneCallback| - This must be given a value.
+It is called after the record is processed and after the optional \verb|getCallback|.
+This routine may issue a new \verb|dbProcessNotify| if desired.
+
+\item \verb|userPvt| - A field for the client and its callback routines to use as needed; this pointer is not used by the processNotify code.
+\end{itemize}
+
+The \verb|notifyPutType| argument to \verb|putCallback| is one of these values:
+
+\begin{itemize}
+\item \verb|putDisabledType| - Puts are disabled.
+The client must not issue a put.
+
+\item \verb|dbPutFieldType| - The client may issue a \verb|dbPutField| request.
+This is returned when \verb|paddr| refers to a link field.
+For link fields the record will never be processed as a result of the \verb|dbProcessNotify|.
+
+\item \verb|dbPutType| - The client can issue a dbPut request.
+The record may or may not be processed after the client callback returns.
+\end{itemize}
+
+The \verb|notifyGetType| argument to \verb|getCallback| will be one of these values:
+
+\begin{itemize}
+\item \verb|getFieldType| - The client may issue a \verb|dbGetField| request.
+This is returned when \verb|paddr| refers to a link field.
+For link fields the record will never be processed as a result of the \verb|dbProcessNotify|.
+
+\item \verb|getType| - The client may issue a \verb|dbGet| request.
+\end{itemize}
+
+The \verb|notifyStatus| argument to \verb|doneCallback|  is one of these values:
+
+\begin{itemize}
+\item \verb|notifyOK| - The \verb|dbProcessNotify| request was successful and the record was processed.
+\item \verb|notifyNoProcessOK| - The \verb|dbProcessNotify| request was successful but the record was not processed.
+\item \verb|notifyError| - An error occured.
+\end{itemize}
+
+Example code can be found in the routine \verb|dbtpn| which is defined in \verb|base/src/ioc/db/dbNotify.c|. It uses both \verb|putProcesssRequest| and \verb|processGetRequest|.
+
+\subsubsection{Callback Device Support}
+
+EPICS base provides soft device support that uses processNotify for both input and output record types. All use the device type name ``Asyn Soft Channel''.
+
+The input types issue a \verb|processGetRequest|:
+\begin{itemize}
+\item \verb|devAiSoftCallback| - Supports aiRecord.
+\item \verb|devBiSoftCallback| - Supports biRecord.
+\item \verb|devMbbiSoftCallback| - Supports mbbiRecord.
+\item \verb|devMbbiDirectSoftCallback| - Supports mbbiDirectRecord.
+\item \verb|devLiSoftCallback| - Supports longinRecord.
+\item \verb|devSiSoftCallback| - Supports stringinRecord.
+\end{itemize}
+
+The output types issue a channel access \verb|ca_put_callback| request.
+\begin{itemize}
+\item \verb|devAoSoftCallback| - Supports aoRecord.
+\item \verb|devBoSoftCallback| - Supports boRecord.
+\item \verb|devCalcoutSoftCallback| - Supports calcoutRecord.
+\item \verb|devMbboSoftCallback| - Supports mbboRecord.
+\item \verb|devMbboDirectSoftCallback| - Supports mbboDirectRecord.
+\item \verb|devSiSoftCallback| - Supports longoutRecord.
+\end{itemize}
+
 
 \subsection{Utility Routines}
 
