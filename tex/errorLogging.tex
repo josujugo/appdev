@@ -401,7 +401,7 @@ In a testing environment it is desirable to use a private log server. This can b
 \item Add a epicsEnvSet command to your IOC startup file. For example
 
 \begin{verbatim}
-ld  <  iocCore
+ld < iocCore
 epicsEnvSet("EPICS_IOC_LOG_INET=xxx.xxx.xxx.xxx")
 \end{verbatim}
 
@@ -410,3 +410,27 @@ epicsEnvSet("EPICS_IOC_LOG_INET=xxx.xxx.xxx.xxx")
 \item On your host workstation, start the log server.
 
 \end{itemize}
+
+\subsection{iocLogPrefix}
+\label{iocLogPrefix}
+\index{iocLogPrefix}
+
+Many sites run multiple soft IOCs on the same machine.
+With some log viewers like cmlogviewer it is not possible to distinguish between the log messages from these IOCs since their hostnames are all the same.
+One solution to this is to add a unique prefix to every log message.
+
+The \verb|iocLogPrefix| command can be run from the startup file during IOC initialization to establish such a prefix that will be prepended to every log message when it is sent to the iocLogServer.
+
+For example, adding the following lines to your \verb|st.cmd| file 
+
+\begin{verbatim}
+epicsEnvSet("IOC","sioc-b34-mc10");
+iocLogPrefix("fac=LI21 proc=${IOC} ");
+\end{verbatim}
+
+will categorize all log messages from this IOC as belonging to the facility \verb|LI21| and to the process \verb|sioc-b34-mc10|.
+
+Note that log messages echoed to the IOC's standard output will not show the prefix, it only appears in the version sent to the log server.
+\verb|iocLogPrefix| should appear fairly early in the startup script so the IOC doesn't try to send any log messages without the prefix.
+Once the prefix has been set, it cannot be changed without rebooting the IOC.
+One can determine if a log prefix has been set using \verb|iocLogShow|.
