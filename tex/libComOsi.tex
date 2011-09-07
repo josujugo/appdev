@@ -3,19 +3,30 @@
 \section{Overview}
 
 Most code in base is operating system independent, i.e. the code is exactly the same for all supported operating systems. 
-This is accomplished by providing epics defined libraries for facilities that are different on the various systems. The code 
-is called Operating System Independent or OSI. OSI libraries have multiple implementations, which are Operating 
-System Dependent or OSD.
+This is accomplished by providing epics-specific APIs for facilities that are different on the various systems.
+These APIs are called \index{Operating System Independent}Operating System Independent, or \index{OSI}OSI, and are part of libCom.
+The OSI APIs have multiple implementations, which are Operating System Dependent or \index{OSD}OSD.
+Some APIs are implemented using the features of a particular compiler that is supported on multiple operating systems.
+For example the GNU Compiler Collection (GCC) is used for compiling many targets and provides a common GCC-specific API for some features.
+Base now makes it possible to use compiler-specific as well as OS-specific code to implement the OSI APIs.
 
 \subsection{OSI source directory}
 
-Directory \verb|<base>/src/libCom/osi| contains the code for the operating system independent libraries. The structure 
-of this directory is:
+Directory \verb|<base>/src/libCom/osi| contains the code for the operating system independent libraries.
+The structure of this directory is:
 
 \begin{verbatim}
 osi/
-   epics*.h
-   *.cpp  - A few generic c++ implementations
+   *.h
+   *.c
+   *.cpp
+   compiler/
+       borland/
+       clang/
+       default/
+       gcc/
+       msvc/
+       solStudio/
    os/
        Linux/
        Darwin/
@@ -27,54 +38,56 @@ osi/
        vxWorks/
 \end{verbatim}
 
-Code for additional operating systems may also be present.
+Code for additional compilers and operating systems may also be present.
 
 \subsection{Rules for building OSI code}
 
-The osi directory contains header files with names starting with \verb|epics|. These headers provide definitions for user code. 
-Each of the directories under \verb|osi/<arch>| contain architecture-specific code in filenames starting with \verb|osd|. In most 
-cases both a header and source file are present.
+The \verb|osi| directory contains source and header files that provide common definitions for the OSI APIs.
+The directories under \verb|osi/compiler/<cmplr>| contain compiler-specific code that implements some of the OSI APIs.
+The directories under \verb|osi/os/<arch>| contain operating-system-specific code that implements the remaining OSI APIs.
 
-Installing header files residing under \verb|src/libCom/osi| into \verb|<base>/include|
-
-\begin{itemize}
-\item Header files in \verb|osi| are installed into \verb|<base>/include|
-
-\item Header files in a subdirectory below \verb|osi/os| are installed into \verb|<base>/include/os/<arch>.|The search 
-order for locating the specific file to be installed is:
+Header files residing under \verb|src/libCom/osi| are installed into \verb|<base>/include| as follows:
 
 \begin{itemize}
- 
+\item Header files in the \verb|osi| directory are installed into \verb|<base>/include|
 
+\item Header files in a subdirectory below \verb|osi/os| are installed into \verb|<base>/include/os/<arch>|\\
+The search order for locating the specific file to be installed is:
+
+\begin{itemize}
 \item \verb|libCom/osi/os/<arch>|
-
-\item  \verb|libCom/osi/os/posix|
-
-\item  \verb|libCom/osi/os/default|
-
-\end{itemize}
-
-\end{itemize}
-
-The search order for locating \verb|osd| source files is:
-
-\begin{itemize}
-
-\item \verb|libCom/osi/os/<arch>|
-
 \item \verb|libCom/osi/os/posix|
+\item \verb|libCom/osi/os/default|
+\end{itemize}
 
+\item Header files in a subdirectory below \verb|osi/compiler| are installed into \verb|<base>/include/compiler/<cmplr>|\\
+The search order for locating the specific file to be installed is:
+
+\begin{itemize}
+\item \verb|libCom/osi/compiler/<cmplr>|
+\item \verb|libCom/osi/compiler/default|
+\end{itemize}
+
+\end{itemize}
+
+The search order for locating OSD source files is:
+
+\begin{itemize}
+\item \verb|libCom/osi/compiler/<cmplr>|
+\item \verb|libCom/osi/compiler/default|
+\item \verb|libCom/osi/os/<arch>|
+\item \verb|libCom/osi/os/posix|
 \item \verb|libCom/osi/os/default|
 
 \end{itemize}
 
 \subsection{Locating OSI header files.}
 
-When code is compiled the search order for locating header files in \verb|base/include| is:
+When code is compiled, the search order for locating header files in \verb|base/include| is:
 
 \begin{itemize}
+\item \verb|<base>/include/compiler/<cmplr>|
 \item \verb|<base>/include/os/<arch>|
-
 \item \verb|<base>/include|
 
 \end{itemize}
@@ -82,186 +95,233 @@ When code is compiled the search order for locating header files in \verb|base/i
 \section{epicsAssert}
 
 \index{epicsAssert}
-This is a replacement for ANSI C's \verb|assert|. To use this version just include:
-
-\begin{verbatim}
-#include "epicsAssert.h"
-\end{verbatim}
-
-instead of
+This is an enhanced version of ANSI C's \verb|assert| facility. To use this, replace:
 
 \begin{verbatim}
 #include <assert.h>
 \end{verbatim}
 
-If an \verb|assert| fails, it calls \verb|errlog| indicating the program's author, file name, and line number. Under each OS there are 
-specialized instructions assisting the user to diagnose the problem and generate a good bug report. For instance, under 
-vxWorks, there are instructions on how to generate a stack trace, and on posix there are instructions about saving the core 
-file. After printing the message the calling thread is suspended.
+with
 
-An author may, before the above include line, optionally define a preprocessor macro named \verb|epicsAssertAuthor| as 
-a string that provides their name and email address if they wish to be contacted when the assertion fires.
+\begin{verbatim}
+#include "epicsAssert.h"
+\end{verbatim}
+
+\subsection{Runtime Assertion Checks}
+
+The same \verb|assert(expression)| macro is used as with the ANSI header to test a run-time assertion.
+
+If a run-time assertion check finds the expression false, it calls \verb|errlog| indicating the program's author, file name, and line number.
+Each OS provides specialized instructions assisting the user to diagnose the problem and generate a good bug report.
+For instance, under vxWorks there are instructions on how to generate a stack trace; on posix there are instructions about saving the core file.
+After printing the message the calling thread is suspended.
+
+To set the author's name, before the include statment shown above, define a preprocessor macro named \verb|epicsAssertAuthor| as a string that provides a name and email address if they wish to be contacted when the assertion fires.
+
+\subsection{Compile-time Assertion Checks}
+
+The C or C++ compiler can be used to evaluate and check a static expression at compile-time.
+Static assertions may only be placed where a variable declaration is valid, and can only test certain kinds of constant expressions.
+A static assertion looks like this:
+
+\begin{verbatim}
+STATIC_ASSERT(expression);
+\end{verbatim}
+
+If the expression evaluates to false, the compiler will see an illegal variable declared with the name \verb|static_assert_failed_at_line_<n>| and should halt compilation at that point.
 
 \section{epicsEndian}
 
-\verb|epicsEndian.h| provides an operating-system independent means of discovering the native byte order of the CPU 
-which the compiler is targeting, and works for both C and C++ code. It defines the following preprocessor macros, the 
-values of which are integers:
-
 \index{epicsEndian.h}
+\verb|epicsEndian.h| provides an operating-system independent means of discovering the native byte order of the CPU which the compiler is targeting, and works in both C and C++ code.
+It defines the following preprocessor macros, the values of which are integers:
+
 \begin{itemize}
-\item EPICS\_ENDIAN\_LITTLE
-
-\item EPICS\_ENDIAN\_BIG
-
-\item EPICS\_BYTE\_ORDER
-
-\item EPICS\_FLOAT\_WORD\_ORDER
-
+\item \verb|EPICS_ENDIAN_LITTLE|
+\item \verb|EPICS_ENDIAN_BIG|
+\item \verb|EPICS_BYTE_ORDER|
+\item \verb|EPICS_FLOAT_WORD_ORDER|
 \end{itemize}
 
-The latter two macros are defined to be one or other of the first two and may be compared with them to determine 
-conditional compilation or execution of code that performs byte or word swapping as necessary.
+The latter two macros are defined to be one or other of the first two, and may be compared with them to determine conditional compilation or execution of code that performs byte or word swapping as necessary.
 
 \section{epicsEvent}
-
 \index{epicsEvent}
-\verb|epicsEvent.h |contains a C++ and a C description for an event semaphore.
 
 \index{epicsEvent.h}
+\verb|epicsEvent.h |contains a C++ and a C description for an event semaphore.
+
 \subsection{C++ Interface}
 
+\index{epicsEventOK}
+\index{epicsEventWaitTimeout}
+\index{epicsEventError}
+\index{epicsEventStatus}
+\index{epicsEventWaitOK}
+\index{epicsEventWaitError}
+\index{epicsEventWaitStatus}
 \begin{verbatim}
 typedef enum {
-    epicsEventWaitOK,epicsEventWaitTimeout,epicsEventWaitError
-}epicsEventWaitStatus;
+    epicsEventOK = 0,
+    epicsEventWaitTimeout,
+    epicsEventError
+} epicsEventStatus;
 
-typedef enum {epicsEventEmpty,epicsEventFull} epicsEventInitialState;
+/* Backwards compatibility */
+#define epicsEventWaitStatus epicsEventStatus
+#define epicsEventWaitOK epicsEventOK
+#define epicsEventWaitError epicsEventError
 
-class epicsEvent{
+typedef enum {
+    epicsEventEmpty,
+    epicsEventFull
+} epicsEventInitialState;
+
+class epicsEvent {
 public:
-    epicsEvent(epicsEventInitialState initial=epicsEventEmpty);
-    ~epicsEvent();
-    void signal();
-    void wait(); /*blocks until full*/
-    bool wait( double timeOut ); /* false if empty at time out */
-    bool tryWait(); /* false if empty */
-    void show( unsigned level ) const;
+    epicsEvent ( epicsEventInitialState initial = epicsEventEmpty );
+    ~epicsEvent ();
+    void trigger ();
+    void signal () { this->trigger(); }
+    void wait ();                   /* blocks until full */
+    bool wait ( double timeOut );   /* false if still empty at time out */
+    bool tryWait ();                /* false if empty */
+    void show ( unsigned level ) const;
 
-
-    class invalidSemaphore {}; /* exception */
+    class invalidSemaphore;         /* exception payload */
 private:
     ...
 };
 \end{verbatim}
 
-\index{epicsEventWaitOK}
-\index{epicsEventWaitTimeout}
-\index{epicsEventWaitError}
-\index{epicsEventWaitStatus}
 \begin{center}
 \begin{longtable}{p{1.25in}p{5.0in}}
 \textbf{Method} & \textbf{Meaning}\\
 \hline
-epicsEvent & An epicsEvent can be created empty or full. If it is created empty then a wait issued before a signal will block. If created full then the first wait will always succeed. Multiple signals may be issued between waits but have the same effect as a single signal.\\
-\~{}epicsEvent & Remove the event and any resources it uses. Any further use of the semaphore result in unknown (most certainly bad) behavior. No outstanding take can be active when this call is made.\\
-signal & Signal the event i.e. ensures that the next or current call to wait completes. This method may be called from a vxWorks or RTEMS interrupt handler.\\
-wait() & Wait for the event.\\
-wait(double timeOut) & Similar to wait except that if event does not happen the call completes after the specified time out. The return value is (false,true) if the event (did not, did) happen.\\
-tryWait() & Similar to wait except that if event does not happen the call completes immediately. The return value is (false,true) if the event (did not, did) happen.\\
-show & Display information about the semaphore. The information displayed is architecture dependent.
+epicsEvent & An epicsEvent can be created empty or full.
+If it is created empty then a wait issued before a trigger will block.
+If created full then the first wait will always succeed.
+Multiple triggers may be issued between waits but have the same effect as a single trigger.\\
+\~{}epicsEvent & Remove the event and any resources it uses.
+Any further use of the semaphore result in unknown (most certainly bad) behavior.
+No outstanding take can be active when this call is made.\\
+trigger & Trigger the event i.e. ensures that the next or current call to wait completes.
+This method may be called from a vxWorks or RTEMS interrupt handler.\\
+signal & A synonym for trigger, provided for backwards compatibility.\\
+wait() & Wait for the event to be triggered.\\
+wait(double timeOut) & Similar to wait except that if event does not happen the call completes after the specified time out.
+The return value is (false, true) if the event (was not, was) triggered.\\
+tryWait() & Similar to wait except that if event has not already been triggered the call completes immediately.
+The return value is (false, true) if the event (did not, did) happen.\\
+show & Display information about the epicsEvent.
+The information displayed is architecture dependent.
 \end{longtable}
-
 \end{center}
 
-
-The primary use of an event semaphore is for synchronization. An example of using an event semaphore is a consumer 
-thread that processes requests from one or more producer threads. For example:
+The primary use of an event semaphore is for synchronization.
+An example of using an event semaphore is a consumer thread that processes requests from one or more producer threads.
+For example:
 
 \begin{itemize}
 \item When creating the consumer thread also create an epicsEvent.
 
 \begin{verbatim}
-    epicsEvent *pevent = new epicsEvent;
+epicsEvent *pevent = new epicsEvent;
 \end{verbatim}
 
 \item The consumer thread has code containing:
 
 \begin{verbatim}
-    while(1) {
-        pevent->wait();
-        while(/*more work*/) {
-            /*process work*/
-        }
+while(1) {
+    pevent->wait();
+    while(/* more work */) {
+        /* process work */
     }
+}
 \end{verbatim}
 
 \item Producers create requests and issue the statement:
 
 \begin{verbatim}
-    pevent->signal();
+pevent->trigger();
 \end{verbatim}
 
 \end{itemize}
 
 \subsection{C Interface}
 
-\begin{verbatim}
-typedef struct epicsEventOSD *epicsEventId;
-
-epicsEventId epicsEventCreate(epicsEventInitialState initialState);
-epicsEventId epicsEventMustCreate (epicsEventInitialState initialState);
-void epicsEventDestroy(epicsEventId id);
-void epicsEventSignal(epicsEventId id);
-epicsEventWaitStatus epicsEventWait(epicsEventId id);
-
-void epicsEventMustWait(epicsEventId id);
-epicsEventWaitStatus epicsEventWaitWithTimeout(epicsEventId id, double timeOut);
-epicsEventWaitStatus epicsEventTryWait(epicsEventId id);
-void epicsEventShow(epicsEventId id, unsigned int level);
-\end{verbatim}
-
 \index{epicsEventId}
 \index{epicsEventCreate}
 \index{epicsEventMustCreate}
 \index{epicsEventDestroy}
+\index{epicsEventTrigger}
+\index{epicsEventMustTrigger}
 \index{epicsEventSignal}
 \index{epicsEventWait}
 \index{epicsEventMustWait}
 \index{epicsEventWaitWithTimeout}
 \index{epicsEventTryWait}
 \index{epicsEventShow}
-Each C routine corresponds to one of the C++ methods. \verb|epicsEventMustCreate| and \verb|epicsEventMustWait| do 
-not return if they fail.
+\begin{verbatim}
+epicsEventId epicsEventCreate(epicsEventInitialState initialState);
+epicsEventId epicsEventMustCreate(epicsEventInitialState initialState);
+void epicsEventDestroy(epicsEventId id);
+
+epicsEventStatus epicsEventTrigger(epicsEventId id);
+void epicsEventMustTrigger(epicsEventId id);
+#define epicsEventSignal(ID) epicsEventMustTrigger(ID)
+
+epicsEventStatus epicsEventWait(epicsEventId id);
+void epicsEventMustWait(epicsEventId id);
+epicsEventStatus epicsEventWaitWithTimeout(epicsEventId id, double timeOut);
+epicsEventStatus epicsEventTryWait(epicsEventId id);
+
+void epicsEventShow(epicsEventId id, unsigned int level);
+\end{verbatim}
+
+The C routines shown above generally correspond to one of the C++ methods.
+The \verb|epicsEventSignal| macro provides backwards compatibility.
+The routines \verb|epicsEventMustCreate|, \verb|epicsEventMustTrigger| and \verb|epicsEventMustWait| do not return if they fail.
 
 \section{epicsFindSymbol}
 
-\index{epicsFindSymbol}
-\index{epicsFindSymbol.h}\verb|epicsFindSymbol.h| contains the following definition:
+\index{epicsFindSymbol.h}
+\verb|epicsFindSymbol.h| contains the following definitions:
 
+\index{epicsFindSymbol}
+\index{epicsLoadLibrary}
+\index{epicsLoadError}
 \begin{verbatim}
 void * epicsFindSymbol(const char *name);
+void * epicsLoadLibrary(const char *name);
+const char *epicsLoadError(void);
 \end{verbatim}
 
-\index{osiFindGlobalSymbol}
 \begin{center}
 \begin{longtable}{p{1.38889in}p{2.5in}}
 \textbf{Method} & \textbf{Meaning}\\
 \hline
-epicsFindSymbol & Return the address of the variable name
+epicsFindSymbol & Return the address of the named variable\\
+epicsLoadLibrary & Load named shared library\\
+epicsLoadError & Returns an error string if a library load fails
 \end{longtable}
-
 \end{center}
 
+The registry, described in another chapter, provides a way to find and return the address referred to by a registered symbol.
+Symbols that have not been explicitly registered may not be found.
+If the registry is asked for a name that has not been registered, it calls \verb|epicsFindSymbol|.
+If \verb|epicsFindSymbol| can locate the symbol, it returns the associated address, otherwise it returns null.
 
-vxWorks provides a function symFindByName, which finds and returns the address of global variables. The registry, 
-described in the next chapter, provides an alternative but also requires extra work by iocCore and/or user code. If the 
-registry is asked for a name that has not been registered, it calls epicsFindSymbol. If epicsFindSymbol can locate the 
-global symbol it returns the address, otherwise it returns null.
+On vxWorks \verb|epicsFindSymbol| calls \verb|symFindByName|.
+On Linux, Darwin and Solaris it calls \verb|dlsym|.
+The default version just returns null, i.e. it always fails.
 
-On vxWorks epicsFindSymbol calls symFindByName.
+The \verb|epicsLoadLibrary| routine can be used to load a named library.
+Note that the library name will be architecture-dependent.
+This routine is implemented on vxWorks, Linux, Darwin and Solaris.
 
-A default version just returns null, i.e. it always fails.
+If \verb|epicsLoadLibrary| fails, the routine \verb|epicsLoadError| can be used to fetch a printable string that describes the reason for the failure.
+Note that this library loading API is not thread-safe and should not be used in circumstances where multiple threads might try to use it at the same time.
 
 \section{epicsGeneralTime}
 
