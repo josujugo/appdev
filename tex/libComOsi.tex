@@ -130,6 +130,102 @@ STATIC_ASSERT(expression);
 
 If the expression evaluates to false, the compiler will see an illegal variable declared with the name \verb|static_assert_failed_at_line_<n>| and should halt compilation at that point.
 
+\section{epicsAtomic}
+
+\index{epicsAtomic}
+
+This is an operating system and compiler independent interface to an operating system and or compiler dependent implementation of 
+several atomic primitives. Currently, only increment, decrement, add, subtract, compare-and-swap, and test-and-set primitives have been
+implemented as appropriate for the C primitive types of int, size_t, and pointer.
+
+These primitives can be safely used in a multithreaded programs on symmetric multiprocessing (SMP) systems. Where possible the primitives 
+are implemented with compiler intrinsic wrappers for archetecture specific instructions. Otherwise they are implemeted with OS specific functions
+and otherwise, when lacking a sufficently capable OS specific interface, then in some rare situations a mutual exclusion primitive is used for 
+synchronization. 
+
+In operating systems environments which allow C code to run at interrupt level the implementation must be implemented with interrupt level 
+invokable CPU instruction primitive.
+
+All C++ functions are implemented in nested namespace atomics which is nested inside of namespacde epics.
+
+\begin{verbatim}
+#include <epicsAtomic.h>
+\end{verbatim}
+
+\subsection{C Callable Interface}
+
+\begin{verbatim}
+
+epicsShareFunc void epicsAtomicReadMemoryBarrier ();
+epicsShareFunc void epicsAtomicWriteMemoryBarrier ();
+
+epicsShareFunc size_t epicsAtomicIncrSizeT ( size_t * pTarget );
+epicsShareFunc int epicsAtomicIncrIntT ( int * pTarget );
+
+epicsShareFunc size_t epicsAtomicDecrSizeT ( size_t * pTarget );
+epicsShareFunc int epicsAtomicDecrIntT ( int * pTarget );
+
+epicsShareFunc size_t epicsAtomicAddSizeT ( size_t * pTarget, size_t delta );
+epicsShareFunc size_t epicsAtomicSubSizeT ( size_t * pTarget, size_t delta );
+epicsShareFunc int epicsAtomicAddIntT ( int * pTarget, int delta );
+
+epicsShareFunc void epicsAtomicSetSizeT  ( size_t * pTarget, size_t newValue ); 
+epicsShareFunc void epicsAtomicSetIntT ( int * pTarget, int newValue );
+epicsShareFunc void epicsAtomicSetPtrT ( EpicsAtomicPtrT * pTarget, EpicsAtomicPtrT newValue );
+
+epicsShareFunc size_t epicsAtomicGetSizeT ( const size_t * pTarget );
+epicsShareFunc int epicsAtomicGetIntT ( const int * pTarget );
+epicsShareFunc EpicsAtomicPtrT epicsAtomicGetPtrT ( const EpicsAtomicPtrT * pTarget );
+
+epicsShareFunc size_t epicsAtomicCmpAndSwapSizeT ( size_t * pTarget, 
+                                            size_t oldVal, size_t newVal );
+epicsShareFunc int epicsAtomicCmpAndSwapIntT ( int * pTarget, 
+                                            int oldVal, int newVal );
+epicsShareFunc EpicsAtomicPtrT epicsAtomicCmpAndSwapPtrT ( 
+                                            EpicsAtomicPtrT * pTarget, 
+                                            EpicsAtomicPtrT oldVal, 
+                                            EpicsAtomicPtrT newVal );
+
+epicsShareFunc int epicsAtomicTestAndSet ( int * pTarget );
+\end{verbatim}
+
+\begin{center}
+\begin{longtable}{p{1.25in}p{5.0in}}
+\textbf{C Function} & textbf{C++ Function} & \textbf{Meaning}\\
+\hline
+epicsAtomicReadMemoryBarrier & readMemoryBarrier & Load target into cache.\\
+epicsAtomicWriteMemoryBarrier & writeMemoryBarrier & Push cache version of target into target.\\
+
+epicsAtomicIncrXxxx & increment & Lock out other SMP processors from accessing the target,
+load the target into cache, add one to the target, flush cache to the target, allow other SMP processors to access the target,
+and return the new value of the target as modified by this operation.\\
+
+epicsAtomicDecrXxxx & decrement & Lock out other smp processors from accessing the target,
+load the target into cache, subtract one from the target, flush cache to the target, allow other SMP processors to access the target,
+and return the new value of target as modified by this operation.\\
+
+epicsAtomicAddXxxx & add & Lock out other SMP processors from accessing the target, load the target into cache, add 
+delta to the target, flush the cache to the target, allow other SMP processors to access the target, return new value of target 
+as modified by this operation..\\
+
+epicsAtomicSubXxxx & subtract & Lock out other SMP processors from accessing the target, load the target into cache, subtract 
+delta from the target, flush the cache to the target, allow other SMP processors to access the target, return new value of target 
+as modified by this operation..\\
+
+epicsAtomicSetXxxx & set & Set the cached version of target, and flush the cache to the target.\\
+
+epicsAtomicGetXxxx & get & Fetch the target into cache, and return the cached value.\\
+
+epicsAtomicCmpAndSwapXxxx & compareAndSwap & Lock out other SMP processors from accessing the target,
+load the target into cache, if the target is equal to oldVal set the target to newVal, flush cache to the target, 
+allow other SMP processors to access the target, and return the original value stored in the target.\\
+
+epicsAtomicTestAndSet & testAndSet & Lock out other SMP processors from accessing the target,
+load the target into cache, if the target value is logical false (zero) set the target to be logical true, flush cache to the target, 
+allow other SMP processors to access the target, and return the original value stored in the target.\\
+
+\end{longtable}
+
 \section{epicsEndian}
 
 \index{epicsEndian.h}
