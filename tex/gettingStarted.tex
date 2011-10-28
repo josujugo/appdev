@@ -405,7 +405,7 @@ myexample_SRCS_vxWorks += -nil-
 # Add locally compiled object code
 myexample_SRCS += dbSubExample.c
 
-#The following adds support from base/src/vxWorks
+# Add support from base/src/vxWorks if needed
 myexample_OBJS_vxWorks += $(EPICS_BASE_BIN)/vxComLibrary
 
 myexample_LIBS += myexampleSupport
