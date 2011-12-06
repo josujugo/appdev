@@ -265,34 +265,34 @@ The default buffer size is 1280 bytes, and the default maximum message size is 2
 EPICS defined status values provide the following features:
 
 \begin{itemize}
-\item Whenever possible, IOC routines return a status value: (0, non-0) means (\verb|OK|, \verb|ERROR|).
+\item Whenever possible, IOC routines return a status value: 0 means OK, non-0 means an error.
 
-\item The include files for each IOC subsystem contain macros defining error status symbols and strings.
+\item The header files for most IOC subsystems contain macros defining error status symbols and strings.
 
 \item Routines are provided for run time access of the error status symbols and strings.
 
+\index{errVerbose}
 \item A global variable \verb|errVerbose| helps code decide if error messages should be generated.
 
 \end{itemize}
 
-WARNING: During the fall of 1995 a series of tech-talk messages were generated concerning EPICS status values. No 
-consensus was reached.
+IOC routines often return a long integer status value, encoded similar to the vxWorks error status encoding.
+On some modern architectures a long integer is more than 32 bits wide, but in order to keep the API compatible the status values are still passed as long integers, even though only 32 bits are ever used.
+The most significant 16 bits indicate the subsystem or module where the error occurred.
+The least significant 16 bits contain a subsystem-specific status value.
+In order that status values do not conflict with the vxWorks error status values, all subsystem numbers are greater than 500.
 
-Whenever it makes sense, IOC routines return a status value encoded similar to the vxWorks error status encoding. The 
-most significant short word indicates the subsystem module within which the error occurred. The low order short word is 
-a subsystem status value. In order that status values do not conflict with the vxWorks error status values all subsystem 
-numbers are greater than 500. 
-
-A file \verb|epics/share/epicsH/errMdef.h| defines each subsystem number. For example the \verb|define| for the 
-database access routines is:
+\index{errMdef.h}
+A header file \verb|errMdef.h| defines macros for all the subsystem numbers.
+For example the database access routines use this module number:
 
 \begin{verbatim}
-#define M_dbAccess  (501 << 16)   \
-/*Database Access Routines*/
+#define M_dbAccess  (501 << 16)   /*Database Access Routines*/
 \end{verbatim}
 
-Directory ``\verb|epics/share/epicsH|" contains an \verb|include| library for every IOC subsystem that returns standard status 
-values. The status values are encoded with lines of the following format: 
+There are header files for every IOC subsystem that returns standard status 
+values.
+The status values are encoded with lines of the following format: 
 
 \begin{verbatim}
 #define S_xxxxxxx value /*string value*/
@@ -301,8 +301,7 @@ values. The status values are encoded with lines of the following format:
 For example:
 
 \begin{verbatim}
-#define S_dbAccessBadDBR (M_dbAccess|3) \
-/*Invalid Database Request*/
+#define S_dbAccessBadDBR (M_dbAccess|3) /*Invalid Database Request*/
 \end{verbatim}
 
 For example, when \verb|dbGetField| detects a bad database request type, it executes the statement:
@@ -314,7 +313,7 @@ return(S_dbAccessBadDBR);
 The calling routine checks the return status as follows:
 
 \begin{verbatim}
-status = dbGetField( ...);
+status = dbGetField(...);
 if(status) {/* Call was not successful */ }
 \end{verbatim}
 
