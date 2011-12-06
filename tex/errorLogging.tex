@@ -3,26 +3,25 @@
 
 \section{Overview }
 
-Errors detected by an IOC can be divided into classes: Errors related to a particular client and errors not attributable to a 
-particular client. An example of the first type of error is an illegal Channel Access request. For this type of error, a status 
-value should be passed back to the client. An example of the second type of error is a device driver detecting a hardware 
-error. This type of error should be reported to a system wide error handler.
+Errors detected by an IOC can be divided into classes:
+Errors related to a particular client and errors not attributable to a particular client.
+An example of the first type of error is an illegal Channel Access request.
+For this type of error, a status value should be passed back to the client.
+An example of the second type of error is a device driver detecting a hardware error.
+This type of error should be reported to a system wide error handler.
 
 Dividing errors into these two classes is complicated by a number of factors.
 
 \begin{itemize}
-\item In many cases it is not possible for the routine detecting an error to decide which type of error occurred. 
+\item In many cases it is not possible for the routine detecting an error to decide which type of error occurred.
 
-\item Normally, only the routine detecting the error knows how to generate a fully descriptive error message. Thus, if a 
-routine decides that the error belongs to a particular client and merely returns an error status value, the ability to 
-generate a fully descriptive error message is lost. 
+\item Normally, only the routine detecting the error knows how to generate a fully descriptive error message.
+Thus, if a routine decides that the error belongs to a particular client and merely returns an error status value, the ability to generate a fully descriptive error message is lost.
 
-\item If a routine always generates fully descriptive error messages then a particular client could cause error message 
-storms.
+\item If a routine always generates fully descriptive error messages then a particular client could cause error message storms.
 
-\item While developing a new application the programmer normally prefers fully descriptive error messages. For a 
-production system, however, the system wide error handler should not normally receive error messages cause by a 
-particular client.
+\item While developing a new application the programmer normally prefers fully descriptive error messages.
+For a production system, however, the system wide error handler should not normally receive error messages cause by a particular client.
 
 \end{itemize}
 
@@ -37,18 +36,20 @@ This chapter describes the following:
 
 \item errlogThread - A thread that passes the messages to all registered listeners.
 
-\item console output and message buffer size - Messages can also be written to the console. The storage for the message 
-queue can be specified by the user.
+\item console output and message buffer size - Messages can also be written to the console.
+The storage for the message queue can be specified by the user.
 
 \item status codes - EPICS status codes.
 
-\item iocLog- A system wide error logger supplied with base. It writes all messages to a system wide file.
+\item iocLog- A system wide error logger supplied with base.
+It writes all messages to a system wide file.
 
 NOTE: Many sites use CMLOG instead of iocLog.
 
 \end{itemize}
 
-NOTE: \verb|recGbl| error routines are also provided. They in turn call one of the error message routines.
+NOTE: \verb|recGbl| error routines are also provided.
+They in turn call one of the error message routines.
 
 \section{Error Message Routines}
 
@@ -64,10 +65,8 @@ NOTE: \verb|recGbl| error routines are also provided. They in turn call one of t
 \index{errlogVprintf}
 \index{errlogMessage}
 \index{errlogFlush}
- \verb|errlogPrintf| and  \verb|errlogVprintf| are like \verb|printf| and \verb|vprintf| provided by the standard C library, except 
-that their output is sent to the errlog task; unless configured not to, the output will appear on the console as well. Consult 
-any book that describes the standard C library such as ``The C Programming Language ANSI C Edition" by Kernighan 
-and Ritchie.
+\verb|errlogPrintf| and  \verb|errlogVprintf| are like \verb|printf| and \verb|vprintf| provided by the standard C library, except that their output is sent to the errlog task; unless configured not to, the output will appear on the console as well.
+Consult any book that describes the standard C library such as ``The C Programming Language ANSI C Edition" by Kernighan and Ritchie.
 
 \verb|errlogMessage| sends message to the errlog task.
 
@@ -101,14 +100,14 @@ errlogSevEnum errlogGetSevToLog(void);
 \index{errlogGetSevEnumString}
 \index{errlogSetSevToLog}
 \index{errlogGetSevToLog}
-\verb|errlogSevPrintf| and \verb|errlogSevVprintf| are like \verb|errlogPrintf| and  \verb|errlogVprintf| except that they 
-add the severity to the beginning of the message in the form ``sevr=\textless{}value\textgreater{}" where value is one of ``info, minor, major, 
-fatal". Also the message is suppressed if  severity is less than the current severity to suppress. If epicsThreadIsOkToBlock 
-is true, which is true during iocInit, errlogSevVprintf does NOT send output to the errlog task.
+\verb|errlogSevPrintf| and \verb|errlogSevVprintf| are like \verb|errlogPrintf| and  \verb|errlogVprintf| except that they add the severity to the beginning of the message in the form ``sevr=\textless{}value\textgreater{}" where value is one of ``info, minor, major, fatal".
+Also the message is suppressed if  severity is less than the current severity to suppress.
+If \verb|epicsThreadIsOkToBlock| is true, which is true during iocInit, errlogSevVprintf does NOT send output to the errlog task.
 
-\verb|errlogGetSevEnumString| gets the string value of severity. 
+\verb|errlogGetSevEnumString| gets the string value of severity.
 
- \verb|errlogSetSevToLog| sets the severity to log. \verb|errlogGetSevToLog| gets the current severity to log.
+\verb|errlogSetSevToLog| sets the severity to log.
+\verb|errlogGetSevToLog| gets the current severity to log.
 
 \subsection{Status Routines }
 
@@ -131,25 +130,23 @@ void errMessage(long  status, char  *message);
 Where status is defined as:
 
 \begin{itemize}
-\item 0:  Find latest vxWorks or Unix error.
+\item 0: Find latest vxWorks or Unix error.
 
-\item -1:  Don't report status.
+\item -1: Don't report status.
 
-\item Other:  See ``Return Status Values" above.
+\item Other: See ``Return Status Values" above.
 
 \end{itemize}
 
-\verb|errMessage|, via a call to \verb|errPrintf|, prints the message, the status symbol and string values, and the name of the task 
-which invoked \verb|errMessage|. It also prints the name of the source file and the line number from which the call was 
-issued.
+\verb|errMessage|, via a call to \verb|errPrintf|, prints the message, the status symbol and string values, and the name of the task which invoked \verb|errMessage|.
+It also prints the name of the source file and the line number from which the call was issued.
 
-The calling routine is expected to pass a descriptive message to this routine. Many subsystems provide routines built on 
-top of \verb|errMessage| which generate descriptive messages. 
+The calling routine is expected to pass a descriptive message to this routine.
+Many subsystems provide routines built on top of \verb|errMessage| which generate descriptive messages.
 
-An IOC global variable \verb|errVerbose|, defined as an \verb|external| in \verb|errMdef.h|, specifies verbose messages. If 
-\verb|errVerbose| is \verb|TRUE| then \verb|errMessage| should be called whenever an error is detected even if it is known that the 
-error belongs to a specific client. If \verb|errVerbose| is \verb|FALSE| then \verb|errMessage| should be called only for errors that are 
-not caused by a specific client.
+An IOC global variable \verb|errVerbose|, defined as an \verb|external| in \verb|errMdef.h|, specifies verbose messages.
+If \verb|errVerbose| is \verb|TRUE| then \verb|errMessage| should be called whenever an error is detected even if it is known that the error belongs to a specific client.
+If \verb|errVerbose| is \verb|FALSE| then \verb|errMessage| should be called only for errors that are not caused by a specific client.
 
 Routine \verb|errPrintf| is normally called as follows:
 
@@ -161,28 +158,28 @@ errPrintf(status, __FILE__, __LINE__,"<fmt>",...);
 Where status is defined as:
 
 \begin{itemize}
-\item 0:  Find latest vxWorks or Unix error.
+\item 0: Find latest vxWorks or Unix error.
 
-\item -1:  Don't report status.
+\item -1: Don't report status.
 
-\item Other:  See ``Return Status Values", above.
+\item Other: See ``Return Status Values", above.
 
 \end{itemize}
 
 FILE and LINE are defined as:
 
 \begin{itemize}
-\item \_\_FILE\_\_   As shown or \verb|NULL| if the file name and line number should not be printed.
+\item \_\_FILE\_\_  As shown or \verb|NULL| if the file name and line number should not be printed.
 
 \item \_\_LINE\_\_  As shown
 
 \end{itemize}
 
-The remaining arguments are just like the arguments to the C \verb|printf| routine. \verb|errVerbose| determines if the filename 
-and line number are shown.
+The remaining arguments are just like the arguments to the C \verb|printf| routine.
+\verb|errVerbose| determines if the filename and line number are shown.
 
-An EPICS status code can also be converted to a string. If the supplied status code isn't registered in the status code 
-database then the raw status code number is converted into a string in the destination buffer.
+An EPICS status code can also be converted to a string.
+If the supplied status code isn't registered in the status code database then the raw status code number is converted into a string in the destination buffer.
 
 \begin{verbatim}
 #include "errMdef.h"
@@ -198,12 +195,14 @@ int epicsVprintf(const char *pformat,va_list pvar);
 
 \index{epicsPrintf}
 \index{epicsVprintf}
-These are macros that call errlogPrintf and errlogVprintf. They are provided for compatibility.
+These are macros that call errlogPrintf and errlogVprintf.
+They are provided for compatibility.
 
 \section{errlog Listeners}
 
 \index{errlog Listeners}
-Any code can receive errlog message. The following are the calls to add and remove a listener.
+Any code can receive errlog message.
+The following are the calls to add and remove a listener.
 
 \begin{verbatim}
 typedef void(*errlogListener) (void *pvt,const char *message);
@@ -214,34 +213,39 @@ void errlogRemoveListener(errlogListener listener);
 \index{errlogListener}
 \index{errlogAddListener}
 \index{errlogRemoveListener}
-These routines add/remove a callback that receives each error message. These routines are the interface to the actual 
-system wide error handlers.
+These routines add/remove a callback that receives each error message.
+These routines are the interface to the actual system wide error handlers.
 
 \section{errlogThread}
 
 \index{errlogThread}
-The error message routines can be called by any non-interrupt level code. These routines pass the message to the errlog 
-Thread. If any of the error message routines are called at interrupt level,  \verb|epicsInterruptContextMessage| is 
-called with the message ``errlogPrintf called from interrupt level".
+The error message routines can be called by any non-interrupt level code.
+These routines pass the message to the errlog Thread.
+If any of the error message routines are called at interrupt level, \verb|epicsInterruptContextMessage| is called with the message ``errlogPrintf called from interrupt level".
 
-errlogThread manages the messages. Messages are placed in a message queue, which is read by errlogThread. The 
-message queue uses a fixed block of memory to hold all messages. When the message queue is full additional messages 
-are rejected but a count of missed messages is kept. The next time the message queue empties an extra message about the 
-missed messages is generated.
+\verb|errlogThread| manages the messages.
+Messages are placed in a message queue, which is read by errlogThread.
+The message queue uses a fixed block of memory to hold all messages.
+When the message queue is full additional messages are rejected but a count of missed messages is kept.
+The next time the message queue empties an extra message about the missed messages is generated.
 
-The maximum message size is by default 256  characters. If a message is longer, the message is truncated and a message 
-explaining that it was truncated is appended. There is a chance that long messages corrupt memory. This  only happens if 
-client code is defective. Long messages most likely result from ``\%s" formats with a bad string argument.
+The maximum message size is by default 256 characters.
+If a message is longer, the message is truncated and a message explaining that it was truncated is appended.
+There is a chance that long messages corrupt memory.
+This only happens if client code is defective.
+Long messages most likely result from ``\%s" formats with a bad string argument.
 
 errlogThread passes each message to any registered listener.
 
 \section{console output and message queue size}
 
-The errlog system can also display messages on the ioc console. It calls \verb|epicsThreadIsOkToBlock| to decide when 
-to display the message. If it is OK to block, the message is displayed by the same thread that calls one of the errlog print 
-routines. If it is not OK to block, errlorThread displays the messages.
+The errlog system can also display messages on the ioc console.
+It calls \verb|epicsThreadIsOkToBlock| to decide when to display the message.
+If it is OK to block, the message is displayed by the same thread that calls one of the errlog print routines.
+If it is not OK to block, errlogThread displays the messages.
 
-Normally the errlog system displays all messages on the console. \verb|eltc| can be used to suppress these messages.
+Normally the errlog system displays all messages on the console.
+\verb|eltc| can be used to suppress these messages.
 
 \begin{verbatim}
 int eltc(int yesno); /* error log to console (0 or 1) */
@@ -252,11 +256,11 @@ int errlogInit2(int bufsize, int maxMsgSize);
 \index{eltc}
 \index{errlogInit}
 \index{errlogInit2}
-eltc determines if errlog task writes message to the console. During error messages storms  this  command can be used to 
-suppress console messages. A argument of 0 suppresses the messages and any other value lets the message go to the 
-console. 
+eltc determines if errlog task writes message to the console.
+During error message storms this command can be used to suppress console messages.
+A argument of 0 suppresses the messages, any other value lets messages go to the console.
 
-errlogInit or errlogInit2 can be used to initialize the error logging system with a larger buffer and maximum message size. 
+\verb|errlogInit| or \verb|errlogInit2| can be used to initialize the error logging system with a larger buffer and maximum message size.
 The default buffer size is 1280 bytes, and the default maximum message size is 256.
 
 \section{Status Codes}
@@ -265,7 +269,8 @@ The default buffer size is 1280 bytes, and the default maximum message size is 2
 EPICS defined status values provide the following features:
 
 \begin{itemize}
-\item Whenever possible, IOC routines return a status value: 0 means OK, non-0 means an error.
+\item Whenever possible, IOC routines return a status value:
+0 means OK, non-0 means an error.
 
 \item The header files for most IOC subsystems contain macros defining error status symbols and strings.
 
@@ -290,9 +295,8 @@ For example the database access routines use this module number:
 #define M_dbAccess  (501 << 16)   /*Database Access Routines*/
 \end{verbatim}
 
-There are header files for every IOC subsystem that returns standard status 
-values.
-The status values are encoded with lines of the following format: 
+There are header files for every IOC subsystem that returns standard status values.
+The status values are encoded with lines of the following format:
 
 \begin{verbatim}
 #define S_xxxxxxx value /*string value*/
@@ -320,46 +324,46 @@ if(status) {/* Call was not successful */ }
 \section{iocLog}
 
 \index{iocLog}
-NOTE: Many sites use CMLOG instead of iocLog. See the CMLOG documentation for details.
+NOTE: Many sites use CMLOG instead of iocLog.
+See the CMLOG documentation for details.
 
-This consists of two modules: iocLogServer and iocLogClient. The client code runs on each ioc and listens for the 
-messages generated locally by the errlog system. It also reports the messages from the vxWorks logMsg facility.
+This consists of two modules:
+iocLogServer and iocLogClient.
+The client code runs on each ioc and listens for the messages generated locally by the errlog system.
+It also reports the messages from the vxWorks logMsg facility.
 
 \subsection{iocLogServer}
 
 \index{iocLogServer}
-This runs on a host. It receives messages for all enabled iocLogClients in the local area network. The messages are written 
-to a file. Epics base provides a startup file ``base/src/util/rc2.logServer", which is a SystemV init script to start the server. 
+This runs on a host.
+It receives messages for all enabled iocLogClients in the local area network.
+The messages are written to a file.
+Epics base provides a startup file ``base/src/util/rc2.logServer", which is a SystemV init script to start the server.
 Consult this script for details.
 
-To start a log server on a UNIX or PC workstation you must first set the following environment variables and then run the 
-executable ``iocLogServer" on your PC or UNIX workstation. 
+To start a log server on a UNIX or PC workstation you must first set the following environment variables and then run the executable ``iocLogServer" on your PC or UNIX workstation.
 
 \begin{description}
 
-\item \index{EPICS\_IOC\_LOG\_FILE\_NAME}EPICS\_IOC\_LOG\_FILE\_NAME 
+\item \index{EPICS\_IOC\_LOG\_FILE\_NAME}EPICS\_IOC\_LOG\_FILE\_NAME
 
 The name and path to the log file.
 
 \item \index{EPICS\_IOC\_LOG\_FILE\_LIMIT}EPICS\_IOC\_LOG\_FILE\_LIMIT
 
-The maximum size in characters for the log file (after which it becomes a circular file and writes new 
-messages over old  messages at the beginning of the file). If the value is zero then there is no limit on the 
-size of the log file. 
+The maximum size in characters for the log file (after which it becomes a circular file and writes new messages over old messages at the beginning of the file).
+If the value is zero then there is no limit on the size of the log file.
 
 \item \index{EPICS\_IOC\_LOG\_FILE\_COMMAND}EPICS\_IOC\_LOG\_FILE\_COMMAND
 
-A shell command string used to obtain the log file path name during initialization and in response to 
-SIGHUP. The new path name will replace any path name supplied in EPICS\_IOC\_LOG\_FILE\_NAME.
+A shell command string used to obtain the log file path name during initialization and in response to SIGHUP.
+The new path name will replace any path name supplied in EPICS\_IOC\_LOG\_FILE\_NAME.
 
-Thus, if EPICS\_IOC\_LOG\_FILE\_NAME is 
+Thus, if EPICS\_IOC\_LOG\_FILE\_NAME is ``a/b/c.log" and EPICS\_IOC\_LOG\_FILE\_COMMAND returns ``A/B" or ``A/B/" the log server will be stored at ``A/B/c.log"
 
-"a/b/c.log" and EPICS\_IOC\_LOG\_FILE\_COMMAND returns ``A/B" or ``A/B/" the log server will be stored 
-at ``A/B/c.log"
-
-If EPICS\_IOC\_LOG\_FILE\_COMMAND is empty then this behavior is disabled. This feature is used at 
-some sites for switching the server to a new directory at a fixed time each day. This variable is currently 
-used only by the UNIX version of the log server.
+If EPICS\_IOC\_LOG\_FILE\_COMMAND is empty then this behavior is disabled.
+This feature is used at some sites for switching the server to a new directory at a fixed time each day.
+This variable is currently used only by the UNIX version of the log server.
 
 \item \index{EPICS\_IOC\_LOG\_PORT}EPICS\_IOC\_LOG\_PORT
 
@@ -367,37 +371,37 @@ THE TCP/IP port used by the log server.
 
 \end{description}
 
-To configure an IOC so that its messages are placed in the log you must set the environment variable 
-EPICS\_IOC\_LOG\_INET to the IP address of the host that is running the log server, and EPICS\_IOC\_LOG\_PORT to the 
-TCP/IP port used by the log server.
+To configure an IOC so that its messages are placed in the log you must set the environment variable EPICS\_IOC\_LOG\_INET to the IP address of the host that is running the log server, and EPICS\_IOC\_LOG\_PORT to the TCP/IP port used by the log server.
 
-Defaults for all of the above parameters are specified in  the files \$(EPICS\_BASE)/config/CONFIG\_SITE\_ENV and 
-\$(EPICS\_BASE)/config/CONFIG\_ENV.
+Defaults for all of the above parameters are specified in  the files \$(EPICS\_BASE)/config/CONFIG\_SITE\_ENV and \$(EPICS\_BASE)/config/CONFIG\_ENV.
 
 \subsection{iocLogClient}
 \label{iocLogClient}
 
 \index{iocLogClient}
-This runs on each ioc. It is started by calling:
+This runs on each ioc.
+It is started by calling:
 
 \begin{verbatim}
 iocLogInit();
 \end{verbatim}
 
-The global variable \verb|iocLogDisable| can be used to enable/disable the messages from being sent to the server. Setting 
-this variable to (0,1) (enables,disables) the messages generation. If \verb|iocLogDisable| is set to 1 before calling 
-\verb|iocLogInit| then \verb|iocLogClient| will not even initialize itself. \verb|iocLogDisable| can also be changed to turn 
-logging on or off.
+The global variable \verb|iocLogDisable| can be used to enable/disable the messages from being sent to the server.
+Setting this variable to (0,1) (enables, disables) the messages generation.
+If \verb|iocLogDisable| is set to 1 before calling \verb|iocLogInit| then \verb|iocLogClient| will not even initialize itself.
+\verb|iocLogDisable| can also be changed to turn logging on or off.
 
 \verb|iocLogClient| calls \verb|errlogAddListener| and sends each message to the \verb|iocLogServer|.
 
 \subsection{Configuring a Private Log Server}
 
-In a testing environment it is desirable to use a private log server. This can be done as follows:
+In a testing environment it is desirable to use a private log server.
+This can be done as follows:
 
 \begin{itemize}
 
-\item Add a epicsEnvSet command to your IOC startup file. For example
+\item Add a epicsEnvSet command to your IOC startup file.
+For example
 
 \begin{verbatim}
 ld  <  iocCore
