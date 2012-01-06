@@ -1561,7 +1561,7 @@ After all of the tests have been completed, the return value from testDone() can
 program's main() routine.
 
 On vxWorks and RTEMS, an alternative test harness can be used to run a series of tests in order and summarize the results 
-from them all at the end just like the Perl harness does. The routine testHarness() is called once a the beginning of the test 
+from them all at the end just like the Perl harness does. The routine testHarness() is called once at the beginning of the test 
 harness program. Each test program is run by passing its main routine name to the runTest() macro which expands into a 
 call to the runTestFunc() routine. The last test program or the harness program itself must finish by calling epicsExit() 
 which triggers the test summary mechanism to generate its result outputs (from an epicsAtExit callback routine).
