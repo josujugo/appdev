@@ -1,27 +1,25 @@
 \chapter{libCom}
 
-This chapter and the next describe the facilities provided in \verb|<base>/src/libCom|. This chapter describes facilities 
-which are platform independent. The next chapter describes facilities which have different implementations on different 
-platforms.
+This chapter and the next describe the facilities provided in \verb|<base>/src/libCom|.
+This chapter describes facilities which are platform independent.
+The next chapter describes facilities which have different implementations on different platforms.
 
 \section{bucketLib}
 
-\verb|bucketLib.h| describes a hash facility for integers, pointers, and strings. It is used by the Channel Access Server. It is 
-currently undocumented.
-
 \index{bucketLib.h}
+\verb|bucketLib.h| describes a hash facility for integers, pointers, and strings.
+It is used by the Channel Access Server.
+It is currently undocumented.
+
 \section{calc}
 
-\verb|postfix.h| defines several macros and the routines used by the calculation record type calcRecord, access security, and 
-other code, to compile and evaluate mathematical expressions. The syntax of the infix expressions accepted is described 
-in Section19.2.1 on page258 FIXPAGEREF below.
-
 \index{postfix.h}
+\verb|postfix.h| defines several macros and the routines used by the calculation record type calcRecord, access security, and other code, to compile and evaluate mathematical expressions.
+The syntax of the infix expressions accepted is described below.
+
 \begin{verbatim}
 long postfix(const char *psrc, char *ppostfix, short *perror);
-long calcArgUsage(const char *ppostfix, unsigned long *pinputs, 
-
-unsigned long *pstores);
+long calcArgUsage(const char *ppostfix, unsigned long *pinputs, unsigned long *pstores);
 const char * calcErrorStr(short error);
 long calcPerform(double *parg, double *presult, const char *ppostfix);
 \end{verbatim}
@@ -30,35 +28,29 @@ long calcPerform(double *parg, double *presult, const char *ppostfix);
 \index{calcArgUsage}
 \index{calcErrorStr}
 \index{calcPerform}
-The postfix() routine converts an expression from infix to postfix notation. It is the callers's responsibility to make sure 
-that \emph{ppostfix} points to sufficient storage to hold the postfix expression; the macro \index{INFIX\_TO\_POSTFIX\_SIZE}\verb|INFIX_TO_POSTFIX_SIZE(n)| can 
-be used to calculate an appropriate buffer from the length of the infix string. There is no longer a maximum length to the 
-input expression that can be accepted, although there are internal limits to the complexity of the expressions that can be 
-converted and evaluated. If postfix() returns a non-zero value it will have placed an error code at the location pointed to 
-by \emph{perror}. The error codes used are defined in \verb|postfix.h| as a series of macros with names starting \verb|CALC_ERR_|, but a 
-string representation of the error code is more useful and can be obtained by passing the value to the calcErrorStr() 
-routine, which returns a static error message string explaining the error.
-
+The postfix() routine converts an expression from infix to postfix notation.
+It is the callers's responsibility to make sure that \emph{ppostfix} points to sufficient storage to hold the postfix expression;
+the macro \index{INFIX\_TO\_POSTFIX\_SIZE}\verb|INFIX_TO_POSTFIX_SIZE(n)| can be used to calculate an appropriate buffer from the length of the infix string.
+There is no longer a maximum length to the input expression that can be accepted, although there are internal limits to the complexity of the expressions that can be converted and evaluated.
+If postfix() returns a non-zero value it will have placed an error code at the location pointed to by \emph{perror}.
 \index{CALC\_ERR\_}
-Software using the calc subsystem may need to know what expression arguments are used and/or modified by a particular 
-expression. It can now discover this from the postfix string by calling calcArgUsage(), which takes two pointers \emph{pinputs} 
-and \emph{pstores} to a pair of unsigned long bitmaps which return that information to the caller (passing a NULL value for either 
-of these pointers is legal). The least signficant bit (bit 0) of the bitmap at *\emph{pinputs} will be set if the expression depends on 
-the argument A, and so on through bit 11 for the argument L. Similarly, bit 0 of the bitmap at *\emph{pstores} will be set if the 
-expression assigns a value to the argument A. An argument that is not used until after a value has been assigned to it will 
-not be set in the \emph{pinputs} bitmap, thus the bits can be used to determine whether a value needs to be supplied for their 
-associated argument or not (for the purposes of evaluating the expression at least; other considerations make it desirable 
-to still fetch all input values in the case of the CALC record). The return value from calcArgUsage() will be non-zero if 
-the \emph{ppostfix} expression was illegal, otherwise 0.
+The error codes used are defined in \verb|postfix.h| as a series of macros with names starting \verb|CALC_ERR_|, but a string representation of the error code is more useful and can be obtained by passing the value to the calcErrorStr() routine, which returns a static error message string explaining the error.
 
-The postfix expression is evaluated by calling the calcPerform() routine, which returns the status values 0 for OK, or non-
-zero if an error is discovered during the evaluation process.
+Software using the calc subsystem may need to know what expression arguments are used and/or modified by a particular expression.
+It can discover this from the postfix string by calling calcArgUsage(), which takes two pointers \emph{pinputs} and \emph{pstores} to a pair of unsigned long bitmaps which return that information to the caller.
+Passing a NULL value for either of these pointers is legal if only the other is needed.
+The least signficant bit (bit 0) of the bitmap at *\emph{pinputs} will be set if the expression depends on the argument A, and so on through bit 11 for the argument L.
+Similarly, bit 0 of the bitmap at *\emph{pstores} will be set if the expression assigns a value to the argument A.
+An argument that is not used until after a value has been assigned to it will not be set in the \emph{pinputs} bitmap, thus the bits can be used to determine whether a value needs to be supplied for their associated argument or not for the purposes of evaluating the expression.
+The return value from calcArgUsage() will be non-zero if the \emph{ppostfix} expression was illegal, otherwise 0.
+
+The postfix expression is evaluated by calling the calcPerform() routine, which returns the status values 0 for OK, or non-zero if an error is discovered during the evaluation process.
 
 The arguments to calcPerform() are:
 
 \begin{description}
-\item \emph{parg} - Pointer to an array of double values for the arguments A-L that can appear in the expression. Note that the 
-argument values may be modified if the expression uses the assignment operator.
+\item \emph{parg} - Pointer to an array of double values for the arguments A-L that can appear in the expression.
+Note that the argument values may be modified if the expression uses the assignment operator.
 
 \item \emph{presult} - Where to put the calculated result, which may be a NaN or Infinity.
 
@@ -69,18 +61,17 @@ argument values may be modified if the expression uses the assignment operator.
 \subsection{Infix Expression Syntax}
 
 \index{Expression Syntax}
-The infix expressions that can be used are very similar to the C expression syntax, but with some additions and subtle 
-differences in operator meaning and precedence. The string may contain a series of expressions separated by a semi-colon 
-character `\verb|;|' any one of which may actually provide the calculation result; however all of the other expressions included 
-must assign their result to a variable. All alphabetic elements described below are case independent, so upper and lower 
-case letters may be used and mixed in the variable and function names as desired. Spaces may be used anywhere within an 
-expression except between the characters that make up a single expression element.
+The infix expressions that can be used are very similar to the C expression syntax, but with some additions and subtle differences in operator meaning and precedence.
+The string may contain a series of expressions separated by a semi-colon character `\verb|;|' any one of which may actually provide the calculation result;
+however all of the other expressions included must assign their result to a variable.
+All alphabetic elements described below are case independent, so upper and lower case letters may be used and mixed in the variable and function names as desired.
+Spaces may be used anywhere within an expression except between the characters that make up a single expression element.
 
 \subsubsection{Numeric Literals}
 
-The simplest expression element is a numeric literal, any (positive) number expressed using the standard floating point 
-syntax that can be stored as a double precision value. This now includes the values \verb|Infinity| and \verb|NaN| (not a number). 
-Note that negative numbers are actually encoded as a positive literal to which the unary negate operator is applied.
+The simplest expression element is a numeric literal, any (positive) number expressed using the standard floating point syntax that can be stored as a double precision value.
+This now includes the values \verb|Infinity| and \verb|NaN| (not a number).
+Note that negative numbers will be encoded as a positive literal to which the unary negate operator is applied.
 
 Examples:
 
@@ -105,19 +96,17 @@ There are three trigonometric constants available to any expression which return
 
 \subsubsection{Variables}
 
-Variables are used to provide inputs to an expression, and are named using the single letters \verb|A| through \verb|L| inclusive or now 
-the keyword \verb|VAL| which refers to the previous result of this calculation. The software that makes use of the expression 
-evaluation code should document how the individual variables are given values; for the calc record type the input links 
-INPA through INPL can be used to obtain these from other record fields, and \verb|VAL| refers to the the VAL field (which can 
-be overwritten from outside the record via Channel Access or a database link).
+Variables are used to provide inputs to an expression, and are named using the single letters \verb|A| through \verb|L| inclusive or the keyword \verb|VAL| which refers to the previous result of this calculation.
+The software that makes use of the expression evaluation code should document how the individual variables are given values;
+for the calc record type the input links INPA through INPL can be used to obtain these from other record fields, and \verb|VAL| refers to the the VAL field (which can be overwritten from outside the record via Channel Access or a database link).
 
 \subsubsection{Variable Assignment Operator}
 
-Recently added is the ability to assign the result of a sub-expression to any of the single letter variables, which can then be 
-used in another sub-expression. The variable assignment operator is the character pair \verb|:=| and must immediately follow 
-the name of the variable to receive the expression value. Since the infix string must return exactly one value, every 
-expression string must have exactly one sub-expression that is not an assignment, which can appear anywhere in the 
-string. Sub-expressions within the string are separated by a semi-colon character.
+Recently added is the ability to assign the result of a sub-expression to any of the single letter variables, which can then be used in another sub-expression.
+The variable assignment operator is the character pair \verb|:=| and must immediately follow 
+the name of the variable to receive the expression value.
+Since the infix string must return exactly one value, every expression string must have exactly one sub-expression that is not an assignment, which can appear anywhere in the string.
+Sub-expressions within the string are separated by a semi-colon character.
 
 Examples:
 
@@ -128,9 +117,9 @@ i:=i+1; a*sin(i*D2R)
 
 \subsubsection{Arithmetic Operators}
 
-The usual binary arithmetic operators are provided: \verb|+ - *| and \verb|/| with their usual relative precedence and left-to-right 
-associativity, and \verb|-| may also be used as a unary negate operator where it has a higher precedence and associates from 
-right to left. There is no unary plus operator, so numeric literals cannot begin with a + sign.
+The usual binary arithmetic operators are provided:
+\verb|+ - *| and \verb|/| with their usual relative precedence and left-to-right associativity, and \verb|-| may also be used as a unary negate operator where it has a higher precedence and associates from right to left.
+There is no unary plus operator, so numeric literals cannot begin with a + sign.
 
 Examples:
 
@@ -139,9 +128,9 @@ a*b + c
 a/-4 - b
 \end{verbatim}
 
-Three other binary operators are also provided: \verb|%| is the integer modulo operator, and the synonymous operators \verb|**| and \verb|^| 
-raise their left operand to the power of the right operand. \verb|%| has the same precedence and associativity as \verb|*| and \verb|/|, while 
-the power operators associate left-to-right and have a precedence in between \verb|*| and unary minus.
+Three other binary operators are also provided:
+\verb|%| is the integer modulo operator, while the synonymous operators \verb|**| and \verb|^| raise their left operand to the power of the right operand.
+\verb|%| has the same precedence and associativity as \verb|*| and \verb|/|, while the power operators associate left-to-right and have a precedence in between \verb|*| and unary minus.
 
 Examples:
 
@@ -152,7 +141,8 @@ sqrt(a**2 + b**2)
 
 \subsubsection{Algebraic Functions}
 
-Various algebraic functions are available which take parameters inside parentheses. The parameter seperator is a comma.
+Various algebraic functions are available which take parameters inside parentheses.
+The parameter seperator is a comma.
 
 \begin{itemize}
 \item Absolute value: \verb|abs(a)|
@@ -188,14 +178,14 @@ Standard circular trigonometric functions, with angles expressed in radians:
 
 \item Arctangent: \verb|atan(a)|
 
-\item 2 parameter arctangent: \verb|atan2(a, b)| \emph{- Note that these arguments are the reverse of the ANSI C function, so while C would return arctan(a/b) the calc expression engine returns arctan(b/a)}
+\item 2 parameter arctangent:
+\verb|atan2(a, b)| \emph{- Note that these arguments are the reverse of the ANSI C function, so while C would return arctan(a/b) the calc expression engine returns arctan(b/a)}
 
 \end{itemize}
 
 \subsubsection{Hyperbolic Trigonometry}
 
-The basic hyperbolic functions are provided, but no inverse functions (which are not provided by the ANSI C math library 
-either).
+The basic hyperbolic functions are provided, but no inverse functions (which are not provided by the ANSI C math library either).
 
 \begin{itemize}
 \item Hyperbolic sine: \verb|sinh(a)|
@@ -242,8 +232,8 @@ These operators regard their arguments as true or false, where 0.0 is false and 
 
 \subsubsection{Bitwise Operators}
 
-The bitwise operators convert their arguments to an integer (by truncation), perform the appropriate bitwise operation and 
-convert back to a floating point value. Note that unlike in C, \verb|^| is \emph{not} a bitwise exclusive-or operator.
+The bitwise operators convert their arguments to an integer (by truncation), perform the appropriate bitwise operation and convert back to a floating point value.
+Unlike in C though, \verb|^| is \emph{not} a bitwise exclusive-or operator.
 
 \begin{itemize}
 \item Bitwise and: \verb|a & b| \emph{or} \verb|a and b|
@@ -281,8 +271,7 @@ Standard numeric comparisons between two values:
 
 \subsubsection{Conditional Operator}
 
-Expressions can use the C conditional operator, which has a lower precedence than all of the other operators except for the 
-assignment operator.
+Expressions can use the C conditional operator, which has a lower precedence than all of the other operators except for the assignment operator.
 
 \begin{itemize}
 \item \emph{condition} \verb|?| \emph{true result} \verb|:| \emph{false result}
@@ -297,26 +286,34 @@ a < 360 ? a+1 : 0
 
 \subsubsection{Parentheses}
 
-Sub-expressions can be placed within parentheses to override operator precence rules. Parentheses can be nested to any 
-depth, but the intermediate value stack used by the expression evaluation engine is limited to 80 results (which would 
-require an expression at least 321 characters long to reach).
+Sub-expressions can be placed within parentheses to override operator precence rules.
+Parentheses can be nested to any depth, but the intermediate value stack used by the expression evaluation engine is limited to 80 results (which requirea an expression at least 321 characters long to reach).
 
 \section{cppStd}
 
-This subdirectory of libCom is intended for facilities such as \index{class templates}class and \index{function templates}function \index{templates}templates that implement parts of the \index{ISO C++}ISO 
+\index{class templates}
+\index{function templates}
+\index{templates}
 \index{standard C++ library}
-standard \index{C++ library}C++ library where such facilities are not available or not efficient on all the target platforms on which EPICS is 
-supported. EPICS does not make use of the C++ container templates because the large number of memory allocation and 
-deletion operations that these use causes memory pool fragmentation on some platforms, threatening the lifetime of an 
-individual IOC.
+\index{ISO C++}
+\index{C++ library}
+This subdirectory of libCom is intended for facilities such as class and function templates that implement parts of the ISO standard C++ library where such facilities are not available or not efficient on all the target platforms on which EPICS is supported.
+EPICS does not make use of the C++ container templates because the large number of memory allocation and deletion operations that these use causes memory pool fragmentation on some platforms, threatening the lifetime of an individual IOC.
 
 \subsection{epicsAlgorithm}
 
-\verb|epicsAlgorithm.h| contains a few templates that are also available in the C++ standard header \verb|algorithm|, but are 
-provided here in a much smaller file - \verb|algorithm| contains many templates for sorting and searching.  If all you need 
-from there is \index{std::min}std::min(), \index{std::max}std::max() and/or \index{std::swap}std::swap() your code will compile faster if you include \verb|epicsAlgorithm.h| 
-and use \index{epicsMin}epicsMin(), \index{epicsMax}epicsMax() and \index{epicsSwap}epicsSwap() instead.\index{epicsAlgorithm.h}
+\index{epicsAlgorithm.h}
 \index{algorithm}
+\index{std::min}
+\index{std::max}
+\index{std::swap}
+\index{epicsMin}
+\index{epicsMax}
+\index{epicsSwap}
+\verb|epicsAlgorithm.h| contains a few templates that are also available in the C++ standard header \verb|algorithm|, but are provided here in a much smaller file.
+\verb|algorithm| contains many templates for sorting and searching through C++ template containers which are not used in EPICS.
+If all you need from there is std::min(), std::max() and/or std::swap() your code may compile faster if you include \verb|epicsAlgorithm.h| and use epicsMin(), epicsMax() and epicsSwap() instead.
+
 \begin{center}
 \begin{longtable}{p{2.5in}p{4.25in}}
 \textbf{template \textless{}class T\textgreater{}} & \textbf{Meaning}\\
@@ -345,9 +342,9 @@ int  epicsAtThreadExit(void (*epicsExitFunc)(void *arg), void *arg);
 \index{epicsAtExit}
 \index{epicsExitCallAtThreadExits}
 \index{epicsAtThreadExit}
-This is an extended replacement for the Posix \verb|exit| and \verb|atexit| routines, which also provides a pointer argument to pass 
-to the exit handlers. This facility was created because of problems on vxWorks and windows with the implementation of 
-\verb|atexit|, i.e. neither of these systems implement \verb|exit| and \verb|atexit| according to the POSIX standard.
+This is an extended replacement for the Posix \verb|exit| and \verb|atexit| routines, which also provides a pointer argument to pass to the exit handlers.
+This facility was created because of problems on vxWorks and windows with the implementation of \verb|atexit|, i.e. neither of these systems implement \verb|exit| and \verb|atexit| according to the POSIX standard.
+
 \begin{center}
 \begin{longtable}{p{2.0in}p{4.4in}}
 \textbf{Method} & \textbf{Meaning}\\
@@ -364,10 +361,26 @@ epicsAtThreadExit & Register a function and an associated context parameter. The
 
 \section{cvtFast}
 
-\verb|cvtFast.h| provides routines for converting various numeric types into an ascii string. They offer a combination of 
-speed and convenience not available with sprintf().
+\verb|cvtFast.h| provides routines for converting various numeric types into an ascii string.
+They offer a combination of speed and convenience not available with sprintf().
 
 \index{cvtFast.h}
+\index{cvtFloatToString}
+\index{cvtDoubleToString}
+\index{cvtFloatToExpString}
+\index{cvtDoubleToExpString}
+\index{cvtFloatToCompactString}
+\index{cvtDoubleToCompactString}
+\index{cvtCharToString}
+\index{cvtUcharToString}
+\index{cvtShortToString}
+\index{cvtUshortToString}
+\index{cvtLongToString}
+\index{cvtUlongToString}
+\index{cvtLongToHexString}
+\index{cvtLongToOctalString}
+\index{cvtBitsToUlong}
+\index{cvtUlongToBits}
 \begin{verbatim}
 /* These functions return the number of ASCII characters generated */
 int cvtFloatToString(float value, char *pstr, unsigned short precision);
@@ -395,22 +408,6 @@ unsigned long cvtUlongToBits(
         unsigned bitFieldLength);
 \end{verbatim}
 
-\index{cvtFloatToString}
-\index{cvtDoubleToString}
-\index{cvtFloatToExpString}
-\index{cvtDoubleToExpString}
-\index{cvtFloatToCompactString}
-\index{cvtDoubleToCompactString}
-\index{cvtCharToString}
-\index{cvtUcharToString}
-\index{cvtShortToString}
-\index{cvtUshortToString}
-\index{cvtLongToString}
-\index{cvtUlongToString}
-\index{cvtLongToHexString}
-\index{cvtLongToOctalString}
-\index{cvtBitsToUlong}
-\index{cvtUlongToBits}
 \section{cxxTemplates}
 
 This directory contains the following C++ template headers:
@@ -436,13 +433,12 @@ This directory contains the following C++ template headers:
 \index{tsFreeList.h}
 \index{tsMinMax.h}
 \index{tsSLList.h}
-Currently these are only being used by Channel Access Clients and the portable Channel Access Server. It has not been 
-decided if any of these will remain in libCom.
+Currently these are only being used by Channel Access Clients and the portable Channel Access Server.
+It has not been decided if any of these will remain in libCom.
 
 \section{dbmf}
 
- \verb|dbmf.h| ( Database Macro/Free) describes a facility that prevents memory fragmentation when memory is allocated and 
-then freed a short time later.
+\verb|dbmf.h| (Database Macro/Free) describes a facility that prevents memory fragmentation when memory is allocated and then freed a short time later.
 
 \index{dbmf.h}
 Routines within iocCore like dbLoadDatabase() have the following attributes:
@@ -450,15 +446,15 @@ Routines within iocCore like dbLoadDatabase() have the following attributes:
 \begin{itemize}
 \item They repeatedly call malloc() followed soon afterwards by a call to free() the temporarily allocated storage.
 
-\item Between those calls to malloc() and free(), an additional call to malloc() is made that does NOT have an associated 
-free().
+\item Between those calls to malloc() and free(), an additional call to malloc() is made that does NOT have an associated free().
 
 \end{itemize}
 
-In some environments, e.g. vxWorks, this behavior causes severe memory fragmentation.
+In some environments, e.g. vxWorks 5.x, this behavior causes severe memory fragmentation.
 
-The dbmf facility stops the memory fragmentation. It should NOT be used by code that allocates storage and then keeps it 
-for a considerable period of time before releasing. Such code can use the freeList library described below.
+The dbmf facility stops the memory fragmentation.
+It should NOT be used by code that allocates storage and then keeps it for a considerable period of time before releasing.
+Such code can use the freeList library described below.
 
 \begin{verbatim}
 int dbmfInit(size_t size, int chunkItems);
@@ -607,13 +603,13 @@ epicsRingBytes has the following properties:
 \section{epicsRingPointer}
 
 \index{epicsRingPointer}
-\index{epicsRingPointer.h}\verb|epicsRingPointer.h| describes a C++ and a C facility for a commonly used type of ring buffer.
+\index{epicsRingPointer.h}
+\verb|epicsRingPointer.h| describes a C++ and a C facility for a commonly used type of ring buffer.
 
 \subsection{C++ Interface}
 
-EpicsRingPointer provides methods for creating and using ring buffers (first in first out circular buffers) that store 
-pointers. It is designed so that a writer thread and reader thread can access the ring simultaneously without requiring 
-mutual exclusion.
+EpicsRingPointer provides methods for creating and using ring buffers (first in first out circular buffers) that store pointers.
+It is designed so that a writer thread and reader thread can access the ring simultaneously without requiring mutual exclusion.
 
 \begin{verbatim}
 template <class T>
@@ -641,8 +637,9 @@ private: // Data
 };
 \end{verbatim}
 
-\index{ringPointer}An epicsRingPointer cannot be assigned to, copy-constructed, or constructed without giving the \emph{size} argument. The C++ 
-compiler will object to some of the statements below:
+\index{ringPointer}
+An epicsRingPointer cannot be assigned to, copy-constructed, or constructed without giving the \emph{size} argument.
+The C++ compiler will object to some of the statements below:
 
 \begin{verbatim}
 epicsRingPointer rp0();   // Error: default constructor is private
@@ -652,6 +649,7 @@ epicsRingPointer *prp;    // OK, pointer
 *prp = rp1;               // Error: assignment operator is private
 prp = &rp1;               // OK, pointer assignment and address-of
 \end{verbatim}
+
 \begin{center}
 \begin{longtable}{p{1.27778in}p{5.0in}}
 \textbf{Method} & \textbf{Meaning}\\
@@ -673,6 +671,17 @@ isFull() & Returns true if the ring is full, else false.
 
 \subsection{C interface}
 
+\index{ringPointerId}
+\index{ringPointerCreate}
+\index{ringPointerDelete}
+\index{ringPointerPop}
+\index{ringPointerPush}
+\index{ringPointerFlush}
+\index{ringPointerGetFree}
+\index{ringPointerGetUsed}
+\index{ringPointerGetSize}
+\index{ringPointerIsEmpty}
+\index{ringPointerIsFull}
 \begin{verbatim}
 typedef void *epicsRingPointerId;
     epicsRingPointerId epicsRingPointerCreate(int size);
@@ -689,23 +698,13 @@ typedef void *epicsRingPointerId;
     int epicsRingPointerIsFull(epicsRingPointerId id);
 \end{verbatim}
 
-\index{ringPointerId}
-\index{ringPointerCreate}
-\index{ringPointerDelete}
-\index{ringPointerPop}
-\index{ringPointerPush}
-\index{ringPointerFlush}
-\index{ringPointerGetFree}
-\index{ringPointerGetUsed}
-\index{ringPointerGetSize}
-\index{ringPointerIsEmpty}
-\index{ringPointerIsFull}
 Each C function corresponds to one of the C++ methods.
 
 \section{epicsTimer}
 
 \index{epicsTimer}
-\index{epicsTimer.h}\verb|epicsTimer.h| describes a C++ and a C timer facility.
+\index{epicsTimer.h}
+\verb|epicsTimer.h| describes a C++ and a C timer facility.
 
 \subsection{C++ Interface}
 
@@ -1108,39 +1107,45 @@ The header file logClient.h exports the following types and routines:
 typedef void *logClientId;
 \end{verbatim}
 
-\index{logClientId}    An abstract data type, representing a log client.
+\index{logClientId}
+An abstract data type, representing a log client.
 
 \begin{verbatim}
 logClientId logClientCreate (
     struct in_addr server_addr, unsigned short server_port);
 \end{verbatim}
 
-\index{logClientCreate}    Create a new log client. Will block the calling task for a maximum of 2 seconds trying to connect to a server with the 
-given ip address and port. If a connection cannot be established, an error message is printed on the console, but the log 
-client will keep trying to connect in the background. This is done by a background task, that will also periodically (every 
-5 seconds) flush pending messages out to the server.
+\index{logClientCreate}
+Create a new log client.
+Will block the calling task for a maximum of 2 seconds trying to connect to a server with the given ip address and port.
+If a connection cannot be established, an error message is printed on the console, but the log client will keep trying to connect in the background.
+This is done by a background task, that will also periodically (every 5 seconds) flush pending messages out to the server.
 
 \begin{verbatim}
 void logClientSend (logClientId id, const char *message);
 \end{verbatim}
 
-\index{logClientSend}Send the given message to the given log client. Messages are not immediately sent to the log server. Instead they are sent 
-whenever the cache overflows, or logClientFlush() is called.
+\index{logClientSend}
+Send the given message to the given log client.
+Messages are not immediately sent to the log server.
+Instead they are sent whenever the cache overflows, or logClientFlush() is called.
 
 \begin{verbatim}
 void logClientFlush (logClientId id);
 \end{verbatim}
 
-\index{logClientFlush}    Immediately send all outstanding messages to the server.
+\index{logClientFlush}
+Immediately send all outstanding messages to the server.
 
 \begin{verbatim}
 void logClientShow (logClientId id, unsigned level);
 \end{verbatim}
 
-\index{logClientShow}    Print information about the log clients internal state to stdout.
+\index{logClientShow}
+Print information about the log clients internal state to stdout.
 
-For backward compatibility with older versions of the logClient library, the header file also includes iocLog.h, which 
-exports the definitions for the standard iocLogClient for error logging. See Chapter 10.7.2.
+For backward compatibility with older versions of the logClient library, the header file also includes iocLog.h, which exports the definitions for the standard iocLogClient for error logging.
+See Chapter 10.7.2.
 
 Also for backward compatibility, the following deprecated routines are exported.
 
@@ -1148,19 +1153,20 @@ Also for backward compatibility, the following deprecated routines are exported.
 logClientId logClientInit (void);
 \end{verbatim}
 
-\index{logClientInit}   Create a log client that uses the standard ioc log client environment variables (EPICS\_IOC\_LOG\_INET and 
-EPICS\_IOC\_LOG\_PORT) as input to logClientCreate and also registers the log client with the errlog task using 
-errlogAddListener.
+\index{logClientInit}
+Create a log client that uses the standard ioc log client environment variables (EPICS\_IOC\_LOG\_INET and EPICS\_IOC\_LOG\_PORT) as input to logClientCreate and also registers the log client with the errlog task using errlogAddListener.
 
 \begin{verbatim}
 void logClientSendMessage (logClientId id, const char *message);
 \end{verbatim}
 
-\index{logClientSendMessage}    Check the global variable iocLogDisable before calling logClientSend.
+\index{logClientSendMessage}
+Check the global variable iocLogDisable before calling logClientSend.
 
 \section{macLib}
 
-\verb|macLib.h| describes a general purpose macro substitution library. It is used for all macro substitution in base.
+\verb|macLib.h| describes a general purpose macro substitution library.
+It is used for all macro substitution in base.
 
 \index{macLib.h}
 \begin{verbatim}
@@ -1252,8 +1258,7 @@ epicsShareAPI macEnvExpand(
 \index{macInstallMacros}
 \index{macEnvExpand}
 \index{macInstallMacros}
-NOTE: The directory \textless{}base\textgreater{}/src/libCom/macLib contains two files \verb|macLibNOTES| and \verb|macLibREADME| that explain 
-this library.
+NOTE: The directory \textless{}base\textgreater{}/src/libCom/macLib contains two files \verb|macLibNOTES| and \verb|macLibREADME| that explain this library.
 
 \section{misc}
 
@@ -1267,28 +1272,28 @@ int aToIPAddr(const char *pAddrString, unsigned short defaultPort,
               struct sockaddr_in *pIP);
 \end{verbatim}
 
-\index{aToIPAddr}aToIPAddr() fills in the structure pointed to by the \emph{pIP} argument with the Internet address and port number specified by 
-the \emph{pAddrString} argument. 
+\index{aToIPAddr}
+aToIPAddr() fills in the structure pointed to by the \emph{pIP} argument with the Internet address and port number specified by the \emph{pAddrString} argument.
 
-Three forms of \emph{pAddrString} are accepted: 
+Three forms of \emph{pAddrString} are accepted:
 
 \begin{enumerate}
-\item n.n.n.n:p 
+\item n.n.n.n:p
 
-The Internet address of the host, specified as four numbers separated by periods. 
+The Internet address of the host, specified as four (usually decimal) numbers separated by periods.
 
-\item xxxxxxxx:p 
+\item xxxxxxxx:p
 
-The Internet address number of the host, specified as a single number. 
+The Internet address number of the host, specified as a single (usually hexadecimal) number.
 
-\item hostname:p 
+\item hostname:p
 
 The Internet host name of the host.
 
 \end{enumerate}
 
-In all cases the `:p' may be omitted in which case the port number is set to the value of the \emph{defaultPort} argument. All 
-numbers are read in base 16 if they begin with `0x' or `0X', in base 8 if they begin with `0', and in base 10 otherwise. 
+In all cases the `:p' may be omitted in which case the port number is set to the value of the \emph{defaultPort} argument.
+All numbers are read in base 16 if they begin with `0x' or `0X', in base 8 if they begin with `0', and in base 10 otherwise.
 
 \subsection{adjustment}
 
@@ -1299,8 +1304,8 @@ numbers are read in base 16 if they begin with `0x' or `0X', in base 8 if they b
 size_t adjustToWorstCaseAlignment(size_t size);
 \end{verbatim}
 
-\index{adjustToWorstCaseAlignment}adjustToWorstCaseAlignment() returns a value \textgreater{}= \emph{size} that an exact multiple of the worst case alignment for the 
-architecture on which the routine is executed.
+\index{adjustToWorstCaseAlignment}
+adjustToWorstCaseAlignment() returns a value \textgreater{}= \emph{size} that an exact multiple of the worst case alignment for the architecture on which the routine is executed.
 
 \subsection{cantProceed}
 
@@ -1316,17 +1321,17 @@ void *mallocMustSucceed(size_t size, const char *errorMessage);
 \index{cantProceed}
 \index{callocMustSucceed}
 \index{mallocMustSucceed}
-cantProceed() issues the error message and suspends the current task - it will never return. callocMustSucceed() and 
-mallocMustSucceed() can be used in place of \verb|calloc()| and \verb|malloc()|. If size or count are zero, or the memory 
-allocation fails, they output a message and call cantProceed().
+cantProceed() issues the error message and suspends the current task - it will never return. callocMustSucceed() and mallocMustSucceed() can be used in place of \verb|calloc()| and \verb|malloc()|.
+If size or count are zero, or the memory allocation fails, they output a message and call cantProceed().
 
 \index{calloc}
 \index{malloc}
 \subsection{dbDefs}
 
 \index{dbDefs.h}
-\verb|dbDefs.h| contains definitions that are still used in base but should not be. Hopefully these all go away some day. This 
-has been the hope for about ten years.
+\verb|dbDefs.h| contains definitions that are still used in base but should not be.
+Hopefully these all go away some day.
+This has been the hope for about ten years.
 
 \subsection{epicsConvert}
 
@@ -1337,8 +1342,10 @@ has been the hope for about ten years.
 float epicsConvertDoubleToFloat(double value);
 \end{verbatim}
 
-\index{epicsConvertDoubleToFloat}\verb|epicsConvertDoubleToFloat| converts a double to a float. If the double value can not be represented as a float 
-then the assigned value is +-FLTMIN or +- FLT\_MAX. A floating exception is never raised.
+\index{epicsConvertDoubleToFloat}
+\verb|epicsConvertDoubleToFloat| converts a double to a float.
+If the double value is outside the range that can be represented as a float the value assigned will be FLT\_MIN or FLT\_MAX with the appropriate matching sign.
+A floating exception is never raised.
 
 \subsection{epicsString}
 
@@ -1373,16 +1380,15 @@ unsigned int epicsMemHash(const char *str, size_t length,
 \index{epicsStrtok\_r}
 \index{epicsStrHash}
 \index{epicsMemHash}
-\verb|epicsStrnRawFromEscaped| copies the string \emph{inbuf} to \emph{outbuf} while substituting C-style escape sequences. It returns 
-the length of the resultant string (which may contain null bytes). It will never write more than \emph{outsize} characters into 
-\emph{outbuf} or read more than \emph{inlen} characters from \emph{inbuf}. Since the destination string can never be longer than the source, it is 
-legal for \emph{inbuf} and \emph{outbuf} to point to the same location and \emph{inlen} and \emph{outsize} to have the same value, thus performing the 
-translation in-place.
+\verb|epicsStrnRawFromEscaped| copies the string \emph{inbuf} to \emph{outbuf} while substituting C-style escape sequences.
+It returns the length of the resultant string (which may contain null bytes).
+It will never write more than \emph{outsize} characters into \emph{outbuf} or read more than \emph{inlen} characters from \emph{inbuf}.
+Since the destination string can never be longer than the source, it is legal for \emph{inbuf} and \emph{outbuf} to point to the same location and \emph{inlen} and \emph{outsize} to have the same value, thus performing the translation in-place.
 
-\verb|epicsStrnEscapedFromRaw| does the opposite of \verb|epicsStrnRawFromEscaped|: non-printable characters are 
-converted into escape sequences. It returns the number of characters stored in the output buffer, or a value greater than or 
-equal to \emph{outsize} if the output has been truncated to fit in the specified size. As the destination string might be larger than 
-the source, in-place translations are not allowed.
+\verb|epicsStrnEscapedFromRaw| does the opposite of \verb|epicsStrnRawFromEscaped|:
+non-printable characters are converted into escape sequences.
+It returns the number of characters stored in the output buffer, or a value greater than or equal to \emph{outsize} if the output has been truncated to fit in the specified size.
+As the destination string might be larger than the source, in-place translations are not allowed.
 
 The following C-style escaped character constants are output:
 
@@ -1396,34 +1402,32 @@ All other non-printable characters appear as:
     \ooo
 \end{verbatim}
 
-where \verb|ooo| comprises three octal digits (0-7).  
+where \verb|ooo| comprises three octal digits (0-7).
 
-\verb|epicsStrnEscapedFromRawSize| scans a string that may contain non-printable characters and returns the number of 
-characters needed for the escaped destination buffer.
+\verb|epicsStrnEscapedFromRawSize| scans a string that may contain non-printable characters and returns the number of characters needed for the escaped destination buffer.
 
-\verb|epicsStrPrintEscaped| prints the contents of its input buffer, substituting escape sequences for non-printable 
-characters.
+\verb|epicsStrPrintEscaped| prints the contents of its input buffer, substituting escape sequences for non-printable characters.
 
-\verb|epicsStrCaseCmp| and \verb|epicsStrnCaseCmp| implement \verb|strcasecmp| and \verb|strncasecmp|, respectively, which 
-are not available on all operating systems. They operate like \verb|strcmp| and \verb|strncmp|, but are case insensitive.
+\verb|epicsStrCaseCmp| and \verb|epicsStrnCaseCmp| implement \verb|strcasecmp| and \verb|strncasecmp|, respectively, which are not available on all operating systems.
+They operate like \verb|strcmp| and \verb|strncmp|, but are case insensitive.
 
-\verb|epicsStrDup| implements \verb|strdup|, which is not available on all operating systems.  It allocates sufficient memory for 
-a copy of the string s, does the copy, and returns a pointer to it.  The pointer may subsequently be used as an argument to 
-the function free().  If insufficient memory is available cantProceed() is called.
+\verb|epicsStrDup| implements \verb|strdup|, which is not available on all operating systems.
+It allocates sufficient memory for the string, copies it and returns a pointer to the new copy.
+The pointer should eventually be passed to the function free().
+If insufficient memory is available cantProceed() is called.
 
 \verb|epicsStrGlobMatch| returns non-zero if the str matches the shell wild-card pattern.
 
 \verb|epicsStrtok_r| implements \verb|strtok_r|, which is not available on all operating systems.
 
-\verb|epicsStrHash| calculates a hash of a zero-terminated string \emph{str}, while \verb|epicsMemHash| uses the same algorithm on a 
-fixed-length memory buffer that may contain zero bytes. In both cases an initial \emph{seed} value may be provided which 
-permits multiple strings or buffers to be combined into a single hash result. The final result should be masked to achieve 
-the desired number of bits in the hash value.
+\verb|epicsStrHash| calculates a hash of a zero-terminated string \emph{str}, while \verb|epicsMemHash| uses the same algorithm on a fixed-length memory buffer that may contain zero bytes.
+In both cases an initial \emph{seed} value may be provided which permits multiple strings or buffers to be combined into a single hash result.
+The final result should be masked to achieve the desired number of bits in the hash value.
 
 \subsection{epicsTypes}
 
 \index{epicsTypes.h}
-\index{epicsTypes.h}\verb|epicsTypes.h| provides typedefs for architecture independent data types.
+\verb|epicsTypes.h| provides typedefs for architecture independent data types.
 
 \begin{verbatim}
 typedef char            epicsInt8;
@@ -1439,13 +1443,14 @@ typedef unsigned long   epicsIndex;
 typedef epicsInt32      epicsStatus;
 \end{verbatim}
 
-So far the definitions provided in this header file have worked on all architectures. In addition to the above definitions 
-\verb|epicsTypes.h| has a number of definitions for displaying the types and other useful definitions. See the header file for 
-details.
+So far the definitions provided in this header file have worked on all architectures.
+In addition to the above definitions \verb|epicsTypes.h| has a number of definitions for displaying the types and other useful definitions.
+See the header file for details.
 
 \subsection{locationException}
 
-A C++ template for use as an exception object, used inside Channel Access. Not documented here.
+A C++ template for use as an exception object, used inside Channel Access.
+Not documented here.
 
 \subsection{shareLib.h}
 
@@ -1459,9 +1464,9 @@ epicsShareFunc int epicsShareAPI a_func(int arg);
 
 \index{epicsShareFunc}
 \index{epicsShareAPI}
-Thse are needed to properly create DLLs on windows. Read the comments in the shareLib.h file for a detailed description 
-of where they should be used. Note that the \verb|epicsShareAPI| decorator is deprecated for all new EPICS APIs and is 
-being removed from APIs that are only used within the IOC.
+Thse are needed to properly create DLLs on windows.
+Read the comments in the shareLib.h file for a detailed description of where they should be used.
+Note that the \verb|epicsShareAPI| decorator is deprecated for all new EPICS APIs and is being removed from APIs that are only used within the IOC.
 
 \subsection{truncateFile.h}
 
@@ -1471,26 +1476,31 @@ enum TF_RETURN {TF_OK=0, TF_ERROR=1};
 TF_RETURN truncateFile (const char *pFileName, unsigned size);
 \end{verbatim}
 
-\index{truncateFile}where
+\index{truncateFile}
+where
 
 \begin{description}
 \item \emph{pFileName} - name (and optionally path) of file
 
 \end{description}
 
-truncateFile() truncates the file to the specified size. truncate() is not used because it is not portable. It returns TF\_OK if 
-the file is less than size bytes or if it was successfully truncated. It returns TF\_ERROR if the file could not be truncated.
+truncateFile() truncates the file to the specified size.
+truncate() is not used because it is not portable.
+It returns TF\_OK if the file is less than size bytes or if it was successfully truncated.
+It returns TF\_ERROR if the file could not be truncated.
 
 \subsection{unixFileName.h}
 
-Defines macros \index{OSI\_PATH\_LIST\_SEPARATOR}OSI\_PATH\_LIST\_SEPARATOR and \index{OSI\_PATH\_SEPARATOR}OSI\_PATH\_SEPARATOR
+\index{OSI\_PATH\_LIST\_SEPARATOR}
+\index{OSI\_PATH\_SEPARATOR}
+Defines macros OSI\_PATH\_LIST\_SEPARATOR and OSI\_PATH\_SEPARATOR
 
 \subsection{epicsUnitTest.h}
 
 \index{epicsUnitTest.h}
-The unit test routines make it easy for a test program to generate output that is compatible with the Test Anything Protocol 
-and can thus be used with Perl's automated \index{Test::Harness}Test::Harness as well as generating human-readable output. The routines 
-detect whether they are being run automatically and print a summary of the results at the end if not.
+\index{Test::Harness}
+The unit test routines make it easy for a test program to generate output that is compatible with the Test Anything Protocol and can thus be used with Perl's automated Test::Harness as well as generating human-readable output.
+The routines detect whether they are being run automatically and print a summary of the results at the end if not.
 
 \begin{verbatim}
 void testPlan(int tests);
@@ -1528,47 +1538,36 @@ epicsShareFunc void runTestFunc(const char *name, TESTFUNC func);
 \index{testHarness}
 \index{runTestFunc}
 \index{runTest}
-A test program starts with a call to testPlan(), announcing how many tests are to be conducted.  If this number is not 
-known a value of zero can be used during development, but it is recommended that the correct value be substituted after 
-the test program has been completed.
+A test program starts with a call to testPlan(), announcing how many tests are to be conducted.
+If this number is not known a value of zero can be used during development, but it is recommended that the correct value be substituted after the test program has been completed.
 
-Individual test results are reported using any of testOk(), testOk1(), testOkV(), testPass() or testFail(). The testOk() call 
-takes and also returns a logical pass/fail result (zero means failure, any other value is success) and a printf-like format 
-string and arguments which describe the test. The convenience macro testOk1() is provided which stringifies its single 
-condition argument, reducing the effort needed to write test programs. The individual testPass() and testFail() routines can 
-be used when the test program takes a different path on success than on failure. The testOkV() routine is a varargs form of 
-testOk() included for internal purposes which may prove useful in some cases.
+Individual test results are reported using any of testOk(), testOk1(), testOkV(), testPass() or testFail().
+The testOk() call takes and also returns a logical pass/fail result (zero means failure, any other value is success) and a printf-like format string and arguments which describe the test.
+The convenience macro testOk1() is provided which stringifies its single condition argument, reducing the effort needed when writing test programs.
+The individual testPass() and testFail() routines can be used when the test program takes a different path on success than on failure, but one or other must always be called for any particular test.
+The testOkV() routine is a varargs form of testOk() included for internal purposes which may prove useful in some cases.
 
-If some program condition or failure makes it impossible to run some tests, the testSkip() routine can be used to indicate 
-how many tests are being omitted from the run, thus keeping the test counts correct; the constant string why is displayed 
-as an explanation to the user (this string is not printf-like).
+If some program condition or failure makes it impossible to run some tests, the testSkip() routine can be used to indicate how many tests are being omitted from the run, thus keeping the test counts correct; the constant string why is displayed as an explanation to the user (this string is not printf-like).
 
-If some tests are expected to fail because functionality in the module under test has not yet been implemented, these tests 
-should still be executed, wrapped between calls to testTodoBegin() (which takes a constant string indicating why these 
-tests are not expected to succeed) and testTodoEnd(). This modifies the counting of the results so these tests will not be 
-recorded as failures.
+If some tests are expected to fail because functionality in the module under test has not yet been fully implemented, these tests may still be executed, wrapped between calls to testTodoBegin() and testTodoEnd().
+testTodoBegin() takes a constant string indicating why these tests are not expected to succeed.
+This modifies the counting of the results so the wrapped tests will not be recorded as failures.
 
-Additional information can be supplied using the testDiag() routine, which displays the relevent information as a 
-comment in the result output. None of the strings passed to any testXxx() routine should contain a newline `\textbackslash{}n' character, 
-newlines will be added by the test routines as part of the Test Anything Protocol.  For multiple lines of diagnostic output, 
-call testDiag() as many times as necessary.
+Additional information can be supplied using the testDiag() routine, which displays the relevent information as a comment in the result output.
+None of the printable strings passed to any testXxx() routine should contain a newline `\textbackslash{}n' character, newlines will be added by the test routines as part of the Test Anything Protocol.
+For multiple lines of diagnostic output, call testDiag() as many times as necessary.
 
-If at any time the test program is unable to continue for some catastrophic reason, calling testAbort() with an appropriate 
-message will ensure that the test harness understands this; testAbort() does not return, but calls the ANSI C routine abort() 
-to cause the program to stop immediately.
+If at any time the test program is unable to continue for some catastrophic reason, calling testAbort() with an appropriate message will ensure that the test harness understands this. testAbort() does not return, but calls the ANSI C routine abort() to cause the program to stop immediately.
 
-After all of the tests have been completed, the return value from testDone() can be used as the return status code from the 
-program's main() routine.
+After all of the tests have been completed, the return value from testDone() can be used as the return status code from the program's main() routine.
 
-On vxWorks and RTEMS, an alternative test harness can be used to run a series of tests in order and summarize the results 
-from them all at the end just like the Perl harness does. The routine testHarness() is called once at the beginning of the test 
-harness program. Each test program is run by passing its main routine name to the runTest() macro which expands into a 
-call to the runTestFunc() routine. The last test program or the harness program itself must finish by calling epicsExit() 
-which triggers the test summary mechanism to generate its result outputs (from an epicsAtExit callback routine).
+On vxWorks and RTEMS, an alternative test harness can be used to run a series of tests in order and summarize the results from them all at the end just like the Perl harness does.
+The routine testHarness() is called once at the beginning of the test harness program.
+Each test program is run by passing its main routine name to the runTest() macro which expands into a 
+call to the runTestFunc() routine.
+The last test program or the harness program itself must finish by calling epicsExit() which triggers the test summary mechanism to generate its result outputs (from an epicsAtExit callback routine).
 
-To make it easier to create a single test program that can be built for both the embedded and workstation operating system 
-harnesses, the header file \verb|testMain.h| provides a convenience macro MAIN() that adjusts the name of the test program 
-according to the platform it is running on, main() on workstations and a regular function name on embedded systems.
+To make it easier to create a single test program that can be built for both the embedded and workstation operating system harnesses, the header file \verb|testMain.h| provides a convenience macro MAIN() that adjusts the name of the test program according to the platform it is running on: main() on workstations and a regular function name on embedded systems.
 
 \index{testMain.h}
 The following is a simple example of a test program using the epicsUnitTest routines:
