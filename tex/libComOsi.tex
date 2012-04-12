@@ -130,6 +130,90 @@ STATIC_ASSERT(expression);
 
 If the expression evaluates to false, the compiler will see an illegal variable declared with the name \verb|static_assert_failed_at_line_<n>| and should halt compilation at that point.
 
+\section{epicsAtomic}
+\index{epicsAtomic}
+
+This is an operating system and compiler independent interface to an operating system and or compiler dependent implementation of several atomic primitives.
+Currently, only increment, decrement, add, subtract, compare-and-swap, and test-and-set primitives have been implemented as appropriate for the C primitive types of \verb|int|, \verb|size_t|, and \verb|void *| pointer.
+
+These primitives can be safely used in a multithreaded programs on symmetric multiprocessing (SMP) systems.
+Where possible the primitives are implemented with compiler intrinsic wrappers for archetecture specific instructions.
+Otherwise they are implemeted with OS specific functions and otherwise, when lacking a sufficently capable OS specific interface, then in some rare situations a mutual exclusion primitive is used for synchronization.
+
+In operating systems environments which allow C code to run at interrupt level the implementation must use interrupt level invokable CPU instruction primitives.
+
+\index{namespace epics::atomics}
+All C++ functions are implemented in the namespace \verb|atomics| which is nested inside of namespace \verb|epics|.
+
+\index{epicsAtomic.h}
+\begin{verbatim}
+#include <epicsAtomic.h>
+\end{verbatim}
+
+\subsection{C Callable Interface}
+
+\index{epicsAtomic functions}
+\begin{verbatim}
+void epicsAtomicReadMemoryBarrier ();
+void epicsAtomicWriteMemoryBarrier ();
+
+size_t epicsAtomicIncrSizeT ( size_t * pTarget );
+int epicsAtomicIncrIntT ( int * pTarget );
+
+size_t epicsAtomicDecrSizeT ( size_t * pTarget );
+int epicsAtomicDecrIntT ( int * pTarget );
+
+size_t epicsAtomicAddSizeT ( size_t * pTarget, size_t delta );
+size_t epicsAtomicSubSizeT ( size_t * pTarget, size_t delta );
+int epicsAtomicAddIntT ( int * pTarget, int delta );
+
+void epicsAtomicSetSizeT  ( size_t * pTarget, size_t newValue ); 
+void epicsAtomicSetIntT ( int * pTarget, int newValue );
+void epicsAtomicSetPtrT ( EpicsAtomicPtrT * pTarget, EpicsAtomicPtrT newValue );
+
+size_t epicsAtomicGetSizeT ( const size_t * pTarget );
+int epicsAtomicGetIntT ( const int * pTarget );
+EpicsAtomicPtrT epicsAtomicGetPtrT ( const EpicsAtomicPtrT * pTarget );
+
+size_t epicsAtomicCmpAndSwapSizeT ( size_t * pTarget, 
+                                            size_t oldVal, size_t newVal );
+int epicsAtomicCmpAndSwapIntT ( int * pTarget, 
+                                            int oldVal, int newVal );
+EpicsAtomicPtrT epicsAtomicCmpAndSwapPtrT ( 
+                                            EpicsAtomicPtrT * pTarget, 
+                                            EpicsAtomicPtrT oldVal, 
+                                            EpicsAtomicPtrT newVal );
+
+int epicsAtomicTestAndSet ( int * pTarget );
+\end{verbatim}
+
+\index{epics::atomics functions}
+\begin{center}
+\begin{longtable}{p{2in}p{1.25in}p{3in}}
+\textbf{C Function} & \textbf{C++ Function} & \textbf{Meaning}\\
+\hline
+epicsAtomicReadMemoryBarrier & readMemoryBarrier & Load target into cache.\\
+epicsAtomicWriteMemoryBarrier & writeMemoryBarrier & Push cache version of target into target.\\
+
+epicsAtomicIncrXxxx & increment & Lock out other SMP processors from accessing the target, load the target into cache, add one to the target, flush cache to the target, allow other SMP processors to access the target, and return the new value of the target as modified by this operation.\\
+
+epicsAtomicDecrXxxx & decrement & Lock out other smp processors from accessing the target, load the target into cache, subtract one from the target, flush cache to the target, allow other SMP processors to access the target, and return the new value of target as modified by this operation.\\
+
+epicsAtomicAddXxxx & add & Lock out other SMP processors from accessing the target, load the target into cache, add delta to the target, flush the cache to the target, allow other SMP processors to access the target, return new value of target as modified by this operation.\\
+
+epicsAtomicSubXxxx & subtract & Lock out other SMP processors from accessing the target, load the target into cache, subtract delta from the target, flush the cache to the target, allow other SMP processors to access the target, return new value of target as modified by this operation.\\
+
+epicsAtomicSetXxxx & set & Set the cached version of target, and flush the cache to the target.\\
+
+epicsAtomicGetXxxx & get & Fetch the target into cache, and return the cached value.\\
+
+epicsAtomicCmpAndSwapXxxx & compareAndSwap & Lock out other SMP processors from accessing the target, load the target into cache, if the target is equal to oldVal set the target to newVal, flush cache to the target, allow other SMP processors to access the target, and return the original value stored in the target.\\
+
+epicsAtomicTestAndSet & testAndSet & Lock out other SMP processors from accessing the target, load the target into cache, if the target value is logical false (zero) set the target to be logical true, flush cache to the target, allow other SMP processors to access the target, and return the original value stored in the target.\\
+
+\end{longtable}
+\end{center}
+
 \section{epicsEndian}
 
 \index{epicsEndian.h}
@@ -145,6 +229,14 @@ It defines the following preprocessor macros, the values of which are integers:
 
 The latter two macros are defined to be one or other of the first two, and may be compared with them to determine conditional compilation or execution of code that performs byte or word swapping as necessary.
 
+\begin{verbatim}
+#if (EPICS_BYTE_ORDER == EPICS_ENDIAN_BIG)
+    /* ... */
+#else /* EPICS_ENDIAN_LITTLE */
+    /* ... */
+#endif /* EPICS_BYTE_ORDER */
+\end{verbatim}
+
 \section{epicsEvent}
 \index{epicsEvent}
 
@@ -153,13 +245,9 @@ The latter two macros are defined to be one or other of the first two, and may b
 
 \subsection{C++ Interface}
 
-\index{epicsEventOK}
-\index{epicsEventWaitTimeout}
-\index{epicsEventError}
-\index{epicsEventStatus}
-\index{epicsEventWaitOK}
-\index{epicsEventWaitError}
-\index{epicsEventWaitStatus}
+\index{class epicsEvent}
+\index{enum epicsEventStatus}
+\index{enum epicsEventInitialState}
 \begin{verbatim}
 typedef enum {
     epicsEventOK = 0,
@@ -1416,8 +1504,8 @@ int epicsTimeGetCurrent (epicsTimeStamp *pDest);
 int epicsTimeGetEvent (epicsTimeStamp *pDest, int eventNumber);
 
 /* These are callable from an Interrupt Service Routine */
-epicsShareFunc int epicsTimeGetCurrentInt(epicsTimeStamp *pDest);
-epicsShareFunc int epicsTimeGetEventInt(epicsTimeStamp *pDest, int eventNumber);
+int epicsTimeGetCurrentInt(epicsTimeStamp *pDest);
+int epicsTimeGetEventInt(epicsTimeStamp *pDest, int eventNumber);
 
 /* convert to and from ANSI C's "time_t" */
 int epicsTimeToTime_t (time_t *pDest, const epicsTimeStamp *pSrc);
