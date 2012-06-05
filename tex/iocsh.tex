@@ -140,7 +140,7 @@ The following changes must be made to add this command to an application.
 
 \end{itemize}
 
-\subsection{ENVIRONMENT VARIABLES}
+\subsection{Environment Variables}
 
 The IOC shell uses the following environment variables to control its operation.
 \begin{center}
@@ -155,6 +155,41 @@ TERM, INPUTRC & These and other environment variables are used by the readline a
 \end{longtable}
 
 \end{center}
+
+\subsection{Conditionals}
+\index{Conditionals}
+
+The IOC shell does not provide operaters for conditionally executing commands
+but the effect can be simulated using macro expansion.  The simplest
+technique is to preceed a command with a macro that expands to either `\verb@#@' or `' (or~`~').
+The following startup script line shows how this can be done:
+\begin{verbatim}
+...
+$(LOAD_DEBUG=#) $(DEBUG) dbLoadRecords("db/debugRec.db", "P=$(P),R=debug")
+...
+\end{verbatim}
+Starting the IOC in the normal fashion will result in the above line being
+commented out and the debugRec.db file being omitted:
+\begin{verbatim}
+./st.cmd
+\end{verbatim}
+Setting the \verb@LOAD_DEBUG@ environment variable to an empty string before
+starting the IOC will result in the debugRec.db file being loaded:
+\begin{verbatim}
+LOAD_DEBUG="" ./st.cmd
+\end{verbatim}
+
+A similar technique can be used to execute external scripts conditionally.
+The startup command file contains code like:
+\begin{verbatim}
+epicsEnvSet PILATUS_ENABLED "$(PILATUS_ENABLED=NO)"
+...
+< pilatus-$(PILATUS_ENABLED).cmd
+\end{verbatim}
+with one set of conditional code in a file named pilatus-YES.cmd and
+the other set of conditional code in a file named pilatus-NO.cmd
+This technique can be expanded to a form similar to a C `switch' statement
+for the example above by providing additional pilatus-{\it XXX}.cmd scripts.
 
 
 \section{IOC Shell Programming}
