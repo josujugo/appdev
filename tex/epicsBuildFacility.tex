@@ -672,20 +672,15 @@ where:
 
 \end{description}
 
-Note: You can build using your os vendors' native compiler and also build using a supported alternate compiler in the 
-same directory structure because the executables and libraries will be created and installed into separate directories (e.g 
-bin/solaris-sparc and bin/solaris-sparc-gnu). You can do this by changing your \verb|EPICS_HOST_ARCH|, environment 
-variable between builds or by setting \verb|EPICS_HOST_ARCH| on the gnumake command line.
+Note: You can build using your os vendors' native compiler and also build using a supported alternate compiler in the same directory structure because the executables and libraries will be created and installed into separate directories (e.g bin/solaris-sparc and bin/solaris-sparc-gnu).
+You can do this by changing your \verb|EPICS_HOST_ARCH|, environment variable between builds or by setting \verb|EPICS_HOST_ARCH| on the gnumake command line.
 
-From Base R3.14.11 the build system will always ensure the host architecture is up to date before building a cross-
-compiled target, thus Makefiles must be explicit in defining which architectures a componen should be built for.
+The build system ensures the host architecture is up to date before building a cross-compiled target, thus Makefiles must be explicit in defining which architectures a component should be built for.
 
 \subsection{Header file dependencies}
 
 \index{Header dependencies}
-All product, test product, and library source files which appear in one of the source file definitions (e.g. SRCS, 
-PROD\_SRCS, LIB\_SRCS, \verb|<prodname>_SRCS|) will have their header file dependencies automatically generated and 
-included as part of the Makefile if HDEPENDS is set to YES in the Makefile and/or in base/configure/CONFIG\_SITE.
+All product, test product, and library source files which appear in one of the source file definitions (e.g. SRCS, PROD\_SRCS, LIB\_SRCS, \verb|<prodname>_SRCS|) will have their header file dependencies automatically generated and included as part of the Makefile.
 
 \section{Makefile definitions}
 
@@ -694,11 +689,9 @@ The following components can be defined in a Makefile:
 \subsection{Source file directories}
 
 \index{Source file dirs}
-Normally all product, test product, and library source files reside in the same directory as the Makefile. OS specific source 
-files are allowed and should reside in subdirectories \verb|os/<os_class>| or \verb|os/posix| or \verb|os/default|. 
+Normally all product, test product, and library source files reside in the same directory as the Makefile. OS specific source files are allowed and should reside in subdirectories \verb|os/<os_class>| or \verb|os/posix| or \verb|os/default|.
 
-The build rules also allow source files to reside in subdirectories of the current Makefile directory (src directory). For 
-each subdirectory \verb|<dir>| containing source files add the SRC\_DIRS definition. 
+The build rules also allow source files to reside in subdirectories of the current Makefile directory (src directory). For each subdirectory \verb|<dir>| containing source files add the SRC\_DIRS definition.
 
 \begin{verbatim}
 SRC_DIRS += <dir>
