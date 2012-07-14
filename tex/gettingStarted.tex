@@ -480,15 +480,14 @@ Options for all command forms:
 
 \begin{description}
 \item \verb|-b base| \\
-Provides the full path to EPICS base. If not specified, the value is taken from the EPICS\_BASE entry in config/
-RELEASE. If the config directory does not exist, the path is taken from the command-line that was used to invoke 
-makeBaseApp
+Provides the full path to EPICS base.
+If not specified, the value is taken from the EPICS\_BASE entry in config/RELEASE.
+If the config directory does not exist, the path is taken from the command-line that was used to invoke makeBaseApp
 
 \item \verb|-T template| \\
-Set the template top directory (where the application templates are). If not specified, the template path is taken 
-from the TEMPLATE\_TOP entry in config/RELEASE. If the config directory does not exist the path is taken from 
-the environment variable EPICS\_MBA\_TEMPLATE\_TOP, or if this is not set the templates from EPICS base are 
-used.
+Set the template top directory (where the application templates are).
+If not specified, the template path is taken from the TEMPLATE\_TOP entry in config/RELEASE.
+If the config directory does not exist the path is taken from the environment variable EPICS\_MBA\_TEMPLATE\_TOP, or if this is not set the templates from EPICS base are used.
 
 \item \verb|-d| \\
 Verbose output (useful for debugging)
@@ -501,9 +500,8 @@ Arguments unique to \verb|makeBaseApp.pl [-t type] [options] app ...|:
 One or more application names (the created directories will have ``App" appended to this name)
 
 \item \verb|-t type| \\
-Set the template type (use the -l invocation to get a list of valid types). If this option is not used, type is taken from 
-the environment variable EPICS\_MBA\_DEF\_APP\_TYPE, or if that is not set the values ``default" and then 
-``example" are tried.
+Set the template type (use the \verb|-l| invocation to get a list of valid types).
+If this option is not used, type is taken from the environment variable EPICS\_MBA\_DEF\_APP\_TYPE, or if that is not set the values ``default" and then ``example" are tried.
 \end{description}
 
 Arguments unique to \verb|makeBaseApp.pl -i [options] ioc ...|:
@@ -513,7 +511,8 @@ Arguments unique to \verb|makeBaseApp.pl -i [options] ioc ...|:
 One or more IOC names (the created directories will have ``ioc'' prepended to this name).
 
 \item \verb|-a arch| \\
-Set the IOC architecture (e.g. vxWorks-68040).  If \verb|-a arch| is not specified, you will be prompted.
+Set the IOC architecture (e.g. vxWorks-68040).
+If \verb|-a arch| is not specified, you will be prompted.
 \end{description}
 
 \subsection{Environment Variables:}
@@ -547,8 +546,8 @@ makeBaseApp does the following:
 
 \item If a \verb|<top>/configure/RELEASE| file exists and defines a value for \verb|EPICS_BASE| it is used.
 
-\item It is obtained from the invocation of makeBaseApp. For this to work, the full path name to the 
-\verb|makeBaseApp.pl| script in the EPICS base release you are using must be given.
+\item It is obtained from the invocation of makeBaseApp.
+For this to work, the full path name to the \verb|makeBaseApp.pl| script in the EPICS base release you are using must be given.
 \end{itemize}
 
 \item \verb|TEMPLATE_TOP| is located in a similar fashion:
@@ -591,23 +590,20 @@ makeBaseApp does the following:
 \item If directory \verb|iocBoot| does not exist, it is created and the files from the template boot directory are copied 
 into it.
 
-\item For each \verb|<ioc>| specified on the command line a directory \verb|iocBoot/ioc<ioc>| is created and populated with 
-the files from the template (with \verb|ReplaceLine()| tag replacement, see below).
+\item For each \verb|<ioc>| specified on the command line a directory \verb|iocBoot/ioc<ioc>| is created and populated with the files from the template (with \verb|ReplaceLine()| tag replacement, see below).
 \end{itemize}
 
 \item If \verb|-i| is NOT specified:
 
 \begin{itemize}
-\item For each \verb|<app>| specified on the command line a directory \verb|<app>App| is created and populated with the 
-directory tree from the template (with \verb|ReplaceLine()| tag replacement, see below).
+\item For each \verb|<app>| specified on the command line a directory \verb|<app>App| is created and populated with the directory tree from the template (with \verb|ReplaceLine()| tag replacement, see below).
 \end{itemize}
 \end{itemize}
 
 \subsection{Tag Replacement within a Template}
 
-When copying certain files from the template to the new application structure, makeBaseApp replaces some predefined 
-tags in the name or text of the files concerned with values that are known at the time. An application template can extend 
-this functionality as follows:
+When copying certain files from the template to the new application structure, makeBaseApp replaces some predefined tags in the name or text of the files concerned with values that are known at the time.
+An application template can extend this functionality as follows:
 
 \begin{itemize}
 \item Two perl subroutines are defined within makeBaseApp:
@@ -657,13 +653,14 @@ This creates files appropriate for building a support application.
 
 \subsubsection{ioc}
 
- Without the \verb|-i| option, this creates files appropriate for building an ioc application, With the -i option it creates an ioc boot 
-directory.
+Without the \verb|-i| option, this creates files appropriate for building an ioc application.
+With the \verb|-i| option it creates an ioc boot directory.
 
 \subsubsection{example}
 
-Without the \verb|-i| option it creates files for running an example. Both a support and an ioc application are built. With the \verb|-i|
-option it creates an ioc boot directory that can be used to run the example.
+Without the \verb|-i| option it creates files for running an example.
+Both a support and an ioc application are built.
+With the \verb|-i| option it creates an ioc boot directory that can be used to run the example.
 
 \subsubsection{caClient}
 
@@ -675,8 +672,9 @@ This builds an example Portable Access Server.
 
 \section{vxWorks boot parameters}
 
-The vxWorks boot parameters are set via the console serial port on your IOC. Life is much easier if you find out how to 
-connect the serial port to a window on your workstation.
+The vxWorks boot parameters are set via the console serial port on your IOC.
+Life is much easier if you can connect the console to a terminal window on your workstation.
+On Linux the `screen' program lets you communicate through a local serial port; run \verb|screen /dev/ttyS0| if the IOC is connected to \verb|ttyS0|.
 
 The vxWorks boot parameters look something like the following:
 
@@ -693,26 +691,24 @@ flags (f)              : 0x0
 target name (tn)       : <hostname for this inet address>
 startup script (s)     : <top>/iocBoot/iocmyexample/st.cmd
 \end{verbatim}
-The actual values for each field are site and IOC dependent. Two fields that you can change at will are the vxWorks boot 
-image and the location of the startup script.
+The actual values for each field are site and IOC dependent.
+Two fields that you can change at will are the vxWorks boot image and the location of the startup script.
 
-Note that the full path name for the correct board support boot image must be specified. If bootp is used the same 
-information will need to be placed in the bootp host's configuration database instead.
+Note that the full path name for the correct board support boot image must be specified.
+If bootp is used the same information will need to be placed in the bootp host's configuration database instead.
 
-When your boot parameters are set properly, just press the reset button on your IOC, or use the \verb|@| command to commence 
-booting. You will find it VERY convenient to have the console port of the IOC attached to a scrolling window on your 
-workstation.
+When your boot parameters are set properly, just press the reset button on your IOC, or use the \verb|@| command to commence booting.
+You will find it VERY convenient to have the console port of the IOC attached to a scrolling window on your workstation.
 
 \section{RTEMS boot procedure}
 
-RTEMS uses the vendor-supplied bootstrap mechanism so the method for booting an IOC depends upon the hardware in 
-use.
+RTEMS uses the vendor-supplied bootstrap mechanism so the method for booting an IOC depends upon the hardware in use.
 
 \subsection{Booting from a BOOTP/DHCP/TFTP server}
 
-Many boards can use BOOTP/DHCP to read their network configuration and then use TFTP to read the applicaion 
-program.  RTEMS can then use TFTP or NFS to read startup scripts and configuration files. If you are using TFTP to read 
-the startup scripts and configuration files you must install the EPICS application files on your TFTP server as follows:
+Many boards can use BOOTP/DHCP to read their network configuration and then use TFTP to read the applicaion program.
+RTEMS can then use TFTP or NFS to read startup scripts and configuration files.
+If you are using TFTP to read the startup scripts and configuration files you must install the EPICS application files on your TFTP server as follows:
 
 \begin{itemize}
 \item Copy all \verb|db/xxx| files to \verb|<tftpbase>/epics/<target_hostname\>/db/xxx|.
@@ -752,8 +748,7 @@ Motorola single-board computers which employ PPCBUG should have their `NIOT' par
 \subsection{Motorola MOTLOAD boot parameters}
 
 \index{MOTLOAD}
-Motrola single-board computers which employ MOTLOAD should have their network `Global Environment Variable' 
-parameters set up like:
+Motrola single-board computers which employ MOTLOAD should have their network `Global Environment Variable' parameters set up like:
 
 \noindent
 \verb|mot-/dev/enet0-cipa=|`Dotted-decimal' IP address of IOC\\
@@ -775,20 +770,17 @@ netShut
 go -a4000000
 \end{verbatim}
 
-where the \verb|-c|, \verb|-s|, \verb|-m| and \verb|-g| values should match the cipa, sipa, snma and gipa values, 
-respectively and the \verb|-f| value should match the file value.
+where the \verb|-c|, \verb|-s|, \verb|-m| and \verb|-g| values should match the cipa, sipa, snma and gipa values, respectively and the \verb|-f| value should match the file value.
 
 \subsection{RTEMS NFS access}
 
-For IOCs which use NFS for remote file access the EPICS initialization code uses the startup script pathname to 
-determine the parameters for the initial NFS mount.  If the startup script pathname begins with a `\verb|/|' the first component 
-of the pathname is used as both the server path and the local mount point. If the startup script pathname does not begin 
-with a `\verb|/|' the first component of the pathname is used as the local mount point and the server path is `'\verb|/tftpboot/|'' 
-followed by the first component of the pathname.  This allows the NFS client used for EPICS file access and the TFTP 
-client used for bootstrapping the application to have a similar view of the remote filesystem.
+For IOCs which use NFS for remote file access the EPICS initialization code uses the startup script pathname to determine the parameters for the initial NFS mount.
+If the startup script pathname begins with a `\verb|/|' the first component of the pathname is used as both the server path and the local mount point.
+If the startup script pathname does not begin with a `\verb|/|' the first component of the pathname is used as the local mount point and the server path is ``\verb|/tftpboot/|'' followed by the first component of the pathname.
+This allows the NFS client used for EPICS file access and the TFTP client used for bootstrapping the application to have a similar view of the remote filesystem.
 
 \subsection{RTEMS `Cexp'}
 
-\index{Cexp}The RTEMS `Cexp' add-on package provides the ability to load object modules at application run-time.  If your RTEMS 
-build includes this package you can load RTEMS IOC applications in the same fashion as vxWorks IOC applications.
+\index{Cexp}The RTEMS `Cexp' add-on package provides the ability to load object modules at application run-time.
+If your RTEMS build includes this package you can load RTEMS IOC applications in the same fashion as vxWorks IOC applications.
 
