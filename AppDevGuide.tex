@@ -5,6 +5,7 @@
 \graphicspath{{pdf/}{eps/}}
 \usepackage{longtable}
 \usepackage{fancyvrb}
+\usepackage{html}
 
 % left-align first line of new paragraph
 \usepackage{parskip}
@@ -17,8 +18,10 @@
 \makeindex
 
 % pdf links
+\begin{latexonly}
 \usepackage{hyperref}
 \hypersetup{colorlinks, bookmarksnumbered, linkcolor=blue}
+\end{latexonly}
 
 % make all dephts of bullet points a dot
 \renewcommand{\labelitemii}{\labelitemi}
@@ -26,9 +29,12 @@
 \renewcommand{\labelitemiv}{\labelitemi}
 
 % indent all code sections
+\begin{latexonly}
 \RecustomVerbatimEnvironment
   {verbatim}{Verbatim}
   {xleftmargin=\leftmargini}
+\end{latexonly}
+\htmlsetstyle[PRE.]{}{ margin-left=4em }
 
 \begin{document}
 
@@ -62,8 +68,11 @@
 \input{tex/registry.tex}
 \input{tex/databaseStructures.tex}
 
+\begin{latexonly}
 \cleardoublepage
 \phantomsection
+\end{latexonly}
+
 \addcontentsline{toc}{chapter}{Index}
 \printindex
 
