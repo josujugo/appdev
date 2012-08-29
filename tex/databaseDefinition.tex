@@ -1548,7 +1548,9 @@ The optional \verb|substitutions| parameter may contain additional global macro 
 The template substitution file syntax is described in the following Extended Backus-Naur Form grammar:
 
 \begin{verbatim}
-substitution-file ::= ( template-subs )+
+substitution-file ::= ( global-defs | template-subs )+
+
+global-defs ::= 'global' '{' variable-defs? '}'
 
 template-subs ::= template-filename '{' subs? '}'
 template-filename ::= 'file' file-name
@@ -1556,10 +1558,10 @@ subs ::= pattern-subs | variable-subs
 
 pattern-subs ::= 'pattern' '{' pattern-names? '}' pattern-defs?
 pattern-names ::= ( variable-name ','? )+
-pattern-defs ::= ( '{' pattern-values? '}' )+
+pattern-defs ::= ( global-defs | ( '{' pattern-values? '}' ) )+
 pattern-values ::= ( value ','? )+
 
-variable-subs ::= ( '{' variable-defs? '}' )+
+variable-subs ::= ( global-defs | ( '{' variable-defs? '}' ) )+
 variable-defs ::= ( variable-def ','? )+
 variable-def ::= variable-name '=' value
 
