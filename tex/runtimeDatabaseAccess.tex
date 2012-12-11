@@ -7,7 +7,8 @@ This chapter describes routines for manipulating and accessing an initialized IO
 This chapter is divided into the following sections:
 
 \begin{itemize}
-\item Database related include files. All of interest are listed and those of general interest are discussed briefly.
+\item Database related include files.
+All of interest are listed and those of general interest are discussed briefly.
 
 \item Runtime database access overview.
 
@@ -19,16 +20,15 @@ This chapter is divided into the following sections:
 
 \item Database to Channel Access Routines
 
-\item Old Database Access. This is the interface still used by Channel Access and thus by Channel Access clients.
-
 \end{itemize}
 
 \section{Database Include Files}
 
-Directory \verb|base/include| contains a number of database related include files. Of interest to this chapter are:
+There are a number of database related include files.
+Of particular interest to this chapter are:
 
 \begin{itemize}
-\item \index{dbDefs.h}dbDefs.h:  Miscellaneous database related definitions
+\item \index{dbDefs.h}dbDefs.h: Miscellaneous database related definitions
 
 \item \index{dbFldTypes.h}dbFldTypes.h: Field type definitions
 
@@ -41,82 +41,88 @@ Directory \verb|base/include| contains a number of database related include file
 \subsection{dbDefs.h}
 
 \index{dbDefs.h}
-This file contains a number of database related definitions. The most important are:
+This file contains a number of database related definitions.
+The most important are:
 
 \begin{itemize}
-\item \index{PVNAME\_SZ}PVNAME\_SZ:  The number of characters allowed in the record name.
+\item \index{PVNAME\_STRINGSZ}PVNAME\_STRINGSZ: The number of characters reserved for the record name, including the terminating zero byte.
 
-\item \index{MAX\_STRING\_SIZE}MAX\_STRING\_SIZE:  The maximum string size for string fields or menu choices.
+\item \index{PVNAME\_SZ}PVNAME\_SZ: The maximum number of characters allowed in the record name.
 
-\item \index{DB\_MAX\_CHOICES}DB\_MAX\_CHOICES:  The maximum number of choices for a choice field.
+\item \index{DB\_MAX\_CHOICES}DB\_MAX\_CHOICES: The maximum number of choices for a choice field.
 
 \end{itemize}
+
+Note that \verb|DB_MAX_CHOICES| applies for code using the runtime routines documented in this chapter, but for Channel Access clients the maximum number of choices and their choice string length are different, and are defined in the db_access.h file.
 
 \subsection{dbFldTypes.h}
 
 \index{dbFldTypes.h}
-This file defines the possible field types. A field's type is perhaps its most important attribute. Changing the possible field 
-types is a fundamental change to the IOC software, because many IOC software components are aware of the field types.
+This file defines the possible field types.
+A field's type is perhaps its most important attribute.
+Changing the possible field types is a fundamental change to the IOC software, because many IOC software components are aware of the field types.
 
 The field types are:
 
 \begin{itemize}
-\item \index{DBF\_STRING}DBF\_STRING:  40 character ASCII string
+\item \index{DBF\_STRING}DBF\_STRING: 40 character ASCII string
 
-\item \index{DBF\_CHAR}DBF\_CHAR:  Signed character
+\item \index{DBF\_CHAR}DBF\_CHAR: Signed character
 
-\item \index{DBF\_UCHAR}DBF\_UCHAR:  Unsigned character
+\item \index{DBF\_UCHAR}DBF\_UCHAR: Unsigned character
 
-\item \index{DBF\_SHORT}DBF\_SHORT:  Short integer
+\item \index{DBF\_SHORT}DBF\_SHORT: Short integer
 
-\item \index{DBF\_USHORT}DBF\_USHORT:  Unsigned short integer
+\item \index{DBF\_USHORT}DBF\_USHORT: Unsigned short integer
 
-\item \index{DBF\_LONG}DBF\_LONG:  Long integer
+\item \index{DBF\_LONG}DBF\_LONG: Long integer
 
-\item \index{DBF\_ULONG}DBF\_ULONG:  Unsigned long integer
+\item \index{DBF\_ULONG}DBF\_ULONG: Unsigned long integer
 
-\item \index{DBF\_FLOAT}DBF\_FLOAT:  Floating point number
+\item \index{DBF\_FLOAT}DBF\_FLOAT: Floating point number
 
-\item \index{DBF\_DOUBLE}DBF\_DOUBLE:  Double precision float
+\item \index{DBF\_DOUBLE}DBF\_DOUBLE: Double precision float
 
-\item \index{DBF\_ENUM}DBF\_ENUM:  An enumerated field
+\item \index{DBF\_ENUM}DBF\_ENUM: An enumerated field
 
 \item \index{DBF\_MENU}DBF\_MENU: A menu choice field
 
 \item \index{DBF\_DEVICE}DBF\_DEVICE: A device choice field
 
-\item \index{DBF\_INLINK}DBF\_INLINK:  Input Link
+\item \index{DBF\_INLINK}DBF\_INLINK: Input Link
 
-\item \index{DBF\_OUTLINK}DBF\_OUTLINK:  Output Link
+\item \index{DBF\_OUTLINK}DBF\_OUTLINK: Output Link
 
-\item \index{DBF\_FWDLINK}DBF\_FWDLINK:  Forward Link
+\item \index{DBF\_FWDLINK}DBF\_FWDLINK: Forward Link
 
-\item \index{DBF\_NOACCESS}DBF\_NOACCESS:  A private field for use by record access routines
+\item \index{DBF\_NOACCESS}DBF\_NOACCESS: A private field for use by record access routines
 
 \end{itemize}
 
-A field of type \verb|DBF_STRING|, ..., \verb|DBF_DOUBLE| can be a scalar or an array. A \verb|DBF_STRING| field contains a \verb|NULL| 
-terminated ascii string. The field types \verb|DBF_CHAR|, ..., \verb|DBF_DOUBLE| correspond to the standard C data types.
+A field of type \verb|DBF_STRING|, ..., \verb|DBF_DOUBLE| can be a scalar or an array.
+A \verb|DBF_STRING| field contains a \verb|NULL| terminated ascii string.
+The field types \verb|DBF_CHAR|, ..., \verb|DBF_DOUBLE| correspond to the standard C data types.
 
-\verb|DBF_ENUM| is used for enumerated items, which is analogous to the C language enumeration. An example of an enum 
-field is field \verb|VAL| of a multi bit binary record. 
+\verb|DBF_ENUM| is used for enumerated items, which is analogous to the C language enumeration.
+An example of an enum field is field \verb|VAL| of a multi bit binary record.
 
-The field types \verb|DBF_ENUM|, \verb|DBF_MENU|, and \verb|DBF_DEVICE| all have an associated set of ASCII strings defining the 
-choices. For a \verb|DBF_ENUM|, the record support module supplies values and thus are not available for static database access. 
+The field types \verb|DBF_ENUM|, \verb|DBF_MENU|, and \verb|DBF_DEVICE| all have an associated set of ASCII strings defining the choices.
+For a \verb|DBF_ENUM|, the record support module supplies values and thus are not available for static database access.
 The database access routines locate the choice strings for the other types.
 
-\verb|DBF_INLINK| and \verb|DBF_OUTLINK| specify link fields. A link field can refer to a signal located in a hardware module, to a 
-field located in a database record in the same IOC, or to a field located in a record in another IOC. A \verb|DBF_FWDLINK| can 
-only refer to a record in the same IOC. Link fields are described in a later chapter. 
+\verb|DBF_INLINK| and \verb|DBF_OUTLINK| specify link fields.
+A link field can refer to a signal located in a hardware module, to a field located in a database record in the same IOC, or to a field located in a record in another IOC.
+A \verb|DBF_FWDLINK| can only refer to a record in the same IOC.
+Link fields are described in a later chapter.
 
-\verb|DBF_INLINK| (input), \verb|DBF_OUTLINK| (output), and \verb|DBF_FWDLINK| (forward) specify that the field is a link structure as 
-defined in \verb|link.h|. There are three classes of links:
+\verb|DBF_INLINK| (input), \verb|DBF_OUTLINK| (output), and \verb|DBF_FWDLINK| (forward) specify that the field is a link structure as defined in \verb|link.h|.
+There are three classes of links:
 
 \begin{enumerate}
-\item Constant - The value associated with the field is a floating point value initialized with a constant value. This is 
-somewhat of a misnomer because constant link fields can be modified via \verb|dbPutField| or \verb|dbPutLink|.
+\item Constant - The value associated with the field is a floating point value initialized with a constant value.
+This is somewhat of a misnomer because constant link fields can be modified via \verb|dbPutField| or \verb|dbPutLink|.
 
-\item Hardware links - The link contains a data structure which describes a signal connected to a particular hardware bus. 
+\item Hardware links - The link contains a data structure which describes a signal connected to a particular hardware bus.
 See \verb|link.h| for a description of the bus types currently supported.
 
 \item Process Variable Links - This is one of three types:
@@ -133,8 +139,8 @@ See \verb|link.h| for a description of the bus types currently supported.
 
 \end{enumerate}
 
-DCT always creates a \verb|PV_LINK|. When the IOC is initialized each \verb|PV_LINK| is converted either to a \verb|DB_LINK| or a 
-\verb|CA_LINK|.
+When first loaded the field is always creates as a \verb|PV_LINK|.
+When the IOC is initialized each \verb|PV_LINK| is converted either to a \verb|DB_LINK| or a \verb|CA_LINK|.
 
 \verb|DBF_NOACCESS| fields are for private use by record processing routines.
 
@@ -142,7 +148,7 @@ DCT always creates a \verb|PV_LINK|. When the IOC is initialized each \verb|PV_L
 
 This file is the interface definition for the run time database access library, i.e. for the routines described in this chapter.
 
-An important structure defined in this header file is \verb|DBADDR| 
+An important structure defined in this header file is \verb|DBADDR|
 
 \begin{verbatim}
 typedef struct dbAddr{
@@ -161,63 +167,65 @@ typedef struct dbAddr{
 \index{dbAdd}
 \index{DBADDR}
 \begin{itemize}
-\item \index{precord - DBADDR}precord: Address of record. Note that its type is a pointer to a structure defining the fields common to all record 
-types. The common fields appear at the beginning of each record. A record support module can cast \verb|precord| to 
-point to the specific record type.
+\item \index{precord - DBADDR}precord: Address of record.
+Note that its type is a pointer to a structure defining the fields common to all record types.
+The common fields appear at the beginning of each record.
+A record support module can cast \verb|precord| to point to the specific record type.
 
-\item \index{pfield in DBADDR}pfield: Address of the field within the record. Note that \verb|pfield| provides direct access to the data value.
+\item \index{pfield in DBADDR}pfield: Address of the field within the record.
+Note that \verb|pfield| provides direct access to the data value.
 
-\item \index{pfldDes in DBADDR}pfldDes: This points to a structure containing all details concerning the field. See Chapter ``Database Structures" 
-for details.
+\item \index{pfldDes in DBADDR}pfldDes: This points to a structure containing all details concerning the field.
+See Chapter ``Database Structures" for details.
 
 \item \index{asPvt in DBADDR}asPvt: A field used by access security.
 
-\item \index{no\_elements in DBADDR}no\_elements: A string or numeric field can be either a scalar or an array. For scalar fields \verb|no_elements| has the 
-value 1. For array fields it is the maximum number of elements that can be stored in the array.
+\item \index{no\_elements in DBADDR}no\_elements: A string or numeric field can be either a scalar or an array.
+For scalar fields \verb|no_elements| has the value 1.
+For array fields it is the maximum number of elements that can be stored in the array.
 
 \item \index{field\_type in DBADDR}field\_type: Field type.
 
 \item \index{field\_size in DBADDR}field\_size: Size of one element of the field.
 
-\item \index{special in DBADDR}special: Some fields require special processing. This specifies the type. Special processing is described later in this 
-manual.
+\item \index{special in DBADDR}special: Some fields require special processing.
+This specifies the type.
+Special processing is described later in this manual.
 
-\item \index{dbr\_field\_type in DBADDR}dbr\_field\_type: This specifies the optimal database request type for this field, i.e. the request type that will require 
-the least CPU overhead.
+\item \index{dbr\_field\_type in DBADDR}dbr\_field\_type: This specifies the optimal database request type for this field, i.e. the request type that will require the least CPU overhead.
 
 \end{itemize}
 
 NOTE: \verb|pfield|, \verb|no_elements|, \verb|field_type|, \verb|field_size|, \verb|special|, and \verb|dbr_field_type| can all be set by 
-record support (\verb|cvt_dbaddr|). Thus \verb|field_type|, \verb|field_size|, and \verb|special| can differ from that specified by 
-\verb|pfldDes|.
+record support (\verb|cvt_dbaddr|).
+Thus \verb|field_type|, \verb|field_size|, and \verb|special| can differ from that specified by \verb|pfldDes|.
 
 \subsection{link.h }
 
-This header file describes the various types of link fields supported by EPICS. 
+This header file describes the various types of link fields supported by EPICS.
 
 \section{Runtime Database Access Overview}
 
-With the exception of record and device support, all access to the database is via the  channel or database access routines. 
-Even record support routines access other records only via database or channel access. Channel Access, in turn, accesses 
-the database via database access.
+With the exception of record and device support, all access to the database is via the channel or database access routines.
+Even record support routines access other records only via database or channel access.
+Channel Access, in turn, accesses the database via database access.
 
-Perhaps the easiest way to describe the database access layer is to list and briefly describe the set of routines that 
-constitute database access. This provides a good look at the facilities provided by the database.
+Perhaps the easiest way to describe the database access layer is to list and briefly describe the set of routines that constitute database access.
+This provides a good look at the facilities provided by the database.
 
-Before describing database access, one caution must be mentioned. The only way to communicate with an IOC database 
-from outside the IOC is via Channel Access. In addition, any special purpose software, i.e. any software not described in 
-this document, should communicate with the database via Channel Access, not database access, even if it resides in the 
-same IOC as the database. Since Channel Access provides network independent access to a database, it must ultimately 
-call database access routines. The database access interface was changed in 1991, but Channel Access was never changed. 
-Instead a module was written which translates old style database access calls to new. This interface between the old and 
-new style database access calls is discussed in the last section of this chapter.
+Before describing database access, one caution must be mentioned.
+The only way to communicate with an IOC database from outside the IOC is via Channel Access.
+In addition, any special purpose software, i.e. any software not described in 
+this document, should communicate with the database via Channel Access, not database access, even if it resides in the same IOC as the database.
+Since Channel Access provides network independent access to a database, it must ultimately call database access routines.
+The database access interface was changed in 1991, but Channel Access was never changed to use the new interface.
+Instead a module was written which translates old style database access calls to new.
+This interface between the old and new style database access calls is not discussed in this manual.
 
 The \index{database access routines - List of}database access routines are:
 
 \begin{itemize}
 \item dbNameToAddr: Locate a database variable.
-
-
 
 \item dbGetField: Get values associated with a database variable.
 
@@ -255,7 +263,8 @@ The \index{database access routines - List of}database access routines are:
 
 \item dbIsValueField: Is this field the VAL field.
 
-\item dbGetFieldIndex: Get field index. The first field in a record has index 0.
+\item dbGetFieldIndex: Get field index.
+The first field in a record has index 0.
 
 \item dbGetNelement: Get number of elements in the field
 
@@ -295,9 +304,9 @@ The \index{database access routines - List of}database access routines are:
 
 \subsection{Database Request Types and Options}
 
-Before describing database access structures, it is necessary to describe database request types and request options. When 
-\verb|dbPutField| or \verb|dbGetField| are called one of the arguments is a database request type. This argument has one of the 
-following values: 
+Before describing database access structures, it is necessary to describe database request types and request options.
+When \verb|dbPutField| or \verb|dbGetField| are called one of the arguments is a database request type.
+This argument has one of the following values: 
 
 \begin{itemize}
 \item \index{DBR\_STRING}DBR\_STRING: Value is a \verb|NULL| terminated string
@@ -326,36 +335,37 @@ following values:
 
 \end{itemize}
 
-The request types \verb|DBR_STRING|,..., \verb|DBR_DOUBLE| correspond exactly to valid data types for database fields. \verb|DBR_ENUM| 
-corresponds to database fields that represent a set of choices or options. In particular it corresponds to the fields types 
-\verb|DBF_ENUM|, \verb|DBF_DEVICE|, and \verb|DBF_MENU|. The complete set of database field types are defined in \verb|dbFldTypes.h|. 
+The request types \verb|DBR_STRING|,..., \verb|DBR_DOUBLE| correspond exactly to valid data types for database fields.
+\verb|DBR_ENUM| corresponds to database fields that represent a set of choices or options.
+In particular it corresponds to the fields types \verb|DBF_ENUM|, \verb|DBF_DEVICE|, and \verb|DBF_MENU|.
+The complete set of database field types are defined in \verb|dbFldTypes.h|.
 \verb|DBR_PUT_ACKT| and \verb|DBR_PUT_ACKS| are used to perform global alarm acknowledgment.
 
-\verb|dbGetField| also accepts argument options which is a mask containing a bit for each additional type of information the 
-caller desires. The complete set of options is:
+\verb|dbGetField| also accepts argument options which is a mask containing a bit for each additional type of information the caller desires.
+The complete set of options is:
 
 \begin{itemize}
-\item \index{DBR\_STATUS}DBR\_STATUS:  returns the alarm status and severity
+\item \index{DBR\_STATUS}DBR\_STATUS: returns the alarm status and severity
 
-\item \index{DBR\_UNITS}DBR\_UNITS:  returns a string specifying the engineering units
+\item \index{DBR\_UNITS}DBR\_UNITS: returns a string specifying the engineering units
 
-\item \index{DBR\_PRECISION}DBR\_PRECISION:  returns a long integer specifying floating point precision.
+\item \index{DBR\_PRECISION}DBR\_PRECISION: returns a long integer specifying floating point precision.
 
-\item \index{DBR\_TIME}DBR\_TIME:  returns the time
+\item \index{DBR\_TIME}DBR\_TIME: returns the time
 
-\item \index{DBR\_ENUM\_STRS}DBR\_ENUM\_STRS:  returns an array of strings
+\item \index{DBR\_ENUM\_STRS}DBR\_ENUM\_STRS: returns an array of strings
 
-\item \index{DBR\_GR\_LONG}DBR\_GR\_LONG:  returns graphics info as long values
+\item \index{DBR\_GR\_LONG}DBR\_GR\_LONG: returns graphics info as long values
 
-\item \index{DBR\_GR\_DOUBLE}DBR\_GR\_DOUBLE:  returns graphics info as double values
+\item \index{DBR\_GR\_DOUBLE}DBR\_GR\_DOUBLE: returns graphics info as double values
 
-\item \index{DBR\_CTRL\_LONG}DBR\_CTRL\_LONG:  returns control info as long values
+\item \index{DBR\_CTRL\_LONG}DBR\_CTRL\_LONG: returns control info as long values
 
-\item \index{DBR\_CTRL\_DOUBLE}DBR\_CTRL\_DOUBLE:  returns control info as double values
+\item \index{DBR\_CTRL\_DOUBLE}DBR\_CTRL\_DOUBLE: returns control info as double values
 
-\item \index{DBR\_AL\_LONG}DBR\_AL\_LONG:  returns alarm info as long values
+\item \index{DBR\_AL\_LONG}DBR\_AL\_LONG: returns alarm info as long values
 
-\item \index{DBR\_AL\_DOUBLE}DBR\_AL\_DOUBLE:  returns alarm info as double values
+\item \index{DBR\_AL\_DOUBLE}DBR\_AL\_DOUBLE: returns alarm info as double values
 
 \end{itemize}
 
@@ -363,9 +373,10 @@ caller desires. The complete set of options is:
 
 Example
 
-The file \verb|dbAccess.h| contains macros for using options. A brief example should show how they are used. The following 
-example defines a buffer to accept an array of up to ten float values. In addition it contains fields for options 
-\verb|DBR_STATUS| and \verb|DBR_TIME|. 
+The file \verb|dbAccess.h| contains macros for using options.
+A brief example should show how they are used.
+The following example defines a buffer to accept an array of up to ten float values.
+In addition it contains fields for options \verb|DBR_STATUS| and \verb|DBR_TIME|.
 
 \begin{verbatim}
 struct buffer {
@@ -387,24 +398,28 @@ status = dbGetField(paddr,DBR_FLOAT,&buffer,&options,&number_elements);
 
 Consult \verb|dbAccess.h| for a complete list of macros.
 
-Structure \verb|dbAddr| contains a field \verb|dbr_field_type|. This field is the database request type that most closely matches 
-the database field type. Using this request type will put the smallest load on the IOC.
+Structure \verb|dbAddr| contains a field \verb|dbr_field_type|.
+This field is the database request type that most closely matches the database field type.
+Using this request type will put the smallest load on the IOC.
 
-Channel Access provides routines similar to \verb|dbGetField|, and \verb|dbPutField|. It provides remote access to 
-\verb|dbGetField|, \verb|dbPutField|, and to the database monitors described below.
+Channel Access provides routines similar to \verb|dbGetField|, and \verb|dbPutField|.
+It provides remote access to \verb|dbGetField|, \verb|dbPutField|, and to the database monitors described below.
 
 \subsection{ACKT and ACKS}
 
-The request types \verb|DBR_PUT_ACKT| and \index{DBR\_PUT\_ACKS}\verb|DBR_PUT_ACKS| are used for global alarm acknowledgment. The alarm handler 
-uses these requests. For each of these types the user (normally channel access) passes an unsigned short value. This value 
-represents:
+\index{DBR\_PUT\_ACKT}
+\index{DBR\_PUT\_ACKS}
+The request types \verb|DBR_PUT_ACKT| and \verb|DBR_PUT_ACKS| are used for global alarm acknowledgment.
+The alarm handler uses these requests.
+For each of these types the user (normally channel access) passes an unsigned short value.
+This value represents:
 
 \begin{description}
 
-\item[DBR\_PUT\_ACKT] \index{DBR\_PUT\_ACKT} - Do transient alarms have to be acknowledged? (0,1) means (no, yes).
+\item[DBR\_PUT\_ACKT] \index{DBR\_PUT\_ACKT} - Do transient alarms have to be acknowledged? 0 means no, 1 means yes
 
-\item[DBR\_PUT\_ACKS] - The highest alarm severity to acknowledge. If the current alarm severity is less then or equal to this 
-value the alarm is acknowledged.
+\item[DBR\_PUT\_ACKS] - The highest alarm severity to acknowledge.
+If the current alarm severity is less then or equal to this value the alarm is acknowledged.
 
 \end{description}
 
@@ -421,8 +436,9 @@ long dbNameToAddr(
     struct dbAddr  *paddr);
 \end{verbatim}
 
-\index{dbNameToAddr}The most important goal of database access can be stated simply: Provide quick access to database records and fields 
-within records. The basic rules are:
+\index{dbNameToAddr}The most important goal of database access can be stated simply:
+Provide quick access to database records and fields within records.
+The basic rules are:
 
 \begin{enumerate}
 
@@ -432,11 +448,11 @@ within records. The basic rules are:
 
 \end{enumerate}
 
-The routines described in this subsection are used by channel access, sequence programs, etc. Record processing routines, 
-however, use the routines described in the next section rather then \verb|dbGetField| and \verb|dbPutField|.
+The routines described in this subsection are used by channel access, sequence programs, etc.
+Record processing routines, however, use the routines described in the next section rather then \verb|dbGetField| and \verb|dbPutField|.
 
-Given a process variable name, this routine locates the process variable and fills in the fields of structure \verb|dbAddr|. The 
-format for an IOC process variable name is one of:
+Given a process variable name, this routine locates the process variable and fills in the fields of structure \verb|dbAddr|.
+The format for an IOC process variable name is one of:
 
 \begin{verbatim}
 <record_name>
@@ -450,15 +466,18 @@ For example the value field of a record with record named \verb|sample_name| is:
 
        ``\verb|sample_name.VAL|".
 
-The \emph{record\_name} is case sensitive. The \emph{field\_name}s available depend on the record type of the record and usually consist 
-of all upper-case letters. If omitted the field name \verb|VAL| is used if it exists. Currently the only \emph{modifier} supported is a single 
-dollar sign \verb|$| and is only valid on fields which are strings or links. Additional modifiers may be added in future releases.
+The \emph{record\_name} is case sensitive.
+The \emph{field\_name}s available depend on the record type of the record and usually consist of all upper-case letters.
+If omitted the field name \verb|VAL| is used if it exists.
+Currently the only \emph{modifier} supported is a single dollar sign \verb|$| and is only valid on fields which are strings or links.
+Additional modifiers may be added in future releases.
 
-\verb|dbNameToAddr| locates a record via a process variable directory (PVD). It fills in a structure (\verb|dbAddr|) describing the 
-field. \verb|dbAddr| contains the address of the record and also the field. Thus other routines can locate the record and field 
-without a search. Although the PVD allows the record to be located via a hash algorithm and the field within a record via 
-a binary search, it still takes about 80 microseconds (25MHz 68040) to located a process variable. Once located the 
-\verb|dbAddr| structure allows the process variable to be accessed directly.
+\verb|dbNameToAddr| locates a record via a process variable directory (PVD).
+It fills in a structure (\verb|dbAddr|) describing the field.
+\verb|dbAddr| contains the address of the record and also the field.
+Thus other routines can locate the record and field without a search.
+Although the PVD allows the record to be located via a hash algorithm and the field within a record via a binary search, it still takes about 80 microseconds (25MHz 68040) to located a process variable.
+Once located the \verb|dbAddr| structure allows the process variable to be accessed directly.
 
 \subsection{Get Routines}
 
@@ -503,12 +522,14 @@ NOTES:
 
 \end{itemize}
 
-\verb|dbGetLink| is implemented as a macro that calls \verb|dbGetLinkValue| and can reference its arguments more than once. 
-The macro skips the call for constant links. User code should never call \verb|dbGetLinkValue|.
+\verb|dbGetLink| is implemented as a macro that calls \verb|dbGetLinkValue| and can reference its arguments more than once.
+The macro skips the call for constant links.
+User code should never call \verb|dbGetLinkValue|.
 
-This routine is called by database access itself and by record support and/or device support routines in order to get values 
-for input links. The value can be obtained directly from other records or via a channel access client. This routine honors 
-the link options (process and maximize severity). In addition it has code that optimizes the case of no options and scalar.
+This routine is called by database access itself and by record support and/or device support routines in order to get values for input links.
+The value can be obtained directly from other records or via a channel access client.
+This routine honors the link options (process and maximize severity).
+In addition it has code that optimizes the case of no options and scalar.
 
 \subsubsection{dbGet}
 
@@ -524,26 +545,33 @@ long dbGet(
     void *pfl);     /* used by monitor routines */
 \end{verbatim}
 
-\index{dbGet}This routine retrieves the data referenced by \verb|paddr| and converts it to the format specified by \verb|dbrType|. 
+\index{dbGet}This routine retrieves the data referenced by \verb|paddr| and converts it to the format specified by \verb|dbrType|.
 
 \begin{itemize}
-\item \verb|options| is a read/write field. Upon entry to \verb|dbGet|, \verb|options| specifies the desired options. When 
-\verb|dbGetField| returns, \verb|options| specifies the options actually honored. If an option is not honored, the 
-corresponding fields in buffer are filled with zeros.
+\item \verb|options| is a read/write field.
+Upon entry to \verb|dbGet|, \verb|options| specifies the desired options.
+When \verb|dbGetField| returns, \verb|options| specifies the options actually honored.
+If an option is not honored, the corresponding fields in buffer are filled with zeros.
 
-\item \verb|nRequest| is also a read/write field. Upon entry to \verb|dbGet| it specifies the maximum number of data elements the 
-caller is willing to receive. When \verb|dbGet| returns it has been set to the actual number of elements returned. It is 
-permissible to request zero elements. This is useful when only option data is desired.
+\item \verb|nRequest| is also a read/write field.
+Upon entry to \verb|dbGet| it specifies the maximum number of data elements the 
+caller is willing to receive.
+When \verb|dbGet| returns it has been set to the actual number of elements returned.
+It is permissible to request zero elements.
+This is useful when only option data is desired.
 
-\item The \verb|pfl| argument is for use by the Channel Access monitor routines. All other users must give \verb|pfl=NULL|.
+\item The \verb|pfl| argument is for use by the Channel Access monitor routines.
+All other users must give \verb|pfl=NULL|.
 
 \end{itemize}
 
-\verb|dbGet| calls one of a number of conversion routines in order to convert data from the \verb|DBF| types to the \verb|DBR| types. It calls 
-record support routines for special cases such as arrays. For example, if the number of field elements is greater then 1 and 
-record support routine \verb|get_array_info| exists, then it is called. It returns two values: the current number of valid field 
-elements and an offset. The number of valid elements may not match \verb|dbAddr.no_elements|, which is really the 
-maximum number of elements allowed. The offset is for use by records which implement circular buffers.
+\verb|dbGet| calls one of a number of conversion routines in order to convert data from the \verb|DBF| types to the \verb|DBR| types.
+It calls record support routines for special cases such as arrays.
+For example, if the number of field elements is greater then 1 and record support routine \verb|get_array_info| exists, then it is called.
+It returns two values:
+the current number of valid field elements and an offset.
+The number of valid elements may not match \verb|dbAddr.no_elements|, which is really the maximum number of elements allowed.
+The offset is for use by records which implement circular buffers, and provides the offset to the current beginning of the array data.
 
 \subsection{Put Routines}
 
@@ -559,11 +587,11 @@ long dbPutField(
     long nRequest); /* number of elements to write */
 \end{verbatim}
 
-\index{dbPutField}This routine is responsible for accepting data in one of the \verb|DBR_xxx| formats, converting it as necessary, and modifying 
-the database. Similar to \verb|dbGetField|, this routine calls one of a number of conversion routines to do the actual 
-conversion and relies on record support routines to handle arrays and other special cases.
+\index{dbPutField}This routine is responsible for accepting data in one of the \verb|DBR_xxx| formats, converting it as necessary, and modifying the database.
+Similar to \verb|dbGetField|, this routine calls one of a number of conversion routines to do the actual conversion and relies on record support routines to handle arrays and other special cases.
 
-It should be noted that routine \verb|dbPut| does most of the work. The actual algorithm for \verb|dbPutField| is:
+It should be noted that routine \verb|dbPut| does most of the work.
+The actual algorithm for \verb|dbPutField| is:
 
 \begin{enumerate}
 \item If the \verb|DISP| field is \verb|TRUE| then, unless it is the \verb|DISP| field itself which is being modified, the field is not written.
@@ -574,12 +602,13 @@ It should be noted that routine \verb|dbPut| does most of the work. The actual a
 
 \item If the \verb|dbPut| is successful then:
 
-If this is the \verb|PROC| field or if both of the following are \verb|TRUE|: 1) the field is a process passive field, 2) the record is 
-passive.
+If this is the \verb|PROC| field or if both of the following are \verb|TRUE|:
+1) the field is a process passive field,
+2) the record is passive.
 
 \begin{enumerate}
 
-\item If the record is already active ask for the record to be reprocessed when it completes.
+\item If the record is already active, ask for the record to be reprocessed when it completes.
 
 \item Call \verb|dbScanPassive| after setting \verb|putf| \verb|TRUE| to show the process request came from \verb|dbPutField|.
 
@@ -601,11 +630,11 @@ long dbPutLink(
     long nRequest);         /* number of elements to write */
 \end{verbatim}
 
-\index{dbPutLink}\verb|dbPutLink| is actually a macro that calls \verb|dbPutLinkValue| and can reference its arguments more than once The 
-macro skips the call for constant links. User code should never call \verb|dbPutLinkValue|.
+\index{dbPutLink}\verb|dbPutLink| is actually a macro that calls \verb|dbPutLinkValue| and can reference its arguments more than once.
+The macro skips the call for constant links.
+User code should never call \verb|dbPutLinkValue|.
 
-This routine is called by database access itself and by record support and/or device support routines in order to put values 
-into other database records via output links.
+This routine is called by database access itself and by record support and/or device support routines in order to put values into other database records via output links.
 
 For Channel Access links it calls \verb|dbCaPutLink|.
 
@@ -640,45 +669,46 @@ long dbPut(
 \end{verbatim}
 
 \index{dbPut}This routine is responsible for accepting data in one of the \verb|DBR_xxx| formats, converting it as necessary, and modifying 
-the database. Similar to \verb|dbGet|, this routine calls one of a number of conversion routines to do the actual conversion and 
-relies on record support routines to handle arrays and other special cases.
+the database.
+Similar to \verb|dbGet|, this routine calls one of a number of conversion routines to do the actual conversion and relies on record support routines to handle arrays and other special cases.
 
 \subsection{Put Notify Routines}
 
-\verb|dbPutNotify| is a request to notify the caller when all records that are processed as a result of a put complete 
-processing. Complications occur because of record linking and asynchronous records. A put can cause an entire chain of 
-records to process. If any record is an asynchronous record then record completion means asynchronous completion.
+\verb|dbPutNotify| is a request to notify the caller when all records that are processed as a result of a put complete processing.
+Complications occur because of record linking and asynchronous records.
+A put can cause an entire chain of records to process.
+If any record is an asynchronous record then record completion means asynchronous completion.
 
 \index{dbPutNotify}
 The following rules are implemented:
 
 \begin{enumerate}
-\item The user code must allocate a putNotify control block. Before calling \verb|dbPutNotify| the user must set fields 
-\verb|paddr|, \verb|pbuffer|, \verb|nRequest|, and \verb|dbrType|. \verb|paddr| is the value returned by \verb|dbNameToAddr|. The field 
-\verb|userPvt| is never accessed by the dbNotify code and is for the user. If a putNotify is already in use, i.e. a 
-\verb|dbPutNotify| has been issued and the \verb|userCallback| has not been called, it is illegal to issue a new 
-\verb|dbPutNotify| with the same putNotify control block. Any such attempt will cause an assert failure.
+\item The user code must allocate a putNotify control block.
+Before calling \verb|dbPutNotify| the user must set fields \verb|paddr|, \verb|pbuffer|, \verb|nRequest|, and \verb|dbrType|.
+\verb|paddr| is the value returned by \verb|dbNameToAddr|.
+The field \verb|userPvt| is never accessed by the dbNotify code and is for the user.
+If a putNotify is already in use, i.e. a \verb|dbPutNotify| has been issued and the \verb|userCallback| has not been called, it is illegal to issue a new \verb|dbPutNotify| with the same putNotify control block.
+Any such attempt will cause an assert failure.
 
-\item The \verb|userCallback| routine will be always be called unless \verb|dbNotifyCancel| is called. The \verb|userCallback| 
-is called when the dbPutNotify is complete. The user is then free to reuse or delete the putNotify control block. The 
-user supplied callback is called when all processing is complete or when an error is detected. If everything 
-completes synchronously the callback routine will be called BEFORE \verb|dbPutNotify| returns. The 
-\verb|userCallback| is called without anything locked.
+\item The \verb|userCallback| routine will be always be called unless \verb|dbNotifyCancel| is called.
+The \verb|userCallback| is called when the dbPutNotify is complete.
+The user is then free to reuse or delete the putNotify control block.
+The user supplied callback is called when all processing is complete or when an error is detected.
+If everything completes synchronously the callback routine will be called BEFORE \verb|dbPutNotify| returns.
+The \verb|userCallback| is called without anything locked.
 
-\item If the user calls \verb|dbNotifyCancel| then the \verb|userCallback| will NOT be called after \verb|dbNotifyCancel| 
-returns. It may get called while \verb|dbNotifyCancel| is active. If it is active \verb|dbNotifyCancel| will not return 
-until \verb|userCallback| completes. Thus after \verb|dbNotifyCancel| returns the user may reuse or delete the 
-putNotify control block. The putNotify control block MUST NOT be deleted by \verb|userCallback|.
+\item If the user calls \verb|dbNotifyCancel| then the \verb|userCallback| will NOT be called after \verb|dbNotifyCancel| returns.
+It may get called while \verb|dbNotifyCancel| is active.
+If it is active \verb|dbNotifyCancel| will not return until \verb|userCallback| completes.
+Thus after \verb|dbNotifyCancel| returns the user may reuse or delete the putNotify control block.
+The putNotify control block MUST NOT be deleted by \verb|userCallback|.
 
-\item If another putNotify is already active on the record associated with the putNotify, the new putNotify is put on a 
-restart list and automatically restarted.
+\item If another putNotify is already active on the record associated with the putNotify, the new putNotify is put on a restart list and automatically restarted.
 
-\item If the record associated with the putNotify is already active for some other reason, the putNotify takes ownership of 
-the record and starts the put request when the record completes processing.
+\item If the record associated with the putNotify is already active for some other reason, the putNotify takes ownership of the record and starts the put request when the record completes processing.
 
-\item In general a set of records may be processed as a result of a single \verb|dbPutNotify|. If a record in the set is found to 
-be active, either because PACT is true or because a putNotify already owns the record, then that record is not made 
-part of the set of records that must complete before the putNotify request completes.
+\item In general a set of records may be processed as a result of a single \verb|dbPutNotify|.
+If a record in the set is found to be active, either because PACT is true or because a putNotify already owns the record, then that record is not made part of the set of records that must complete before the putNotify request completes.
 
 \end{enumerate}
 
@@ -753,8 +783,8 @@ The status value in putNotify.status is one of
 
 \end{itemize}
 
-The user callback is always called unless \verb|dbNotifyCancel| is called before the put notify competes. It may be called 
-while dbPutNotify or dbNotifyCancel is active.
+The user callback is always called unless \verb|dbNotifyCancel| is called before the put notify competes.
+It may be called while dbPutNotify or dbNotifyCancel is active.
 
 \subsubsection{dbNotifyCancel}
 
@@ -771,12 +801,14 @@ void dbNotifyCancel(putNotify *pputnotify);
 \subsubsection{dbNotifyAdd}
 
 \index{dbNotifyAdd}
-This routine is called by database access itself. It should never be called by user code.
+This routine is called by database access itself.
+It should never be called by user code.
 
 \subsubsection{dbNotifyCompletion}
 
 \index{dbNotifyCompletion}
-This routine is called by database access itself. It should never be called by user code.
+This routine is called by database access itself.
+It should never be called by user code.
 
 \subsection{Utility Routines}
 
@@ -792,8 +824,8 @@ long dbBufferSize(
     longnRequest);/* number of elements*/
 \end{verbatim}
 
-\index{dbBufferSize}This routine returns the number of bytes that will be returned to \verb|dbGetField| if the request type, options, and number of 
-elements are specified as given to \verb|dbBufferSize|. Thus it can be used to allocate storage for buffers.
+\index{dbBufferSize}This routine returns the number of bytes that will be returned to \verb|dbGetField| if the request type, options, and number of elements are specified as given to \verb|dbBufferSize|.
+Thus it can be used to allocate storage for buffers.
 
 NOTE: This should become a Channel Access routine
 
@@ -847,9 +879,9 @@ Format:
 int dbGetFieldIndex(DBADDR *paddr);
 \end{verbatim}
 
-\index{dbGetFieldIndex}Record support routines such as \verb|special| and \verb|cvt_dbaddr| need to know which field the \verb|DBADDR| references. The 
-include file describing the record contains define statements for each field. \verb|dbGetFieldIndex| returns the index that 
-can be matched against the define statements (normally via a switch statement).
+\index{dbGetFieldIndex}Record support routines such as \verb|special| and \verb|cvt_dbaddr| need to know which field the \verb|DBADDR| references.
+The include file describing the record contains define statements for each field.
+\verb|dbGetFieldIndex| returns the index that can be matched against the define statements (normally via a switch statement).
 
 \subsubsection{dbGetNelements}
 
@@ -992,8 +1024,8 @@ long dbPutAttribute(char *recordTypename,
     char *name,char*value);
 \end{verbatim}
 
-\index{dbPutAttribute}This sets the record attribute \verb|name| for record type \verb|recordTypename| to \verb|value|. For example the following would set 
-the version for the ai record.
+\index{dbPutAttribute}This sets the record attribute \verb|name| for record type \verb|recordTypename| to \verb|value|.
+For example the following would set the version for the ai record.
 
 \begin{verbatim}
 dbPutAttribute("ai","VERS","V800.6.95")
@@ -1021,13 +1053,13 @@ void dbScanFwdLink(struct link *plink);
 \index{dbScanPassive}
 \index{dbScanLink}
 \index{dbScanFwdLink}
- \verb|dbScanPassive| and \verb|dbScanLink| are given the record requesting the scan, which may be \verb|NULL|, and the record to 
-be processed. If the record is passive and \verb|pact| is \verb|FALSE| then \verb|dbProcess| is called. Note that these routine are called by 
-\verb|dbGetLink|, \verb|dbPutField|, and by \verb|recGblFwdLink|.
+ \verb|dbScanPassive| and \verb|dbScanLink| are given the record requesting the scan, which may be \verb|NULL|, and the record to be processed.
+If the record is passive and \verb|pact| is \verb|FALSE| then \verb|dbProcess| is called.
+Note that these routine are called by \verb|dbGetLink|, \verb|dbPutField|, and by \verb|recGblFwdLink|.
 
-\verb|dbScanFwdLink| is given a link that must be a forward link field. It follows the rules for scanning a forward link. That 
-is for DB\_LINKs it calls dbScanPassive and for CA\_LINKS it does a dbCaPutLink if the PROC field of record is being 
-addressed.
+\verb|dbScanFwdLink| is given a link that must be a forward link field.
+It follows the rules for scanning a forward link.
+That is for DB\_LINKs it calls dbScanPassive and for CA\_LINKS it does a dbCaPutLink if the PROC field of record is being addressed.
 
 \subsubsection{dbProcess }
 
@@ -1037,12 +1069,13 @@ Request that a database record be processed, format:
 long dbProcess(struct dbCommom  *precord);
 \end{verbatim}
 
-\index{dbProcess}Request that record be processed. Record processing is described in detail below.
+\index{dbProcess}Request that record be processed.
+Record processing is described in detail below.
 
 \section{Runtime Link Modification}
 
-Database links can be changed at run time but only via a channel access client, i.e. via calls to \verb|dbPutField| but not to 
-\verb|dbPutLink|. The following restrictions apply:
+Database links can be changed at run time but only via a channel access client, i.e. via calls to \verb|dbPutField| but not to \verb|dbPutLink|.
+The following restrictions apply:
 
 \begin{itemize}
 \item The date type may be \verb|DBR_STRING| or a nil-terminated array of DBR\_CHAR or DBR\_UCHAR characters
@@ -1056,11 +1089,10 @@ Database links can be changed at run time but only via a channel access client, 
 \section{Channel Access Monitors}
 
 \index{Channel Access Monitors}
-There are facilities within the Channel Access communication infrastructure which allow the value of a process variable 
-to be monitored by a channel access client. It is a responsibility of record support (and db common) to notify the channel 
-access server when the internal state of a process variable has been modified. State changes can include changes in the 
-value of a process variable and also changes in the alarm state of a process variable. The routine ``db\_post\_events()" is 
-called to inform the channel access server that a process variable state change event has occurred.
+There are facilities within the Channel Access communication infrastructure which allow the value of a process variable to be monitored by a channel access client.
+It is a responsibility of record support (and db common) to notify the channel access server when the internal state of a process variable has been modified.
+State changes can include changes in the value of a process variable and also changes in the alarm state of a process variable.
+The routine \verb|db_post_events| is called to inform the channel access server that a process variable state change event has occurred.
 
 \begin{verbatim}
 #include <caeventmask.h>
@@ -1069,41 +1101,42 @@ int db_post_events(void *precord, void *pfield,
 unsigned intselect);
 \end{verbatim}
 
-\index{db\_post\_events}The first argument, ``precord", should be passed a pointer to the record which is posting the event(s). The second 
-argument, ``pfield", should be passed a pointer to the field in the record that contains the process variable that has been 
-modified. The third argument, ``select", should be passed an event select mask. This mask can be any logical or 
-combination of \{DBE\_VALUE, DBE\_LOG, DBE\_ALARM\}. A description of the purpose of each flag in the event select 
-mask follows.
+\index{db\_post\_events}
+The first argument, ``precord", should be passed a pointer to the record which is posting the event(s).
+The second argument, ``pfield", should be passed a pointer to the field in the record that contains the process variable that has been modified.
+The third argument, ``select", should be passed an event select mask.
+This mask can be any logical or combination of \{DBE\_VALUE, DBE\_LOG, DBE\_ALARM\}.
+A description of the purpose of each flag in the event select mask follows.
 
 \begin{itemize}
-\item DBE\_VALUE This indicates that a significant change in the process variable's value has occurred. A significant 
-change is often determined by the magnitude of the monitor ``dead band" field in the record.
+\item DBE\_VALUE This indicates that a significant change in the process variable's value has occurred.
+A significant change is often determined by the magnitude of the monitor ``dead band" field in the record.
 
-\item DBE\_LOG This indicates that a change in the process variable's value significant to archival clients has occurred. 
-A significant change to archival clients is often determined by the magnitude of the archive ``dead band" field in 
-the record.
+\item DBE\_LOG This indicates that a change in the process variable's value significant to archival clients has occurred.
+A significant change to archival clients is often determined by the magnitude of the archive ``dead band" field in the record.
 
 \item DBE\_ALARM This indicates that a change in the process variable's alarm state has occurred.
 
 \end{itemize}
 
-The function ``db\_post\_events()" returns 0 if it is successful and -1 if it fails. It appears to be common practice within 
-EPICS record support to ignore the status from ``db\_post\_events()". At this time ``db\_post\_events()" always returns 0 
-(success). because so many records at this time depend on this behavior it is unlikely that it will be changed in the future.
+The function \verb|db_post_events| returns 0 if it is successful and -1 if it fails.
+It appears to be common practice within EPICS record support to ignore the status from \verb|db_post_events|.
+At this time \verb|db_post_events| always returns 0 (success).
+Because so many records at this time depend on this behavior it is unlikely that it will be changed in the future.
 
-The function ``db\_post\_events()" is written so that record support will never be blocked attempting to post an event 
-because a slow client is not able to process events fast enough. Each call to ``db\_post\_events()" causes the current value, 
-alarm status, and time stamp for the field to be copied into a ring buffer. The thread calling ``db\_post\_events()" will not be 
-delayed by any network or memory allocation overhead. A lower priority thread in the server is responsible for 
-transferring the events in the event queue to the channel access clients that may be monitoring the process variable.
+The function \verb|db_post_events| is written so that record support will never be blocked attempting to post an event because a slow client is not able to process events fast enough.
+Each call to \verb|db_post_events| causes the current value, alarm status, and time stamp for the field to be copied into a ring buffer.
+The thread calling \verb|db_post_events| will not be delayed by any network or memory allocation overhead.
+A lower priority thread in the server is responsible for transferring the events in the event queue to the channel access clients that may be monitoring the process variable.
 
-Currently, when an event is posted for a DBF\_STRING field or a field containing array data the value is NOT saved in the 
-ring buffer and the client will receive whatever value happens to be in the field when the lower priority thread transfers 
-the event to the client. This behavior may be improved in the future.
+Currently, when an event is posted for a DBF\_STRING field or a field containing array data the value is NOT saved in the ring buffer and the client will receive whatever value happens to be in the field when the lower priority thread transfers 
+the event to the client.
+This behavior may be improved in the future.
 
 \section{Lock Set Routines}
 
-User code only calls \verb|dbScanLock| and \verb|dbScanUnlock|. All other routines are called by \verb|iocCore|.
+User code only calls \verb|dbScanLock| and \verb|dbScanUnlock|.
+All other routines are called by \verb|iocCore|.
 
 \subsubsection{dbScanLock}
 
@@ -1133,8 +1166,9 @@ Get lock set id:
 long dbLockGetLockId(struct dbCommon *precord);
 \end{verbatim}
 
-\index{dbLockGetLockId}Each lock set is assigned a unique ID. This routine retrieves it. This is most useful to determine if two records are in the 
-same lock set.
+\index{dbLockGetLockId}Each lock set is assigned a unique ID.
+This routine retrieves it.
+This is most useful to determine if two records are in the same lock set.
 
 \subsubsection{dbLockInitRecords}
 
@@ -1155,8 +1189,9 @@ void dbLockSetMerge(struct dbCommon *pfirst,
     struct dbCommon *psecond);
 \end{verbatim}
 
-\index{dbLockSetMerge}If specified records are not in same lock set the lock sets are merged. Called by dbLockInitRecords and also when links 
-are modified by \verb|dbPutField|.
+\index{dbLockSetMerge}
+If specified records are not in same lock set the lock sets are merged.
+Called by dbLockInitRecords and also when links are modified by \verb|dbPutField|.
 
 \subsubsection{dbLockSetSplitSl}
 
@@ -1166,7 +1201,7 @@ Recompute lock sets for given lock set
 void dbLockSetSplit(struct dbCommon *psource);
 \end{verbatim}
 
-\index{dbLockSetSplit}This is called when \verb|dbPutField| modifys links.
+\index{dbLockSetSplit}This is called when \verb|dbPutField| modifies links.
 
 \subsubsection{dbLockSetGblLock}
 
@@ -1176,7 +1211,8 @@ Global lock for modifying links.
 void dbLockSetGblLock(void);
 \end{verbatim}
 
-\index{dbLockSetGblLock}Only one task at a time can modify link fields. This routine provides a global lock to prevent conflicts.
+\index{dbLockSetGblLock}Only one task at a time can modify link fields.
+This routine provides a global lock to prevent conflicts.
 
 \subsubsection{dbLockSetGblUnlock}
 
@@ -1196,27 +1232,30 @@ void dbLockSetRecordLock(struct dbCommon *precord);
 
 \index{dbLockSetRecordLock}\section{Channel Access Database Links}
 
-The routines described here are used to create and manipulate Channel Access connections from database input or output 
-links. At IOC initialization an attempt is made to convert all process variable links to database links. For any link that 
-fails, it is assumed that the link is a Channel Access link, i.e. a link to a process variable defined in another IOC. The 
-routines described here are used to manage these links. User code never needs to call these routines. They are 
-automatically called by iocInit and database access.
+The routines described here are used to create and manipulate Channel Access connections from database input or output links.
+At IOC initialization an attempt is made to convert all process variable links to database links.
+For any link that fails, it is assumed that the link is a Channel Access link, i.e. a link to a process variable defined in another IOC.
+The routines described here are used to manage these links.
+User code never needs to call these routines.
+They are automatically called by iocInit and database access.
 
-At \verb|iocInit| time a task \verb|dbCaLink| is spawned. This task is a channel access client that issues channel access requests 
-for all channel access links in the database. For each link a channel access search request is issued. When the search 
-succeeds a channel access monitor is established. The monitor is issued specifying \verb|ca_field_type| and 
-\verb|ca_element_count|. A buffer is also allocated to hold monitor return data as well as severity. When \verb|dbCaGetLink| is 
-called data is taken from the buffer, converted if necessary, and placed in the location specified by the \verb|pbuffer| 
+At \verb|iocInit| time a task \verb|dbCaLink| is spawned.
+This task is a channel access client that issues channel access requests for all channel access links in the database.
+For each link a channel access search request is issued.
+When the search succeeds a channel access monitor is established.
+The monitor is issued specifying \verb|ca_field_type| and \verb|ca_element_count|.
+A buffer is also allocated to hold monitor return data as well as severity.
+When \verb|dbCaGetLink| is called data is taken from the buffer, converted if necessary, and placed in the location specified by the \verb|pbuffer| 
 argument.
 
-When the first \verb|dbCaPutLink| is called for a link an output buffer is allocated, again using \verb|ca_field_type| and 
-\verb|ca_element_count|. The data specified by the pbuffer argument is converted and stored in the buffer. A request is then 
-made to \verb|dbCaLink| task to issue a \verb|ca_put|. Subsequent calls to \verb|dbCaPutLink| reuse the same buffer.
+When the first \verb|dbCaPutLink| is called for a link an output buffer is allocated, again using \verb|ca_field_type| and \verb|ca_element_count|.
+The data specified by the pbuffer argument is converted and stored in the buffer.
+A request is then made to \verb|dbCaLink| task to issue a \verb|ca_put|.
+Subsequent calls to \verb|dbCaPutLink| reuse the same buffer.
 
 \subsection{Basic Routines}
 
-Except for dbCaPutLinkCallback, these routines are normally only called by database access, i.e. they are not called by 
-record support modules.
+Except for dbCaPutLinkCallback, these routines are normally only called by database access, i.e. they are not called by record support modules.
 
 \subsubsection{dbCaLinkInit}
 
@@ -1241,8 +1280,9 @@ void dbCaAddLinkCallback(struct link *plink,
     dbCaCallback connect,dbCaCallback monitor,void *userPvt);
 \end{verbatim}
 
-\index{dbCaAddLinkCallback}\verb|connect| will be called whenever the link connects or disconnects. \verb|monitor| will be called whenever a monitor event 
-occurs. \verb|connect| and or \verb|monitor| may be null.
+\index{dbCaAddLinkCallback}\verb|connect| will be called whenever the link connects or disconnects.
+\verb|monitor| will be called whenever a monitor event occurs.
+\verb|connect| and or \verb|monitor| may be null.
 
 \subsubsection{dbCaRemoveLink}
 
@@ -1252,7 +1292,8 @@ Remove channel access link.
 void dbCaRemoveLink(struct link *plink);
 \end{verbatim}
 
-\index{dbCaRemoveLink}\subsubsection{dbCaGetLink}
+\index{dbCaRemoveLink}
+\subsubsection{dbCaGetLink}
 
 Get link value
 
@@ -1261,7 +1302,8 @@ long dbCaGetLink(struct link *plink,short dbrType,
     void *pbuffer,unsigned short *psevr,long *nRequest);
 \end{verbatim}
 
-\index{dbCaGetLink}\subsubsection{dbCaPutLink}
+\index{dbCaGetLink}
+\subsubsection{dbCaPutLink}
 
 Put link value
 
@@ -1270,7 +1312,8 @@ long dbCaPutLink(struct link *plink,short dbrType,
     void *buffering nRequest);
 \end{verbatim}
 
-\index{dbCaPutLink}\subsubsection{dbCaPutLinkCallback}
+\index{dbCaPutLink}
+\subsubsection{dbCaPutLinkCallback}
 
 This is meant for use by device or record support that wants a put to complete before completing record processing.
 
@@ -1279,7 +1322,10 @@ long dbCaPutLinkCallback(struct link *plink,short dbrType,
 const void *pbuffer,long nRequest,dbCaPutCallback callback);
 \end{verbatim}
 
-\index{dbCaPutLinkCallback}\textless{}base\textgreater{}/src/dev/devSoft/\index{devAoSoftCallback.c}devAoSoftCallback.c provides an example of how to use this function. It contains:
+\index{dbCaPutLinkCallback}
+\index{devAoSoftCallback.c}
+\textless{}base\textgreater{}/src/dev/devSoft/devAoSoftCallback.c provides an example of how to use this function.
+It contains:
 
 \begin{verbatim}
 static long write_ao(aoRecord *pao)
@@ -1311,22 +1357,29 @@ What happens is the following:
 
 \begin{description}
 
-\item If the link is not a CA\_LINK it just calls dbPutLink. It leaves pact 0. Thus record support completes.
+\item If the link is not a CA\_LINK it just calls dbPutLink.
+It leaves pact 0.
+Thus record support completes.
 
-\item If it is a CA\_LINK it calls dbCaPutLinkCallback and sets pact true. Thus record is asynchronous.
+\item If it is a CA\_LINK it calls dbCaPutLinkCallback and sets pact true.
+Thus record is asynchronous.
 
 \end{description}
 
-\item If the record is asynchrnous then sometime later dbCaCallbackProcess is called. It calls the process routine of record support, which calls write\_ao with pact true. write\_ao just returns success. Record support then completes the second phase of record processing.
+\item If the record is asynchrnous then sometime later dbCaCallbackProcess is called.
+It calls the process routine of record support, which calls write\_ao with pact true.
+write\_ao just returns success.
+Record support then completes the second phase of record processing.
 
 \end{description}
 
-There is a possibility that the link is changed between the two phases of record processing. If this happens the user supplied callback will still get called exactly once but the link may have been modified.
+There is a possibility that the link is changed between the two phases of record processing.
+If this happens the user supplied callback will still get called exactly once but the link may have been modified.
 
 \subsection{Attributes of Link}
 
-The routines in this section are meant for use by device support to find out information about link fields. They must be 
-called with dbScanLock held, i.e. normally they are called by the read or write method provided by device support.
+The routines in this section are meant for use by device support to find out information about link fields.
+They must be called with dbScanLock held, i.e. normally they are called by the read or write method provided by device support.
 
 \subsubsection{dbCaIsLinkConnected}
 
@@ -1387,8 +1440,8 @@ long dbCaGetAttributes(struct link *plink,
     void (*callback)(void *usrPvt),void *usrPvt);
 \end{verbatim}
 
-\index{dbCaGetAttributes}When ever dbCa receives a connection it issues a CA get request to obtain the control, graphic, and alarm limits and to 
-obtain the precision and units. By calling dbCaGetAttributes the caller can be notified when this get completes.
+\index{dbCaGetAttributes}When ever dbCa receives a connection it issues a CA get request to obtain the control, graphic, and alarm limits and to obtain the precision and units.
+By calling dbCaGetAttributes the caller can be notified when this get completes.
 
 \subsubsection{dbCaGetControlLimits}
 
@@ -1398,8 +1451,8 @@ Get Control Limits
 long dbCaGetControlLimits(struct link *plink,double *low, double *high);
 \end{verbatim}
 
-\index{dbCaGetControlLimits}This call returns an error if the link is not connected or if the CA get request for limits, etc. has not completed. If it returns 
-success it has set the control limits.
+\index{dbCaGetControlLimits}This call returns an error if the link is not connected or if the CA get request for limits, etc. has not completed.
+If it returns success it has set the control limits.
 
 \subsubsection{dbCaGetGraphicLimits}
 
@@ -1409,8 +1462,8 @@ Get graphic Limits
 long dbCaGetGraphicLimits(struct link *plink,double *low, double *high);
 \end{verbatim}
 
-\index{dbCaGetGraphicLimits}This call returns an error if the link is not connected or if the CA get request for limits, etc. has not completed. If it returns 
-success it has set the graphic limits.
+\index{dbCaGetGraphicLimits}This call returns an error if the link is not connected or if the CA get request for limits, etc. has not completed.
+If it returns success it has set the graphic limits.
 
 \subsubsection{dbCaGetAlarmLimits}
 
@@ -1421,8 +1474,8 @@ long dbCaGetAlarmLimits(struct link *plink,
     double *lolo, double *low, double *high, double *hihi);
 \end{verbatim}
 
-\index{dbCaGetAlarmLimits}This call returns an error if the link is not connected or if the CA get request for limits, etc. has not completed. If it returns 
-success it has set the alarm limits.
+\index{dbCaGetAlarmLimits}This call returns an error if the link is not connected or if the CA get request for limits, etc. has not completed.
+If it returns success it has set the alarm limits.
 
 \subsubsection{dbCaGetPrecision}
 
@@ -1432,8 +1485,8 @@ Get Precision
 long dbCaGetPrecision(struct link *plink,short *precision);
 \end{verbatim}
 
-\index{dbCaGetPrecision}This call returns an error if the link is not connected or if the CA get request for limits, etc. has not completed. If it returns 
-success it has set the precision.
+\index{dbCaGetPrecision}This call returns an error if the link is not connected or if the CA get request for limits, etc. has not completed.
+If it returns success it has set the precision.
 
 \subsubsection{dbCaGetUnits}
 
@@ -1443,5 +1496,5 @@ Get Units
 long dbCaGetUnits(struct link *plink,char *units,int unitsSize);
 \end{verbatim}
 
-\index{dbCaGetUnits}This call returns an error if the link is not connected or if the CA get request for limits, etc. has not completed. If it returns 
-success it has set the units.
+\index{dbCaGetUnits}This call returns an error if the link is not connected or if the CA get request for limits, etc. has not completed.
+If it returns success it has set the units.

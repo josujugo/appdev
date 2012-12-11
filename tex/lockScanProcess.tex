@@ -86,8 +86,9 @@ Database links are referenced by calling one of the following routines:
 
 \end{itemize}
 
-A forward link only makes sense when it refers to a passive record that should be processed when after record containing the link.
-For input and output links, however, two other attributes can be specified by the application developer: process passive, and maximize severity.
+A forward link only makes sense when it refers to a passive record that should be processed after the record that contains the link.
+
+For input and output links, two additional attributes can be specified by the application developer: process passive, and maximize severity.
 
 \subsection{Process Passive}
 
@@ -297,8 +298,7 @@ This prevents two different tasks from simultaneously modifying records in the s
 
 Every record contains a field \verb|PACT|.
 This field is set \verb|TRUE| at the beginning of record processing and is not set \verb|FALSE| until the record is completely processed.
-In particular no links are processed with \verb|PACT| \verb|FALSE|.
-This prevents infinite processing loops.
+To prevent infinite processing loops, whenever a record gets processed through a forward link, or a database link with the \verb|PP| link option, the linking record's \verb|PACT| field is saved and set to \verb|TRUE|, then restored again afterwards.
 The example given at the beginning of this section gives an example.
 It will be seen in the next two sections that \verb|PACT| has other uses.
 
