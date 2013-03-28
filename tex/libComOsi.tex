@@ -1018,6 +1018,7 @@ void epicsThreadSleep(double seconds);
 double epicsThreadSleepQuantum(void);
 epicsThreadId epicsThreadGetIdSelf(void);
 epicsThreadId epicsThreadGetId(const char *name);
+int epicsThreadGetCPUs(void);
 
 const char * epicsThreadGetNameSelf(void);
 void epicsThreadGetName(epicsThreadId id, char *name, size_t size);
@@ -1071,6 +1072,7 @@ void * epicsThreadPrivateGet(epicsThreadPrivateId);
 \index{epicsThreadSleepQuantum}
 \index{epicsThreadGetIdSelf}
 \index{epicsThreadGetId}
+\index{epicsThreadGetCPUs}
 \index{epicsThreadGetNameSelf}
 \index{epicsThreadGetName}
 \index{epicsThreadIsOkToBlock}
@@ -1103,6 +1105,7 @@ epicsThreadSleep & Sleep for the specified period of time, i.e. sleep without us
 epicsThreadSleepQuantum & This function returns the minimum slumber interval obtainable with epicsThreadSleep() in seconds. On most OS there is a system scheduler interrupt interval which determines the value of this parameter. Knowledge of this parameter is used by the various components of EPICS to improve scheduling of software tasks intime when the reduction of average time scheduling errors is important.If this parameter is unknown or is unpredictable for a particular OS then it is safe to return zero.\\
 epicsThreadGetIdSelf & Get the threadId of the calling thread.\\
 epicsThreadGetId & Get the threadId of the specified thread. A return of 0 means that no thread was found with the specified name.\\
+epicsThreadGetCPUs & Get the number of CPUs (logical cores) available to the IOC. On systems that use Hyper-Threading, this may be up to twice the number of physical cores.\\
 epicsThreadGetNameSelf & Get the name of the calling thread.\\
 epicsThreadGetName & Get the name of the specified thread. The value is copied to a caller specified buffer so that if the thread terminates the caller is not left with a pointer to something that may no longer exist.\\
 epicsThreadIsOkToBlock & Is it OK for a thread to block? This can be called by support code that does not know if it is called in a thread that should not block. For example the errlog system calls this to decide when messages should be displayed on the console.\\
