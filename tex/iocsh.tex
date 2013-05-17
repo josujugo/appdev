@@ -102,10 +102,16 @@ If the file does not exist it is created.
 
 \subsection{Utility Commands}
 \label{Utility Commands}
+\index{IOC Shell!utility commands}
 
 The IOC shell recognizes the following commands as well as the commands described in chapter 6 (Database Definition) and chapter 9 (IOC Test Facilities) among others.
 The commands described in the sequencer documentation will also be recognized if the sequencer is included.
 
+\index{epicsEnvSet}
+\index{epicsEnvShow}
+\index{epicsParamShow}
+\index{iocLogInit}
+\index{epicsThreadSleep}
 \begin{center}
 \begin{longtable}{p{1.59082in}p{5.21418in}}
 Command & Description\\
@@ -141,6 +147,7 @@ The following changes must be made to add this command to an application.
 \end{itemize}
 
 \subsection{Environment Variables}
+\index{IOC Shell!environment variables}
 
 The IOC shell uses the following environment variables to control its operation.
 \begin{center}
@@ -158,6 +165,7 @@ TERM, INPUTRC & These and other environment variables are used by the readline a
 
 \subsection{Conditionals}
 \index{Conditionals}
+\index{IOC Shell!conditionals}
 
 The IOC shell does not provide operaters for conditionally executing commands
 but the effect can be simulated using macro expansion.  The simplest
@@ -198,6 +206,7 @@ The declarations described in this section are included in the \verb|iocsh.h| he
 \index{iocsh.h}
 
 \subsection{Invoking the IOC shell}
+\index{IOC Shell!invoking}
 
 The prototypes for calling the IOC shell command interpreter are:
 
@@ -233,6 +242,7 @@ iocshCmd "iocsh command string"
 The stdio stream redirection and environment variable expansion processes described above are performed on the string as part of the execution process.
 
 \subsection{Registering Commands}
+\index{IOC Shell!registering commands}
 
 Commands must be registered before they can be recognized by the IOC shell.
 Registration is achieved by calling the registration function:
