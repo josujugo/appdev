@@ -110,7 +110,7 @@ int callbackRequest(CALLBACK *pcb);
 int callbackRequestProcessCallback(CALLBACK *pcb, int prio, void *prec);
 \end{verbatim}
 
-Both can be called from interrupt level code. The callback routine is passed a single argument, which is the same argument that was passed to \verb|callbackRequest|, i.e., the address of the \verb|CALLBACK| structure. The second routine is a shortcut for calling both \verb|callbackSetProcess| and \verb|callbackRequest|. Both return zero in case of success, or one of the following error codes: \verb|S_db_notInit| for a NULL callback pointer, \verb|S_db_badChoice| for an illegal priority value, or \verb|S_db_bufFull| when the associated queue is full. 
+Both can be called from interrupt level code. The callback routine is passed a single argument, which is the same argument that was passed to \verb|callbackRequest|, i.e., the address of the \verb|CALLBACK| structure. The second routine is a shortcut for calling both \verb|callbackSetProcess| and \verb|callbackRequest|. Both return zero in case of success, or an error code (see below). 
 
 The following delayed versions wait for the given time before queueing the callback routine for the relevant thread set to execute.
 
@@ -154,9 +154,9 @@ void callbackSetUser(void *user, CALLBACK *pcallback);
 void callbackGetUser(void *user, CALLBACK *pcallback);
 void callbackSetProcess(CALLBACK *pcallback, int Priority, void *prec);
 
-void callbackRequest(CALLBACK *);
-void callbackRequestProcessCallback(CALLBACK *pCallback,
-int Priority, void *prec);
+int callbackRequest(CALLBACK *);
+int callbackRequestProcessCallback(
+    CALLBACK *pCallback, int Priority, void *prec);
 void callbackRequestDelayed(CALLBACK *pCallback, double seconds);
 void callbackRequestProcessCallbackDelayed(
     CALLBACK *pCallback, int Priority, void *prec, double seconds);
@@ -171,7 +171,7 @@ thus user code never calls these functions.
 \item \verb|callbackSetCallback|, \verb|callbackSetPriority|, \verb|callbackSetUser|, and \verb|callbackGetUser| are 
 actually macros.
 
-\item \verb|Both callbackRequest| and \verb|callbackRequestProcessCallback| may be called from interrupt context.
+\item \verb|Both callbackRequest| and \verb|callbackRequestProcessCallback| may be called from interrupt context. Both return zero for success, or one of the following error codes: \verb|S_db_notInit| for a NULL callback pointer, \verb|S_db_badChoice| for an illegal priority value, or \verb|S_db_bufFull| when the associated queue is full.
 
 \item The delayed versions of the \verb|callbackRequest| routines wait the given time before queueing the callback.
 
