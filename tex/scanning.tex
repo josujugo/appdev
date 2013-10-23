@@ -123,6 +123,7 @@ The most important definitions in this file are:
 
 /*definitions for I/O Interrupt Scanning */
 typedef struct io_scan_list *IOSCANPVT;
+typedef void (*io_scan_complete)(void *, IOSCANPVT, int);
 
 long scanInit(void);
 void scanRun(void);
@@ -140,7 +141,8 @@ int scanpel(void);    /* print event lists*/
 int scanpiol(void);   /* print io_event list*/
 
 void scanIoInit(IOSCANPVT *);
-void scanIoRequest(IOSCANPVT);
+unsigned int scanIoRequest(IOSCANPVT);
+void scanIoSetComplete(IOSCANPVT, io_scan_complete, void*);
 \end{verbatim}
 
 \index{SCAN\_1ST\_PERIODIC}The first set of definitions defines the various scan types. The next definition \verb|IOSCANPVT| is used when interfacing with 
@@ -210,7 +212,7 @@ Interfacing to the I/O event scanner is done via some combination of device and 
 \begin{enumerate}
 \item Include \verb|<dbScan.h>|
 
-\item For each separate event source the following must be done:
+\item For each separate I/O event source the following must be done:
 
 \begin{enumerate}
 
@@ -242,12 +244,25 @@ This routine is called each time the record pointed to by \verb|precord| is adde
 \item Whenever an I/O event is detected call \verb|scanIoRequest|, e.g.
 
 \begin{verbatim}
-scanIoRequest(ioscanpvt)
+scanIoRequest(ioscanpvt);
 \end{verbatim}
 
-This routine can be called from interrupt level. The request is actually directed to one of the standard callback 
-tasks. The actual one is determined by the \verb|PRIO| field of \verb|dbCommon|. 
+This routine can be called from interrupt level. The request is queued and will be handled by one of the standard callback threads. There are three sets of callback threads feeding from three queues, one for each priority level (see \ref{sec:callbackThreads}), and the \verb|PRIO| field of the record determines which one is being used. 
 
+\verb|scanIoRequest| returns a bit mask that indicates the priority levels for which record processing requests have been queued.
+
+Device and driver support that wants to implement flow control can set up a completion callback by calling \verb|scanIoSetComplete|, e.g.
+
+\begin{verbatim}
+static void myCallback(void *arg, IOSCANPVT pvt, int prio)
+{
+[...]
+}
+
+scanIoSetComplete(ioscanpvt, myCallback, (void*)arg);
+\end{verbatim}
+
+The completion callback will be called from the callback thread context, once per priority used (bits set in the return value of \verb|scanIoRequest|), after the list of records with that priority level has been processed. Note that for records with asynchronous device support, record processing might not have completed when the callback is issued.
 \end{enumerate}
 
 The following code fragment shows an event record device support module that supports I/O event scanning: 
