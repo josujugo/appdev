@@ -130,6 +130,7 @@ These routines cannot be called from interrupt level code.
 The following calls are provided:
 
 \index{callbackInit}
+\index{callbackShutdown}
 \index{callbackSetCallback}
 \index{callbackSetPriority}
 \index{callbackSetUser}
@@ -144,6 +145,7 @@ The following calls are provided:
 Notes:
 \begin{verbatim}
 void callbackInit(void);
+void callbackShutdown(void);
 
 void callbackSetCallback(void *pcallbackFunction,
     CALLBACK *pcallback);
@@ -163,7 +165,8 @@ int callbackSetQueueSize(int size);
 \end{verbatim}
 
 \begin{itemize}
-\item \verb|callbackInit| is performed automatically at IOC initialization, thus user code never calls this function.
+\item \verb|callbackInit| and \verb|callbackShutdown| are performed automatically at IOC initialization or shutdown,
+thus user code never calls these functions.
 
 \item \verb|callbackSetCallback|, \verb|callbackSetPriority|, \verb|callbackSetUser|, and \verb|callbackGetUser| are 
 actually macros.
