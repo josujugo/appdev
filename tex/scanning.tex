@@ -79,7 +79,7 @@ Thus the application developer will normally want to define events in the range 
 \index{PRIO - Scan Related Field}
 This field can be used by any software component that needs to specify scheduling priority, e.g. the event and I/O event scan facility uses this field.
 
-\section{ Scan Related Software Components }
+\section{Scan Related Software Components}
 
 \subsection{menuScan.dbd}
 
@@ -102,7 +102,7 @@ menu(menuScan) {
 }
 \end{verbatim}
 
-The first three choices must appear first and in the order shown.
+The first three choices must appear in the order and location shown.
 The remaining definitions are for the periodic scan rates, which must appear in the order slowest to fastest (the order directly controls the thread priority assigned to the particular scan rate, and faster scan rates should be assigned higher thread priorities).
 At IOC initialization, the menu choice strings are read at scan initialization.
 The number of periodic scan rates and the period of each rate is determined from the menu choice strings.
@@ -503,9 +503,11 @@ For each scan rate a \verb|scan_list| is allocated and a \verb|periodicTask| is 
 periodicTask (struct scan_list *psl)
 \end{verbatim}
 
-\index{periodicTask}This task just performs an infinite loop of calling \verb|scanList| and then waiting until the beginning of the next scan interval, allowing for the time it took to scan the list.
-If a periodic scan list takes longer to process than its defined scan period, the next scan will not start until at least 0.1 seconds have elapsed.
-This does not limit what scan rates can actually be implemented as long as all the records in the list can be processed within the requested period.
+\index{periodicTask}This task just performs an infinite loop, calling \verb|scanList| and then waiting until the start of the next scan interval, allowing for the time it took to scan the list.
+If a periodic scan list takes longer to process than its defined scan period, the next scan will be delayed by half a scan period, with a maximum of 1 second delay.
+This does not limit what scan rates can actually be implemented, as long as all the records in the list can be processed within the requested period.
+Persistent over-runs (more than 10 times in a row) will result in a warning message being logged.
+The total number of over-runs is counted by each scan thread and can be displayed using the \verb|scanppl| command.
 
 \subsection{Scan Once}
 
