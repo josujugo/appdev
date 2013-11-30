@@ -1743,12 +1743,13 @@ location cannot be mapped.
 typedef enum {
     atVMEA16, atVMEA24, atVMEA32,
     atISA,
+    atVMECSR,
     atLast /* atLast is the last enum in this list */
 } epicsAddressType;
 
 char  *epicsAddressTypeName[] = {
     "VME A16", "VME A24", "VME A32",
-    "ISA"
+    "ISA", "VME CSR"
 };
 \end{verbatim}
 
