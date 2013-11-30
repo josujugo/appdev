@@ -637,6 +637,52 @@ The reason epicsInterrupt is needed is:
 
 \end{itemize}
 
+\section{epicsMMIO}
+
+\verb|epicsMMIO.h| provides a set of calls to perform safe access to Memory Mapped I/O regions.
+This is the typical means to access VME or PCI bus devices.
+
+The following are the equivalant signatures of the MMIO read and write calls.
+The actual implement may use macros.
+
+\begin{lstlisting}[language=C]
+epicsUInt8      ioread8 (void* addr);
+epicsUInt16 nat_ioread16(void* addr);
+epicsUInt16  be_ioread16(void* addr);
+epicsUInt16  le_ioread16(void* addr);
+epicsUInt32 nat_ioread32(void* addr);
+epicsUInt32  be_ioread32(void* addr);
+epicsUInt32  le_ioread32(void* addr);
+
+void     iowrite8 (void* addr, epicsUInt8  val);
+void nat_iowrite16(void* addr, epicsUInt16 val);
+void  be_iowrite16(void* addr, epicsUInt16 val);
+void  le_iowrite16(void* addr, epicsUInt16 val);
+void nat_iowrite32(void* addr, epicsUInt32 val);
+void  be_iowrite32(void* addr, epicsUInt32 val);
+void  le_iowrite32(void* addr, epicsUInt32 val);
+\end{lstlisting}
+
+The 16 and 32-bit calls have three variants: \verb|nat_|, \verb|be_|, and \verb|le_|
+which specify the byte ordering of the MMIO register being access as having:
+CPU Native, Big Endian, or Little Endian byte order.
+The specification will be used to re-order the bytes read/written
+into the CPU native integer format.
+
+Determining which of these variants to use in a specific case
+requires knowledge of the underlying hardware (bus and/or device).
+This document can present only a general rule,
+which is that the \verb|nat_| variant will be used
+for VME devices as the common bus bridges do automatic byte lane swapping.
+PCI devices will generally use of one \verb|be_| or \verb|le_|, although
+some devices have been known to have a mix of BE and LE registers.
+
+These calls do not perform any checking of address alignment.
+
+All of these calls have CPU, OS, and/or compiler specific definitions which
+try to preserve all MMIO operations by defeating instruction reordering
+and operation splitting/combining optimizations by the compiler and CPU.
+
 \section{epicsMath}
 
 \index{epicsMath}
