@@ -62,6 +62,7 @@ recordtype(record_type) {
         size(size_value)
         extra("extra_info")
         menu(name)
+        prop(yesno)
     }
     %C_declaration
     ...
@@ -341,6 +342,7 @@ recordtype(record_type) {
         size(size_value)
         extra("extra_info")
         menu("name")
+        prop(yesno)
     }
     %C_declaration
     ...
@@ -386,6 +388,9 @@ Optional if \verb|promptgroup| is not defined.
 
 \index{menu -- field definition rules}
 \item [menu] Must be specified for \verb|DBF_MENU| fields. It is the name of the associated menu.
+
+\index{prop -- field definition rules}
+\item [prop] Must be YES or NO (default).  Indicates that the field holds Channel Access meta-data.
 \end{description}
 
 \subsection{Definitions}
