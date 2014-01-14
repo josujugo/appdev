@@ -1069,12 +1069,10 @@ record(bi,STS_AbDiA0C0S0) {
 \label{Record Information Item}
 
 \index{Information item}
-Information items provide a way to attach named string values to individual record instances that are loaded at the same 
-time as the record definition. They can be attached to any record without having to modify the record type, and can be 
-retrieved by programs running on the IOC (they are not visible via Channel Access at all). Each item attached to a single 
-record must have a unique name by which it is addressed, and database access provides routines to allow a record's info 
-items to be scanned, searched for, retrieved and set. At runtime a \verb|void*| \index{Infomation item pointer}pointer can also be associated with each item, 
-although only the string value can be initialized from the record definition when the database is loaded.
+Information items provide a way to attach named string values to individual record instances that are loaded at the same time as the record definition.
+They can be attached to any record without having to modify the record type, and can be retrieved by programs running on the IOC (they are not visible via Channel Access at all).
+Each item attached to a single record must have a unique name by which it is addressed, and database access provides routines to allow a record's info items to be scanned, searched for, retrieved and set.
+At runtime a \verb|void*| \index{Infomation item pointer}pointer can also be associated with each item, although only the string value can be initialized from the record definition when the database is loaded.
 
 \section{Record Attributes}
 
@@ -1116,12 +1114,11 @@ These records allow raw data to be converted to/from engineering units via one o
 \item Breakpoint table.
 \end{enumerate}
 
-Other record types can also use this feature. The first choice specifies no conversion; the second and third are both linear 
-conversions, the difference being that for Slope conversion the user specifies the conversion slope and offset directly, 
-whereas for Linear conversions these are calculated by the device support from the requsted Engineering Units range and 
-the device support's knowledge of the hardware conversion range. The remaining choices are assumed to be the names of 
-breakpoint tables. If a breakpoint table is chosen, the record support modules calls \verb|cvtRawToEngBpt| or 
-\verb|cvtEngToRawBpt|. You can look at the \verb|ai| and \verb|ao| record support modules for details.
+Other record types can also use this feature.
+The first choice specifies no conversion; the second and third are both linear conversions, the difference being that for Slope conversion the user specifies the conversion slope and offset values directly, whereas for Linear conversions these are calculated by the device support from the requested Engineering Units range and the device support's knowledge of the hardware conversion range.
+The remaining choices are assumed to be the names of breakpoint tables.
+If a breakpoint table is chosen, the record support modules calls \verb|cvtRawToEngBpt| or \verb|cvtEngToRawBpt|.
+You can look at the \verb|ai| and \verb|ao| record support modules for details.
 
 If a user wants to add additional breakpoint tables, then the following should be done:
 
@@ -1131,20 +1128,19 @@ If a user wants to add additional breakpoint tables, then the following should b
 \item Make sure modified \verb|menuConvert.dbd| is loaded  into the IOC instead of EPICS version.
 \end{itemize}
 
-It is only necessary to load a breakpoint file if a record instance actually chooses it. It should also be mentioned that the 
-Allen Bradley IXE device support misuses the \verb|LINR| field. If you use this module, it is very important that you do not 
-change any of the EPICS supplied definitions in \verb|menuConvert.dbd|. Just add your definitions at the end.
+It is only necessary to load a breakpoint file if a record instance actually chooses it.
+It should also be mentioned that the Allen Bradley IXE device support misuses the \verb|LINR| field.
+If you use this module, it is very important that you do not change any of the EPICS supplied definitions in \verb|menuConvert.dbd|.
+Just add your definitions at the end.
 
-If a breakpoint table is chosen, then the corresponding breakpoint file must be loaded into the IOC before \verb|iocInit| is 
-called.
+If a breakpoint table is chosen, then the corresponding breakpoint file must be loaded into the IOC before \verb|iocInit| is called.
 
-Normally, it is desirable to directly create the breakpoint tables. However, sometimes it is desirable to create a breakpoint 
-table from a table of raw values representing equally spaced engineering units. A good example is the Thermocouple 
-tables in the OMEGA Engineering, INC Temperature Measurement Handbook. A tool \index{makeBpt}\verb|makeBpt| is provided to convert 
-such data to a breakpoint table.
+Normally, it is desirable to directly create the breakpoint tables.
+However, sometimes it is desirable to create a breakpoint table from a table of raw values representing equally spaced engineering units.
+A good example is the Thermocouple tables in the OMEGA Engineering, INC Temperature Measurement Handbook.
+A tool \index{makeBpt}\verb|makeBpt| is provided to convert such data to a breakpoint table.
 
-The format for generating a breakpoint table from a data table of raw values corresponding to equally spaced engineering 
-values is:
+The format for generating a breakpoint table from a data table of raw values corresponding to equally spaced engineering values is:
 
 \begin{verbatim}
     !comment line
@@ -1179,7 +1175,8 @@ The breakpoint table can be generated by executing
     makeBpt bptXXX.data
 \end{verbatim}
 
-The input file must have the extension of data. The output filename is the same as the input filename with the extension of \verb|.dbd|.
+The input file must have the extension of data.
+The output filename is the same as the input filename with the extension of \verb|.dbd|.
 
 Another way to create the breakpoint table is to include the following definition in a \verb|Makefile|:
 
@@ -1196,16 +1193,14 @@ NOTE: This requires the naming convention that all data tables are of the form \
 
 \index{dbToMenuH}
 \index{dbToRecordtypeH}
-Given a file containing menus, \verb|dbToMenuH| generates an include file that can be used by any code which uses the 
-associated menus. Given a file containing any combination of menu definitions and record type definitions, 
-\verb|dbToRecordtypeH| generates an include file that can be used by any code which uses the menus and record type.
+Given a file containing menus, \verb|dbToMenuH| generates an include file that can be used by any code which uses the associated menus.
+Given a file containing any combination of menu definitions and record type definitions, \verb|dbToRecordtypeH| generates an include file that can be used by any code which uses the menus and record type.
 
-EPICS base uses the following conventions for managing menu and recordtype definitions. Users generating local record 
-types are encouraged to do likewise.
+EPICS base uses the following conventions for managing menu and recordtype definitions.
+Users generating local record types are encouraged to do likewise.
 
 \begin{itemize}
-\item Each menu that is either for fields in database common (for example \verb|menuScan|) or is of global use (for example 
-\verb|menuYesNo|) is defined in a separate file.
+\item Each menu that is either for fields in database common (for example \verb|menuScan|) or is of global use (for example \verb|menuYesNo|) is defined in a separate file.
 The name of the file is the same as the menu name with an extension of \verb|.dbd|.
 The name of the generated include file is the menu name with an extension of \verb|.h|.
 Thus \verb|menuScan| is defined in a file \verb|menuScan.dbd| and the generated include file is named \verb|menuScan.h|
@@ -1347,18 +1342,18 @@ int aoRecordSizeOffset(dbRecordType *pdbRecordType)
 
 \end{verbatim}
 
-The analog output record support module and all associated device support modules should use this include file. No other 
-code should use it. Let's discuss the various parts of the file.:
+The analog output record support module and all associated device support modules should use this include file.
+No other code should use it.
+Let's discuss the various parts of the file.:
 
 \begin{itemize}
-\item The \verb|enum| generated from the menu definition should be used to reference the value of the field associated with the 
-menu.
+\item The \verb|enum| generated from the menu definition should be used to reference the value of the field associated with the menu.
 
-\item The \verb|typedef| and \verb|structure| defining the record are used by record support and device support to access fields 
-in an analog output record.
+\item The \verb|typedef| and \verb|structure| defining the record are used by record support and device support to access fields in an analog output record.
 
-\item A \verb|#define| is present for each field within the record. This is useful for the record support routines that are passed 
-a pointer to a \verb|DBADDR| structure. They can have code like the following:
+\item A \verb|#define| is present for each field within the record.
+This is useful for the record support routines that are passed a pointer to a \verb|DBADDR| structure.
+They can have code like the following:
 
 \end{itemize}
 
@@ -1375,9 +1370,9 @@ switch (dbGetFieldIndex(pdbAddr)) {
 }
 \end{verbatim}
 
-The C source routine \verb|aoRecordSizeOffset| is automatically called when a record type file is loaded into an IOC. 
-Thus user code does not have to be aware of this routine except for the following convention: The associate record 
-support module MUST include the statements:
+The C source routine \verb|aoRecordSizeOffset| is automatically called when a record type file is loaded into an IOC.
+Thus user code does not have to be aware of this routine except for the following convention:
+The associate record support module MUST include the statements:
 
 \begin{verbatim}
 #define GEN_SIZE_OFFSET
@@ -1394,19 +1389,18 @@ This convention ensures that the routine is defined exactly once.
 dbExpand -Idir -Smacsub -ooutfile file1 file2 ...
 \end{verbatim}
 
-Multiple \verb|-I| options can be specified for an include path, and multiple \verb|-S| options for macro substitution. If no output 
-filename is specified with \verb|-ooutfile| then the output will go to stdout. Note that the environment variable 
-\verb|EPICS_DB_INCLUDE_PATH| can also be used in place of the \verb|-I| options.
+Multiple \verb|-I| options can be specified for an include path, and multiple \verb|-S| options for macro substitution.
+If no output filename is specified with \verb|-ooutfile| then the output will go to stdout.
+Note that the environment variable \verb|EPICS_DB_INCLUDE_PATH| can also be used in place of the \verb|-I| options.
 
 NOTE: This is supported only on the host.
 
-This command reads all the input files and then writes a file containing the definitions for all information described by the 
-input files. The output content differs from the input in that comment lines do not appear and all include files are 
-expanded.
+This command reads all the input files and then writes a file containing the definitions for all information described by the input files.
+The output content differs from the input in that comment lines do not appear and all include files are expanded.
 
-This routine is extremely useful if an IOC is not using NFS for the \verb|dbLoadDatabase| commands. It takes more than 2 
-minutes to load the \verb|base/rec/base.dbd| file into an IOC if NFS is not used. If \verb|dbExpand| creates a local \verb|base.dbd| 
-file, it takes about 7 seconds to load (25 MHZ 68040 IOC).
+This routine is extremely useful if an IOC is not using NFS for the \verb|dbLoadDatabase| commands.
+It takes more than 2 minutes to load the \verb|base/rec/base.dbd| file into an IOC if NFS is not used.
+If \verb|dbExpand| creates a local \verb|base.dbd| file, it takes about 7 seconds to load (25 MHZ 68040 IOC).
 
 \section{dbLoadDatabase}
 
@@ -1422,16 +1416,14 @@ NOTES:
 
 \item Using a path on a vxWorks ioc does not work very well.
 
-\item Both path and substitutions can be null.
+\item Both path and substitutions can be null, and are usually ommitted.
 
-\item \verb|dbdfile| may contain environment variable macros of the form \verb|${MOTOR}| which will be expanded before the 
-file is opened.
+\item \verb|dbdfile| may contain environment variable macros of the form \verb|${MOTOR}| which will be expanded before the file is opened.
 
 \end{itemize}
 
-This command loads a database file containing any of the definitions given in the summary at the beginning of this 
-chapter. Note that normally \verb|dbLoadDatabase| is only used to load a Database Definition (\verb|.dbd|) file, but it is currently 
-possible to use it for loading Record Instance (\verb|.db|) files as well.
+This command loads a database file containing any of the definitions given in the summary at the beginning of this chapter.
+Note that \verb|dbLoadDatabase| should only used to load a Database Definition (\verb|.dbd|) file, although it is currently possible to use it for loading Record Instance (\verb|.db|) files as well.
 
 As each line of dbdfile is read, the substitutions specified in \verb|substitutions| are performed. Substitutions are specified as follows:
 
@@ -1439,13 +1431,14 @@ As each line of dbdfile is read, the substitutions specified in \verb|substituti
 "var1=sub1,var2=sub3,..."
 \end{verbatim}
 
-Variables are specified in the dbfile as \verb|$(var)|. If the substitution string
+Variables are specified in the dbfile as \verb|$(var)|.
+If the substitution string
 
 \begin{verbatim}
 "a=1,b=2,c=\"this is a test\""
 \end{verbatim}
 
-were used, any variables \verb|$(a)|, \verb|$(b)|, \verb|$(c)| would be substituted with the appropriate data.
+were used, any variables \verb|$(a)|, \verb|$(b)|, \verb|$(c)| in the database file would have the appropriate values substituted during parsing.
 
 \section{dbLoadRecords}
 
@@ -1459,10 +1452,9 @@ NOTES:
 \begin{itemize}
 \item IOC Only.
 
-\item The file indicated by \verb|dbfile| should contain only record instances, record aliases and/or breakpoint tables.
+\item The file named in \verb|dbfile| should contain only record instances, record aliases and/or breakpoint tables.
 
-\item The \verb|dbfile| string may itself contain environment variable macros of the form \verb|${MOTOR}| which will be 
-expanded before the file is opened.
+\item The \verb|dbfile| string may itself contain environment variable macros of the form \verb|${MOTOR}| which will be expanded before the file is opened.
 
 \end{itemize}
 
@@ -1482,7 +1474,7 @@ record(stringout, "$(pre)testrec3") {
 Then issuing the command:
 
 \begin{verbatim}
-dbLoadRecords("test.db", 0, "pre=TEST,STR=test,SCAN=Passive")
+dbLoadRecords("test.db", "pre=TEST,STR=test,SCAN=Passive")
 \end{verbatim}
 
 gives the same results as loading:
