@@ -747,11 +747,15 @@ Each C function corresponds to one of the C++ methods.
 
 \begin{verbatim}
 typedef enum {
-    epicsMutexLockOK,epicsMutexLockTimeout,epicsMutexLockError
+    epicsMutexLockOK, epicsMutexLockTimeout, epicsMutexLockError
 } epicsMutexLockStatus;
+
+#define newEpicsMutex new epicsMutex(__FILE__,__LINE__)
+
 class epicsMutex {
 public:
     epicsMutex ();
+    epicsMutex ( const char *pFileName, int lineno );
     ~epicsMutex ();
     void lock (); /* blocks until success */
     bool tryLock (); /* true if successful */
@@ -768,29 +772,39 @@ private:
 \index{epicsMutexLockError}
 \index{epicsMutexLockStatus}
 \index{epicsMutex}
+\index{newEpicsMutex}
 \begin{center}
 \begin{longtable}{p{1.38889in}p{5.0in}}
 \textbf{Method} & \textbf{Meaning}\\
 \hline
 epicsMutex & Create a mutual exclusion semaphore.\\
-\~{}epicsMutex & Remove the semaphore and any resources it uses. Any further use of the semaphore result in unknown (most certainly bad) results.\\
-lock() & Wait until the resource is free. After a successful lock additional, i.e. recursive, locks of any type can be issued but each must have an associated unlock.\\
-tryLock() & Similar to lock except that, if the resource is owned by another thread, the call completes immediately. The return value is (false,true) if the resource (is not, is) owned by the caller.\\
-unlock & Release the resource. If a thread issues recursive locks, there must be an unlock for each lock\\
-show & Display information about the semaphore. The results are architecture dependent.
+\~{}epicsMutex & Remove the semaphore and any resources it uses.
+Any further use of the semaphore result in unknown (most certainly bad) results.\\
+lock() & Wait until the resource is free.
+After a successful lock additional, i.e. recursive, locks of any type can be issued but each must have an associated unlock.\\
+tryLock() & Similar to lock except that, if the resource is owned by another thread, the call completes immediately.
+The return value is (false,true) if the resource (is not, is) owned by the caller.\\
+unlock & Release the resource.
+If a thread issues recursive locks, there must be an unlock for each lock\\
+show & Display information about the semaphore.
+The results are architecture dependent.
 \end{longtable}
 
 \end{center}
 
 
-Mutual exclusion semaphores are for situations requiring mutually exclusive access to resources. A mutual exclusion 
-semaphore may be taken recursively, i.e. can be taken more than once by the owner thread before releasing it. Recursive 
-takes are useful for a set of routines that call each other while working on a mutually exclusive resource.
+Mutual exclusion semaphores are for situations requiring mutually exclusive access to resources.
+A mutual exclusion semaphore may be taken recursively, i.e. can be taken more than once by the owner thread before releasing it.
+Recursive takes are useful for a set of routines that call each other while working on a mutually exclusive resource.
+
+The \verb|newEpicsMutex| macro simplifies debugging by letting the mutex store the source filename and line-number where it was created, using the second form of the constructor.
+The C interface also stores this information.
+The \verb|epicsMutex::show()| routine can display that source location.
 
 The typical use of a mutual exclusion semaphore is:
 
 \begin{verbatim}
-    epicsMutex *plock = new epicsMutex;
+    epicsMutex *plock = newEpicsMutex;
     ...
     ...
     plock->lock();
