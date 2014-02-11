@@ -126,7 +126,8 @@ conditional compilation or execution of code that performs byte or word swapping
 \section{epicsEvent}
 
 \index{epicsEvent}
-\verb|epicsEvent.h |contains a C++ and a C description for an event semaphore.
+\verb|epicsEvent.h| defines the C++ and a C APIs for a simple binary semaphore.
+If multiple threads are waiting on the same event, only one of them will be woken when the event is signalled.
 
 \index{epicsEvent.h}
 \subsection{C++ Interface}
@@ -163,20 +164,30 @@ private:
 \begin{longtable}{p{1.25in}p{5.0in}}
 \textbf{Method} & \textbf{Meaning}\\
 \hline
-epicsEvent & An epicsEvent can be created empty or full. If it is created empty then a wait issued before a signal will block. If created full then the first wait will always succeed. Multiple signals may be issued between waits but have the same effect as a single signal.\\
-\~{}epicsEvent & Remove the event and any resources it uses. Any further use of the semaphore result in unknown (most certainly bad) behavior. No outstanding take can be active when this call is made.\\
-signal & Signal the event i.e. ensures that the next or current call to wait completes. This method may be called from a vxWorks or RTEMS interrupt handler.\\
+epicsEvent & An epicsEvent can be created empty or full.
+If it is created empty then a wait issued before a signal will block.
+If created full then the first wait will always succeed.
+Multiple signals may be issued between waits but have the same effect as a single signal.\\
+\~{}epicsEvent & Remove the event and any resources it uses.
+Any further use of the semaphore result in unknown (most certainly bad) behavior.
+No outstanding take can be active when this call is made.\\
+signal & Signal the event i.e. ensures that the next or current call to wait completes.
+This method may be called from a vxWorks or RTEMS interrupt handler.\\
 wait() & Wait for the event.\\
-wait(double timeOut) & Similar to wait except that if event does not happen the call completes after the specified time out. The return value is (false,true) if the event (did not, did) happen.\\
-tryWait() & Similar to wait except that if event does not happen the call completes immediately. The return value is (false,true) if the event (did not, did) happen.\\
-show & Display information about the semaphore. The information displayed is architecture dependent.
+wait(double timeOut) & Similar to wait except that if event does not happen the call completes after the specified time out.
+The return value is true if the event was signalled, false if it timed out.\\
+tryWait() & Similar to wait except that if event does not happen the call completes immediately.
+The return value is true if an unused event has already been signalled, false if not.\\
+show & Display information about the semaphore.
+The information displayed is architecture dependent.
 \end{longtable}
 
 \end{center}
 
 
-The primary use of an event semaphore is for synchronization. An example of using an event semaphore is a consumer 
-thread that processes requests from one or more producer threads. For example:
+The primary use of an event semaphore is for thread synchronization.
+An example of using an event semaphore is a consumer thread that processes requests from one or more producer threads.
+For example:
 
 \begin{itemize}
 \item When creating the consumer thread also create an epicsEvent.
