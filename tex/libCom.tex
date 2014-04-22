@@ -1293,7 +1293,8 @@ The Internet host name of the host.
 \end{enumerate}
 
 In all cases the `:p' may be omitted in which case the port number is set to the value of the \emph{defaultPort} argument.
-All numbers are read in base 16 if they begin with `0x' or `0X', in base 8 if they begin with `0', and in base 10 otherwise.
+The numbers are normally interpreted in base 16 if they begin with `0x' or `0X', in base 8 if they begin with `0', and in base 10 otherwise.
+However the numeric forms are interpreted by the operating system's gethostbyname() function, thus the acceptable bases may be OS-specific.
 
 \subsection{adjustment}
 
