@@ -241,7 +241,8 @@ The latter two macros are defined to be one or other of the first two, and may b
 \index{epicsEvent}
 
 \index{epicsEvent.h}
-\verb|epicsEvent.h |contains a C++ and a C description for an event semaphore.
+\verb|epicsEvent.h| defines the C++ and C APIs for a simple binary semaphore.
+If multiple threads are waiting on the same event, only one of them will be woken when the event is signalled.
 
 \subsection{C++ Interface}
 
@@ -298,15 +299,15 @@ This method may be called from a vxWorks or RTEMS interrupt handler.\\
 signal & A synonym for trigger, provided for backwards compatibility.\\
 wait() & Wait for the event to be triggered.\\
 wait(double timeOut) & Similar to wait except that if event does not happen the call completes after the specified time out.
-The return value is (false, true) if the event (was not, was) triggered.\\
+The return value is true) if the event was triggered, false if it timed out.\\
 tryWait() & Similar to wait except that if event has not already been triggered the call completes immediately.
-The return value is (false, true) if the event (did not, did) happen.\\
+The return value is true if an unused event has already been signalled, false if not.\\
 show & Display information about the epicsEvent.
 The information displayed is architecture dependent.
 \end{longtable}
 \end{center}
 
-The primary use of an event semaphore is for synchronization.
+The primary use of an event semaphore is for thread synchronization.
 An example of using an event semaphore is a consumer thread that processes requests from one or more producer threads.
 For example:
 
@@ -640,26 +641,28 @@ The reason epicsInterrupt is needed is:
 \section{epicsMath}
 
 \index{epicsMath}
-\index{epicsMath.h}epicsMath.h includes math.h and also ensures that \index{isnan}isnan and \index{isinf}isinf are defined.
+\index{epicsMath.h}
+epicsMath.h includes math.h and also ensures that \index{isnan}isnan and \index{isinf}isinf are defined.
 
 \section{epicsMessageQueue}
 
 \index{epicsMessageQueue}
-\index{epicsMessageQueue.h}\verb|epicsMessageQueue.h| describes a C++ and a C facility for interlocked communication between threads.
+\index{epicsMessageQueue.h}
+\verb|epicsMessageQueue.h| describes a C++ and a C facility for interlocked communication between threads.
 
 \subsection{C++ Interface}
 
-EpicsMessageQueue provides methods for sending messages between threads on a first in, first out basis.  It is designed 
-so that a message queue can be used with multiple writer and reader threads
+EpicsMessageQueue provides methods for sending messages between threads on a first in, first out basis.
+It is designed so that a single message queue can be used with multiple writer and reader threads.
 
 \begin{verbatim}
 class epicsMessageQueue {
 public:
     epicsMessageQueue(unsigned int capacity, unsigned int maximumMessageSize);
     ~epicsMessageQueue();
-    bool trySend(void *message, unsigned int messageSize);
-    bool send(void *message, unsigned int messageSize);
-    bool send(void *message, unsigned int messageSize, double timeout);
+    int trySend(void *message, unsigned int messageSize);
+    int send(void *message, unsigned int messageSize);
+    int send(void *message, unsigned int messageSize, double timeout);
     int tryReceive(void *message, unsigned int messageBufferSize);
     int receive(void *message, unsigned int messageBufferSize);
     int receive(void *message, unsigned int messageBufferSize, double timeout);
@@ -678,7 +681,8 @@ private: // Data
 \end{verbatim}
 
 \index{epicsMessageQueue}An epicsMessageQueue cannot be assigned to, copy-constructed, or constructed without giving the \emph{capacity} and 
-maximumMessageSize arguments. The C++ compiler will object to some of the statements below:
+maximumMessageSize arguments.
+The C++ compiler will object to some of the statements below:
 
 \begin{verbatim}
 epicsMessageQueue mq0();   // Error: default constructor is private
@@ -688,17 +692,33 @@ epicsMessageQueue *pmq;    // OK, pointer
 *pmq = mq1;               // Error: assignment operator is private
 pmq = &mq1;               // OK, pointer assignment and address-of
 \end{verbatim}
+
 \begin{center}
 \begin{longtable}{p{1.35in}p{5.0in}}
 \textbf{Method} & \textbf{Meaning}\\
 \hline
-epicsMessageQueue() & Constructor. The capacity is the maximum number of messages, each containing 0 to maximumMessageSize bytes, that can be stored in the message queue.\\
+epicsMessageQueue() & Constructor.
+The capacity is the maximum number of messages, each containing 0 to maximumMessageSize bytes, that can be stored in the message queue.\\
 \~{}epicsMessageQueue() & Destructor.\\
-trySend() & Try to send a message.  Return 0 if the message was sent to a receiver or queued for future delivery.  Return -1 if no more messages can be queued or if the message is larger than the queue's maximum message size.This method may be called from a vxWorks or RTEMS interrupt handler.\\
-send() & Send a message.  Return 0 if the message was sent to a receiver or queued for future delivery.  Return -1 if the timeout, if any, was reached before the message could be sent or queued, or if the message is larger than the queue's maximum message size.\\
-tryReceive() & Try to receive a message.  If the message queue is non-empty, the first message on the queue is copied to the specified location and the length of the message is returned.  Returns -1 if the message queue is empty.  If the pending message is larger than the specified messageBufferSize it may either return -1, or truncate the message.  It is most efficient if the messageBufferSize is equal to the maximumMessageSize with which the message queue was created.\\
-receive() & Wait until a message is sent and store it in the specified location.  The number of bytes in the message is returned.  Returns -1 if a message is not received within the timeout interval. If the received message is larger than the specified messageBufferSize it may either return -1, or truncate the message.  It is most efficient if the messageBufferSize is equal to the maximumMessageSize with which the message queue was created.\\
-show() & Displays some information about the message queue.  The level argument controls the amount of information dispalyed.\\
+trySend() & Try to send a message.
+Return 0 if the message was sent to a receiver or queued for future delivery.
+Return -1 if no more messages can be queued or if the message is larger than the queue's maximum message size.
+This method may be called from a vxWorks or RTEMS interrupt handler.\\
+send() & Send a message.
+Return 0 if the message was sent to a receiver or queued for future delivery.
+Return -1 if the timeout, if any, was reached before the message could be sent or queued, or if the message is larger than the queue's maximum message size.\\
+tryReceive() & Try to receive a message.
+If the message queue is non-empty, the first message on the queue is copied to the specified location and the length of the message is returned.
+Returns -1 if the message queue is empty.
+If the pending message is larger than the specified messageBufferSize it may either return -1, or truncate the message.
+It is most efficient if the messageBufferSize is equal to the maximumMessageSize with which the message queue was created.\\
+receive() & Wait until a message is sent and store it in the specified location.
+The number of bytes in the message is returned.
+Returns -1 if a message is not received within the timeout interval.
+If the received message is larger than the specified messageBufferSize it may either return -1, or truncate the message.
+It is most efficient if the messageBufferSize is equal to the maximumMessageSize with which the message queue was created.\\
+show() & Displays some information about the message queue.
+The level argument controls the amount of information dispalyed.\\
 pending() & Returns the number of messages presently in the queue.
 \end{longtable}
 
@@ -706,23 +726,6 @@ pending() & Returns the number of messages presently in the queue.
 
 
 \subsection{C interface}
-
-\begin{verbatim}
-typedef void *epicsMessageQueueId;
-epicsMessageQueueId epicsMessageQueueCreate(unsigned int capacity,
-                                         unsigned int maximumMessageSize);
-void epicsMessageQueueDestroy(epicsMessageQueueId);
-int epicsMessageQueueTrySend(epicsMessageQueueId, void *, unsigned int);
-int epicsMessageQueueSend(epicsMessageQueueId, void *, unsigned int);
-int epicsMessageQueueSendWithTimeout(epicsMessageQueueId, void *, unsigned int,
-                                                                 double);
-int epicsMessageQueueTryReceive(epicsMessageQueueId, void *, unsigned int);
-int epicsMessageQueueReceive(epicsMessageQueueId, void *, unsigned int);
-int epicsMessageQueueReceiveWithTimeout(epicsMessageQueueId, void*,
-                                        unsigned int, double);
-void epicsMessageQueueShow(epicsMessageQueueId);
-int epicsMessageQueuePending(epicsMessageQueueId);
-\end{verbatim}
 
 \index{epicsMessageQueue}
 \index{epicsMessageQueueCreate}
@@ -735,6 +738,28 @@ int epicsMessageQueuePending(epicsMessageQueueId);
 \index{epicsMessageQueueReceiveWithTimeout}
 \index{epicsMessageQueueShow}
 \index{epicsMessageQueuePending}
+\begin{verbatim}
+typedef struct epicsMessageQueueOSD *epicsMessageQueueId;
+
+epicsMessageQueueId epicsMessageQueueCreate(unsigned int capacity,
+    unsigned int maximumMessageSize);
+void epicsMessageQueueDestroy(epicsMessageQueueId id);
+int epicsMessageQueueTrySend(epicsMessageQueueId id,
+    void *message, unsigned int size);
+int epicsMessageQueueSend(epicsMessageQueueId id,
+    void *message, unsigned int size);
+int epicsMessageQueueSendWithTimeout(epicsMessageQueueId id,
+    void *message, unsigned int size, double timeout);
+int epicsMessageQueueTryReceive(epicsMessageQueueId id,
+    void *message, unsigned int size);
+int epicsMessageQueueReceive(epicsMessageQueueId id,
+    void *message, unsigned int size);
+int epicsMessageQueueReceiveWithTimeout(epicsMessageQueueId id,
+    void *message, unsigned int size, double timeout);
+void epicsMessageQueueShow(epicsMessageQueueId id);
+int epicsMessageQueuePending(epicsMessageQueueId id);
+\end{verbatim}
+
 Each C function corresponds to one of the C++ methods.
 
 \section{epicsMutex}

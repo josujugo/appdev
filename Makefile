@@ -53,6 +53,7 @@ L2H_OPTS += -link 2
 L2H_OPTS += -toc_depth 3
 L2H_OPTS += -show_section_numbers
 L2H_OPTS += -local_icons
+L2H_OPTS += -info 0
 
 
 all: pdf html
