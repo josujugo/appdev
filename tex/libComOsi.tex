@@ -1647,7 +1647,21 @@ This is the typical means to access VME or PCI bus devices.
 The following are the equivalant signatures of the MMIO read and write calls.
 The actual implement may use macros.
 
-\begin{lstlisting}[language=C]
+\index{ioread8}
+\index{nat\_read16}
+\index{be\_read16}
+\index{le\_read16}
+\index{nat\_read32}
+\index{be\_read32}
+\index{le\_read32}
+\index{iowrite8}
+\index{nat\_write16}
+\index{be\_write16}
+\index{le\_write16}
+\index{nat\_write32}
+\index{be\_write32}
+\index{le\_write32}
+\begin{verbatim}
 epicsUInt8      ioread8 (void* addr);
 epicsUInt16 nat_ioread16(void* addr);
 epicsUInt16  be_ioread16(void* addr);
@@ -1663,7 +1677,7 @@ void  le_iowrite16(void* addr, epicsUInt16 val);
 void nat_iowrite32(void* addr, epicsUInt32 val);
 void  be_iowrite32(void* addr, epicsUInt32 val);
 void  le_iowrite32(void* addr, epicsUInt32 val);
-\end{lstlisting}
+\end{verbatim}
 
 The 16 and 32-bit calls have three variants: \verb|nat_|, \verb|be_|, and \verb|le_|
 which specify the byte ordering of the MMIO register being access as having:
