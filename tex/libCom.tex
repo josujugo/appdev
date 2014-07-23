@@ -486,21 +486,25 @@ dbmfShow() & Show the status of the dbmf memory pool.
 
 \section{ellLib}
 
-\verb|ellLib.h| describes a double linked list library. It provides functionality similar to the vxWorks lstLib library. See the 
-vxWorks documentation for details. There is an ellXXX() routine to replace most vxWorks lstXXX() routines.
+\verb|ellLib.h| describes a double linked list library.
+It provides functionality similar to the vxWorks lstLib library.
+See the vxWorks documentation for details.
+There is an ellXXX() routine to replace most vxWorks lstXXX() routines.
 
 \index{ellLib.h}
 \begin{lstlisting}[language=C]
 typedef struct ELLNODE {
-  struct ELLNODE  *next;
-  struct ELLNODE  *previous;
-}ELLNODE;
+  struct ELLNODE *next;
+  struct ELLNODE *previous;
+} ELLNODE;
 
 typedef void (*FREEFUNC)(void *);
 
 typedef struct ELLLIST {
-  ELLNODE  node;
-  int   count;
+  ELLNODE node;
+  int count;
+} ELLLIST;
+
 void ellInit (ELLLIST *pList);
 int ellCount (ELLLIST *pList);
 ELLNODE *ellFirst (ELLLIST *pList);
