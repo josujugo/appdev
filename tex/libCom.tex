@@ -1260,6 +1260,299 @@ epicsShareAPI macEnvExpand(
 \index{macInstallMacros}
 NOTE: The directory \textless{}base\textgreater{}/src/libCom/macLib contains two files \verb|macLibNOTES| and \verb|macLibREADME| that explain this library.
 
+\section{epicsThreadPool}
+
+\index{epicsThreadPool.h}
+
+\verb|epicsThreadPool.h| implements general purpose threaded work queue.
+Pieces of work (jobs) are submitted to a queue which is shared by a group of worker threads.
+After jobs are placed on the queue they may be executed in any order.
+
+The thread pool library will never implicitly destroy pools or jobs.
+Such cleanup is always the responsibility of user code.
+
+\subsection{Configure a pool}
+
+An \verb|epicsThreadPool| instance can be obtained in two ways. The preferred
+method is the use an existing shared thread pool. Alternately, a new
+pool may be explicitly created. In both cases \verb|NULL| may be passed to use
+the configuration, or a non-default configuration may be prepared in the following way.
+
+\begin{verbatim}
+typedef struct {
+    unsigned int initialThreads;
+    unsigned int maxThreads;
+    unsigned int workerStack;
+    unsigned int workerPriority;
+} epicsThreadPoolConfig;
+
+void epicsThreadPoolConfigDefaults(epicsThreadPoolConfig *);
+\end{verbatim}
+
+\index{epicsThreadPoolConfig}
+\index{epicsThreadPoolConfigDefaults}
+
+Pool configuration should always be initialized with \verb|epicsThreadPoolConfigDefault()|
+before modification by user code. This will initialize configuration
+parameters to sensible defaults, which can then be overwritten as
+needed by user code.
+
+Note that no epicsThreadPool functions will ever retain a pointer
+to the user provided \verb|epicsThreadPoolConfig| instance.
+
+\begin{description}
+\item [{initialThreads}] A suggestion for the number of worker threads to start
+immediately when the pool is created. When this number is less than
+maxThreads additional workers may be started later as needed. Defaults to zero.
+\item [{maxThreads}] Upper limit on the number of worker threads in this
+pool. Defaults to number of CPU cores.
+\item [{workerStack}] Worker thread stack size. Defaults to size of \verb|epicsThreadStackSmall|.
+\item [{workerPriority}] Worker thread priority. Defaults to just above \verb|epicsThreadPriorityCAServerHigh|
+\end{description}
+
+These defaults are choosen to be suitable for CPU intensive background work by drivers.
+
+\subsection{Create a shared pool}
+
+\begin{verbatim}
+epicsThreadPool* epicsThreadPoolGetShared(epicsThreadPoolConfig *opts);
+void epicsThreadPoolReleaseShared(epicsThreadPool *pool);
+\end{verbatim}
+
+\index{epicsThreadPoolGetShared}
+\index{epicsThreadPoolReleaseShared}
+
+A shared thread pool is obtained by calling \verb|epicsThreadPoolGetShared()|.
+A global list of shared pools is examined. If an existing pool matches
+the requested configuration, then it is returned. Otherwise a new
+pool is created, added to the global list, then returned. \verb|epicsThreadPoolGetShared()|
+may return NULL in situations of memory exhaustion.
+
+Note that \verb|NULL| may be passed to use the default configuration.
+
+As for example:
+
+\begin{verbatim}
+void usercode() {
+  epicsThreadPoolConfig myconf;
+  epicsThreadPoolConfigDefault(&myconf);
+  /* overwrite defaults if needed */
+  myconf.workerPriority = epicsThreadPriorityLow;
+  ... = epicsThreadPoolGetShared(&myconf);
+
+  /* or to use the defaults */
+  ... = epicsThreadPoolGetShared(NULL);
+}
+\end{verbatim}
+
+The user provided configuration may be altered to ensure that the
+maxThreads is greater than or equal to the number of threads the host
+system can run in parallel. In addition, when a existing shared pool
+is returned, the user supplied config is overwritten with the pool's
+actual config.
+
+If a thread pool will not be used further it must be released, which
+may cause it to be free'd when no other references exist.
+It is advisable to ensure that all queued
+jobs have completed as queued jobs may still run if the other references
+to the queue remain.
+
+When matching a requested configuration against the configuration
+of a existing shared pool, the following conditions must be meet
+for an existing shared queue to be used.
+\begin{itemize}
+\item workerPriority must match exactly.
+\item maxThreads and workerStack of the pool must be greater than or equal
+to the corresponding parameters of the request.
+\end{itemize}
+
+Note that the initialThreads option is ignored when requesting a shared pool.
+
+\subsection{Creating an exclusive pool}
+
+\begin{verbatim}
+epicsThreadPool* epicsThreadPoolCreate(epicsThreadPoolConfig *opts);
+void epicsThreadPoolDestroy(epicsThreadPool *);
+\end{verbatim}
+
+
+\index{epicsThreadPoolCreate}
+\index{epicsThreadPoolDestory}
+
+Unshared thread pools are created/destroyed in a similar fashion.
+
+Note that \verb|NULL| may be passed to use the default configuration.
+
+When a pool is destroyed it will freeze the queue to prevent new jobs
+from being added, then block until any previously queued jobs complete.
+
+\subsection{Basic jobs operations}
+
+\begin{verbatim}
+/* job modes */
+typedef enum {
+    epicsJobModeRun,
+    epicsJobModeCleanup
+} epicsJobMode;
+typedef void (*epicsJobFunction)(void* arg, epicsJobMode mode);
+
+#define EPICSJOB_SELF ...
+epicsJob* epicsJobCreate(epicsThreadPool* pool,
+                         epicsJobFunction cb,
+                         void* user);
+void epicsJobDestroy(epicsJob*);
+int epicsJobQueue(epicsJob*);
+int epicsJobUnqueue(epicsJob*);
+\end{verbatim}
+
+
+\index{epicsJobMode}
+\index{epicsJobModeRun}
+\index{epicsJobModeCleanup}
+\index{EPICSJOB_SELF@EPICSJOB\_SELF}
+\index{epicsJobFunction}
+\index{epicsJobCreate}
+\index{epicsJobDestroy}
+\index{epicsJobQueue}
+\index{epicsJobUnqueue}
+
+The basic lifecycle of a job is to be created, queued some number of
+times, then destroyed. As with an \verb|epicsThreadPool*|, the lifecycle of
+an \verb|epicsJob*| is completely controlled by user code. Jobs will never
+be implicitly destroyed. When created, a pool, work function, and
+user argument are specified. The special user argument \verb|EPICSJOB_SELF|
+may be passed to set the user argument to the \verb|epicsJob*| returned
+by \verb|epicsJobCreate()|.
+
+A job may be queued at any time. The queuing process can fail (return
+non-zero) if:
+
+\begin{itemize}
+\item The job is not currently associated with a pool.
+\item The associated pool is not allowing jobs to be queued.
+\end{itemize}
+
+A job may be unqueued with \verb|epicsJobUnqueue()|. This function will return
+0 if the job was successfully removed from the queue or non-zero if this is
+not possible. A job can not be unqueued if it was not queued to begin
+with, is running, or has completed.
+
+A job may also be destroyed at any time, including while its job function
+is running. In this case destruction is deferred until the job function returns.
+
+If a thread pool is destroyed before all of its jobs are destroyed,
+then each job function is called one final time with the mode \verb|epicsJobModeCleanup|
+to provide an opportunity to call \verb|epicsJobDestroy|.
+If this is not done, then the job is disassociated from the pool.
+It is always the responsibility of user code to explicitly call \verb|epicsJobDestroy|.
+
+\subsection{Writing job functions}
+
+\begin{verbatim}
+typedef struct {
+  epicsJob* job;
+  ...
+} myWork;
+
+static
+void myfunction(void* arg,
+                epicsJobMode mode)
+{
+  myWork *priv=arg;
+  if(mode==epicsJobModeCleanup) {
+    epicsJobDestroy(priv->job);
+    free(priv);
+    return;
+  }
+  /* do normal work */
+}
+
+static
+void somewhere(...)
+{
+   epicsThreadPool *pool;
+   myWork *priv = ...; /* allocate somehow */
+   pool = epicsThreadPoolCreate(NULL);
+   assert(pool!=NULL && priv!=NULL);
+   priv->job = epicsJobCreate(pool, &myfunction, priv);
+   assert(priv->job!=NULL);
+   epicsJobQueue(priv->job);
+   epicsThreadPoolDestroy(pool);
+}
+\end{verbatim}
+
+
+Some restrictions apply to job functions. Only the following epicsThreadPool
+functions may be called from a job function. When using a shared pool,
+no modification should be made to the worker threads (eg. don't change
+priority). If such modifications are needed, then an exclusively owned
+pool should be created.
+
+\begin{itemize}
+\item \verb|epicsJobQueue()|
+\item \verb|epicsJobUnqueue()|
+\item \verb|epicsJobCreate()|
+\item \verb|epicsJobDestroy()|
+\end{itemize}
+
+No internal locks are held while a job function runs.
+So a job function may lock arbitrary mutexes without causing a deadlock.
+When in a job function, care must be taken to only call those function explicitly
+marked as safe to call from a running job function as these functions
+are written to avoid corrupting the internal state of the pool.
+
+
+\subsection{Moving jobs between pools}
+
+It may be desirable to move epicsJob instances between pools, or to
+have jobs not associated with any pool. This is supported with the
+caveat that the \verb|epicsJobMove()| function must not run concurrently
+with any other epicsThreadPool functions operating on the same job.
+In addition to functions operating explicitly on this job, this also includes
+\verb|epicsThreadPoolDestroy()|
+
+A job may be created with no pool association by passing NULL to \verb|epicsJobCreate()|
+instead of an \verb|epicsThreadPool*| pointer. The association can be changed
+at runtime with the \verb|epicsJobMove()| function.
+
+
+\subsection{Pool control}
+
+\begin{verbatim}
+typedef enum {
+    epicsThreadPoolQueueAdd,
+    epicsThreadPoolQueueRun
+} epicsThreadPoolOption;
+void epicsThreadPoolControl(epicsThreadPool* pool,
+                            epicsThreadPoolQueueOption opt,
+                            unsigned int val);
+int epicsThreadPoolWait(epicsThreadPool* pool, double timeout);
+\end{verbatim}
+
+
+\index{epicsThreadPoolQueueAdd}
+\index{epicsThreadPoolQueueRun}
+\index{epicsThreadPoolControl}
+\index{epicsThreadPoolWait}
+
+It may be useful to manipulate the queue of a thread pool at runtime
+(eg. unittests). Currently defined options are:
+\begin{description}
+\item [{epicsThreadPoolQueueAdd}] Set to 0 to prevent additional jobs from
+being queued. Set to 1 to resume normal operation.
+\item [{epicsThreadPoolQueueRun}] Set to 0 to prevents workers from taking
+jobs from the queue. Set to 1 for normal operation.
+\end{description}
+These options may be combined with \verb|epicsThreadPoolWait()| to block
+until the queue is empty.
+
+\verb|epicsThreadPoolWait()| accepts a timeout in seconds. A timeout value
+less than 0.0 never times out, a value of exactly 0.0 will not block,
+and values greater than 0.0 will block for the requested time at most.
+
+This function returns 0 if the queue was emptied and no jobs are running at any moment during the timeout period,
+or ETIMEOUT if the timeout period ellapses and jobs remain in the queue or are running.
+
 \section{misc}
 
 \subsection{aToIPAddr}
