@@ -1551,7 +1551,7 @@ less than 0.0 never times out, a value of exactly 0.0 will not block,
 and values greater than 0.0 will block for the requested time at most.
 
 This function returns 0 if the queue was emptied and no jobs are running at any moment during the timeout period,
-or ETIMEOUT if the timeout period ellapses and jobs remain in the queue or are running.
+or non-zero if the timeout period ellapses and jobs remain in the queue or are running.
 
 \section{misc}
 
