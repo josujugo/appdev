@@ -212,11 +212,16 @@ The prototypes for calling the IOC shell command interpreter are:
 
 \begin{verbatim}
 int iocsh(const char *pathname);
+int iocshLoad(const char *pathname, const char *macros);
 int iocshCmd(const char *cmd);
+int iocshRun(const char *cmd, const char *macros);
 \end{verbatim}
 
 \index{iocsh}
+\index{iocshLoad}
 \index{iocshCmd}
+\index{iocshRun}
+
 The pathname argument to the \verb|iocsh| function is the name of the file from which commands are to be read.
 If the pathname argument is NULL, commands are read from the standard input and prompts are issued to the standard output.
 Commands are read until an \verb|exit| command is encountered or until end-of-file is reached, at which point iocsh returns a value of 0.
@@ -230,13 +235,17 @@ iocsh "script"
 
 to read from an IOC shell script.
 It can also be invoked from the vxWorks command-line interpreter with no argument, in which case the IOC shell takes over the duties of command-line interaction.
+The \verb|iocshLoad| function is an extension of the \verb|iocsh| command that takes an additional string consisting of a set of macro definitions.
+This invokation of the IOC shell will then treat these macros as additional environment variables during execution, but will not persist after the shell exits.
 
 The \verb|iocshCmd| function takes a single IOC shell command and executes it.
-The function may be called from any thread, but many of the commands are not necessarily thread-safe so this should only be used with care.
-The function is most useful to execute a single IOC shell command from a vxWorks startup script or command line, like this:
+The \verb|iocshRun| function executes the command with additional macro replacement defined by the user in the second parameter.
+These functions may be called from any thread, but many of the commands are not necessarily thread-safe so this should only be used with care.
+These functions are most useful to execute a single IOC shell command from a vxWorks startup script or command line, like this:
 
 \begin{verbatim}
 iocshCmd "iocsh command string"
+iocshRun "iocsh command string" "VAR=VAL"
 \end{verbatim}
 
 The stdio stream redirection and environment variable expansion processes described above are performed on the string as part of the execution process.
