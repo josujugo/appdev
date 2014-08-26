@@ -1584,15 +1584,15 @@ Each test program is run by passing its main routine name to the runTest() macro
 call to the runTestFunc() routine.
 The last test program or the harness program itself must finish by calling epicsExit() which triggers the test summary mechanism to generate its result outputs (from an epicsAtExit callback routine).
 
-Some tests require the context of an IOC to be run. This conflicts with the idea of running multiple tests within a test harness, as iocInit() is only allowed to be called once, and some parts of the full IOC (e.g., the rsrv CA server) can not be shut down cleanly.
-The function iocBuildNoCA() allows to start an IOC without its Channel Access parts, so that it can be shutdown quite cleany using iocShutdown(). This feature is only intended to be used from test programs. Do not use it on productional IOCs. After building the IOC using iocBuildNoCA() or iocBuild(), it has to be started by calling iocRun(). The suggested call sequence in a test program that needs to run the IOC without Channel Access is:
+Some tests require the context of an IOC to be run. This conflicts with the idea of running multiple tests within a test harness, as iocInit() is only allowed to be called once, and some parts of the full IOC (e.g. the rsrv CA server) can not be shut down cleanly.
+The function iocBuildIsolated() allows to start an IOC without its Channel Access parts, so that it can be shutdown quite cleany using iocShutdown(). This feature is only intended to be used from test programs. Do not use it on productional IOCs. After building the IOC using iocBuildIsolated() or iocBuild(), it has to be started by calling iocRun(). The suggested call sequence in a test program that needs to run the IOC without Channel Access is:
 
 \begin{verbatim}
 #include "iocInit.h"
 
 MAIN(iocTest)
 {
-    iocBuildNoCA() || iocRun();
+    iocBuildIsolated() || iocRun();
 
 [... test code ...]
 
@@ -1603,6 +1603,8 @@ MAIN(iocTest)
     return testDone();
 }
 \end{verbatim}
+
+The part from iocBuildIsolated() to iocShutdown() can be repeated to execute multiple tests within one executable or harness.
 
 To make it easier to create a single test program that can be built for both the embedded and workstation operating system harnesses, the header file \verb|testMain.h| provides a convenience macro MAIN() that adjusts the name of the test program according to the platform it is running on: main() on workstations and a regular function name on embedded systems.
 
