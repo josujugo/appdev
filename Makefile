@@ -1,9 +1,12 @@
 # requires:
 # latex2html and pdflatex
+# asciidoc, dia
 
 TEXD=tex
 PDFD=pdf
 EPSD=eps
+CADIAD=ca_protocol/dia
+CAOUTD=ca_protocol/html
 
 PDFS = \
 $(PDFD)/overview_1.pdf \
@@ -59,7 +62,7 @@ L2H_OPTS += -info 0
 all: pdf html
 
 pdf: AppDevGuide.pdf
-html: AppDevGuide
+html: AppDevGuide ca_protocol
 
 AppDevGuide.pdf: AppDevGuide.tex $(TEXS) $(PDFS)
 	pdflatex $(basename $@)
@@ -74,9 +77,18 @@ $(PDFD)/%.pdf: $(EPSD)/%.eps
 	mkdir -p $(PDFD)
 	epstopdf $< -o=$@
 
+$(CAOUTD)/%.png: $(CADIAD)/%.dia
+	mkdir -p $(CAOUTD)
+	dia -e $(CAOUTD)/$(basename $@).png $@
+
+$(CAOUTD)/index.html: ca_protocol/ca_protocol.txt $(CAOUTD)/%.png
+	mkdir -p $(CAOUTD)
+	asciidoc -n -b html5 -o $(CAOUTD)/index.html ca_protocol/ca_protocol.txt
+
 clean: cleanidx
 	rm -rf AppDevGuide
 	rm -rf pdf
+	rm -rf $(CAOUTD)
 
 cleanidx:
 	rm -f *.idx *.ind *.ilg *.log *.out *.pdf *.toc *.aux
