@@ -401,9 +401,10 @@ Optional if \verb|promptgroup| is not defined.
 If duplicates are specified, only the first definition is used.
 
 \index{field\_name -- field definition}
-\item [field\_name] The field name, which must be a valid C identifier.
-When include files are generated, the field name is converted to lower case.
-Previous versions of EPICS required the field name be a maximum of four characters, but this restriction no longer applies.
+\item [field\_name] The field name, which must be a valid C and C++ identifier.
+When include files are generated, the field name is converted to lower case for use as the record structure member name.
+If the lower-case version of the field name is a C or C++ keyword, the original name will be used for the structure member name instead.
+Previous versions of EPICS required the field name be a maximum of four all upper-case characters, but these restrictions no longer apply.
 
 \index{field\_type -- field definition}
 \item [field\_type] This must be one of the following values:
