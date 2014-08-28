@@ -790,6 +790,10 @@ A number of global record support routines are available.
 These routines are intended for use by the record specific processing routines but can be called by any routine that wishes to use their services.
 
 The name of each of these routines begins with ``\verb|recGbl|".
+Code using these routines should
+\begin{verbatim}
+#include <recGbl.h>
+\end{verbatim}
 
 \subsection{Alarm Status and Severity}
 
@@ -961,3 +965,19 @@ int recGblInitConstantLink(
 \index{recGblInitConstantLink}Initialize a constant link.
 This routine is usually called by \verb|init_record| (or by associated device support) to initialize the field associated with a constant link.
 It returns(FALSE, TRUE) if it (did not, did) modify the destination.
+
+\subsection{Analog Value Deadband Check}
+
+\begin{verbatim}
+recGblCheckDeadband(
+    epicsFloat64 *poldval,
+    const epicsFloat64 newval,
+    const epicsFloat64 deadband,
+    unsigned *monitor_mask,
+    const unsigned add_mask);
+\end{verbatim}
+
+\index{recGblCheckDeadband}Check if analog (double) value is outside specified deadband, and set bits in monitor mask.
+This routine is usually called by an analog record's \verb|monitor| (as part of processing) to check if a value is outside a predefined deadband.
+It also set bits in a monitor mask according to the check result.
+If \verb|newval| lies outside the specified \verb|deadband|, \verb|newval| is copied into \verb|*poldval|, and \verb|add_mask| is OR'ed into \verb|monitor_mask|.
