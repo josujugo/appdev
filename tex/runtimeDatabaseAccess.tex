@@ -1621,7 +1621,7 @@ typedef struct dbServer {
 \end{verbatim}
 \index{dbServer}
 
-A server layer should instanciate one of these and pass a pointer to it to dbRegisterServer:
+A server layer should instantiate one of these and pass a pointer to it to dbRegisterServer:
 
 \begin{verbatim}
 void dbRegisterServer(dbServer *psrv);
@@ -1630,7 +1630,7 @@ void dbRegisterServer(dbServer *psrv);
 
 The individual function pointers in the structure are optional, use NULL if a specific routine has not been implemented for this server.
 Additional function pointers may be added to the end of this structure in future releases, while aiming to keep API-compatibility with older versions.
-The functions provided by the server lay are used as follows.
+The functions provided by the server layer are used as follows.
 
 \begin{itemize}
 
