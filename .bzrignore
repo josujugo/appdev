@@ -1,3 +1,5 @@
 pdf/
 AppDevGuide*
 *.backup
+ca_protocol/index.html
+ca_protocol/*.png
