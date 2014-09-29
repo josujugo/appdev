@@ -1,17 +1,45 @@
 ﻿Channel Access Protocol Specification
 =====================================
+:Email:     core-talk@aps.anl.gov
 :Date:      2014-08-27
 :Revision:  1.4.1
 
 
+[[license]]
+== License
+
+This document is distributed under the terms of the
+http://www.gnu.org/licenses/old-licenses/fdl-1.2.html[GNU Free Documentation License, version 1.2].
+
+[[document-history]]
+== Document History
+
+[options="header"]
+|====================
+|Revision|Date|Author|Section|Modification
+|1.0|2003-12-12|mailto:klemen.zagar@cosylab.com[Klemen Žagar]|all|Created.
+|1.1|2004-01-08|mailto:ales.pucelj@cosylab.com[Aleš Pucelj]|all|Finalized structure.
+| |2004-01-10|mailto:matej.sekoranja@cosylab.com[Matej Šekoranja]|all|Review.
+|1.2|2004-04-19|mailto:ales.pucelj@cosylab.com[Aleš Pucelj]|all|Draft completed.
+|1.3|2004-05-31|mailto:ales.pucelj@cosylab.com[Aleš Pucelj]|all|Matej's comments considered (after Channel Access for Java implementation).
+| |2004-06-01|mailto:matej.sekoranja@cosylab.com[Matej Šekoranja]|all|Review.
+| |2004-08-12|mailto:klemen.zagar@cosylab.com[Klemen Žagar]|all|Released
+|1.4|2008-02-07|mailto:matej.sekoranja@cosylab.com[Matej Šekoranja]|all|Description of `CA_PROTO_READ` and `CA_PROTO_READ_SYNC` added.
+| |2008-02-07|mailto:klemen.zagar@cosylab.com[Klemen Žagar]|all|Released
+|1.4.1|2014-08-27|mailto:daniel.lauk@psi.ch[Daniel J. Lauk]|all|Transformed to link:http://asciidoc.org/[AsciiDoc] format. Recreated graphics.
+|====================
+
 == Introduction
 
+This document is a specification of the EPICS Channel Access (CA) protocol.
+Structure of messages exchanged between communicating nodes is defined, as well as semantics of the exchange.
+The documentation is focused on version 4.11 of the CA protocol, which comes with EPICS 3.14, and later versions. 
 
 === Implementation Requirements
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
 "SHOULD NOT", "RECOMMENDED", "MAY", "OPTIONAL" in this document are to be
-interpreted as described in Link:http://www.ietf.org/rfc/rfc2119.txt[RFC 2119:
+interpreted as described in link:http://www.ietf.org/rfc/rfc2119.txt[RFC 2119:
 Key words for use in RFCs to Indicate Requirement Levels]<<references,[3]>>.
 
 An implementation is not compliant if it fails to satisfy one or more of the
@@ -2569,24 +2597,6 @@ Virtual circuit::
     Reusable TCP connection between client and server, through which all PVs 
     hosted by the server can be conveyed to the client.
 
-
-[[document-history]]
-== Document History
-
-[options="header"]
-|====================
-|Revision|Date|Author|Section|Modification
-|1.0|2003-12-12|mailto:klemen.zagar@cosylab.com[Klemen Žagar]|all|Created.
-|1.1|2004-01-08|mailto:ales.pucelj@cosylab.com[Aleš Pucelj]|all|Finalized structure.
-| |2004-01-10|mailto:matej.sekoranja@cosylab.com[Matej Šekoranja]|all|Review.
-|1.2|2004-04-19|mailto:ales.pucelj@cosylab.com[Aleš Pucelj]|all|Draft completed.
-|1.3|2004-05-31|mailto:ales.pucelj@cosylab.com[Aleš Pucelj]|all|Matej's comments considered (after Channel Access for Java implementation).
-| |2004-06-01|mailto:matej.sekoranja@cosylab.com[Matej Šekoranja]|all|Review.
-| |2004-08-12|mailto:klemen.zagar@cosylab.com[Klemen Žagar]|all|Released
-|1.4|2008-02-07|mailto:matej.sekoranja@cosylab.com[Matej Šekoranja]|all|Description of `CA_PROTO_READ` and `CA_PROTO_READ_SYNC` added.
-| |2008-02-07|mailto:klemen.zagar@cosylab.com[Klemen Žagar]|all|Released
-|1.4.1|2014-08-27|mailto:daniel.lauk@psi.ch[Daniel J. Lauk]|all|Transformed to link:http://asciidoc.org/[AsciiDoc] format. Recreated graphics.
-|====================
 
 [[references]]
 == References
