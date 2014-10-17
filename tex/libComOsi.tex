@@ -646,7 +646,6 @@ epicsMath.h includes math.h and also ensures that \index{isnan}isnan and \index{
 
 \section{epicsMessageQueue}
 
-\index{epicsMessageQueue}
 \index{epicsMessageQueue.h}
 \verb|epicsMessageQueue.h| describes a C++ and a C facility for interlocked communication between threads.
 
@@ -880,6 +879,49 @@ The implementation:
 
 A posix version is implemented via pthreads.
 
+
+\section{epicsSpin}
+
+\index{epicsSpin}
+\index{epicsSpin.h}
+\verb|epicsSpin.h| contains definitions for a spin lock semaphore.
+
+\subsection{C Interface}
+
+\begin{verbatim}
+typedef struct epicsSpin *epicsSpinId;
+
+epicsSpinId epicsSpinCreate();
+void epicsSpinDestroy(epicsSpinId);
+
+void epicsSpinLock(epicsSpinId);
+int epicsSpinTryLock(epicsSpinId);
+void epicsSpinUnlock(epicsSpinId);
+\end{verbatim}
+
+\index{epicsSpinId}
+\index{epicsSpinCreate}
+\index{epicsSpinDestroy}
+\index{epicsSpinLock}
+\index{epicsSpinTryLock}
+\index{epicsSpinUnlock}
+\begin{center}
+\begin{longtable}{p{1.38889in}p{5.0in}}
+\textbf{Method} & \textbf{Meaning}\\
+\hline
+epicsSpinCreate & Create a spin lock, allocate required resources, and initialize it to an unlocked state.\\
+epicsSpinDestroy() & Remove the spin lock and any resources it uses. Any further use of the spin lock may result in unknown (most certainly bad) behavior. The results are also undefined if epicsSpinDestroy is used when a thread holds the lock.\\
+epicsSpinLock() & Wait (by spinning, i.e. busy waiting) until the resource is free. After a successful lock, no additional, i.e. recursive, locking attempts may be issued.\\
+epicsSpinTryLock() & Similar to lock except that, if the resource is owned by another thread, the call completes immediately. The return value is 0 if the resource is owned by the caller.\\
+epicsSpinUnlock() & Release the spin lock resource which was locked by epicsSpinLock or epicsSpinTryLock. The results are undefined if the lock is not held by the calling thread, or if epicsSpinUnlock is used on an uninitialized spin lock.\\
+\end{longtable}
+\end{center}
+
+\subsection{Implementation Notes}
+
+The default implementation uses POSIX spin locks on POSIX compliant systems, and epicsMutex for non-POSIX environments.
+
+
 \section{epicsStdlib}
 
 \index{epicsStdlib}
@@ -901,7 +943,6 @@ implementations which do not accept NAN or INFINITY.   On architectures which pr
 \index{strtod}
 \verb|epicsScanFloat| and \verb|epicsScanDouble| behave like sscanf with a \verb|"%f"| and \verb|"%lf"| format string, respectively.  
 They are provided because some architectures have implementations of scanf which do not accept NAN or INFINITY.
-
 
 
 \section{epicsStdio}
