@@ -1,12 +1,14 @@
-\chapter{Runtime Database Access}\index{Runtime Database Access}
+\chapter{Runtime Database Access}
+\index{Runtime Database Access}
 
 \section{Overview}
 
 This chapter describes routines for manipulating and accessing an initialized IOC database.
 
-This chapter is divided into the following sections:
+This chapter is divided into several sections:
 
 \begin{itemize}
+
 \item Database related include files.
 All of interest are listed and those of general interest are discussed briefly.
 
@@ -28,11 +30,14 @@ There are a number of database related include files.
 Of particular interest to this chapter are:
 
 \begin{itemize}
-\item \index{dbDefs.h}dbDefs.h: Miscellaneous database related definitions
 
-\item \index{dbFldTypes.h}dbFldTypes.h: Field type definitions
+\item \index{dbDefs.h}dbDefs.h: Miscellaneous database related definitions.
+
+\item \index{dbFldTypes.h}dbFldTypes.h: Field type definitions.
 
 \item \index{dbAccess.h}dbAccess.h: Runtime database access definitions.
+
+\item \index{dbServer.h}dbServer.h: API for server implementers.
 
 \item \index{link.h}link.h: Definitions for link fields.
 
@@ -45,6 +50,7 @@ This file contains a number of database related definitions.
 The most important are:
 
 \begin{itemize}
+
 \item \index{PVNAME\_STRINGSZ}PVNAME\_STRINGSZ: The number of characters reserved for the record name, including the terminating zero byte.
 
 \item \index{PVNAME\_SZ}PVNAME\_SZ: The maximum number of characters allowed in the record name.
@@ -65,6 +71,7 @@ Changing the possible field types is a fundamental change to the IOC software, b
 The field types are:
 
 \begin{itemize}
+
 \item \index{DBF\_STRING}DBF\_STRING: 40 character ASCII string
 
 \item \index{DBF\_CHAR}DBF\_CHAR: Signed character
@@ -119,6 +126,7 @@ Link fields are described in a later chapter.
 There are three classes of links:
 
 \begin{enumerate}
+
 \item Constant - The value associated with the field is a floating point value initialized with a constant value.
 This is somewhat of a misnomer because constant link fields can be modified via \verb|dbPutField| or \verb|dbPutLink|.
 
@@ -166,7 +174,9 @@ typedef struct dbAddr{
 \index{struct dbAddr}
 \index{dbAdd}
 \index{DBADDR}
+
 \begin{itemize}
+
 \item \index{precord - DBADDR}precord: Address of record.
 Note that its type is a pointer to a structure defining the fields common to all record types.
 The common fields appear at the beginning of each record.
@@ -196,35 +206,41 @@ Special processing is described later in this manual.
 
 \end{itemize}
 
-NOTE: \verb|pfield|, \verb|no_elements|, \verb|field_type|, \verb|field_size|, \verb|special|, and \verb|dbr_field_type| can all be set by 
-record support (\verb|cvt_dbaddr|).
+NOTE: \verb|pfield|, \verb|no_elements|, \verb|field_type|,
+\verb|field_size|, \verb|special|, and \verb|dbr_field_type|
+can all be set by record support (\verb|cvt_dbaddr|).
 Thus \verb|field_type|, \verb|field_size|, and \verb|special| can differ from that specified by \verb|pfldDes|.
 
-\subsection{link.h }
+\subsection{dbServer.h}
+
+This header provides an optional API allowing the IOC to display information about the services that are connecting to and using the IOC.
+
+\subsection{link.h}
 
 This header file describes the various types of link fields supported by EPICS.
 
 \section{Runtime Database Access Overview}
 
-With the exception of record and device support, all access to the database is via the channel or database access routines.
+With the exception of record and device support, all access to the database is via the database access routines.
 Even record support routines access other records only via database or channel access.
 Channel Access, in turn, accesses the database via database access.
+Other services can similarly be layered on top of the IOC, using database access to manipulate record field values and cause records to be processed.
 
 Perhaps the easiest way to describe the database access layer is to list and briefly describe the set of routines that constitute database access.
 This provides a good look at the facilities provided by the database.
 
 Before describing database access, one caution must be mentioned.
-The only way to communicate with an IOC database from outside the IOC is via Channel Access.
-In addition, any special purpose software, i.e. any software not described in 
-this document, should communicate with the database via Channel Access, not database access, even if it resides in the same IOC as the database.
+The usual way to communicate with an IOC database from outside the IOC is via Channel Access, although other similar network server layers can be added.
+Most client applications should communicate with the database via Channel Access, not via database access, even if they reside in the same IOC process as the database.
 Since Channel Access provides network independent access to a database, it must ultimately call database access routines.
-The database access interface was changed in 1991, but Channel Access was never changed to use the new interface.
-Instead a module was written which translates old style database access calls to new.
+The database access interface was enhanced in 1991, but Channel Access could not be changed to use the new interface as this would break existing client applications.
+Instead a module was written which translates the original database access API into the new API.
 This interface between the old and new style database access calls is not discussed in this manual.
 
 The \index{database access routines - List of}database access routines are:
 
 \begin{itemize}
+
 \item dbNameToAddr: Locate a database variable.
 
 \item dbGetField: Get values associated with a database variable.
@@ -301,6 +317,7 @@ When \verb|dbPutField| or \verb|dbGetField| are called one of the arguments is a
 This argument has one of the following values: 
 
 \begin{itemize}
+
 \item \index{DBR\_STRING}DBR\_STRING: Value is a \verb|NULL| terminated string
 
 \item \index{DBR\_CHAR}DBR\_CHAR: Value is a signed char
@@ -337,6 +354,7 @@ The complete set of database field types are defined in \verb|dbFldTypes.h|.
 The complete set of options is:
 
 \begin{itemize}
+
 \item \index{DBR\_STATUS}DBR\_STATUS: returns the alarm status and severity
 
 \item \index{DBR\_UNITS}DBR\_UNITS: returns a string specifying the engineering units
@@ -540,6 +558,7 @@ long dbGet(
 \index{dbGet}This routine retrieves the data referenced by \verb|paddr| and converts it to the format specified by \verb|dbrType|.
 
 \begin{itemize}
+
 \item \verb|options| is a read/write field.
 Upon entry to \verb|dbGet|, \verb|options| specifies the desired options.
 When \verb|dbGetField| returns, \verb|options| specifies the options actually honored.
@@ -586,6 +605,7 @@ It should be noted that routine \verb|dbPut| does most of the work.
 The actual algorithm for \verb|dbPutField| is:
 
 \begin{enumerate}
+
 \item If the \verb|DISP| field is \verb|TRUE| then, unless it is the \verb|DISP| field itself which is being modified, the field is not written.
 
 \item The record is locked.
@@ -633,6 +653,7 @@ For Channel Access links it calls \verb|dbCaPutLink|.
 For database links it performs the following functions:
 
 \begin{enumerate}
+
 \item Calls \verb|dbPut|.
 
 \item Implements maximize severity.
@@ -672,18 +693,27 @@ Similar to \verb|dbGet|, this routine calls one of a number of conversion routin
 The Process Notify subsystem provides the following features:
 
 \begin{enumerate}
+
 \item Processes a record with notification of completion.
+
 \item Put after the record is claimed but before before the process.
+
 \item Get after the process but before the record is released.
+
 \item put, then process, then get.
+
 \end{enumerate}
 
 A process request will be issued if any of the following is true:
 
 \begin{itemize}
+
 \item The requester has issued a processs request and record is passive.
+
 \item The requester is doing a put, the record is passive, and either the field description is process passive or the field is PROC.
+
 \item The requester has requested a processGet or a putProcessGet request and the record is passive.
+
 \end{itemize}
 
 At most one process is performed per \verb|dbProcessNotify| request.
@@ -748,6 +778,7 @@ The client must allocate an instance of \verb|processNotify|, which can be used 
 Before calling \verb|dbProcessNotify| the following fields must be given values:
 
 \begin{itemize}
+
 \item \verb|requestType| - The request type.
 
 \item \verb|paddr| - A struct dbAddr, which is given values by a call to \verb|dbNameToAddr|.
@@ -771,6 +802,7 @@ This routine may issue a new \verb|dbProcessNotify| if desired.
 The \verb|notifyPutType| argument to \verb|putCallback| is one of these values:
 
 \begin{itemize}
+
 \item \verb|putDisabledType| - Puts are disabled.
 The client must not issue a put.
 
@@ -785,19 +817,25 @@ The record may or may not be processed after the client callback returns.
 The \verb|notifyGetType| argument to \verb|getCallback| will be one of these values:
 
 \begin{itemize}
+
 \item \verb|getFieldType| - The client may issue a \verb|dbGetField| request.
 This is returned when \verb|paddr| refers to a link field.
 For link fields the record will never be processed as a result of the \verb|dbProcessNotify|.
 
 \item \verb|getType| - The client may issue a \verb|dbGet| request.
+
 \end{itemize}
 
 The \verb|notifyStatus| argument to \verb|doneCallback|  is one of these values:
 
 \begin{itemize}
+
 \item \verb|notifyOK| - The \verb|dbProcessNotify| request was successful and the record was processed.
+
 \item \verb|notifyNoProcessOK| - The \verb|dbProcessNotify| request was successful but the record was not processed.
+
 \item \verb|notifyError| - An error occured.
+
 \end{itemize}
 
 Example code can be found in the routine \verb|dbtpn| which is defined in \verb|base/src/ioc/db/dbNotify.c|. It uses both \verb|putProcesssRequest| and \verb|processGetRequest|.
@@ -807,23 +845,39 @@ Example code can be found in the routine \verb|dbtpn| which is defined in \verb|
 EPICS base provides soft device support that uses processNotify for both input and output record types. All use the device type name ``Asyn Soft Channel''.
 
 The input types issue a \verb|processGetRequest|:
+
 \begin{itemize}
+
 \item \verb|devAiSoftCallback| - Supports aiRecord.
+
 \item \verb|devBiSoftCallback| - Supports biRecord.
+
 \item \verb|devMbbiSoftCallback| - Supports mbbiRecord.
+
 \item \verb|devMbbiDirectSoftCallback| - Supports mbbiDirectRecord.
+
 \item \verb|devLiSoftCallback| - Supports longinRecord.
+
 \item \verb|devSiSoftCallback| - Supports stringinRecord.
+
 \end{itemize}
 
 The output types issue a channel access \verb|ca_put_callback| request.
+
 \begin{itemize}
+
 \item \verb|devAoSoftCallback| - Supports aoRecord.
+
 \item \verb|devBoSoftCallback| - Supports boRecord.
+
 \item \verb|devCalcoutSoftCallback| - Supports calcoutRecord.
+
 \item \verb|devMbboSoftCallback| - Supports mbboRecord.
+
 \item \verb|devMbboDirectSoftCallback| - Supports mbboDirectRecord.
+
 \item \verb|devSiSoftCallback| - Supports longoutRecord.
+
 \end{itemize}
 
 
@@ -1155,49 +1209,53 @@ This behavior may be improved in the future.
 User code only calls \verb|dbScanLock| and \verb|dbScanUnlock|.
 All other routines are called by \verb|iocCore|.
 
-\subsubsection{dbScanLock}
+\subsection{dbScanLock}
 
 Lock a lock set:
 
 \begin{verbatim}
 long void dbScanLock(struct dbCommon *precord);
 \end{verbatim}
+\index{dbScanLock}
 
-\index{dbScanLock}Lock the lock set to which the specified record belongs.
+Lock the lock set to which the specified record belongs.
 
-\subsubsection{dbScanUnlock}
+\subsection{dbScanUnlock}
 
 Unlock a lock set:
 
 \begin{verbatim}
 long void dbScanUnlock(struct dbCommon *precord);
 \end{verbatim}
+\index{dbScanUnlock}
 
-\index{dbScanUnlock}Lock the lock set to which the specified record belongs
+Lock the lock set to which the specified record belongs
 
-\subsubsection{dbLockGetLockId}
+\subsection{dbLockGetLockId}
 
 Get lock set id:
 
 \begin{verbatim}
 long dbLockGetLockId(struct dbCommon *precord);
 \end{verbatim}
+\index{dbLockGetLockId}
 
-\index{dbLockGetLockId}Each lock set is assigned a unique ID.
+Each lock set is assigned a unique ID.
 This routine retrieves it.
 This is most useful to determine if two records are in the same lock set.
 
-\subsubsection{dbLockInitRecords}
+\subsection{dbLockInitRecords}
 
 Determine lock sets for each record in database.
 
 \begin{verbatim}
 void dbLockInitRecords(dbBase *pdbbase);
 \end{verbatim}
+\index{dbLockInitRecords}
 
-\index{dbLockInitRecords}Called by \verb|iocInit|.
+Called by \verb|iocInit|.
 
-\subsubsection{dbLockSetMerge}
+\subsection{dbLockSetMerge}
 
 Merge records into same lock set.
 
@@ -1205,49 +1263,53 @@ Merge records into same lock set.
 void dbLockSetMerge(struct dbCommon *pfirst,
     struct dbCommon *psecond);
 \end{verbatim}
-
 \index{dbLockSetMerge}
+
 If specified records are not in same lock set the lock sets are merged.
 Called by dbLockInitRecords and also when links are modified by \verb|dbPutField|.
 
-\subsubsection{dbLockSetSplitSl}
+\subsection{dbLockSetSplit}
 
 Recompute lock sets for given lock set
 
 \begin{verbatim}
 void dbLockSetSplit(struct dbCommon *psource);
 \end{verbatim}
+\index{dbLockSetSplit}
 
-\index{dbLockSetSplit}This is called when \verb|dbPutField| modifies links.
+This is called when \verb|dbPutField| modifies links.
 
-\subsubsection{dbLockSetGblLock}
+\subsection{dbLockSetGblLock}
 
 Global lock for modifying links.
 
 \begin{verbatim}
 void dbLockSetGblLock(void);
 \end{verbatim}
+\index{dbLockSetGblLock}
 
-\index{dbLockSetGblLock}Only one task at a time can modify link fields.
+Only one task at a time can modify link fields.
 This routine provides a global lock to prevent conflicts.
 
-\subsubsection{dbLockSetGblUnlock}
+\subsection{dbLockSetGblUnlock}
 
 Unlock the global lock.
 
 \begin{verbatim}
 void dbLockSetGblUnlock(void);
 \end{verbatim}
+\index{dbLockSetGblUnlock}
 
-\index{dbLockSetGblUnlock}\subsubsection{dbLockSetRecordLock}
+\subsection{dbLockSetRecordLock}
 
 If record is not already scan locked lock it.
 
 \begin{verbatim}
 void dbLockSetRecordLock(struct dbCommon *precord);
 \end{verbatim}
+\index{dbLockSetRecordLock}
 
-\index{dbLockSetRecordLock}\section{Channel Access Database Links}
+\section{Channel Access Database Links}
 
 The routines described here are used to create and manipulate Channel Access connections from database input or output links.
 At IOC initialization an attempt is made to convert all process variable links to database links.
@@ -1281,23 +1343,26 @@ Called by \verb|iocInit| to initialize the \verb|dbCa| library
 \begin{verbatim}
 void dbCaLinkInit(void);
 \end{verbatim}
+\index{dbCaLinkInit}
 
-\index{dbCaLinkInit}\subsubsection{dbCaAddLink}
+\subsubsection{dbCaAddLink}
 
 Add a new channel access link
 
 \begin{verbatim}
 void dbCaAddLink(struct link *plink);
 \end{verbatim}
+\index{dbCaAddLink}
 
-\index{dbCaAddLink}\subsubsection{dbCaAddLinkCallback}
+\subsubsection{dbCaAddLinkCallback}
 
 \begin{verbatim}
 void dbCaAddLinkCallback(struct link *plink,
     dbCaCallback connect,dbCaCallback monitor,void *userPvt);
 \end{verbatim}
+\index{dbCaAddLinkCallback}
 
-\index{dbCaAddLinkCallback}\verb|connect| will be called whenever the link connects or disconnects.
+\verb|connect| will be called whenever the link connects or disconnects.
 \verb|monitor| will be called whenever a monitor event occurs.
 \verb|connect| and or \verb|monitor| may be null.
 
@@ -1308,8 +1373,8 @@ Remove channel access link.
 \begin{verbatim}
 void dbCaRemoveLink(struct link *plink);
 \end{verbatim}
-
 \index{dbCaRemoveLink}
+
 \subsubsection{dbCaGetLink}
 
 Get link value
@@ -1318,8 +1383,8 @@ Get link value
 long dbCaGetLink(struct link *plink,short dbrType,
     void *pbuffer,unsigned short *psevr,long *nRequest);
 \end{verbatim}
-
 \index{dbCaGetLink}
+
 \subsubsection{dbCaPutLink}
 
 Put link value
@@ -1328,8 +1393,8 @@ Put link value
 long dbCaPutLink(struct link *plink,short dbrType,
     void *buffering nRequest);
 \end{verbatim}
-
 \index{dbCaPutLink}
+
 \subsubsection{dbCaPutLinkCallback}
 
 This is meant for use by device or record support that wants a put to complete before completing record processing.
@@ -1338,9 +1403,9 @@ This is meant for use by device or record support that wants a put to complete b
 long dbCaPutLinkCallback(struct link *plink,short dbrType,
 const void *pbuffer,long nRequest,dbCaPutCallback callback);
 \end{verbatim}
-
 \index{dbCaPutLinkCallback}
 \index{devAoSoftCallback.c}
+
 \textless{}base\textgreater{}/src/std/dev/devAoSoftCallback.c provides an example of how to use this function.
 It contains:
 
@@ -1405,8 +1470,9 @@ Is Channel Connected
 \begin{verbatim}
 int dbCaIsLinkConnected(struct link *plink)
 \end{verbatim}
+\index{dbCaIsLinkConnected}
 
-\index{dbCaIsLinkConnected}This routine returns (TRUE, FALSE) if the link (is, is not) connected.
+This routine returns (TRUE, FALSE) if the link (is, is not) connected.
 
 \subsubsection{dbCaGetNelements}
 
@@ -1415,8 +1481,9 @@ Get Number of Elements
 \begin{verbatim}
 long dbCaGetNelements(struct link *plink,long *nelements);
 \end{verbatim}
+\index{dbCaGetNelements}
 
-\index{dbCaGetNelements}This call, which returns an error if the link is not connected, sets the native number of elements.
+This call, which returns an error if the link is not connected, sets the native number of elements.
 
 \subsubsection{dbCaGetSevr}
 
@@ -1425,8 +1492,9 @@ Get Alarm Severity
 \begin{verbatim}
 long dbCaGetSevr(struct link *plink,short *severity);
 \end{verbatim}
+\index{dbCaGetSevr}
 
-\index{dbCaGetSevr}This call, which returns an error if the link is not connected, sets the alarm severity.
+This call, which returns an error if the link is not connected, sets the alarm severity.
 
 \subsubsection{dbCaGetTimeStamp}
 
@@ -1435,8 +1503,9 @@ Get Time Stamp
 \begin{verbatim}
 long dbCaGetTimeStamp(struct link *plink,TS_STAMP *pstamp));
 \end{verbatim}
+\index{dbCaGetTimeStamp}
 
-\index{dbCaGetTimeStamp}This call, which returns an error if the link is not connected, sets pstamp to the time obtained by the last CA monitor.
+This call, which returns an error if the link is not connected, sets pstamp to the time obtained by the last CA monitor.
 
 \subsubsection{dbCaGetLinkDBFtype}
 
@@ -1445,8 +1514,9 @@ Get link type
 \begin{verbatim}
 int dbCaGetLinkDBFtype(struct link *plink);
 \end{verbatim}
+\index{dbCaGetLinkDBFtype}
 
-\index{dbCaGetLinkDBFtype}This call, which returns an error if the link is not connected, returns the field type.
+This call, which returns an error if the link is not connected, returns the field type.
 
 \subsubsection{dbCaGetAttributes}
 
@@ -1456,8 +1526,9 @@ Get Attributes
 long dbCaGetAttributes(struct link *plink,
     void (*callback)(void *usrPvt),void *usrPvt);
 \end{verbatim}
+\index{dbCaGetAttributes}
 
-\index{dbCaGetAttributes}When ever dbCa receives a connection it issues a CA get request to obtain the control, graphic, and alarm limits and to obtain the precision and units.
+When ever dbCa receives a connection it issues a CA get request to obtain the control, graphic, and alarm limits and to obtain the precision and units.
 By calling dbCaGetAttributes the caller can be notified when this get completes.
 
 \subsubsection{dbCaGetControlLimits}
@@ -1467,8 +1538,9 @@ Get Control Limits
 \begin{verbatim}
 long dbCaGetControlLimits(struct link *plink,double *low, double *high);
 \end{verbatim}
+\index{dbCaGetControlLimits}
 
-\index{dbCaGetControlLimits}This call returns an error if the link is not connected or if the CA get request for limits, etc. has not completed.
+This call returns an error if the link is not connected or if the CA get request for limits, etc. has not completed.
 If it returns success it has set the control limits.
 
 \subsubsection{dbCaGetGraphicLimits}
@@ -1478,8 +1550,9 @@ Get graphic Limits
 \begin{verbatim}
 long dbCaGetGraphicLimits(struct link *plink,double *low, double *high);
 \end{verbatim}
+\index{dbCaGetGraphicLimits}
 
-\index{dbCaGetGraphicLimits}This call returns an error if the link is not connected or if the CA get request for limits, etc. has not completed.
+This call returns an error if the link is not connected or if the CA get request for limits, etc. has not completed.
 If it returns success it has set the graphic limits.
 
 \subsubsection{dbCaGetAlarmLimits}
@@ -1490,8 +1563,9 @@ Get Alarm Limits
 long dbCaGetAlarmLimits(struct link *plink,
     double *lolo, double *low, double *high, double *hihi);
 \end{verbatim}
+\index{dbCaGetAlarmLimits}
 
-\index{dbCaGetAlarmLimits}This call returns an error if the link is not connected or if the CA get request for limits, etc. has not completed.
+This call returns an error if the link is not connected or if the CA get request for limits, etc. has not completed.
 If it returns success it has set the alarm limits.
 
 \subsubsection{dbCaGetPrecision}
@@ -1501,8 +1575,9 @@ Get Precision
 \begin{verbatim}
 long dbCaGetPrecision(struct link *plink,short *precision);
 \end{verbatim}
+\index{dbCaGetPrecision}
 
-\index{dbCaGetPrecision}This call returns an error if the link is not connected or if the CA get request for limits, etc. has not completed.
+This call returns an error if the link is not connected or if the CA get request for limits, etc. has not completed.
 If it returns success it has set the precision.
 
 \subsubsection{dbCaGetUnits}
@@ -1512,6 +1587,84 @@ Get Units
 \begin{verbatim}
 long dbCaGetUnits(struct link *plink,char *units,int unitsSize);
 \end{verbatim}
+\index{dbCaGetUnits}
 
-\index{dbCaGetUnits}This call returns an error if the link is not connected or if the CA get request for limits, etc. has not completed.
+This call returns an error if the link is not connected or if the CA get request for limits, etc. has not completed.
 If it returns success it has set the units.
+
+\section{dbServer API}
+
+Software that provides external access to the IOC database is a server layer.
+It is helpful for the IOC developer to be able to see information about the servers that are making use of the database access routines for purposes of diagnosing problems and reporting usage statistics.
+The dbServer API is provided to allow the IOC code to display specific kinds of information from the servers connected to it, without having to integrate those servers into the IOC code.
+Server layers are thus encouraged to register a dbServer structure with the IOC database to allow this information to be retrieved as needed.
+
+\subsection{Registering a server layer}
+
+The dbServer structure is defined in dbServer.h as follows:
+
+\begin{verbatim}
+typedef struct dbServer {
+    ELLNODE node;
+    const char *name;
+
+    /* Print level-dependent status report to stdout */
+    void (* report) (unsigned level);
+
+    /* Get number of channels and clients connected */
+    void (* stats) (unsigned *channels, unsigned *clients);
+
+    /* Get identity of client initiating the calling thread */
+    /* Must return 0 (OK), or -1 (ERROR) from unknown threads */
+    int (* client) (char *pBuf, size_t bufSize);
+} dbServer;
+\end{verbatim}
+\index{dbServer}
+
+A server layer should instantiate one of these and pass a pointer to it to dbRegisterServer:
+
+\begin{verbatim}
+void dbRegisterServer(dbServer *psrv);
+\end{verbatim}
+\index{dbRegisterServer}
+
+The individual function pointers in the structure are optional, use NULL if a specific routine has not been implemented for this server.
+Additional function pointers may be added to the end of this structure in future releases, while aiming to keep API-compatibility with older versions.
+The functions provided by the server layer are used as follows.
+
+\begin{itemize}
+
+\item \index{report - dbServer routine}report: This routine should print a status report to stdout. Increasing interest levels should provide additional information.
+
+\item \index{stats - dbServer routine}stats: This routine returns the current count of the number of channels and clients connected through this service.
+
+\item \index{client - dbServer routine}client: When called by one of the server's threads, this routine should fill in the buffer with a short string identifying the specific client (e.g. \verb|user@host|), and return 0. If the calling thread does not belong to this server it should just return -1.
+
+\end{itemize}
+
+\subsection{Interacting with Server layers}
+
+The dbServer.h header makes the following routines available to the IOC code.
+
+\subsubsection{dbsr - Server Report}
+
+\begin{verbatim}
+void dbsr(unsigned level);
+\end{verbatim}
+\index{dbsr}
+
+This routine scans through the list of registered servers, printing the server's name and then calling its report function if one exists.
+This is an iocsh command that is intended to replace \verb|casr|, and is only called on demand by the user.
+
+\subsubsection{dbServerClient - Identifying a client thread}
+
+\begin{verbatim}
+int dbServerClient(char *pBuf, size_t bufSize);
+\end{verbatim}
+\index{dbServerClient}
+
+When the IOC processes a record that has its TPRO field set, this routine is called to obtain a server context for the printed record name.
+It iterates through all of the registered servers in turn calling their \verb|client()| routines until one of them returns OK or the end of the list is reached.
+If no server returns OK the routine returns -1.
+
+
