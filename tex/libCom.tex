@@ -1260,6 +1260,14 @@ epicsShareFunc char *         /* expanded string; NULL if any undefined macros *
 epicsShareAPI macEnvExpand(
     char *str                   /* string to be expanded */
 );
+
+/*Expand string using environment variables alongside macro definitions */
+epicsShareFunc char *         /* expanded string; NULL if any undefined macros */
+epicsShareAPI macDefExpand(
+    const char *str,            /* string to be expanded */
+    MAC_HANDLE *macros          /* opaque handle; can be NULL if default */
+                                /* special characters are to be used */
+);
 \end{verbatim}
 
 \index{macCreateHandle}
@@ -1274,6 +1282,7 @@ epicsShareAPI macEnvExpand(
 \index{macParseDefns}
 \index{macInstallMacros}
 \index{macEnvExpand}
+\index{macDefExpand}
 \index{macInstallMacros}
 NOTE: The directory \textless{}base\textgreater{}/src/libCom/macLib contains two files \verb|macLibNOTES| and \verb|macLibREADME| that explain this library.
 
