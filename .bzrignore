@@ -1,3 +1,4 @@
-pdf/
+diags/
 AppDevGuide*
 *.backup
+*.out
