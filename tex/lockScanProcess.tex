@@ -78,15 +78,18 @@ NOTE: This chapter discusses mainly database links.
 Database links are referenced by calling one of the following routines:
 
 \begin{itemize}
-\item \index{dbGetLink}dbGetLink: The value of the field referenced by the input link retrieved.
+\item \index{dbGetLink}dbGetLink:
+The value of the field referenced by the input link retrieved.
 
-\item \index{dbPutLink}dbPutLink: The value of the field referenced by the output link is changed.
+\item \index{dbPutLink}dbPutLink:
+The value of the field referenced by the output link is changed.
 
-\item \index{dbScanPassive}dbScanPassive: The record referred to by the forward link is processed if it is passive.
+\item \index{dbScanPassive}dbScanPassive:
+The record referred to by the forward link is processed if it is passive.
 
 \end{itemize}
 
-A forward link only makes sense when it refers to a passive record that should be processed after the record that contains the link.
+A forward link only points to a (normally passive) record that should be processed after the record that contains the link.
 
 For input and output links, two additional attributes can be specified by the application developer: process passive, and maximize severity.
 
@@ -97,7 +100,8 @@ The Process Passive attribute takes the value \index{NPP}\verb|NPP| (Non-Process
 It determines if the linked record should be processed before getting a value from an input link or after writing a value to an output link.
 The linked record will be processed only if link's Process Passive attribute is \verb|PP| and the target record's \verb|SCAN| field is Passive.
 
-NOTE: Three other options may also be specified: CA, CP, and CPP. These options force the link to be handled like a Channel Access Link.
+NOTE: Three other options may also be specified:
+CA, CP, and CPP. These options force the link to be handled like a Channel Access Link.
 See last section of this chapter for details.
 
 \subsection{Maximize Severity}
@@ -185,24 +189,22 @@ Four types of scanning are possible:
 A \verb|dbScanPassive| request results from a task calling one of the following routines:
 
 \begin{itemize}
-\item \index{dbScanPassive}dbScanPassive:  Only record processing routines, \verb|dbGetLink|, \verb|dbPutLink|, and \verb|dbPutField| call \verb|dbScanPassive|.
+\item \index{dbScanPassive}dbScanPassive: Only the record processing routines \verb|dbGetLink|, \verb|dbPutLink|, and \verb|dbPutField| call the \verb|dbScanPassive| routine.
 Record processing routines call it for each forward link in the record.
 
-\item \index{dbPutField}dbPutField: This routine changes the specified field and then, if the field has been declared \verb|process_passive|, calls \verb|dbScanPassive|.
-Each field of each record type has the attribute \verb|process_passive| declared \verb|TRUE| or 
-\verb|FALSE| in the definition file.
+\item \index{dbPutField}dbPutField: This routine sets the target field value and then, if the field was marked \verb|pp(TRUE)| it calls \verb|dbScanPassive|.
+Each field of each record type has an attribute \verb|pp| declared as either \verb|TRUE| or \verb|FALSE| in the record definition file.
 The attribute is a global property which is set by the record type.
-This use of \verb|process_passive| only affects calls to the \verb|dbPutField| routine.
+This use of \verb|pp| only affects calls to the \verb|dbPutField| routine.
 If \verb|dbPutField| finds the record already active (this can happen to asynchronous records) and it is supposed to cause it to process, it arranges for it to be processed again once the current processing completes.
 
-\item \index{dbGetLink}dbGetLink:  If the link specifies process passive, this routine calls \verb|dbScanPassive|.
-Whether or not \verb|dbScanPassive| is called, it then obtains the specified value. 
+\item \index{dbGetLink}dbGetLink:  If the link includes the process passive flag \verb|PP| this routine first calls \verb|dbScanPassive| to process the target record.
+Whether or not \verb|dbScanPassive| was called, it then obtains the value from the target field.
 
-\item \index{dbPutLink}dbPutLink:  This routine changes the specified field.
-Then, if the link specifies process passive, it calls \verb|dbScanPassive|.
+\item \index{dbPutLink}dbPutLink:  This routine sets the target field.
+Then, if the link includes the process passive flag \verb|PP| it calls \verb|dbScanPassive| to process the target record.
 \verb|dbPutLink| is only called from record processing routines.
-Note that this usage of \verb|process_passive| is under the control of the application developer.
-If \verb|dbPutLink| finds the record already active because of a \verb|dbPutField| directed to this record then it arranges for the record to be processed again, once the current processing completes.
+If \verb|dbPutLink| finds the record already active because of a \verb|dbPutField| directed to this record then it arranges for the record to be processed again later, once the current processing completes.
 
 \end{itemize}
 
@@ -503,8 +505,8 @@ A \verb|dbGetLink| to a passive asynchronous record can get old data.
 \includegraphics{lockScanProcess_37}
 \end{center}
 
-If A is a passive asynchronous record then the \verb|dbGetLink| request forces \verb|dbProcess| to be called for A.
-\verb|dbProcess| starts the processing and returns.
+If A is a passive asynchronous record then record B's \verb|dbGetLink| request forces \verb|dbProcess| to be called for record A.
+\verb|dbProcess| starts the processing but returns immediately, before the operation has finished.
 \verb|dbGetLink| then reads the field value which is still old because processing will only be completed at a later time.
 
 \subsection{Delays}
@@ -569,21 +571,19 @@ A channel access link is:
 
 \end{enumerate}
 
-A channel access client task (dbCa)  handles all I/O for channel access links.
+A channel access client task (dbCa) handles all I/O for channel access links.
 It does the following:
 
 \begin{itemize}
 \item At IOC initialization, dbCa issues channel access search requests for each channel access link.
 
-\item For each input link it establishes a channel access monitor.
-It uses \verb|ca_field_type| and \verb|ca_element_count| 
-when it establishes the monitor.
+\item For each input link it establishes a channel access monitor, using the channel's native field type and element count.
 It also monitors the alarm status.
-Whenever the monitor is invoked the new data is stored in a buffer belonging to dbCa.
-When iocCore or the record support module asks for data the data is taken from the buffer and converted to the requested type.
+Whenever the monitor callback gets invoked the new data is stored in a buffer belonging to dbCa.
+When iocCore or the record support module asks for data from the link, the contents of the buffer are converted to the requested type.
 
-\item For each output link, a buffer is allocated the first time iocCore/record support issues a put and a channel access connection has been made.
-This buffer is allocated according to  \verb|ca_field_type| and \verb|ca_element_count|.
+\item For each output link, a buffer is allocated the first time iocCore/record support issues a put after the channel access connection has been made.
+This buffer is allocated large enough to store the channel's native field type and element count
 Each time iocCore/record support issues a put, the data is converted and placed in the buffer and a request is made to dbCa to issue a new \verb|ca_put|.
 
 \end{itemize}
@@ -597,7 +597,7 @@ Forcing the links to be handled as channel access links solves the problem.
 CA links which connect between IOCs incur the extra overhead associated with message passing protocols, operating system calls, and network activity.
 In contrast, CA links which connect records in the same IOC are executed more efficiently by directly calling database access functions such as \verb|dbPutField| and \verb|dbGetField|, or by receiving callbacks directly from a database monitor subscription event queue.
 
-Because channel access links interact with the database only via \verb|dbPutField|, \verb|dbGetField|, and a database monitor subscription event queue, their interaction with the database is fundamentally different from database links which are tightly integrated within the code that executes database records.
+Because channel access links interact with the database only via \verb|dbPutField|, \verb|dbGetField| and use a database monitor subscription event queue, their interaction with the database is fundamentally different from database links which are tightly integrated within the code that executes database records.
 For this reason and because channel access does not support the passing of a process passive flag, the semantics of channel access links are not the same as database links.
 Let's discuss the channel access semantics of INLINK, OUTLINK, and FWDLINK separately.
 
@@ -634,7 +634,9 @@ Maximize Severity is not honored.
 \subsection{FWDLINK}
 
 A channel access forward link is honored only if it references the \verb|PROC| field of a record.
-In that case a \verb|ca_put| with a value of 1 is written each time a forward link request is issued.
+In that case a \verb|ca_put| with a value of 1 is performed each time a forward link request is issued.
+Because of this implementation, the requirement that a forward link can only point to a passive record does not apply to channel access forward links;
+the target record will be processed irrespective of the value of its \verb|SSCAN| field.
 
 The available options are:
 
