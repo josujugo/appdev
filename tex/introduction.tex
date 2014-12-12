@@ -113,41 +113,38 @@ The reader of this manual should also be aware the following additional document
 
 \section{Acknowledgments}
 
-The basic model of what an IOC should do and how to do it was developed by Bob Dalesio at LANL/GTA. The principle 
-ideas for Channel Access were developed by Jeff Hill at LANL/GTA. Bob and Jeff also were the principle implementers 
-of the original IOC software. This software (called GTACS) was developed over a period of several years with feedback 
-from LANL/GTA users. Without their ideas EPICS would not exist.
+The basic model of what an IOC should do and how to do it was developed by Bob Dalesio at LANL/GTA.
+The principle ideas for Channel Access were developed by Jeff Hill at LANL/GTA.
+Bob and Jeff also were the principle implementers of the original IOC software.
+This software (called GTACS) was developed over a period of several years with feedback from LANL/GTA users.
+Without their ideas EPICS would not exist.
 
-During 1990 and 1991, ANL/APS undertook a major revision of the IOC software with the major goal being to provide 
-easily extendible record and device support. Marty Kraimer (ANL/APS) was primarily responsible for designing the data 
-structures needed to support extendible record and device support and for making the changes needed to the IOC resident 
-software. Bob Zieman (ANL/APS) designed and implemented the UNIX build tools and IOC modules necessary to 
-support the new facilities. Frank Lenkszus (ANL/APS) made extensive changes to the Database Configuration Tool 
-(DCT) necessary to support the new facilities. Janet Anderson developed methods to systematically test various features 
-of the IOC software and is the principal implementer of changes to record support.
+During 1990 and 1991, ANL/APS undertook a major revision of the IOC software with the major goal being to provide easily extendible record and device support.
+Marty Kraimer (ANL/APS) was primarily responsible for designing the data structures needed to support extendible record and device support and for making the changes needed to the IOC resident software.
+Bob Zieman (ANL/APS) designed and implemented the UNIX build tools and IOC modules necessary to support the new facilities.
+Frank Lenkszus (ANL/APS) made extensive changes to the Database Configuration Tool (DCT) necessary to support the new facilities.
+Janet Anderson developed methods to systematically test various features of the IOC software and is the principal implementer of changes to record support.
 
-During 1993 and 1994, Matt Needes at LANL implemented and supplied the description of fast database links and the 
-database debugging tools.
+During 1993 and 1994, Matt Needes at LANL implemented and supplied the description of fast database links and the database debugging tools.
 
-During 1993 and 1994 Jim Kowalkowski at ANL/APS developed GDCT and also developed the ASCII database instance 
-format now used as the standard format. At that time he also created \verb|dbLoadRecords| and \verb|dbLoadTemplate|.
+During 1993 and 1994 Jim Kowalkowski at ANL/APS developed GDCT and also developed the ASCII database instance format now used as the standard format.
+At that time he also created the functionality of the \verb|dbLoadRecords| and \verb|dbLoadTemplate| commands.
 
-The \verb|build| utility method resulted in the generation of binary files of UNIX that were loaded into IOCs. As new IOC 
-architectures started being supported this caused problems. During 1995, after learning from an abandoned effort now 
-referred to as \verb|EpicsRX|, the build utilities and binary file (called \verb|default.dctsdr|) were replaced by all ASCII files. 
-The new method provides architecture independence and a more flexible environment for configuring the record/device/
-driver support. This principle implementer was Marty Kraimer with many ideas contributed by John Winans and Jeff Hill. 
-Bob Dalesio made sure that we did not go too far, i.e. 1) make it difficult to upgrade existing applications and 2) lose 
-performance.
+The \verb|build| utility method resulted in the generation of binary files of UNIX that were loaded into IOCs.
+As new IOC architectures started being supported this caused problems.
+During 1995, after learning from an abandoned effort now referred to as \verb|EpicsRX|, the build utilities and binary file (called \verb|default.dctsdr|) were replaced by all ASCII files.
+The new method provides architecture independence and a more flexible environment for configuring the record types, device and driver support.
+This principle implementer was Marty Kraimer with many ideas contributed by John Winans and Jeff Hill.
+Bob Dalesio made sure that we did not go too far, i.e. 1) make it difficult to upgrade existing applications and 2) lose performance.
 
-In early 1996 Bob Dalesio tackled the problem of allowing runtime link modification. This turned into a cooperative 
-development effort between Bob and Marty Kraimer. The effort included new code for database to Channel Access links, 
-a new library for lock sets, and a cleaner interface for accessing database links.
+In early 1996 Bob Dalesio tackled the problem of allowing runtime link modification.
+This turned into a cooperative development effort between Bob and Marty Kraimer.
+The effort included new code for database to Channel Access links, a new library for lock sets, and a cleaner interface for accessing database links.
 
-In early 1999 the port of iocCore to non vxWorks operating systems was started. The principle developers were Marty 
-Kraimer, Jeff Hill, and Janet Anderson. William Lupton converted the sequencer as well as helping with the posix threads 
-implementation of osiSem and osiThread. Eric Norum provided the port to RTEMS and also contributed the shell that is 
-used on non vxWorks environments. Ralph Lange provided the port to HPUX.
+In early 1999 the port of iocCore to non vxWorks operating systems was started.
+The principle developers were Marty Kraimer, Jeff Hill, and Janet Anderson.
+William Lupton converted the sequencer as well as helping with the posix threads implementation of osiSem and osiThread.
+Eric Norum provided the port to RTEMS and also contributed the shell that is used on non vxWorks environments.
+Ralph Lange provided the port to HPUX.
 
-Many other people have been involved with EPICS development, including new record, device, and driver support 
-modules.
+Many other people have been involved with EPICS development, including new record, device, and driver support modules.
