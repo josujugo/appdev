@@ -1673,11 +1673,11 @@ A floating exception is never raised.
 
 \index{epicsString.h}
 \begin{verbatim}
-int epicsStrnRawFromEscaped(char *outbuf, size_t outsize, const char *inbuf,
-    size_t inlen);
+int epicsStrnRawFromEscaped(char *dst, size_t dstlen, const char *src,
+    size_t srclen);
 int epicsStrnEscapedFromRaw(char *outbuf, size_t outsize, const char *inbuf,
     size_t inlen);
-size_t epicsStrnEscapedFromRawSize(const char *inbuf, size_t inlen);
+size_t epicsStrnEscapedFromRawSize(const char *src, size_t srclen);
 int epicsStrCaseCmp(const char *s1, const char *s2);
 int epicsStrnCaseCmp(const char *s1, const char *s2, int n);
 char *epicsStrDup(const char *s);
@@ -1700,38 +1700,40 @@ unsigned int epicsMemHash(const char *str, size_t length,
 \index{epicsStrtok\_r}
 \index{epicsStrHash}
 \index{epicsMemHash}
-\verb|epicsStrnRawFromEscaped| copies the string \emph{inbuf} to \emph{outbuf} while substituting C-style escape sequences.
-It returns the length of the resultant string (which may contain null bytes).
-It will never write more than \emph{outsize} characters into \emph{outbuf} or read more than \emph{inlen} characters from \emph{inbuf}.
-Since the destination string can never be longer than the source, it is legal for \emph{inbuf} and \emph{outbuf} to point to the same location and \emph{inlen} and \emph{outsize} to have the same value, thus performing the translation in-place.
+
+\verb|epicsStrnRawFromEscaped| copies up to \verb|strlen| characters from the string \verb|src| into a buffer \verb|dst| of size \verb|dstlen|, converting C-style escape sequences into their binary form.
+A zero byte terminates the input string.
+The resulting string will be zero-terminated as long as \verb|dstlen| is non-zero.
+The return value is the number of characters that were actually written into \verb|dst|, not counting characters that would not fit or the zero terminator.
+Since the output string can never be longer than the source, it is legal for \verb|src| and \verb|dst| to point to the same buffer and \verb|strlen| and \verb|dstlen| to have the same value, thus performing the character translation in-place.
 
 \verb|epicsStrnEscapedFromRaw| does the opposite of \verb|epicsStrnRawFromEscaped|:
-non-printable characters are converted into escape sequences.
-It returns the number of characters stored in the output buffer, or a value greater than or equal to \emph{outsize} if the output has been truncated to fit in the specified size.
-As the destination string might be larger than the source, in-place translations are not allowed.
+It tries to copy \verb|strlen| characters from the string \verb|src| into a buffer \verb|dst| of size \verb|dstlen|, converting non-printable characters into C-style escape sequences.
+A zero byte will \emph{not} terminate the input string.
+The output string will be zero-terminated as long as \verb|dstlen| is non-zero.
+No more than \verb|dstlen| characters will actually be written into the output buffer, although all the characters in the input string will be read.
+The return value is the number of characters that would have been stored in the output buffer if it were large enough, or a negative value if \verb|dst == src|.
+In-place translations are not allowed since the escaped results will usually be larger than the input string.
 
-The following C-style escaped character constants are output:
-
-\begin{verbatim}
-    \a  \b  \f  \n  \r  \t  \v  \\  \'  \"
-\end{verbatim}
-
-All other non-printable characters appear as:
+The following escaped character constants will be used in the output:
 
 \begin{verbatim}
-    \ooo
+\a  \b  \f  \n  \r  \t  \v  \\  \'  \"
 \end{verbatim}
 
-where \verb|ooo| comprises three octal digits (0-7).
+All other non-printable characters appear as octal escapes in form \verb|\ooo| where \verb|ooo| are three octal digits (0-7).
+Non-printable characters are determined by the C runtime library's \verb|isprint()| function.
 
-\verb|epicsStrnEscapedFromRawSize| scans a string that may contain non-printable characters and returns the number of characters needed for the escaped destination buffer.
+\verb|epicsStrnEscapedFromRawSize| scans up to \verb|strlen| characters of the string \verb|src| that may contain non-printable characters, and returns the size of the output buffer that would be needed to escape that string.
+The terminating zero-byte needed in the output buffer is not included in the count, so must be allowed for by the caller.
+This routine is faster than calling \verb|epicsStrnEscapedFromRaw| with a zero length output buffer; both should return the same result.
 
 \verb|epicsStrPrintEscaped| prints the contents of its input buffer, substituting escape sequences for non-printable characters.
 
 \verb|epicsStrCaseCmp| and \verb|epicsStrnCaseCmp| implement \verb|strcasecmp| and \verb|strncasecmp|, respectively, which are not available on all operating systems.
 They operate like \verb|strcmp| and \verb|strncmp|, but are case insensitive.
 
-\verb|epicsStrDup| implements \verb|strdup|, which is not available on all operating systems.
+\verb|epicsStrDup| implements \verb|strdup|, which is not available on all supported operating systems.
 It allocates sufficient memory for the string, copies it and returns a pointer to the new copy.
 The pointer should eventually be passed to the function free().
 If insufficient memory is available cantProceed() is called.
@@ -1740,8 +1742,8 @@ If insufficient memory is available cantProceed() is called.
 
 \verb|epicsStrtok_r| implements \verb|strtok_r|, which is not available on all operating systems.
 
-\verb|epicsStrHash| calculates a hash of a zero-terminated string \emph{str}, while \verb|epicsMemHash| uses the same algorithm on a fixed-length memory buffer that may contain zero bytes.
-In both cases an initial \emph{seed} value may be provided which permits multiple strings or buffers to be combined into a single hash result.
+\verb|epicsStrHash| calculates a hash of a zero-terminated string \verb|str|, while \verb|epicsMemHash| uses the same algorithm on a fixed-length memory buffer that may contain zero bytes.
+In both cases an initial \verb|seed| value may be provided which permits multiple strings or buffers to be combined into a single hash result.
 The final result should be masked to achieve the desired number of bits in the hash value.
 
 \subsection{epicsTypes}
@@ -1759,7 +1761,6 @@ typedef int             epicsInt32;
 typedef unsigned        epicsUInt32;
 typedef float           epicsFloat32;
 typedef double          epicsFloat64;
-typedef unsigned long   epicsIndex;
 typedef epicsInt32      epicsStatus;
 \end{verbatim}
 
