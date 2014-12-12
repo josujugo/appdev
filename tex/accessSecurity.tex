@@ -731,16 +731,19 @@ This code is called by a channel access server.
 
 \begin{verbatim}
 long asAddClient(ASCLIENTPVT *ppvt, ASMEMBERPVT pvt, int asl,
-                 const char *user, char*host);
+                 const char *user, char *host);
 \end{verbatim}
 
 \index{asAddClient}
-This routine adds a client to an ASG member. The calling routine must provide storage for \verb|ASCLIENTPVT|. 
-\verb|ASMEMBERPVT| is the value that was set by calling \verb|asAddMember|. The database code and the server code must develop 
-a convention that allows the server code to locate the \verb|ASMEMBERPVT|. For IOC databases,  \verb|ASMEMBERPVT| is kept in 
-dbCommon. \verb|asl| is the access security level.
+This routine adds a client to an ASG member.
+The calling routine must provide storage for the \verb|ASCLIENTPVT| pointer.
+\verb|ASMEMBERPVT| is the value that was set by calling \verb|asAddMember|.
+The database code and the server code must develop a convention that allows the server code to locate the \verb|ASMEMBERPVT|.
+For IOC databases, \verb|ASMEMBERPVT| is kept in dbCommon.
+\verb|asl| is the access security level.
 
-The caller must provide permanent storage for \verb|user| and \verb|host|. Note that user is ``const char *" but host is just ``char *". 
+The caller must provide permanent storage for \verb|user| and \verb|host|.
+Note that user is ``const char *" but host is just ``char *".
 The reason is the host names are converted to lower case.
 
 This routine returns \verb|S_asLib_asNotActive| without doing anything if access control is not active.
@@ -749,13 +752,13 @@ This routine returns \verb|S_asLib_asNotActive| without doing anything if access
 
 \begin{verbatim}
 long asChangeClient(ASCLIENTPVT ppvt, int asl,
-                    const char *user, char*host);
+                    const char *user, char *host);
 \end{verbatim}
 
 \index{asChangeClient}
-This routine changes one or more of the values \verb|asl|, \verb|user|, and \verb|host| for an existing client. Again the caller must provide 
-permanent storage for \verb|user| and \verb|host|. It is permissible to use the same \verb|user| and \verb|host| used in the call to 
-\verb|asAddClient| with different values.
+This routine changes one or more of the values \verb|asl|, \verb|user|, and \verb|host| for an existing client.
+Again the caller must provide permanent storage for \verb|user| and \verb|host|.
+It is permissible to use the same \verb|user| and \verb|host| used in the call to \verb|asAddClient| with different values.
 
 This routine returns \verb|S_asLib_asNotActive| without doing anything if access control is not active.
 
@@ -777,10 +780,10 @@ void *asGetClientPvt(ASCLIENTPVT pvt);
 \end{verbatim}
 
 \index{asGetClientPvt}
-For each client, the access system keeps a pointer that can be used by the caller. This routine returns the value of the 
-pointer.
+For each client, the access system keeps a pointer that can be used by the caller.
+This routine returns the value of the pointer.
 
-This routine returns \verb|NULL| if access security is not active. 
+This routine returns \verb|NULL| if access security is not active.
 
 \subsubsection{put Client Pvt}
 
@@ -810,7 +813,7 @@ long asCheckGet(ASCLIENTPVT pvt);
 \end{verbatim}
 
 \index{asCheckGet}
-This routine, actually a macro, returns (\verb|TRUE|,\verb|FALSE|) if the client (has, doesn't have) get access rights.
+This routine, actually a macro, returns \verb|TRUE| if the client has read access rights.
 
 \subsubsection{check Put}
 
@@ -819,7 +822,7 @@ long asCheckPut(ASCLIENTPVT pvt);
 \end{verbatim}
 
 \index{asCheckPut}
-This routine, actually a macro, returns (\verb|TRUE|,\verb|FALSE|) if the client (has, doesn't have) put access rights.
+This routine, actually a macro, returns \verb|TRUE| if the client has write access rights.
 
 \subsubsection{asTrapWriteBefore and asTrapWriteAfter}
 
@@ -827,20 +830,20 @@ This routine, actually a macro, returns (\verb|TRUE|,\verb|FALSE|) if the client
 \index{asTrapWriteAfter}
 \begin{verbatim}
 void *asTrapWriteBefore(ASCLIENTPVT clientPvt,
-const char *userid, const char *hostid, void *serverSpecific);
+    const char *userid, const char *hostid, void *serverSpecific);
 void *asTrapWriteAfter(void *trapPvt);
 \end{verbatim}
 
-These routines must be called before and after any write performed for a client. The value returned by 
-\verb|asTrapWriteBefore| must be the value passed to \verb|asTrapWriteAfter|. The severSpecific argument is assigned to 
-the \verb|serverSpecific| field of the \verb|asTrapWriteMessage| described below. 
+These routines must be called before and after any write performed for a client, to permit any registered listeners to be notified.
+The value returned by the call to \verb|asTrapWriteBefore| is the \verb|trapPvt| value that must subsequently be passed to the \verb|asTrapWriteAfter| routine.
+The \verb|serverSpecific| argument is assigned to the \verb|serverSpecific| field of the \verb|asTrapWriteMessage| described below.
 
 \subsection{Access Computation}
 
 \subsubsection{compute all Asg}
 
 \begin{verbatim}
-long asComputeAllAsg(void); 
+long asComputeAllAsg(void);
 \end{verbatim}
 
 \index{asComputeAllAsg}
@@ -855,8 +858,7 @@ long asComputeAsg(ASG *pasg);
 \end{verbatim}
 
 \index{asComputeAsg}
-This routine calculates all \verb|CALC| entries for the \verb|ASG| and calls \verb|asCompute| for each client of each member of the specified 
-access security group.
+This routine calculates all \verb|CALC| entries for the \verb|ASG| and calls \verb|asCompute| for each client of each member of the specified access security group.
 
 This routine returns \verb|S_asLib_asNotActive| without doing anything if access control is not active.
 
@@ -869,8 +871,8 @@ long asCompute(ASCLIENTPVT pvt);
 \end{verbatim}
 
 \index{asCompute}
-This routine computes the access rights of a client. This routine is normally called by the access library itself rather than 
-use code.
+This routine computes the access rights of a client.
+This routine is normally called by the access library itself rather than user code.
 
 This routine returns \verb|S_asLib_asNotActive| without doing anything if access control is not active.
 
@@ -887,12 +889,14 @@ void (*client)(ASCLIENTPVT),int verbose);
 
 \index{asDump}
 \index{asDumpFP}
-These routines print the current access security database. If verbose is 0 (\verb|FALSE|), then only the information obtained 
-from the access security file is printed.
+These routines print the current access security database.
+If verbose is 0 (\verb|FALSE|), then only the information obtained from the access security file is printed.
 
-If verbose is \verb|TRUE| then additional information is printed. The value of each \verb|INP| is displayed. The list of members 
-belonging to each ASG and the clients belonging to each member are displayed. If member callback is specified as an 
-argument, then it is called for each member. If client callback is specified, it is called for each access security client.
+If verbose is \verb|TRUE| then additional information is printed.
+The value of each \verb|INP| is displayed.
+The list of members belonging to each ASG and the clients belonging to each member are displayed.
+If member callback is specified as an argument, then it is called for each member.
+If client callback is specified, it is called for each access security client.
 
 \subsubsection{Dump UAG}
 
@@ -939,9 +943,8 @@ int asDumpMemFP(FILE *fp,char *asgname,
 
 \index{asDumpMem}
 \index{asDumpMemFP}
-This routine displays the member and, if clients is \verb|TRUE|, client information for the specified \verb|ASG| or if \verb|asgname| is \verb|NULL| 
-the member and client information for each \verb|ASG| defined in the access security database. It also calls \verb|memcallback| for 
-each member if this argument is not \verb|NULL|.
+This routine displays the member and, if clients is \verb|TRUE|, client information for the specified \verb|ASG| or if \verb|asgname| is \verb|NULL| the member and client information for each \verb|ASG| defined in the access security database.
+It also calls \verb|memcallback| for each member if this argument is not \verb|NULL|.
 
 \subsubsection{Dump hash table}
 
@@ -961,7 +964,8 @@ These show the contents of the hash table used to locate \verb|UAG|s and \verb|H
 The definition of access level means that a level is defined for each field of each record type.
 
 \begin{enumerate}
-\item Structure \verb|fldDes| (\verb|dbBase.h|), which describes the attributes of each field, contains a field \verb|access_security_level|. In addition definitions exist for the symbols: \verb|ASL0| and \verb|ASL1|.
+\item \verb|struct dbFldDes| in \verb|dbBase.h| contains a field \verb|as_level|.
+In addition definitions are provided for the symbols \verb|ASL0| and \verb|ASL1|.
 
 \item Each field description in a record description contains a field with the value \verb|ASLx|.
 \end{enumerate}
@@ -971,30 +975,28 @@ The meanings of the \index{Access Security Level}Access Security Level definitio
 \begin{itemize}
 \item \verb|ASL0| Assigned to fields used during normal operation
 
-\item \verb|ASL1| Assigned to fields that may be sensitive to change. Permission to access this level implies permission for 
-\verb|ASL0|.
+\item \verb|ASL1| Assigned to fields that may be sensitive to change.
+Permission to access this level implies permission for \verb|ASL0|.
 \end{itemize}
 
 \index{ASL0}
 \index{ASL1}
-Most record types assign ASL as follows: The fields \verb|VAL|, \verb|RES| (Reset), and \verb|CMD| use the value \verb|ASL0|. All other fields use 
-\verb|ASL1|.
+Most record types assign ASL as follows:
+The fields \verb|VAL|, \verb|RES| (Reset), and \verb|CMD| use the value \verb|ASL0|.
+All other fields use \verb|ASL1|.
 
 \subsection{Access Security Group definition}
 
-\verb|dbCommon| contains the fields \verb|ASG| and \verb|ASP|. \verb|ASG| (Access Security Group) is a character string. The value can be 
-assigned via a database configuration tool or else a utility could be provided to assign values during ioc initialization. ASP 
-is an access security private field. It contains the address of an \verb|ASGMEMBER|.
-
-\subsection{Access Client Definition}
-
-Struct \verb|dbAddr| contains a field \verb|asPvt|, which contains the address of an \verb|ASGCLIENT|. This definition is also added to 
-struct \verb|db_addr| so that old database access also supports access security. 
+\verb|struct dbCommon| contains the fields \verb|ASG| and \verb|ASP|.
+\verb|ASG| (Access Security Group) is a character string.
+The value can be assigned via a database configuration tool or else a utility could be provided to assign values during ioc initialization.
+ASP is an access security private field.
+It contains the address of an \verb|ASGMEMBER|.
 
 \subsection{Database Access Library}
 
-Two files \verb|asDbLib.c| and \verb|asCa.c| implement the interface between IOC databases and access control. They contain the 
-following routines:
+Two files \verb|asDbLib.c| and \verb|asCa.c| implement the interface between IOC databases and access control.
+They contain the following routines:
 
 \subsubsection{Initialization}
 
@@ -1003,17 +1005,17 @@ int asSetFilename(char *acf)
 \end{verbatim}
 
 \index{asSetFilename}
-Calling this routine sets the filename of an access configuration file, but does not save the current working directory, so 
-the use of an absolute pathname is strongly recommended. The next call to \verb|asInit| uses this filename. 
-\verb|asSetFilename| must be called before \verb|iocInit|otherwise access configuration is disabled. Is access security is 
-disabled during \verb|iocInit| it will never be turned on.
+Calling this routine sets the filename of an access configuration file, but does not save the current working directory, so the use of an absolute pathname is strongly recommended.
+The next call to \verb|asInit| uses this filename.
+\verb|asSetFilename| must be called before \verb|iocInit| otherwise access configuration is disabled.
+Is access security is disabled during \verb|iocInit| it will never be turned on.
 
 \begin{verbatim}
 int asSetSubstitutions(char *substitutions)
 \end{verbatim}
 
 \index{asSetSubstitutions}
-This routine specifies macro substitutions.
+This routine specifies macro substitutions for use while reading the configuration file.
 
 \begin{verbatim}
 int asInit()
@@ -1022,21 +1024,19 @@ int asInitAsyn(ASDBCALLBACK *pcallback)
 
 \index{asInit}
 \index{asInitAsyn}
-This routines call \verb|asInitialize|. If the current access configuration file, as specified by \verb|asSetFilename|, is \verb|NULL| 
-then the routine just returns, otherwise the configuration file is used to create the access configuration database. After 
-initialization all records in the database are made members of the appropriate access control group.
+This routines call \verb|asInitialize|.
+If the current access configuration file, as specified by \verb|asSetFilename|, is \verb|NULL| then the routine just returns, otherwise the configuration file is used to create the access configuration database.
+After initialization all records in the database are made members of the appropriate access control group.
 
 \verb|asInit| is called by \verb|iocInit|, and can also be called after \verb|iocInit| to change the access configuration information.
 
-\verb|asInitAsyn| spawns a task \verb|asInitTask| to perform the initialization. This allows \verb|asInitAsyn| to be called from a 
-subroutine called by the process entry of a subroutine record. \verb|asInitTask| calls \verb|taskwdInsert| so that if it suspends 
-for some reason \verb|taskwd| can detect the failure.
+\verb|asInitAsyn| spawns a task \verb|asInitTask| to perform the initialization.
+This allows \verb|asInitAsyn| to be called from a subroutine called by the process entry of a subroutine record. \verb|asInitTask| calls \verb|taskwdInsert| so that if it suspends for some reason \verb|taskwd| can detect the failure.
 
-If the caller provides an \verb|ASDBCALLBACK| then when either initialization completes or \verb|taskwd| detects a failure the users 
-callback routine is called via one of the standard callback tasks.
+If the caller provides an \verb|ASDBCALLBACK| then when either initialization completes or \verb|taskwd| detects a failure the user's callback routine is called via one of the standard callback tasks.
 
-\verb|asInitAsyn| will return a value of \verb|-1| if access initialization is already active. It returns 0 if \verb|asInitTask| is 
-successfully spawned.
+\verb|asInitAsyn| will return a value of \verb|-1| if access initialization is already active.
+It returns 0 if \verb|asInitTask| is successfully spawned.
 
 \subsubsection{Routines used by Channel Access Server}
 
@@ -1045,18 +1045,16 @@ int asDbGetAsl(void *paddr)
 \end{verbatim}
 
 \index{asDbGetAsl}
-Get Access Security level for the field referenced by a database access structure. The argument is defined as a \verb|void*| so 
-that both old and new database access can be used.
-
-
+Get Access Security level for the field referenced by a database access structure.
+The argument is defined as a \verb|void*| so that both old and new database access can be used.
 
 \begin{verbatim}
 void * asDbGetMemberPvt(void *paddr)
 \end{verbatim}
 
 \index{asDbGetMemberPvt}
-Get \verb|ASMEMBERPVT| for the field referenced by a database access structure. The argument is defined as a \verb|void*| so that 
-both old and new database access can be used.
+Get \verb|ASMEMBERPVT| for the field referenced by a database access structure.
+The argument is defined as a \verb|void*| so that both old and new database access can be used.
 
 \subsubsection{Routine to test asAddClient}
 
@@ -1065,7 +1063,8 @@ int astac(char *pname,char *user,char *host)
 \end{verbatim}
 
 \index{astac}
-This is a routine to test \verb|asAddClient|. It simulates the calls that are made by Channel Access.
+This is a routine to test \verb|asAddClient|.
+It simulates the calls that are made by Channel Access.
 
 \subsubsection{Subroutines attached to a subroutine record}
 
@@ -1078,16 +1077,17 @@ long asSubProcess(struct subRecord *prec)
 
 \index{asSubInit}
 \index{asSubProcess}
-These are routines that can be attached to a subroutine record. Whenever a 1 is written to the record, \verb|asSubProcess| 
-calls \verb|asInit|. If \verb|asInit| returns success, it returns with asynchronously. When \verb|asInitTask| calls the completion 
-routine supplied by \verb|asSubProcess|, the return status is used to place the record in alarm.
+These are routines that can be attached to a subroutine record.
+Whenever a 1 is written to the record, \verb|asSubProcess| calls \verb|asInit|.
+If \verb|asInit| returns success, it returns asynchronously.
+When \verb|asInitTask| calls the completion routine supplied by \verb|asSubProcess|, the completion status is used to determine whether to place the record in alarm or not.
 
 \subsubsection{Diagnostic Routines}
 
-These routines provide interfaces to the \verb|asDump| routines described in the previous chapter. They do NOT lock before 
-calling the associated routine. Thus they may fail if the access security configuration is changing while they are running. 
-However the danger of the user accidently aborting a command and leaving the access security system locked is 
-considered a risk that should be avoided.
+These routines provide interfaces to the \verb|asDump| routines described in the previous chapter.
+They do NOT lock before calling the associated routine.
+Thus they may fail if the access security configuration is changing while they are running.
+However the danger of the user accidently aborting a command and leaving the access security system locked is considered a risk that should be avoided.
 
 \begin{verbatim}
 asdbdump(void)
@@ -1136,80 +1136,71 @@ These routines call \verb|asDumpMemFP|.
 
 \section{Channel Access Security}
 
-EPICS Access Security was originally designed to protect Input Output Controllers (IOCs) from unauthorized access via 
-the Channel Access (CA) network protocol. It can also be used by any Channel Access Server (CAS) tool. For example 
-the Channel Access PV Gateway implements its own access security. This  section describes the interaction between a CA 
-server and the Access Security system. It also briefly describes how the current access rights state is communicated to 
-clients of the EPICS control system via the CA client interface.
+EPICS Access Security was originally designed to protect Input Output Controllers (IOCs) from unauthorized access via the Channel Access (CA) network protocol.
+It can also be used by any Channel Access Server (CAS) tool.
+For example the Channel Access PV Gateway implements its own access security.
+This section describes the interaction between a CA server and the Access Security system.
+It also briefly describes how the current access rights state is communicated to clients of the EPICS control system via the CA client interface.
 
 \subsection{CA Server Interfaces to the Access Security System}
 
-The CA server calls asAddClient() and asRegisterClientCallback() for each of the channels that a client 
-connects to the server. The routine asRemoveClient() is called whenever the client clears (removes) a channel or 
-when the client disconnects. 
+The CA server calls \verb|asAddClient()| and \verb|asRegisterClientCallback()| for each of the channels that a client connects to the server.
+The routine \verb|asRemoveClient()| is called whenever the client clears (removes) a channel or when the client disconnects.
 
-The server maintains storage for the clients host and user names. The initial value of these strings are supplied to the 
-server when the client connects and can be updated at any time by the client. When these strings change then 
-asChangeClient() is called for each of the channels maintained by the server for the client.
+The server maintains storage for the clients host and user names.
+The initial value of these strings are supplied to the server when the client connects and can be updated at any time by the client.
+When these strings change then \verb|asChangeClient()| is called for each of the channels maintained by the server for the client.
 
-The server checks for read access when processing gets and for write access when processing puts. If access is denied 
-then an exception message is sent to the client. The macros \verb|asCheckGet()| and \verb|asCheckPut()| perform the checks.
+The server checks for read access when processing gets and for write access when processing puts.
+If access is denied an exception message will be sent to the client.
+The macros \verb|asCheckGet()| and \verb|asCheckPut()| perform the checks.
 
-The server checks for read access when processing requests to register an event callback (monitor) for the client. If there 
-is read access the server always sends an initial update indicating the current value. If there isn't read access the server 
-sends one update indicating no read access and disables subsequent updates.
+The server checks for read access when processing requests to register an event callback (monitor) for the client.
+If there is read access the server always sends an initial update indicating the current value.
+If there isn't read access the server sends one update indicating no read access and disables subsequent updates.
 
-The server receives asynchronous notification of access rights change via the callback registered with 
-asRegisterClientCallback(). When a channel's access rights change the server communicates the current state 
-to the client library. If read access to a channel is lost and there are events (monitors) registered on the channel then the 
-server sends an update to the client for each of them indicating no access and disables future updates for each event. If 
-read access is reestablished to a channel and there are events (monitors) registered on the channel then the server re-
-enables updates and sends an initial update message to the client for each of them.
+The server  registers a callback with \verb|asRegisterClientCallback()| in order to receives asynchronous notification of access rights changes.
+When a channel's access rights change, the server communicates the current state to the client library.
+If read access to a channel is lost and there are events (monitors) registered on the channel then the server sends an update to the client for each of them indicating no access and disables future updates for each event.
+If read access is reestablished to a channel and there are events (monitors) registered on the channel, the server reenables updates and sends an initial update message to the client for each of them.
 
-The server must also call \verb|asTrapWriteBefore()| and \verb|asTrapWriteAfter()| before and after a put request from a 
-client is performed.
+The server must also call \verb|asTrapWriteBefore()| and \verb|asTrapWriteAfter()| before and after a put request from a client is performed.
 
 \subsection{Client Interfaces}
 
-Additional details on the channel access client side callable interfaces to access security can be obtained from the 
-"Channel Access Reference Manual".
+Additional details on the channel access client side callable interfaces to access security can be obtained from the Channel Access Reference Manual.
 
-The client library stores and maintains the current state of the access rights for each channel that it has established. The 
-client library receives asynchronous updates of the current access rights state from the server. It uses this state to check for 
-read access when processing gets and for write access when processing puts. If a program issues a channel access request 
-that is inconsistent with the client library's current knowledge of the access rights state then access is denied and an error 
-code is returned to the application. The current access rights state as known by the client library can be tested by an 
-applications program with the C macros ca\_read\_access() and ca\_write\_access().
+The client library stores and maintains the current state of the access rights for each channel that it has established.
+The client library receives asynchronous updates of the current access rights state from the server.
+It uses this state to check for read access when processing gets and for write access when processing puts.
+If a program issues a channel access request that is inconsistent with the client library's current knowledge of the access rights state, the access is denied and an error code is returned to the application.
+The current access rights state as known by the client library can be tested by an applications program with the C macros \verb|ca_read_access()| and \verb|ca_write_access()|.
 
-An application program can also receive asynchronous notification of changes to the access rights state by registering a 
-function to be called back when the client library updates its storage of the access rights state. The application's call back 
-function is installed for this purpose by calling ca\_replace\_access\_rights\_event().
+An application program can also receive asynchronous notification of changes to the access rights state by registering a function to be called whenever the client library updates its knowledge of the access rights state.
+The application's callback function is installed using \verb|ca_replace_access_rights_event()|.
 
-If the access rights state changes in the server after a request is queued in the client library but before the request is 
-processed by the server then it is possible that the request will fail in the server. Under these circumstances then an 
-exception will be raised in the client.
+If the access rights state changes in the server after a request is queued in the client library but before the request is processed by the server, it is possible that the request will fail in the server.
+Under these circumstances then an exception will be raised in the client.
 
-The server always sends one update to the client when the event (monitor) is initially registered. If there isn't read access 
-then the status in the arguments to the application program's event call back function indicates no read access and the 
-value in the arguments to the clients event call back is set to zero. If the read access right changes after the event is 
-initially registered then another update is supplied to the application programs call back function.
+The server always sends one update to the client when the event (monitor) is initially registered.
+If there isn't read access then the status in the arguments to the application program's event call back function indicates no read access and the value in the arguments to the clients event call back is set to zero.
+If the read access right changes after the event is initially registered, another update is supplied to the application programs call back function.
 
 \section{Trapping Channel Access Writes}
 
-Access security provides a facility asTrapWrite that can trap write requests and pass them to any facility that registers a 
-listener. In order to use this facility three things are necessary:
+Access security provides a facility \verb|asTrapWrite| that can monitor write requests and pass them to any software that registers a listener function.
+In order to use this facility three things are necessary:
 
 \begin{enumerate}
-\item The facility, e.g. the channel access server, using access security must make two calls: \verb|asTrapWriteBefore()| 
-and \verb|asTrapWriteAfter()|. These are defined in asLib.h. The channel access server on the ioc makes these 
-calls. 
+\item The server using this library must call \verb|asTrapWriteBefore()| and \verb|asTrapWriteAfter()|.
+These routines are defined in asLib.h.
+The RSRV channel access server running on the IOC makes these calls.
 
-\item \verb|asTrapWrite()| gets called by \verb|asTrapWriteBefore()| and\verb| asTrapWriteAfter()| and uses the 
-\verb|TRAPWRITE| option specified with the RULEs given in the access configuration file to decide if listeners should be 
-called. asTrapWrite also includes a routine \verb|asTrapWriteRegisterListener()|.
+\item \verb|asTrapWrite()| gets called by \verb|asTrapWriteBefore()| and\verb| asTrapWriteAfter()| and uses the \verb|TRAPWRITE| option specified with the RULEs given in the access configuration file to decide if listeners should be called.
+asTrapWrite also includes a routine \verb|asTrapWriteRegisterListener()|.
 
-\item Some facility not included with access security must call \verb|asTrapWriteRegisterListener()|. If nothing 
-calls  \verb|asTrapWriteRegisterListener|, asTrapWrite does nothing.
+\item Some facility not included with access security must call \verb|asTrapWriteRegisterListener()|.
+If nothing calls \verb|asTrapWriteRegisterListener|, asTrapWrite does nothing.
 
 \end{enumerate}
 
@@ -1256,24 +1247,25 @@ the following fields:
 
 \item  \verb|hostid| - Hostid of whoever originated the request.
 
-\item \verb|serverSpecific| - The meaning of this field is server specific. If the listener uses this field it must know what 
-type of server is supplying the messages. It is the value the server provides to asTrapWriteBefore.
+\item \verb|serverSpecific| - The meaning of this field is server specific.
+If the listener uses this field it must know what type of server is supplying the messages.
+It is the value the server provides to asTrapWriteBefore.
 
-\item \verb|userPvt| - This field is for use by the \verb|asTrapWriteListener|. When the listener is called before the write,  
-\verb|userPvt| has the value 0. The listener can give it any value it desires and \verb|userPvt| will have have the same 
-value when the listener gets called after the write.
+\item \verb|userPvt| - This field is for use by the \verb|asTrapWriteListener|.
+When the listener is called before the write, \verb|userPvt| has the value 0.
+The listener can give it any value it desires and \verb|userPvt| will have have the same value when the listener gets called after the write.
 \end{itemize}
 
-asTrapWriteListener delays the associated server thread so it must not do anything that causes it to block.
+\verb|asTrapWriteListener| delays the associated server thread so it must not do anything that causes it to block.
 
-The IOC's RSRV server the calls  \verb|asTrapWriteBefore| with \verb|serverSpecific|  set to the dbAddr describing the 
+The IOC's RSRV server the calls \verb|asTrapWriteBefore| with \verb|serverSpecific|  set to the dbAddr describing the 
 database location.
 \index{asTrapWriteBefore}
 
 \section{Access Control: Implementation Overview}
 
-This section provides a few aids for reading the access security code. Include file \verb|asLib.h| describes the control blocks 
-used by the access security library. 
+This section provides a few aids for reading the access security code.
+Include file \verb|asLib.h| describes the control blocks used by the access security library.
 
 \subsection{Implementation Overview}
 
