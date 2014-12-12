@@ -261,7 +261,7 @@ The \index{database access routines - List of}database access routines are:
 
 \item dbProcessNotify: Process a record and request notification on completion, together with optional pre-process put or post-process get.
 
-\item dbNotifyCancel: Cancell a dbProcessNotify.
+\item dbNotifyCancel: Cancel a dbProcessNotify.
 
 \item dbBufferSize: Determine number of bytes in request buffer.
 
@@ -277,8 +277,6 @@ The first field in a record has index 0.
 \item dbGetNelement: Get number of elements in the field
 
 \item dbIsLinkConnected: Is the link field connected.
-
-\item dbGetPdbAddrFromLink: Get address of DBADDR.
 
 \item dbGetLinkDBFtype: Get field type of link.
 
@@ -983,15 +981,8 @@ int dbIsLinkConnected(struct link *plink);
 \subsubsection{dbGetPdbAddrFromLink}
 
 \index{dbGetPdbAddrFromLink}
-Get address of DBADDR from link.
-
-Format:
-
-\begin{verbatim}
-DBADDR *dbGetPdbAddrFromLink(struct link *plink);
-\end{verbatim}
-
-\index{dbGetPdbAddrFromLink}This macro returns the address of the DBADDR for a database link and NULL for all other link types.
+This macro was provided in earlier versions of Base, but has been removed from 3.15 onward.
+Code that was using it to gain access to the internal components of the the link's dbAddr structure should be converted to make use of the other routines described in this chapter instead.
 
 \subsubsection{dbGetLinkDBFtype}
 
