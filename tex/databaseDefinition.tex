@@ -201,28 +201,31 @@ The database routines translate standard C escape sequences inside database fiel
 escape sequences supported are:
 
 \begin{verbatim}
-\a \b \f \n \r \t \v \\ \? \' \" \ooo \xhh
+\a \b \f \n \r \t \v \\ \' \" \ooo \xhh
 \end{verbatim}
 
-\verb|\ooo| represents an octal number with 1, 2, or 3 digits. \verb|\xhh| represents a hexadecimal number with 1 or 2 digits.
+\verb|\ooo| represents an octal number with 1, 2, or 3 digits.
+\verb|\xhh| represents a hexadecimal number which may have any number of hex digits but only the last 2 will be represented in the character generated.
 
 \subsection{Comments}
 
 \index{comment -- Database Definitions}
-The comment symbol is ``\#''. Whenever the comment symbol appears, it and all characters through the end of the line are ignored.
+The comment symbol is ``\#''.
+Whenever the comment symbol appears, it and all characters through the end of the line are ignored.
 
 \subsection{Define before referencing}
 
-No item can be referenced until it is defined. For example a \verb|recordtype| menu field can not reference a menu unless 
-that menu definition has already been defined. Another example is that a record instance can not appear until the 
-associated record type has been defined.
+No item can be referenced until it is defined.
+For example a \verb|recordtype| menu field can not reference a menu unless that menu definition has already been defined.
+Another example is that a record instance can not appear until the associated record type has been defined.
 
 \subsection{Multiple Definitions}
 
 \index{Multiple Definitions}
-If a menu, recordtype, device, driver, or breakpoint table is defined more than once, then only the first instance is used. 
-Record instance definitions however are (normally) cumulative, so multiple instances of the same record may be loaded 
-and each time a field value is encountered it replaces the previous value.
+If a menu, device, driver, or breakpoint table is defined more than once, then only the first instance will be used.
+Subsequent definitions will be compared to the first one and an error will occur if they are different.
+Record type definitions are only allowed to be loaded once; duplicates will cause an error even if the later definitions are identical to the first.
+Record instance definitions are (normally) cumulative, so multiple instances of the same record may be loaded and each time a field value is encountered it replaces the previous value.
 
 \subsection{Filename Extensions}
 
@@ -323,7 +326,7 @@ menu(menuYesNo) {
 }
 \end{verbatim}
 
-\section{\texttt{recordtype} -- Record Type Declaration}
+\section{\texttt{recordtype} -- Record Type Definition}
 
 \index{record type -- Database Definitions}
 \subsection{Format}
@@ -387,10 +390,12 @@ Optional if \verb|promptgroup| is not defined.
 \item [extra] Must be specified for \verb|DBF_NOACCESS| fields.
 
 \index{menu -- field definition rules}
-\item [menu] Must be specified for \verb|DBF_MENU| fields. It is the name of the associated menu.
+\item [menu] Must be specified for \verb|DBF_MENU| fields.
+It is the name of the associated menu.
 
 \index{prop -- field definition rules}
-\item [prop] Must be YES or NO (default).  Indicates that the field holds Channel Access meta-data.
+\item [prop] Must be \verb|YES| or \verb|NO| (default).
+Indicates that the field holds Channel Access meta-data.
 \end{description}
 
 \subsection{Definitions}
@@ -398,7 +403,7 @@ Optional if \verb|promptgroup| is not defined.
 \begin{description}
 \index{record\_type -- record type definition}
 \item [record\_type] The unique name of the record type.
-If duplicates are specified, only the first definition is used.
+Duplicate definitions are not allowed and will be rejected.
 
 \index{field\_name -- field definition}
 \item [field\_name] The field name, which must be a valid C and C++ identifier.
@@ -490,8 +495,7 @@ The record support \verb|special| routine will be called whenever the field is m
 This value disables external writes to the field, so it can only be set by the record or device support module.
 
 \index{SPC\_DBADDR}
-\item \verb|SPC_DBADDR| -- Use this if the record support \verb|cvt_dbaddr| routine should be called by \verb|dbNameToAddr|,
-i.e. when code outside record/device support is connecting to the field.
+\item \verb|SPC_DBADDR| -- Use this if the record support's \verb|cvt_dbaddr| routine should be called to adjust the field description when code outside of the record or device support makes a connection to the field.
 
 The following values are for database common fields.
 They must \emph{not} be used for record specific fields:
@@ -524,8 +528,8 @@ The following values are deprecated, use \verb|SPC_MOD| instead:
 The allowed values are:
 
 \begin{itemize}
-\item \verb|NO| (default)
-\item \verb|YES|
+\item \verb|FALSE| (default)
+\item \verb|TRUE|
 \end{itemize}
 
 \index{interest\_level -- field definition}
@@ -600,7 +604,7 @@ recordtype(event) {
 \subsection{Format}
 
 \begin{verbatim}
-    device(record_type, link_type, dset_name, "choice_string")
+device(record_type, link_type, dset_name, "choice_string")
 \end{verbatim}
 
 \subsection{Definitions}
@@ -639,8 +643,8 @@ A \verb|choice_string| value may be reused for different record types, but must 
 \subsection{Examples}
 
 \begin{verbatim}
-    device(ai,CONSTANT,devAiSoft,"Soft Channel")
-    device(ai,VME_IO,devAiXy566Se,"XYCOM-566 SE Scanned")
+device(ai,CONSTANT,devAiSoft,"Soft Channel")
+device(ai,VME_IO,devAiXy566Se,"XYCOM-566 SE Scanned")
 \end{verbatim}
 
 \section{\texttt{driver} -- Driver Declaration}
@@ -649,7 +653,7 @@ A \verb|choice_string| value may be reused for different record types, but must 
 \subsection{Format}
 
 \begin{verbatim}
-    driver(drvet_name)
+driver(drvet_name)
 \end{verbatim}
 
 \subsection{Definitions}
@@ -663,8 +667,8 @@ A \verb|choice_string| value may be reused for different record types, but must 
 \subsection{Examples}
 
 \begin{verbatim}
-    driver(drvVxi)
-    driver(drvXy210)
+driver(drvVxi)
+driver(drvXy210)
 \end{verbatim}
 
 \section{\texttt{registrar} -- Registrar Declaration}
@@ -673,7 +677,7 @@ A \verb|choice_string| value may be reused for different record types, but must 
 \subsection{Format}
 
 \begin{verbatim}
-    registrar(function_name)
+registrar(function_name)
 \end{verbatim}
 
 \subsection{Definitions}
@@ -685,8 +689,8 @@ its source file with an \index{epicsExportRegistrar}\verb|epicsExportRegistrar| 
 \end{description}
 
 \begin{verbatim}
-    static void myRegistrar(void);
-    epicsExportRegistrar(myRegistrar);
+static void myRegistrar(void);
+epicsExportRegistrar(myRegistrar);
 \end{verbatim}
 
 This can be used to register functions for use by subroutine records or that can be invoked from iocsh. The example 
@@ -696,7 +700,7 @@ gives an example of how to register functions for subroutine records.
 \subsection{Example}
 
 \begin{verbatim}
-    registrar(myRegistrar)
+registrar(myRegistrar)
 \end{verbatim}
 
 \section{\texttt{variable} -- Variable Declaration}
@@ -705,7 +709,7 @@ gives an example of how to register functions for subroutine records.
 \subsection{Format}
 
 \begin{verbatim}
-    variable(variable_name[, type])
+variable(variable_name[, type])
 \end{verbatim}
 
 \subsection{Definitions}
@@ -731,16 +735,16 @@ provides an example of how to register a debug variable for a subroutine record.
 In an application C source file:
 
 \begin{verbatim}
-    #include <epicsExport.h>
+#include <epicsExport.h>
 
-    static double myParameter;
-    epicsExportAddress(double, myParameter);
+static double myParameter;
+epicsExportAddress(double, myParameter);
 \end{verbatim}
 
 In an application database definition file:
 
 \begin{verbatim}
-    variable(myParameter, double)
+variable(myParameter, double)
 \end{verbatim}
 
 \section{\texttt{function} -- Function Declaration}
@@ -756,32 +760,30 @@ function(function_name)
 
 \begin{description}
 \index{function\_name -- function definition}
-\item [function\_name] The name of a C function which has been exported from its source file with an
-\index{epicsRegisterFunction}\verb|epicsRegisterFunction| declaration.
+\item [function\_name] The name of a C function which is exported from its source file in an \index{epicsRegisterFunction}\verb|epicsRegisterFunction| declaration.
 \end{description}
 
-This registers a function so that it can be found in the function registry for use by record types such as sub or aSub which 
-refer to the function by name. The example application described in Section \ref{Example IOC Application} on page \pageref{Example IOC Application}
-provides an example of how to register functions for a subroutine record.
+This registers a function so that it can be found in the function registry for use by record types such as sub or aSub which refer to the function by name.
+The example application described in Section \ref{Example IOC Application} on page \pageref{Example IOC Application} provides an example of how to register functions for a subroutine record.
 
 \subsection{Example}
 
 In an application C source file:
 
 \begin{verbatim}
-    #include <epicsExport.h>
-    #include <registryFunction.h>
+#include <epicsExport.h>
+#include <registryFunction.h>
 
-    static long myFunction(void *argp) {
-        /* my code ... */
-    }
-    epicsRegisterFunction(myFunction);
+static long myFunction(void *argp) {
+    /* my code ... */
+}
+epicsRegisterFunction(myFunction);
 \end{verbatim}
 
 In an application database definition file:
 
 \begin{verbatim}
-    function(myFunction)
+function(myFunction)
 \end{verbatim}
 
 \section{\texttt{breaktable} -- Breakpoint Table}
@@ -852,7 +854,7 @@ alias(record_name, alias_name)
 This must be composed of the following characters:
 
 \begin{verbatim}
-    a-z A-Z 0-9 _ - + : [ ] < > ;
+a-z A-Z 0-9 _ - + : [ ] < > ;
 \end{verbatim}
 
 NOTE: If macro substitutions are used the name must be quoted.
@@ -912,7 +914,7 @@ A numeric literal, valid for the field type it is to be read into.
 A value of the form:
 
 \begin{verbatim}
-    record.field process maximize
+record.field process maximize
 \end{verbatim}
 
 \verb|record| is the name of a record that exists in this or another IOC.
@@ -1093,14 +1095,13 @@ Record support can call the following routine to create new attributes or change
 
 \index{dbPutAttribute}
 \begin{verbatim}
-    long dbPutAttribute(char *recordTypename,
-       char *name, char*value)
+long dbPutAttribute(char *rtype, char *name, char *value)
 \end{verbatim}
 
 The arguments are:
 
 \begin{description}
-\item \verb|recordTypename| -- The name of recordtype.
+\item \verb|rtype| -- The name of recordtype.
 \item \verb|name| -- The attribute name, i.e. the psuedo field name.
 \item \verb|value| -- The value assigned to the attribute.
 \end{description}
@@ -1149,9 +1150,9 @@ A tool \index{makeBpt}\verb|makeBpt| is provided to convert such data to a break
 The format for generating a breakpoint table from a data table of raw values corresponding to equally spaced engineering values is:
 
 \begin{verbatim}
-    !comment line
-    <header line>
-    <data table>
+!comment line
+<header line>
+<data table>
 \end{verbatim}
 
 The header line contains the following information:
@@ -1171,14 +1172,14 @@ The header line contains the following information:
  An example definition is:
 
 \begin{verbatim}
-    "TypeKdegF" 32 0 1832 4095 1.0 -454 2500 1
-    <data table>
+"TypeKdegF" 32 0 1832 4095 1.0 -454 2500 1
+<data table>
 \end{verbatim}
 
 The breakpoint table can be generated by executing
 
 \begin{verbatim}
-    makeBpt bptXXX.data
+makeBpt bptXXX.data
 \end{verbatim}
 
 The input file must have the extension of data.
@@ -1199,8 +1200,8 @@ NOTE: This requires the naming convention that all data tables are of the form \
 
 \index{dbdToMenuH.pl}
 \index{dbdToRecordtypeH.pl}
-Given a file containing menu definitions, \verb|dbdToMenuH.pl| generates a C/C++ header file for use by code which needs those menus.
-Given a file containing any combination of menu definitions and record type definitions, \verb|dbdToRecordtypeH.pl| generates a C/C++ header file for use by any code which needs those menus and record type.
+Given a file containing menu definitions, the program \verb|dbdToMenuH.pl| generates a C/C++ header file for use by code which needs those menus.
+Given a file containing any combination of menu definitions and record type definitions, the program \verb|dbdToRecordtypeH.pl| generates a C/C++ header file for use by any code which needs those menus and record type.
 
 EPICS Base uses the following conventions for managing menu and recordtype definitions.
 Users generating local record types are encouraged to follow these.
@@ -1440,29 +1441,18 @@ The \verb|-D| option causes the program to output Makefile dependency informatio
 dbLoadDatabase(char *dbdfile, char *path, char *substitutions)
 \end{verbatim}
 
-NOTES: 
+This IOC command loads a database file which may contain any of the Database Definitions described in this chapter.
+The \verb|dbdfile| string may contain environment variable macros of the form \verb|${MOTOR}| which will be expanded before the file is opened.
+Both the \verb|path| and \verb|substitutions| parameters can be null or empty, and are usually ommitted.
+Note that \verb|dbLoadDatabase| should only used to load Database Definition (\verb|.dbd|) files, although it is currently possible to use it for loading Record Instance (\verb|.db|) files as well.
 
-\begin{itemize}
-\item IOC Only
-
-\item Using a path on a vxWorks ioc does not work very well.
-
-\item Both path and substitutions can be null, and are usually ommitted.
-
-\item \verb|dbdfile| may contain environment variable macros of the form \verb|${MOTOR}| which will be expanded before the file is opened.
-
-\end{itemize}
-
-This command loads a database file containing any of the definitions given in the summary at the beginning of this chapter.
-Note that \verb|dbLoadDatabase| should only used to load a Database Definition (\verb|.dbd|) file, although it is currently possible to use it for loading Record Instance (\verb|.db|) files as well.
-
-As each line of dbdfile is read, the substitutions specified in \verb|substitutions| are performed. Substitutions are specified as follows:
+As each line of the file is read, the substitutions specified in \verb|substitutions| are performed. Substitutions are specified as follows:
 
 \begin{verbatim}
 "var1=sub1,var2=sub3,..."
 \end{verbatim}
 
-Variables are specified in the dbfile as \verb|$(var)|.
+Variables are used in the file with the syntax \verb|$(var)| or \verb|${var}|.
 If the substitution string
 
 \begin{verbatim}
@@ -1478,16 +1468,10 @@ were used, any variables \verb|$(a)|, \verb|$(b)|, \verb|$(c)| in the database f
 dbLoadRecords(char* dbfile, char* substitutions)
 \end{verbatim}
 
-NOTES:
-
-\begin{itemize}
-\item IOC Only.
-
-\item The file named in \verb|dbfile| should contain only record instances, record aliases and/or breakpoint tables.
-
-\item The \verb|dbfile| string may itself contain environment variable macros of the form \verb|${MOTOR}| which will be expanded before the file is opened.
-
-\end{itemize}
+This IOC command loads a file containing record instances, record aliases and/or breakpoint tables.
+The \verb|dbfile| string may contain environment variable macros of the form \verb|${MOTOR}| which will be expanded before the file is opened.
+The \verb|substitutions| parameter can be null or empty, and is often ommitted.
+Note that \verb|dbLoadRecords| should only used to load Record Instance (\verb|.db|) files, although it is currently possible to use it for loading Database Definition (\verb|.dbd|) files as well.
 
 \subsection{Example}
 
@@ -1526,21 +1510,14 @@ record(stringout, "TESTtestrec3") {
 dbLoadTemplate(char *subfile, char *substitutions)
 \end{verbatim}
 
-NOTES:
-
-\begin{itemize}
-\item IOC Only.
-
-\index{MSI}
-\item MSI can be used to expand templates on the host instead of using this, it understands the same substitutions file syntax.
-\end{itemize}
-
-\verb|dbLoadTemplate| reads a template substitution file.
-This file contains rules about loading database instance files and provides values for the \verb|$(xxx)| macros they contain.
+This IOC command reads a template substitutions file which provides instructions for loading database instance files and gives values for the \verb|$(xxx)| macros they may contain.
 This command performs those substitutions while loading the database instances requested.
 
-The \verb|subfile| parameter provides the name of the template substitution file to be used.
-The optional \verb|substitutions| parameter may contain additional global macro values, which can be redefined within the substitution file.
+The \verb|subfile| parameter gives the name of the template substitution file to be used.
+The optional \verb|substitutions| parameter may contain additional global macro values, which can be overridden by values given within the substitution file.
+
+\index{MSI}
+The MSI program can be used to expand templates at build-time instead of using this command at run-time; both understand the same substitution file syntax.
 
 \subsection{Template File Syntax}
 
@@ -1612,7 +1589,7 @@ pattern { var1, var2, var3, ... }
 
 The first line (\verb|file name.template|) specifies the record instance input file. The file name may appear inside double
 quotation marks; these are required if the name contains any characters that are not in the following set, or if it contains
-environment variable macros of the form \verb|${ENV_VAR_NAME}| which must be expanded to properly generate the file name:
+environment variable macros of the form \verb|${VAR_NAME}| which must be expanded to generate the file name:
 
 \begin{verbatim}
 a-z A-Z 0-9 _ + - . / \ : ; [ ] < >
