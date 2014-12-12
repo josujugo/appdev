@@ -18,10 +18,9 @@ This chapter provides a brief introduction to creating EPICS IOC applications. I
 \item Briefly discusses vxWorks boot parameters
 \end{itemize}
 
-This chapter will be hard to understand unless you have some familarity with IOC concepts such as record/device/driver 
-support and have had some experience with creating ioc databases. Once you have this experience, this chapter provides 
-most of the information needed to build applications. The example that follows assumes that EPICS base has already been 
-built.
+This chapter will be hard to understand unless you have some familarity with IOC concepts such as record types, device and driver support and have had some experience with creating ioc databases.
+Once you have this experience, this chapter provides most of the information needed to build applications.
+The example that follows assumes that EPICS base has already been built.
 
 \section{Example IOC Application}
 \label{Example IOC Application}
@@ -373,11 +372,12 @@ myexampleSupport_SRCS += dbSubExample.c
 myexampleSupport_LIBS += $(EPICS_BASE_IOC_LIBS)
 \end{verbatim}
 
-The \verb|DBDINC| rule looks for a file \verb|xxxRecord.dbd|. From this file a file \verb|xxxRecord.h| is created and installed into \verb|<top>/include|
+The \verb|DBDINC| rule looks for a file \verb|xxxRecord.dbd|.
+From this file a file \verb|xxxRecord.h| is created and installed into \verb|<top>/include|
 
 The \verb|DBD| rule finds \verb|myexampleSupport.dbd| in the source directory and installs it into \verb|<top>/dbd|
 
-The \verb|LIBRARY_IOC| statement states that a shared/static library should be created and installed into \verb|<top>/lib/<arch>|.
+The \verb|LIBRARY_IOC| variable requests that a library be created and installed into \verb|<top>/lib/<arch>|
 
 The \verb|myexampleSupport_SRCS| statements name all the source files that are compiled and put into the library.
 
@@ -446,11 +446,11 @@ An arbitrary number of \verb|myexample_SRCS| statements can be given. Names of t
 \item \verb|<top>/iocBoot/iocxxx| -- A subdirectory and files for a single ioc.
 \end{itemize}
 
-\verb|makeBaseApp.pl| creates directories and then copies template files into the newly created directories while expanding
-macros in the template files. EPICS base provides two sets of template files: simple and example. These are meant for
-simple applications. Each site, however, can create its own set of template files which may provide additional
-functionality. This section describes the functionality of makeBaseApp itself, the next section provides details about the
-simple and example templates.
+\verb|makeBaseApp.pl| creates directories and then copies template files into the newly created directories while expanding macros in the template files.
+EPICS base provides two sets of template files: simple and example.
+These are meant for simple applications.
+Each site, however, can create its own set of template files which may provide additional functionality.
+This section describes the functionality of makeBaseApp itself, the next section provides details about the simple and example templates.
 
 \subsection{Usage}
 
@@ -546,7 +546,7 @@ makeBaseApp does the following:
 
 \item If a \verb|<top>/configure/RELEASE| file exists and defines a value for \verb|EPICS_BASE| it is used.
 
-\item It is obtained from the invocation of makeBaseApp.
+\item It is obtained from the invocation of the makeBaseApp program.
 For this to work, the full path name to the \verb|makeBaseApp.pl| script in the EPICS base release you are using must be given.
 \end{itemize}
 
@@ -631,16 +631,16 @@ This substitutes for the following in each line of each file taken from the temp
 \end{verbatim}
 \end{description}
 
-\item If the application type directory has a file named \verb|Replace.pl|, it can:
+\item If the application type directory has a file named \verb|Replace.pl|, this file may:
 
 \begin{itemize}
 \item Replace one or both of the above subroutines with its own versions.
 
-\item Add a subroutine \verb|ReplaceFilenameHook($file)| which is called at the end of \verb|ReplaceFilename|.
+\item Provide a subroutine \verb|ReplaceFilenameHook($file)| which will be called at the end of the subroutine \verb|ReplaceFilename| described above.
 
-\item Add a subroutine \verb|ReplaceLineHook($line)| which is called at the end of \verb|ReplaceLine|.
+\item Provide a subroutine \verb|ReplaceLineHook($line)| which is called at the end of \verb|ReplaceLine|.
 
-\item Include other code which is run after the command line options are interpreted.
+\item Include other code which is run after the command line options have been interpreted.
 \end{itemize}
 \end{itemize}
 
