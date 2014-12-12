@@ -342,11 +342,11 @@ This argument has one of the following values:
 
 \end{itemize}
 
-The request types \verb|DBR_STRING|,..., \verb|DBR_DOUBLE| correspond exactly to valid data types for database fields.
-\verb|DBR_ENUM| corresponds to database fields that represent a set of choices or options.
-In particular it corresponds to the fields types \verb|DBF_ENUM|, \verb|DBF_DEVICE|, and \verb|DBF_MENU|.
+The request types \verb|DBR_STRING|,..., \verb|DBR_DOUBLE| correspond exactly to the database field data types.
+\verb|DBR_ENUM| is used for database fields that represent a set of choices or options.
+It is used for access to fields of type \verb|DBF_ENUM|, \verb|DBF_DEVICE|, and \verb|DBF_MENU|.
 The complete set of database field types are defined in \verb|dbFldTypes.h|.
-\verb|DBR_PUT_ACKT| and \verb|DBR_PUT_ACKS| are used to perform global alarm acknowledgment.
+The \verb|DBR_PUT_ACKT| and \verb|DBR_PUT_ACKS| requests are used to perform global alarm acknowledgment.
 
 \verb|dbGetField| also accepts argument options which is a mask containing a bit for each additional type of information the caller desires.
 The complete set of options is:
@@ -407,11 +407,8 @@ status = dbGetField(paddr,DBR_FLOAT,&buffer,&options,&number_elements);
 Consult \verb|dbAccess.h| for a complete list of macros.
 
 Structure \verb|dbAddr| contains a field \verb|dbr_field_type|.
-This field is the database request type that most closely matches the database field type.
+This field holds the database request type that most closely matches the database field type.
 Using this request type will put the smallest load on the IOC.
-
-Channel Access provides routines similar to \verb|dbGetField|, and \verb|dbPutField|.
-It provides remote access to \verb|dbGetField|, \verb|dbPutField|, and to the database monitors described below.
 
 \subsection{ACKT and ACKS}
 
@@ -444,7 +441,8 @@ long dbNameToAddr(
     struct dbAddr  *paddr);
 \end{verbatim}
 
-\index{dbNameToAddr}The most important goal of database access can be stated simply:
+\index{dbNameToAddr}
+The most important goal of database access can be stated simply:
 Provide quick access to database records and fields within records.
 The basic rules are:
 
@@ -503,7 +501,8 @@ long dbGetField(
     void *pfl);      /* used by monitor routines */
 \end{verbatim}
 
-\index{dbGetField}This routine locks, calls \verb|dbGet|, and unlocks.
+\index{dbGetField}
+This routine locks, calls \verb|dbGet|, and unlocks.
 
 \subsubsection{dbGetLink and dbGetLinkValue}
 
@@ -553,14 +552,15 @@ long dbGet(
     void *pfl);     /* used by monitor routines */
 \end{verbatim}
 
-\index{dbGet}This routine retrieves the data referenced by \verb|paddr| and converts it to the format specified by \verb|dbrType|.
+\index{dbGet}
+This routine retrieves the data referenced by \verb|paddr| and converts it to the format specified by \verb|dbrType|.
 
 \begin{itemize}
 
 \item \verb|options| is a read/write field.
-Upon entry to \verb|dbGet|, \verb|options| specifies the desired options.
-When \verb|dbGetField| returns, \verb|options| specifies the options actually honored.
-If an option is not honored, the corresponding fields in buffer are filled with zeros.
+On entry to \verb|dbGet|, \verb|options| holds the desired options.
+When \verb|dbGet| returns, \verb|options| gives the options actually honored.
+If an option is not honored, the corresponding fields in the buffer are filled with zeros.
 
 \item \verb|nRequest| is also a read/write field.
 Upon entry to \verb|dbGet| it specifies the maximum number of data elements the 
@@ -570,7 +570,7 @@ It is permissible to request zero elements.
 This is useful when only option data is desired.
 
 \item The \verb|pfl| argument is for use by the Channel Access monitor routines.
-All other users must give \verb|pfl=NULL|.
+All other users must pass in \verb|NULL|.
 
 \end{itemize}
 
@@ -596,7 +596,8 @@ long dbPutField(
     long nRequest); /* number of elements to write */
 \end{verbatim}
 
-\index{dbPutField}This routine is responsible for accepting data in one of the \verb|DBR_xxx| formats, converting it as necessary, and modifying the database.
+\index{dbPutField}
+This routine is responsible for accepting data in one of the \verb|DBR_xxx| formats, converting it as necessary, and modifying the database.
 Similar to \verb|dbGetField|, this routine calls one of a number of conversion routines to do the actual conversion and relies on record support routines to handle arrays and other special cases.
 
 It should be noted that routine \verb|dbPut| does most of the work.
@@ -640,7 +641,8 @@ long dbPutLink(
     long nRequest);         /* number of elements to write */
 \end{verbatim}
 
-\index{dbPutLink}\verb|dbPutLink| is actually a macro that calls \verb|dbPutLinkValue| and can reference its arguments more than once.
+\index{dbPutLink}
+\verb|dbPutLink| is actually a macro that calls \verb|dbPutLinkValue| and can reference its arguments more than once.
 The macro skips the call for constant links.
 User code should never call \verb|dbPutLinkValue|.
 
@@ -679,7 +681,8 @@ long dbPut(
     longnRequest);/*number of elements to write*/
 \end{verbatim}
 
-\index{dbPut}This routine is responsible for accepting data in one of the \verb|DBR_xxx| formats, converting it as necessary, and modifying 
+\index{dbPut}
+This routine is responsible for accepting data in one of the \verb|DBR_xxx| formats, converting it as necessary, and modifying 
 the database.
 Similar to \verb|dbGet|, this routine calls one of a number of conversion routines to do the actual conversion and relies on record support routines to handle arrays and other special cases.
 
@@ -893,7 +896,8 @@ long dbBufferSize(
     longnRequest);/* number of elements*/
 \end{verbatim}
 
-\index{dbBufferSize}This routine returns the number of bytes that will be returned to \verb|dbGetField| if the request type, options, and number of elements are specified as given to \verb|dbBufferSize|.
+\index{dbBufferSize}
+This routine returns the number of bytes that will be returned to \verb|dbGetField| if the request type, options, and number of elements are specified as given to \verb|dbBufferSize|.
 Thus it can be used to allocate storage for buffers.
 
 NOTE: This should become a Channel Access routine
@@ -907,7 +911,8 @@ Determine the size a value field, format:
 dbValueSize(short dbrType); /* DBR_xxx*/
 \end{verbatim}
 
-\index{dbValueSize}This routine returns the number of bytes for each element of type \verb|dbrType|.
+\index{dbValueSize}
+This routine returns the number of bytes for each element of type \verb|dbrType|.
 
 NOTE: This should become a Channel Access routine
 
@@ -922,7 +927,8 @@ Format:
 struct rset *dbGetRset(DBADDR *paddr);
 \end{verbatim}
 
-\index{dbGetRset}This routine returns the address of the record support entry table for the record referenced by the \verb|DBADDR|.
+\index{dbGetRset}
+This routine returns the address of the record support entry table for the record referenced by the \verb|DBADDR|.
 
 \subsubsection{dbIsValueField}
 
@@ -935,7 +941,8 @@ Format:
 int dbIsValueField(struct dbFldDes *pdbFldDes);
 \end{verbatim}
 
-\index{dbIsValueField}This is the routine that makes the \verb|get_value| record support routine obsolete.
+\index{dbIsValueField}
+This is the routine that makes the \verb|get_value| record support routine obsolete.
 
 \subsubsection{dbGetFieldIndex}
 
@@ -948,7 +955,8 @@ Format:
 int dbGetFieldIndex(DBADDR *paddr);
 \end{verbatim}
 
-\index{dbGetFieldIndex}Record support routines such as \verb|special| and \verb|cvt_dbaddr| need to know which field the \verb|DBADDR| references.
+\index{dbGetFieldIndex}
+Record support routines such as \verb|special| and \verb|cvt_dbaddr| need to know which field the \verb|DBADDR| references.
 The include file describing the record contains define statements for each field.
 \verb|dbGetFieldIndex| returns the index that can be matched against the define statements (normally via a switch statement).
 
@@ -963,7 +971,8 @@ Format:
  long dbGetNelements(struct link *plink,long *nelements);
 \end{verbatim}
 
-\index{dbGetNelements}This sets *\verb|nelements| to the number of elements in the field referenced by plink.
+\index{dbGetNelements}
+This sets *\verb|nelements| to the number of elements in the field referenced by plink.
 
 \subsubsection{dbIsLinkConnected}
 
@@ -976,7 +985,8 @@ Format:
 int dbIsLinkConnected(struct link *plink);
 \end{verbatim}
 
-\index{dbIsLinkConnected}This routine returns (TRUE, FALSE) if the link (is, is not) connected.
+\index{dbIsLinkConnected}
+This routine returns (TRUE, FALSE) if the link (is, is not) connected.
 
 \subsubsection{dbGetPdbAddrFromLink}
 
@@ -995,7 +1005,8 @@ Format:
 int dbGetLinkDBFtype(struct link *plink);
 \end{verbatim}
 
-\index{dbGetLinkDBFtype}\subsubsection{dbGetControlLimits}
+\index{dbGetLinkDBFtype}
+\subsubsection{dbGetControlLimits}
 
 \index{dbGetControlLimits}
 Get Control Limits for link.
@@ -1086,7 +1097,8 @@ long dbPutAttribute(char *recordTypename,
     char *name,char*value);
 \end{verbatim}
 
-\index{dbPutAttribute}This sets the record attribute \verb|name| for record type \verb|recordTypename| to \verb|value|.
+\index{dbPutAttribute}
+This sets the record attribute \verb|name| for record type \verb|recordTypename| to \verb|value|.
 For example the following would set the version for the ai record.
 
 \begin{verbatim}
@@ -1131,7 +1143,8 @@ Request that a database record be processed, format:
 long dbProcess(struct dbCommom  *precord);
 \end{verbatim}
 
-\index{dbProcess}Request that record be processed.
+\index{dbProcess}
+Request that record be processed.
 Record processing is described in detail below.
 
 \section{Runtime Link Modification}

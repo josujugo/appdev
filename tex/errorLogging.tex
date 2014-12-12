@@ -336,7 +336,8 @@ It also reports the messages from the vxWorks logMsg facility.
 
 \index{iocLogServer}
 This runs on a host.
-It receives messages for all enabled iocLogClients in the local area network. The messages are written to a file.
+It receives messages for all enabled iocLogClients in the local area network.
+The messages are written to a file.
 Epics base provides a startup file ``base/src/libCom/log/rc2.logServer", which is a SystemV init script to start the server.
 Consult this script for details.
 
@@ -344,33 +345,34 @@ To start a log server on a UNIX or PC workstation you must first set the followi
 
 \begin{description}
 
-\item \index{EPICS\_IOC\_LOG\_FILE\_NAME}EPICS\_IOC\_LOG\_FILE\_NAME
+\item \index{EPICS\_IOC\_LOG\_FILE\_NAME}\verb|EPICS_IOC_LOG_FILE_NAME|
 
 The name and path to the log file.
 
-\item \index{EPICS\_IOC\_LOG\_FILE\_LIMIT}EPICS\_IOC\_LOG\_FILE\_LIMIT
+\item \index{EPICS\_IOC\_LOG\_FILE\_LIMIT}\verb|EPICS_IOC_LOG_FILE_LIMIT|
 
-The maximum size in characters for the log file (after which it becomes a circular file and writes new messages over old messages at the beginning of the file).
+The maximum size in characters for the log file.
+If the file grows larger than this limit the server will seek back to the beginning of the file and write new messages over the old messages starting from the beginning.
 If the value is zero then there is no limit on the size of the log file.
 
-\item \index{EPICS\_IOC\_LOG\_FILE\_COMMAND}EPICS\_IOC\_LOG\_FILE\_COMMAND
+\item \index{EPICS\_IOC\_LOG\_FILE\_COMMAND}\verb|EPICS_IOC_LOG_FILE_COMMAND|
 
 A shell command string used to obtain the log file path name during initialization and in response to SIGHUP.
-The new path name will replace any path name supplied in EPICS\_IOC\_LOG\_FILE\_NAME.
+The new path name will replace any path name supplied in \verb|EPICS_IOC_LOG_FILE_NAME|.
 
-Thus, if EPICS\_IOC\_LOG\_FILE\_NAME is ``a/b/c.log" and EPICS\_IOC\_LOG\_FILE\_COMMAND returns ``A/B" or ``A/B/" the log server will be stored at ``A/B/c.log"
+Thus, if \verb|EPICS_IOC_LOG_FILE_NAME| is ``a/b/c.log" and \verb|EPICS_IOC_LOG_FILE_COMMAND| returns ``A/B" or ``A/B/" the log server will be stored at ``A/B/c.log"
 
-If EPICS\_IOC\_LOG\_FILE\_COMMAND is empty then this behavior is disabled.
+If \verb|EPICS_IOC_LOG_FILE_COMMAND| is empty then this behavior is disabled.
 This feature is used at some sites for switching the server to a new directory at a fixed time each day.
 This variable is currently used only by the UNIX version of the log server.
 
-\item \index{EPICS\_IOC\_LOG\_PORT}EPICS\_IOC\_LOG\_PORT
+\item \index{EPICS\_IOC\_LOG\_PORT}\verb|EPICS_IOC_LOG_PORT|
 
 THE TCP/IP port used by the log server.
 
 \end{description}
 
-To configure an IOC so that its messages are placed in the log you must set the environment variable EPICS\_IOC\_LOG\_INET to the IP address of the host that is running the log server, and EPICS\_IOC\_LOG\_PORT to the TCP/IP port used by the log server.
+To configure an IOC to log its messages it must have an environment variable \verb|EPICS_IOC_LOG_INET| set to the IP address of the host that is running the log server, and \verb|EPICS_IOC_LOG_PORT| to the TCP/IP port used by the log server.
 
 Defaults for all of the above parameters are specified in  the files \$(EPICS\_BASE)/config/CONFIG\_SITE\_ENV and \$(EPICS\_BASE)/config/CONFIG\_ENV.
 

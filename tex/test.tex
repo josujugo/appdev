@@ -61,7 +61,6 @@ dbl
 dbl("ai")
 dbl("*")
 dbl("")
-
 \end{verbatim}
 
 This command prints the names of records in the run time database. If \verb|<record type>| is empty \verb|("")|, \verb|"*"|, or not 
@@ -817,7 +816,10 @@ dbtpn("aitest")
 dbtpn("aitest","5.0")
 \end{verbatim}
 
-This command performs a \verb|dbProcessNotify| request. If a value argument is provided it issues a \verb|putProcessRequest| to the named record; if no value is provided it issues a \verb|processGetRequest|. This routine is mainly of interest to system developers for testing database access.
+This command performs a \verb|dbProcessNotify| request.
+If a non-null value argument string is provided it issues a \verb|putProcessRequest| to the named record;
+if no value is provided it issues a \verb|processGetRequest|.
+This routine is mainly of interest to system developers for testing database access.
 
 \section{Record Link Reports}
 
@@ -942,7 +944,7 @@ Example:
 tpn("aitest","5.0")
 \end{verbatim}
 
-This routine tests \verb|dbProcessNotify| via the old database access interface.
+This routine tests the \verb|dbProcessNotify| API when used via the old database access interface.
 It only supports issuing a \verb|putProcessRequest| to the named record.
 
 \section{Routines to dump database information}

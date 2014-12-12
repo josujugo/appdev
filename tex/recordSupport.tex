@@ -422,7 +422,8 @@ static void checkAlarms(xxxRecord *pxxx)
 }
 \end{verbatim}
 
-\index{checkAlarms}This is a typical set of code for checking alarms conditions for an analog type record.
+\index{checkAlarms}
+This is a typical set of code for checking alarms conditions for an analog type record.
 The actual set of code can be very record specific.
 Note also that other parts of the system can raise alarms.
 The algorithm is to always maximize alarm severity, i.e. the highest severity outstanding alarm will be reported.
@@ -440,7 +441,8 @@ if(pxxx->udf == TRUE ){
 }
 \end{verbatim}
 
-\index{udf}Database common defines the field \index{UDF}UDF, which means that field VAL is undefined.
+\index{udf}
+Database common defines the field \index{UDF}UDF, which means that field VAL is undefined.
 The STAT and SEVR fields are initialized as though \verb|recGblSetSevr(pxxx,UDF_ALARM,VALID_ALARM)|was called.
 Thus if the record is never processed the record will be in an INVALID UNDEFINED alarm state.
 Field UDF is initialized to the value 1, i.e. TRUE.
@@ -822,20 +824,27 @@ short   nsta,
 short   nsevr);
 \end{verbatim}
 
-\index{recGblSetSevr}Returns \verb|TRUE| if it changed \verb|nsta| and/or \verb|nsev|, \verb|FALSE| if it did not change them.
+\index{recGblSetSevr}
+Returns \verb|TRUE| if it changed \verb|nsta| and/or \verb|nsev|, \verb|FALSE| if it did not change them.
 
 \begin{verbatim}
 unsigned short recGblResetAlarms(void  *precord);
 \end{verbatim}
 
-\index{recGblResetAlarms}Returns: Initial value for \verb|monitor_mask|
+\index{recGblResetAlarms}
+Returns: Initial value for \verb|monitor_mask|
 
 \subsection{Alarm Acknowledgment}
 
 Database common contains two additional alarm related fields:
-\verb|acks| (Highest severity unacknowledged alarm) and \verb|ackt| (does transient alarm need to be acknowledged).
-These field are handled by \verb|iocCore| and \verb|recGblResetAlarms| and are not the responsibility of record support.
-These fields are intended for use by the alarm handler.
+
+\begin{itemize}
+\item \verb|acks| - highest severity unacknowledged alarm
+\item \verb|ackt| - do transient alarm need to be acknowledged
+\end{itemize}
+
+These fields are handled by \verb|iocCore| and \verb|recGblResetAlarms| and should not be used by record support.
+The alarm acknowledgement facility it provided for use by alarm handlers.
 
 \subsection{Generate Error: Process Variable Name, Caller, Message}
 
@@ -848,7 +857,8 @@ recGblDbaddrError(
     char   *pcaller_name); /* calling routine name */
 \end{verbatim}
 
-\index{recGblDbaddrError}This routine interfaces with the system wide error handling system to display the following information:
+\index{recGblDbaddrError}
+This routine interfaces with the system wide error handling system to display the following information:
 Status information, process variable name, calling routine.
 
 \subsection{Generate Error: Status String, Record Name, Caller}
@@ -888,7 +898,8 @@ recGblGetGraphicDouble(
     struct dbr_grDouble  *pgd);
 \end{verbatim}
 
-\index{recGblGetGraphicDouble}This routine can be used by the \verb|get_graphic_double| record support routine to obtain graphics values for fields that 
+\index{recGblGetGraphicDouble}
+This routine can be used by the \verb|get_graphic_double| record support routine to obtain graphics values for fields that 
 it doesn't know how to set.
 
 \subsection{Get Control Double}
@@ -899,7 +910,8 @@ recGblGetControlDouble(
     struct dbr_ctrlDouble   *pcd);
 \end{verbatim}
 
-\index{recGblGetControlDouble}This routine can be used by the \verb|get_control_double| record support routine to obtain control values for fields that it 
+\index{recGblGetControlDouble}
+This routine can be used by the \verb|get_control_double| record support routine to obtain control values for fields that it 
 doesn't know how to set.
 
 \subsection{Get Alarm Double}
@@ -910,7 +922,8 @@ recGblGetAlarmDouble(
     struct dbr_alDouble  *pcd);
 \end{verbatim}
 
-\index{recGblGetAlarmDouble}This routine can be used by the \verb|get_alarm_double| record support routine to obtain control values for fields that it 
+\index{recGblGetAlarmDouble}
+This routine can be used by the \verb|get_alarm_double| record support routine to obtain control values for fields that it 
 doesn't know how to set.
 
 \subsection{Get Precision}
@@ -921,7 +934,8 @@ recGblGetPrec(
     long  *pprecision);
 \end{verbatim}
 
-\index{recGblGetPrec}This routine can be used by the \verb|get_precision| record support routine to obtain the precision for fields that it doesn't 
+\index{recGblGetPrec}
+This routine can be used by the \verb|get_precision| record support routine to obtain the precision for fields that it doesn't 
 know how to set the precision.
 
 \subsection{Get Time Stamp}
@@ -930,7 +944,8 @@ know how to set the precision.
 recGblGetTimeStamp(void *precord)
 \end{verbatim}
 
-\index{recGblGetTimeStamp}This routine gets the current time stamp and puts it in the record It does the following:
+\index{recGblGetTimeStamp}
+This routine gets the current time stamp and puts it in the record It does the following:
 
 \begin{itemize}
 \item If TSEL is not a constant link and TSEL refers to the TIME field of a record, the time is obtained from the record reference by TSEL and this put in field TIME.
@@ -938,7 +953,7 @@ The routine then returns.
 
 \item If TSEL is not a constant link dbGetLink is called and the value put in field TSE.
 
-\item If TSE is equal to \verb|epicsTimeEventDeviceTime|  (-2) then noting is done, i.e. the routine just returns.
+\item If TSE is equal to \verb|epicsTimeEventDeviceTime| (-2) then noting is done, i.e. the routine just returns.
 
 \item \verb|epicsTimeGetEvent| is called.
 
@@ -951,7 +966,8 @@ recGblFwdLink(
     void *precord);
 \end{verbatim}
 
-\index{recGblFwdLink}This routine can be used by process to request processing of forward links.
+\index{recGblFwdLink}
+This routine can be used by process to request processing of forward links.
 
 \subsection{Initialize Constant Link}
 
@@ -962,7 +978,8 @@ int recGblInitConstantLink(
     void   *pdest);
 \end{verbatim}
 
-\index{recGblInitConstantLink}Initialize a constant link.
+\index{recGblInitConstantLink}
+Initialize a constant link.
 This routine is usually called by \verb|init_record| (or by associated device support) to initialize the field associated with a constant link.
 It returns(FALSE, TRUE) if it (did not, did) modify the destination.
 
@@ -977,7 +994,8 @@ recGblCheckDeadband(
     const unsigned add_mask);
 \end{verbatim}
 
-\index{recGblCheckDeadband}Check if analog (double) value is outside specified deadband, and set bits in monitor mask.
+\index{recGblCheckDeadband}
+Check if analog (double) value is outside specified deadband, and set bits in monitor mask.
 This routine is usually called by an analog record's \verb|monitor| (as part of processing) to check if a value is outside a predefined deadband.
 It also set bits in a monitor mask according to the check result.
 If \verb|newval| lies outside the specified \verb|deadband|, \verb|newval| is copied into \verb|*poldval|, and \verb|add_mask| is OR'ed into \verb|monitor_mask|.

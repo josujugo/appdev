@@ -19,7 +19,8 @@ The syntax of the infix expressions accepted is described below.
 
 \begin{verbatim}
 long postfix(const char *psrc, char *ppostfix, short *perror);
-long calcArgUsage(const char *ppostfix, unsigned long *pinputs, unsigned long *pstores);
+long calcArgUsage(const char *ppostfix, unsigned long *pinputs,
+    unsigned long *pstores);
 const char * calcErrorStr(short error);
 long calcPerform(double *parg, double *presult, const char *ppostfix);
 \end{verbatim}
