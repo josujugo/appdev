@@ -584,7 +584,7 @@ int epicsRingBytesIsFull(epicsRingBytesId id);
 \index{epicsRingBytesIsEmpty}
 \index{epicsRingBytesIsFull}
 \begin{center}
-\begin{longtable}{p{1.6in}p{5.0in}}
+\begin{longtable}{p{1.75in}p{4.25in}}
 \textbf{Method} & \textbf{Meaning}\\
 \hline
 epicsRingBytesCreate() & Create a new ring buffer of size nbytes. The returned epicsRingBytesId is passed to the other ring methods.\\
@@ -1172,7 +1172,7 @@ logClientId logClientInit (void);
 \end{verbatim}
 
 \index{logClientInit}
-Create a log client that uses the standard ioc log client environment variables (EPICS\_IOC\_LOG\_INET and EPICS\_IOC\_LOG\_PORT) as input to logClientCreate and also registers the log client with the errlog task using errlogAddListener.
+Create a log client using the environment variables \verb|EPICS_IOC_LOG_INET| and \verb|EPICS_IOC_LOG_PORT| as inputs to \verb|logClientCreate| and also registers the client with the errlog task using \verb|errlogAddListener|.
 
 \begin{verbatim}
 void logClientSendMessage (logClientId id, const char *message);
@@ -1413,7 +1413,7 @@ Note that \verb|NULL| may be passed to use the default configuration.
 When a pool is destroyed it will freeze the queue to prevent new jobs
 from being added, then block until any previously queued jobs complete.
 
-\subsection{Basic jobs operations}
+\subsection{Basic job operations}
 
 \begin{verbatim}
 /* job modes */
@@ -1443,8 +1443,8 @@ int epicsJobUnqueue(epicsJob*);
 \index{epicsJobQueue}
 \index{epicsJobUnqueue}
 
-The basic lifecycle of a job is to be created, queued some number of
-times, then destroyed. As with an \verb|epicsThreadPool*|, the lifecycle of
+The normal lifecycle of a job is for it to be created, queued some number of
+times, then destroyed. Like with an \verb|epicsThreadPool*|, the lifecycle of
 an \verb|epicsJob*| is completely controlled by user code. Jobs will never
 be implicitly destroyed. When created, a pool, work function, and
 user argument are specified. The special user argument \verb|EPICSJOB_SELF|
@@ -1538,8 +1538,8 @@ with any other epicsThreadPool functions operating on the same job.
 In addition to functions operating explicitly on this job, this also includes
 \verb|epicsThreadPoolDestroy()|
 
-A job may be created with no pool association by passing NULL to \verb|epicsJobCreate()|
-instead of an \verb|epicsThreadPool*| pointer. The association can be changed
+A job may be created with no pool association by passing NULL to the \verb|epicsJobCreate()|
+function instead of an explicit \verb|epicsThreadPool*| pointer. The association can be changed
 at runtime with the \verb|epicsJobMove()| function.
 
 
@@ -1731,8 +1731,8 @@ This routine is faster than calling \verb|epicsStrnEscapedFromRaw| with a zero l
 
 \verb|epicsStrPrintEscaped| prints the contents of its input buffer, substituting escape sequences for non-printable characters.
 
-\verb|epicsStrCaseCmp| and \verb|epicsStrnCaseCmp| implement \verb|strcasecmp| and \verb|strncasecmp|, respectively, which are not available on all operating systems.
-They operate like \verb|strcmp| and \verb|strncmp|, but are case insensitive.
+\verb|epicsStrCaseCmp| and \verb|epicsStrnCaseCmp| implement the \verb|strcasecmp| and \verb|strncasecmp| functions respectively, which are not available on all supported operating systems.
+They operate like \verb|strcmp| and \verb|strncmp|, but are case insensitive, using the C locale.
 
 \verb|epicsStrDup| implements \verb|strdup|, which is not available on all supported operating systems.
 It allocates sufficient memory for the string, copies it and returns a pointer to the new copy.
