@@ -1192,6 +1192,8 @@ Access security provides a facility \verb|asTrapWrite| that can monitor write re
 In order to use this facility three things are necessary:
 
 \begin{enumerate}
+\index{asTrapWriteBefore}
+\index{asTrapWriteAfter}
 \item The server using this library must call \verb|asTrapWriteBefore()| and \verb|asTrapWriteAfter()|.
 These routines are defined in asLib.h.
 The RSRV channel access server running on the IOC makes these calls.
@@ -1204,16 +1206,13 @@ If nothing calls \verb|asTrapWriteRegisterListener|, asTrapWrite does nothing.
 
 \end{enumerate}
 
-\index{asTrapWriteBefore}
-\index{asTrapWriteAfter}
-\index{asTrapWriteBefore}
-\index{asTrapWriteAfter}
-\index{TRAPWRITE}
-\index{asTrapWriteRegisterListener}
-\index{asTrapWriteRegisterListener}
-\index{asTrapWriteRegisterListener}
 The remainder of this section describes how a facility can use \verb|asTrapWrite.h|, which is defined as:
 
+\index{asTrapWriteMessage}
+\index{asTrapWriteId}
+\index{asTrapWriteListener}
+\index{asTrapWriteRegisterListener}
+\index{asTrapWriteUnregisterListener}
 \begin{verbatim}
 typedef struct asTrapWriteMessage {
     const char *userid;
@@ -1230,15 +1229,13 @@ asTrapWriteId asTrapWriteRegisterListener(asTrapWriteListener func);
 void asTrapWriteUnregisterListener(asTrapWriteId id);
 \end{verbatim}
 
-\index{asTrapWriteMessage}
-\index{asTrapWriteId}
-\index{asTrapWriteListener}
 \index{asTrapWriteRegisterListener}
-\index{asTrapWriteUnregisterListener}
-After a facility calls \verb|asTrapWriteRegisterListener()| its \verb|asTrapWriteListener()| will get called before 
-and after each write with an associated RULE that has the option \index{TRAPWRITE}TRAPWRITE  set.
-
 \index{asTrapWriteListener}
+\index{TRAPWRITE}
+After a facility calls \verb|asTrapWriteRegisterListener()| its \verb|asTrapWriteListener()| will get called before 
+and after each write with an associated RULE that has the option TRAPWRITE  set.
+
+\index{asTrapWriteMessage}
 \verb|asTrapWriteRegisterListener()| is passed the address of an \verb|asTrapWriteMessage|. This message contains 
 the following fields:
 
@@ -1249,7 +1246,7 @@ the following fields:
 
 \item \verb|serverSpecific| - The meaning of this field is server specific.
 If the listener uses this field it must know what type of server is supplying the messages.
-It is the value the server provides to asTrapWriteBefore.
+It is the value the server provides to \verb|asTrapWriteBefore|.
 
 \item \verb|userPvt| - This field is for use by the \verb|asTrapWriteListener|.
 When the listener is called before the write, \verb|userPvt| has the value 0.
@@ -1258,8 +1255,8 @@ The listener can give it any value it desires and \verb|userPvt| will have have 
 
 \verb|asTrapWriteListener| delays the associated server thread so it must not do anything that causes it to block.
 
-The IOC's RSRV server the calls \verb|asTrapWriteBefore| with \verb|serverSpecific| set to a \verb|dbChannel *| describing the database location.
 \index{asTrapWriteBefore}
+The IOC's RSRV server the calls \verb|asTrapWriteBefore| with \verb|serverSpecific| set to a \verb|dbChannel *| describing the PV.
 
 \section{Access Control: Implementation Overview}
 
