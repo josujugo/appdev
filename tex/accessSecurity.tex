@@ -1258,8 +1258,7 @@ The listener can give it any value it desires and \verb|userPvt| will have have 
 
 \verb|asTrapWriteListener| delays the associated server thread so it must not do anything that causes it to block.
 
-The IOC's RSRV server the calls \verb|asTrapWriteBefore| with \verb|serverSpecific|  set to the dbAddr describing the 
-database location.
+The IOC's RSRV server the calls \verb|asTrapWriteBefore| with \verb|serverSpecific| set to a \verb|dbChannel *| describing the database location.
 \index{asTrapWriteBefore}
 
 \section{Access Control: Implementation Overview}
