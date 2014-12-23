@@ -20,9 +20,6 @@ EPS_SRCS += $(EPS_DIR)/lockScanProcess_16.eps
 EPS_SRCS += $(EPS_DIR)/lockScanProcess_37.eps
 EPS_SRCS += $(EPS_DIR)/lockScanProcess_1.eps
 EPS_SRCS += $(EPS_DIR)/lockScanProcess_40.eps
-EPS_SRCS += $(EPS_DIR)/scanning_1.eps
-EPS_SRCS += $(EPS_DIR)/scanning_12.eps
-EPS_SRCS += $(EPS_DIR)/scanning_19.eps
 EPS_SRCS += $(EPS_DIR)/databaseStructures_1.eps
 
 # Latex Sources
