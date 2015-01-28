@@ -313,15 +313,15 @@ EPICS does not make use of the C++ container templates because the large number 
 \index{epicsSwap}
 \verb|epicsAlgorithm.h| contains a few templates that are also available in the C++ standard header \verb|algorithm|, but are provided here in a much smaller file.
 \verb|algorithm| contains many templates for sorting and searching through C++ template containers which are not used in EPICS.
-If all you need from there is std::min(), std::max() and/or std::swap() your code may compile faster if you include \verb|epicsAlgorithm.h| and use epicsMin(), epicsMax() and epicsSwap() instead.
+If all you need from there is \verb|std::min()|, \verb|std::max()| and/or \verb|std::swap()| your code may compile faster if you include \verb|epicsAlgorithm.h| and use \verb|epicsMin()|, \verb|epicsMax()| and \verb|epicsSwap()| instead.
 
 \begin{center}
-\begin{longtable}{p{2.5in}p{4.25in}}
-\textbf{template \textless{}class T\textgreater{}} & \textbf{Meaning}\\
+\begin{longtable}{p{1.5in}p{4.25in}}
+\textbf{Template Function} & \textbf{Meaning}\\
 \hline
-const T\& epicsMin(const T\& a, const T\& b) & Returns the smaller of a or b compared using a\textless{}b. Handles NaNs correctly.\\
-const T\& epicsMax(const T\& a, const T\& b) & Returns the larger of a or b compared using a\textless{}b. Handles NaNa correctly.\\
-void epicsSwap(T\& a, T\& b) & Swaps the values of a and b; T must have a copy-constructor and operator=.
+epicsMin(a, b) & Returns the smaller of a or b compared using a\textless{}b. Handles NaNs correctly.\\
+epicsMax(a, b) & Returns the larger of a or b compared using a\textless{}b. Handles NaNa correctly.\\
+epicsSwap(a, b) & Swaps the values of a and b; the data type must support both copy-construction and assignment.
 \end{longtable}
 
 \end{center}
@@ -471,7 +471,7 @@ int dbmfShow(int level);
 \index{dbmfFreeChunks}
 \index{dbmfShow}
 \begin{center}
-\begin{longtable}{p{1.3in}p{5.5in}}
+\begin{longtable}{p{1.3in}p{4.5in}}
 \textbf{Routine} & \textbf{Meaning}\\
 \hline
 dbmfInit() & Initialize the facility. Each time malloc() must be called size*chunkItems bytes are allocated. size is the maximum size request from dbmfMalloc() that will be allocated from the dbmf pool. If dbmfInit() was not called before one of the other routines then it is automatically called with size=64 and chuckItems=10.\\
@@ -769,14 +769,39 @@ protected:
 \begin{longtable}{p{1.1in}p{5.0in}}
 \textbf{Method} & \textbf{Meaning}\\
 \hline
-epicsTimerNotify\-expire() & Code using an epicsTimer must include a class that inherits from epicsTimerNotify. The derived class must implement the method expire(), which is called by the epicsTimer when the associated timer expires. epicsTimerNotify defines a class expireStatus which makes it easy to implement both one shot and periodic timers. A one-shot expire() returns with the statement:    return(noRestart);A periodic timer returns with a statement like:    return(restart,10.0);where is second argument is the delay until the next callback.\\
-epicsTimer & epicsTimer is an abstract base class. An epics timer can only be created by calling createTimer, which is a method of epicsTimerQueue.\\
-destroy & This is provided instead of a destructor. This will automatically call cancel before freeing all resources used by the timer.\\
-start() & Starts the timer to expire either at the specified time or the specified number of seconds in the future. If the timer is already active when start is called, it is first canceled.\\
-cancel() & If the timer is scheduled, cancel it. If it is not scheduled do nothing. Note that if the expire() method is already running, this call delays until the expire() completes.\\
-getExpireInfo & Get expireInfo, which says if timer is active and if so when it expires.\\
-getExpireDelay() & Return the number of seconds until the timer will expire. If the timer is not active it returns DBL\_MAX\\
-show() & Display info about object.
+epicsTimerNotify:: expire() &
+Code using an epicsTimer must include a class that inherits from epicsTimerNotify.
+The derived class must implement the method expire(), which is called by the epicsTimer when the associated timer expires.
+epicsTimerNotify defines a class expireStatus which makes it easy to implement both one shot and periodic timers.
+A one-shot expire() returns with the statement \verb|return(noRestart);|
+A periodic timer returns with a statement like \verb|return(restart,10.0);| where is second argument is the delay until the next callback.\\
+
+epicsTimer &
+epicsTimer is an abstract base class.
+An epics timer can only be created by calling createTimer, which is a method of epicsTimerQueue.\\
+
+destroy &
+This is provided instead of a destructor.
+This will automatically call cancel before freeing all resources used by the timer.\\
+
+start() &
+Starts the timer to expire either at the specified time or the specified number of seconds in the future.
+If the timer is already active when start is called, it is first canceled.\\
+
+cancel() &
+If the timer is scheduled, cancel it.
+If it is not scheduled do nothing.
+Note that if the expire() method is already running, this call delays until the expire() completes.\\
+
+getExpireInfo &
+Get expireInfo, which says if timer is active and if so when it expires.\\
+
+getExpireDelay() &
+Return the number of seconds until the timer will expire.
+If the timer is not active it returns DBL\_MAX\\
+
+show() &
+Display info about object.
 \end{longtable}
 
 \end{center}
@@ -821,8 +846,17 @@ protected:
 \begin{longtable}{p{1.1in}p{5.0in}}
 \textbf{Method} & \textbf{Meaning}\\
 \hline
-allocate() & This is a ``factory" method to create a timer queue. If okToShare is (true,false) then a (shared, separate) thread will manage the timer requests.If the okToShare constructor parameter is true then if a timer queue is already running at the specified priority then it will be referenced for shared use by the application, and an independent timer queue will not be created.This method should not be called from within a C++ static constructor, since the queue thread requires that a current time provider be available and the last-resort time provider is not guaranteed to have been registered until all constructors have run.Editorial note: It is useful for two independent timer queues to run at the same priority if there are multiple processors, or if there is an application with well behaved timer expire functions that needs to be independent of applications with computationally intensive, mutex locking, or IO blocking timer expire functions. \\
-release() & Release the queue, i.e. the calling facility will no longer use the queue. The caller MUST ensure that it does not own any active timers. When the last facility using the queue calls release, all resources used by the queue are freed.
+allocate() &
+This is a ``factory" method to create a timer queue.
+If okToShare is (true,false) then a (shared, separate) thread will manage the timer requests.
+If the okToShare constructor parameter is true and a timer queue is already running at the specified priority then it will be referenced for shared use by the application, and an independent timer queue will not be created.
+This method should not be called from within a C++ static constructor, since the queue thread requires that a current time provider be available and the last-resort time provider is not guaranteed to have been registered until all constructors have run.
+Editorial note: It is useful for two independent timer queues to run at the same priority if there are multiple processors, or if there is an application with well behaved timer expire functions that needs to be independent of applications with computationally intensive, mutex locking, or IO blocking timer expire functions. \\
+
+release() &
+Release the queue, i.e. the calling facility will no longer use the queue.
+The caller MUST ensure that it does not own any active timers.
+When the last facility using the queue calls release, all resources used by the queue are freed.
 \end{longtable}
 
 \end{center}
@@ -855,18 +889,38 @@ public:
 };
 \end{verbatim}
 
-\index{epicsTimerQueueNotify}
-\index{epicsTimerQueuePassive}
 \begin{center}
-\begin{longtable}{p{1.6in}p{5.15in}}
+\begin{longtable}{p{1.6in}p{4.9in}}
 \textbf{Method} & \textbf{Meaning}\\
 \hline
-epicsTimerQueueNotify\-reschedule() & The virtual function epicsTimerQueueNotify::reschedule() is called when the delay to the next timer to expire on the timer queue changes.\\
-epicsTimerQueueNotify\-quantum & The virtual function epicsTimerQueueNotify::quantum() returns the timer expire interval scheduling quantum in seconds. This allows different types of timer queues to use application specific timer expire delay scheduling policies. The implementation of epicsTimerQueueActive employs epicsThreadSleep() for this purpose, and therefore epicsTimerQueueActive::quantum() returns the returned value from epicsThreadSleepQuantum(). Other types of timer queues might choose to schedule timer expiration using specialized hardware interrupts. In this case epicsTimerQueueNotify::quantum() might return a value reflecting the precision of a hardware timer. If unknown, then epicsTimerQueueNotify::quantum() should return zero.\\
-epicsTimerQueuePassive & epicsTimerQueuePassive is an abstract base class so cannot be instantiated directly, but contains a static member function to create a concrete passive timer queue object of a (hidden) derived class.\\
-create() & A ``factory" method to create a non-threaded timer queue. The calling software also passes an object derived from epicsTimerQueueNotify to receive reschedule() callbacks.\\
-\~{}epicsTimerQueuePassive() & Destructor. The caller MUST ensure that it does not own any active timers, i.e. it must cancel any active timers before deleting the epicsTimerQueuePassive object.\\
-process() & This calls expire() for all timers that have expired. The facility that creates the queue MUST call this. It returns the delay until the next timer will expire.
+\index{epicsTimerQueueNotify}
+epicsTimerQueueNotify:: reschedule() &
+The virtual function epicsTimerQueueNotify::reschedule() is called when the delay to the next timer to expire on the timer queue changes.\\
+
+epicsTimerQueueNotify:: quantum &
+The virtual function epicsTimerQueueNotify::quantum() returns the timer expire interval scheduling quantum in seconds.
+This allows different types of timer queues to use application specific timer expire delay scheduling policies.
+The implementation of epicsTimerQueueActive employs epicsThreadSleep() for this purpose, and therefore epicsTimerQueueActive::quantum() returns the returned value from epicsThreadSleepQuantum().
+Other types of timer queues might choose to schedule timer expiration using specialized hardware interrupts.
+In this case epicsTimerQueueNotify::quantum() might return a value reflecting the precision of a hardware timer.
+If unknown, then epicsTimerQueueNotify::quantum() should return zero.\\
+
+\index{epicsTimerQueuePassive}
+epicsTimerQueuePassive &
+epicsTimerQueuePassive is an abstract base class so cannot be instantiated directly, but contains a static member function to create a concrete passive timer queue object of a (hidden) derived class.\\
+
+create() &
+A ``factory" method to create a non-threaded timer queue.
+The calling software also passes an object derived from epicsTimerQueueNotify to receive reschedule() callbacks.\\
+
+\~{}epicsTimerQueuePassive() &
+Destructor.
+The caller MUST ensure that it does not own any active timers, i.e. it must cancel any active timers before deleting the epicsTimerQueuePassive object.\\
+
+process() &
+This calls expire() for all timers that have expired.
+The facility that creates the queue MUST call this.
+It returns the delay until the next timer will expire.
 \end{longtable}
 
 \end{center}
@@ -1116,8 +1170,7 @@ server (normally running on a host machine).
 A log server accepts connections from multiple clients and writes the messages it receives into a rotating file. A log server 
 program ('iocLogServer') is also part of EPICS base.
 
-Configuration of the iocLogServer, as well as the standard iocLogClient that internally uses this library, are described in 
-Section10.7 on page167.
+Configuration of the iocLogServer, as well as the standard iocLogClient that internally uses this library, are described in Section \ref{sec:iocLog}.
 
 The header file logClient.h exports the following types and routines:
 

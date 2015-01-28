@@ -6,17 +6,22 @@
 The Experimental Physics and Industrial Control System (EPICS) consists of a set of software components and tools that
 Application Developers can use to create control systems. The basic components are:
 
-\begin{itemize}
-\item \textbf{OPI}: \index{OPI}Operator Interface. This is a workstation which can run various EPICS tools.
+\begin{description}
+\index{OPI}
+\item [OPI] Operator Interface.
+This is a workstation which can run various EPICS tools.
 
-\item \textbf{IOC}: \index{IOC}Input/Output Controller. Any platform that can support EPICS run time databases together with the other 
-software components described in the manual. One example is a workstation. Another example is a VME/VXI 
-based system using vxWorks or RTEMS as the realtime operating system.
+\index{IOC}
+\item [IOC] Input/Output Controller.
+Any platform that can support EPICS run time databases together with the other software components described in the manual.
+One example is a workstation.
+Another example is a VME/VXI based system using vxWorks or RTEMS as the realtime operating system.
 
-\item \textbf{LAN}: \index{LAN}Local Area Network. This is the communication network which allows the IOCs and OPIs to communicate. 
-EPICS provides a software component, \index{Channel Access}Channel Access, which provides network transparent communication 
-between a Channel Access client and an arbitrary number of Channel Access servers.
-\end{itemize}
+\index{LAN}
+\item [LAN] Local Area Network.
+This is the communication network which allows the IOCs and OPIs to communicate.
+EPICS provides a software component, \index{Channel Access}Channel Access, which provides network transparent communication between a Channel Access client and an arbitrary number of Channel Access servers.
+\end{description}
 
 A control system implemented via EPICS has the following physical structure.
 
@@ -96,50 +101,50 @@ Let's briefly describe the major components of the IOC and how they interact.
 
 \subsection{IOC Database}
 
-The heart of each IOC is a memory resident database together with various memory resident structures describing the 
-contents of the database. EPICS supports a large and extensible set of record types, e.g. \verb|ai| (Analog Input), \verb|ao| (Analog 
-Output), etc.
+The heart of each IOC is a memory resident database together with various memory resident structures describing the contents of the database.
+EPICS supports a large and extensible set of record types, e.g. \verb|ai| (Analog Input), \verb|ao| (Analog Output), etc.
 
-Each record type has a fixed set of fields. Some fields are common to all record types and others are specific to particular 
-record types. Every record has a record name and every field has a field name. The first field of every database record 
-holds the record name, which must be unique across all IOCs that are attached to the same TCP/IP subnet.
+Each record type has a fixed set of fields.
+Some fields are common to all record types and others are specific to particular record types.
+Every record has a record name and every field has a field name.
+The first field of every database record holds the record name, which must be unique across all IOCs that are attached to the same TCP/IP subnet.
 
-Data structures are provided so that the database can be accessed efficiently. Most software components, because they 
-access the database via database access routines, do not need to be aware of these structures.
+Data structures are provided so that the database can be accessed efficiently. Most software components, because they access the database via database access routines, do not need to be aware of these structures.
 
 \subsection{Database Access}
 
-With the exception of record and device support, all access to the database is via the channel or database access routines. 
-See Chapter 15, ``Runtime Database Access" on page213 FIXPAGEREF for details.
+With the exception of record and device support, all access to the database is via the channel or database access routines.
+See Chapter \ref{chap:Runtime Database Access} for details.
 
 \subsection{Database Scanning}
 
-Database scanning is the mechanism for deciding when to process a record. Five types of scanning are possible: Periodic, 
-Event, I/O Event, Passive and Scan Once.
+Database scanning is the mechanism for deciding when to process a record.
+Five types of scanning are possible: Periodic, Event, I/O Event, Passive and Scan Once.
 
 \begin{itemize}
-\item \textbf{Periodic}:  A request can be made to process a record periodically. A number of time intervals are supported.
+\item \textbf{Periodic}:
+A request can be made to process a record periodically.
+A number of time intervals are supported.
 
-\item \textbf{Event}:  Event scanning is based on the posting of an event by any IOC software component. The actual subroutine 
-call is: \\
-\verb|post_event(event_num)|\index{post\_event}
-\item \textbf{I/O Event}:  The I/O event scanning system processes records based on external interrupts. An IOC device driver 
-interrupt routine must be available to accept the external interrupts.
+\item \textbf{Event}:
+Event scanning is based on the posting of an event by any IOC software component.
 
-\item \textbf{Passive}:  Passive records are processed as a result of linked records being processed or as a result of external 
-changes such as Channel Access puts.
+\item \textbf{I/O Event}:
+The I/O event scanning system processes records based on external interrupts.
+An IOC device driver interrupt routine must be available to accept the external interrupts.
 
-\item \textbf{Scan Once}: In order to provide for caching puts, The scanning system provides a routine \verb|scanOnce| which 
-arranges for a record to be processed one time.
+\item \textbf{Passive}:
+Passive records are processed as a result of linked records being processed or as a result of external changes such as Channel Access puts.
+
+\item \textbf{Scan Once}:
+In order to provide for caching puts, the scanning system provides a routine \verb|scanOnce| which arranges for a record to be processed one time.
 \end{itemize}
 
 \subsection{Record Support, Device Support and Device Drivers}
 
-Database access needs no record-type specific knowledge, because each record-type has its associated record support 
-module. Therefore, database access can support any number and type of records. Similarly, record support contains no 
-device specific knowledge, giving each record type the ability to have any number of independent device support 
-modules. If the method of accessing the piece of hardware is more complicated than what can be handled by device 
-support, then a device driver can be developed. 
+Database access needs no record-type specific knowledge, each record-type provides a set of record support routines that implement all record-specific behavior.
+Therefore, database access can support any number and type of records. Similarly, record support contains no device specific knowledge, giving each record type the ability to have any number of independent device support modules.
+If the method of accessing the piece of hardware is more complicated than can be handled by device support, then a device driver can be developed.
 
 Record types \emph{not} associated with hardware do not have device support or device drivers.
 

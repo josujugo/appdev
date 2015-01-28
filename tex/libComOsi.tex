@@ -42,55 +42,53 @@ Code for additional compilers and operating systems may also be present.
 
 \subsection{Rules for building OSI code}
 
-The \verb|osi| directory contains source and header files that provide common definitions for the OSI APIs.
-The directories under \verb|osi/compiler/<cmplr>| contain compiler-specific code that implements some of the OSI APIs.
-The directories under \verb|osi/os/<arch>| contain operating-system-specific code that implements the remaining OSI APIs.
+The \verb|src/libCom/osi| directory contains source and header files that provide common definitions for the OSI APIs.
+The directories under \verb|osi/compiler| contain compiler-specific files that implement some of the OSI APIs.
+The directories under \verb|osi/os| contain operating-system-specific files that implement the remaining OSI APIs.
 
-Header files residing under \verb|src/libCom/osi| are installed into \verb|<base>/include| as follows:
+Header files residing under \verb|src/libCom/osi| are installed into \verb|include| as follows:
 
 \begin{itemize}
-\item Header files in the \verb|osi| directory are installed into \verb|<base>/include|
+\item Header files in the \verb|osi| directory are installed into \verb|include|
 
-\item Header files in a subdirectory below \verb|osi/os| are installed into \verb|<base>/include/os/<arch>|\\
+\item Header files from an OS-specific directory \verb|osi/os/<os>| are installed into \verb|include/os/<os>|.
 The search order for locating the specific file to be installed is:
 
-\begin{itemize}
-\item \verb|libCom/osi/os/<arch>|
-\item \verb|libCom/osi/os/posix|
-\item \verb|libCom/osi/os/default|
-\end{itemize}
+\begin{enumerate}
+\item \verb|osi/os/<os>|
+\item \verb|osi/os/posix| --- if the target uses Posix APIs
+\item \verb|osi/os/default|
+\end{enumerate}
 
-\item Header files in a subdirectory below \verb|osi/compiler| are installed into \verb|<base>/include/compiler/<cmplr>|\\
+\item Header files from a compiler-specific directory \verb|osi/compiler/<cmplr>| are installed into the directory \verb|include/compiler/<cmplr>|.
 The search order for locating the specific file to be installed is:
 
-\begin{itemize}
-\item \verb|libCom/osi/compiler/<cmplr>|
-\item \verb|libCom/osi/compiler/default|
-\end{itemize}
+\begin{enumerate}
+\item \verb|osi/compiler/<cmplr>|
+\item \verb|osi/compiler/default|
+\end{enumerate}
 
 \end{itemize}
 
 The search order for locating OSD source files is:
 
-\begin{itemize}
-\item \verb|libCom/osi/compiler/<cmplr>|
-\item \verb|libCom/osi/compiler/default|
-\item \verb|libCom/osi/os/<arch>|
-\item \verb|libCom/osi/os/posix|
-\item \verb|libCom/osi/os/default|
-
-\end{itemize}
+\begin{enumerate}
+\item \verb|osi/compiler/<cmplr>|
+\item \verb|osi/compiler/default|
+\item \verb|osi/os/<os>|
+\item \verb|osi/os/posix|
+\item \verb|osi/os/default|
+\end{enumerate}
 
 \subsection{Locating OSI header files.}
 
 When code is compiled, the search order for locating header files in \verb|base/include| is:
 
-\begin{itemize}
-\item \verb|<base>/include/compiler/<cmplr>|
-\item \verb|<base>/include/os/<arch>|
-\item \verb|<base>/include|
-
-\end{itemize}
+\begin{enumerate}
+\item \verb|include/compiler/<cmplr>|
+\item \verb|include/os/<os>|
+\item \verb|include|
+\end{enumerate}
 
 \section{epicsAssert}
 
@@ -114,9 +112,9 @@ The same \verb|assert(expression)| macro is used as with the ANSI header to test
 If a run-time assertion check finds the expression false, it calls \verb|errlog| indicating the program's author, file name, and line number.
 Each OS provides specialized instructions assisting the user to diagnose the problem and generate a good bug report.
 For instance, under vxWorks there are instructions on how to generate a stack trace; on posix there are instructions about saving the core file.
-After printing the message the calling thread is suspended.
+After printing the message, the calling thread is suspended.
 
-To set the author's name, before the include statment shown above, define a preprocessor macro named \verb|epicsAssertAuthor| as a string that provides a name and email address if they wish to be contacted when the assertion fires.
+To provide the author's name for the message, before including the \verb|epicsAssert.h| file define a preprocessor macro named \verb|epicsAssertAuthor| as a string containing the name and email address to be contacted.
 
 \subsection{Compile-time Assertion Checks}
 
@@ -128,7 +126,7 @@ A static assertion looks like this:
 STATIC_ASSERT(expression);
 \end{verbatim}
 
-If the expression evaluates to false, the compiler will see an illegal variable declared with the name \verb|static_assert_failed_at_line_<n>| and should halt compilation at that point.
+If the expression evaluates as false, the compiler will be presented with an illegal variable declaration using the name \verb|static_assert_failed_at_line_<n>| and so should halt compilation at that point.
 
 \section{epicsAtomic}
 \index{epicsAtomic}
@@ -387,8 +385,8 @@ const char *epicsLoadError(void);
 \end{verbatim}
 
 \begin{center}
-\begin{longtable}{p{1.38889in}p{2.5in}}
-\textbf{Method} & \textbf{Meaning}\\
+\begin{longtable}{p{1.35in}p{2.5in}}
+\textbf{Function} & \textbf{Meaning}\\
 \hline
 epicsFindSymbol & Return the address of the named variable\\
 epicsLoadLibrary & Load named shared library\\
@@ -406,8 +404,8 @@ On Linux, Darwin and Solaris it calls \verb|dlsym|.
 The default version just returns null, i.e. it always fails.
 
 The \verb|epicsLoadLibrary| routine can be used to load a named library.
-Note that the library name will be architecture-dependent.
-This routine is implemented on vxWorks, Linux, Darwin and Solaris.
+Note that the library name may be different on different operating systems.
+This routine is implemented on vxWorks, Linux, Darwin, Windows and Solaris.
 
 If \verb|epicsLoadLibrary| fails, the routine \verb|epicsLoadError| can be used to fetch a printable string that describes the reason for the failure.
 Note that this library loading API is not thread-safe and should not be used in circumstances where multiple threads might try to use it at the same time.
@@ -415,33 +413,39 @@ Note that this library loading API is not thread-safe and should not be used in 
 \section{epicsGeneralTime}
 
 \index{epicsGeneralTime}
-The \index{generalTime}generalTime framework provides a mechanism for several \index{time provider}time providers to be present within the system.  There are 
-two types of provider, one type for the current time and one type for providing \index{Time Event}Time Event times.  Each time provider has 
-a priority, and installed providers are queried in priority order whenever a time is requested, until one returns successfully.  
+\index{generalTime}
+\index{time provider}
+\index{Time Event}
+The generalTime framework provides a mechanism for several time providers to be present within the system.
+There are two types of provider, one type for the current time and one type for providing Time Event times.
+Each time provider has a priority, and installed providers are queried in priority order whenever a time is requested, until one returns successfully.
 Thus there is a fallback from higher priority providers (smaller value of priority) to lower priority providers (larger value 
-of priority) if the higher priority ones fail.  Each architecture has a ``last resort" provider, installed at priority 999, usually 
-based on the system clock, which is used in the absence of any other provider.
+of priority) if the higher priority ones fail.
+Each architecture has a ``last resort" provider, installed at priority 999, usually based on the system clock, which is used in the absence of any other provider.
 
-Targets running vxWorks and RTEMS have an \index{NTP}NTP provider installed at priority 100.
+\index{NTP}
+Targets running vxWorks and RTEMS have an NTP provider installed at priority 100.
 
-Registered providers may also add an interrupt-safe routine that will be called from the \index{epicsTimeGetCurrentInt}epicsTimeGetCurrentInt() or 
+\index{epicsTimeGetCurrentInt}
 \index{epicsTimeGetEventInt}
-epicsTimeGetEventInt()  API routines. These interfaces do not check the priority queue, and will only succeed if the last-
-used provider has registered a suitable routine.
+Registered providers may also add an interrupt-safe routine to be called from the \verb|epicsTimeGetCurrentInt()| or \verb|epicsTimeGetEventInt()| API routines.
+These interfaces do not check the priority queue, and will only succeed if the last-used provider has registered a suitable routine.
 
-There are two interfaces to this framework, epicsGeneralTime.h for consumers that wish to get a time and query the 
-framework, and generalTimeSup.h for providers that supply timestamps.
+There are two interfaces to this framework, \verb|epicsGeneralTime.h| for consumers that wish to get a time and query the 
+framework, and \verb|generalTimeSup.h| for providers that supply timestamps.
 
 \subsection{Consumer interface}
 
 The \verb|epicsGeneralTime.h| header contains the following:
 
 \index{epicsGeneralTime.h}
+\index{generalTimeCurrentTpName}
+\index{generalTimeEventTpName}
 \begin{verbatim}
 void generalTime_Init(void);
 int installLastResortEventProvider(void);
-void generalTimeResetErrorCounts();
-int generalTimeGetErrorCounts();
+void generalTimeResetErrorCounts(void);
+int generalTimeGetErrorCounts(void);
 
 const char * generalTimeHighestCurrentName(void);
 const char * generalTimeCurrentProviderName(void);
@@ -454,28 +458,49 @@ const char * generalTimeEventProviderName(void);
 long generalTimeReport(int interest);
 \end{verbatim}
 
-\index{generalTime\_Init}
-\index{installLastResortEventProvider}
-\index{generalTimeResetErrorCounts}
-\index{generalTimeGetErrorCounts}
-\index{generalTimeHighestCurrentName}
-\index{generalTimeCurrentProviderName}
-\index{generalTimeEventProviderName}
-\index{generalTimeCurrentTpName}
-\index{generalTimeEventTpName}
-\index{generalTimeReport}
 \begin{center}
-\begin{longtable}{p{2.0in}p{4.75in}}
-\textbf{Method} & \textbf{Meaning}\\
+\begin{longtable}{p{2.0in}p{4.25in}}
+\textbf{Function} & \textbf{Meaning}\\
 \hline
-generalTime\_Init & Initialise the framework.This is called automatically by any function that requires the framework. It does not need to be called explicitly.\\
-installLastResortEventProvider & Install a Time Event time provider that returns the current time for any Time Event number.This is optional as it is site policy whether the last resort for a Time Event time in the absence of any working provider should be a failure, or the current time.\\
-generalTimeResetErrorCounts & Reset the internal counter of the number of times the time returned was earlier than when previously requested.  Used by device support for bo record with DTYP = ``General Time" OUT = ``@RSTERRCNT"\\
-generalTimeGetErrorCounts & Return the internal counter of the number of times the time returned was earlier than when previously requested.  Used by device support for longin record with DTYP = ``General Time" INP = ``@GETERRCNT"\\
-generalTimeCurrentProviderName & Return the name of the provider that last returned a valid current time, or NULL if none.  Used by stringin device support with DTYP = ``General Time" INP = ``@BESTTCP"\\
-generalTimeEventProviderName & Return the name of the provider that last returned a valid Time Event time, or NULL if none.  Used by stringin device support with DTYP = ``General Time" INP = ``@BESTTEP"\\
-generalTimeHighestCurrentName & Return the name of the registered current time provider that has the highest priority.  Used by stringin device support with DTYP = ``General Time" INP = ``@TOPTCP"\\
-generalTimeReport & Provide information about the installed providers and their current best times.
+\index{generalTime\_Init}
+generalTime\_Init &
+Initialise the framework.
+This is called automatically by any function that requires the framework.
+It does not need to be called explicitly.\\
+
+\index{installLastResortEventProvider}
+installLastResortEventProvider &
+Install a Time Event time provider that returns the current time for any Time Event number.
+This is optional as it is site policy whether the last resort for a Time Event time in the absence of any working provider should be a failure, or the current time.\\
+
+\index{generalTimeResetErrorCounts}
+generalTimeResetErrorCounts &
+Reset the internal counter of the number of times the time returned was earlier than when previously requested.
+Used by device support for bo record with DTYP = ``General Time" and OUT = ``@RSTERRCNT"\\
+
+\index{generalTimeGetErrorCounts}
+generalTimeGetErrorCounts &
+Return the internal counter of the number of times the time returned was earlier than when previously requested.
+Used by device support for longin record with DTYP = ``General Time" and INP = ``@GETERRCNT"\\
+
+\index{generalTimeCurrentProviderName}
+generalTimeCurrentProviderName &
+Return the name of the provider that last returned a valid current time, or NULL if none.
+Used by stringin device support with DTYP = ``General Time" and INP = ``@BESTTCP"\\
+
+\index{generalTimeEventProviderName}
+generalTimeEventProviderName &
+Return the name of the provider that last returned a valid Time Event time, or NULL if none.
+Used by stringin device support with DTYP = ``General Time" and INP = ``@BESTTEP"\\
+
+\index{generalTimeHighestCurrentName}
+generalTimeHighestCurrentName &
+Return the name of the registered current time provider that has the highest priority.
+Used by stringin device support with DTYP = ``General Time" and INP = ``@TOPTCP"\\
+
+\index{generalTimeReport}
+generalTimeReport &
+Provide information about the installed providers and their current best times.
 \end{longtable}
 
 \end{center}
@@ -516,14 +541,28 @@ int generalTimeGetExceptPriority(epicsTimeStamp *pDest, int *pPrio,
 \index{generalTimeRegisterIntEventProvider}
 \index{generalTimeGetExceptPriority}
 \begin{center}
-\begin{longtable}{p{2.125in}p{4.625in}}
-\textbf{Method} & \textbf{Meaning}\\
+\begin{longtable}{p{2.125in}p{4.125in}}
+\textbf{Function} & \textbf{Meaning}\\
 \hline
-generalTimeRegisterCurrentProvider & Register a current time provider with the framework. The getTime routine must return epicsTimeOK if it provided a valid time, or epicsTimeERROR if it could not.\\
-generalTimeRegisterEventProvider & Register a provider of Time Event times with the framework. The getEvent routine must return epicsTimeOK if it provided a valid time for the requested Time Event, or epicsTimeERROR if it could not.It is an implemetation decision by the provider whether a request for an Event that has never happened should return an error and/or a valid timestamp.\\
-generalTimeAddIntCurrentProvider & Add or replace an interrupt-safe provider routine for an already-registered current time provider with the given name and priority.\\
-generalTimeAddIntEventProvider & Add or replace an interrupt-safe provider routine for an already-registered event time provider with the given name and priority.\\
-generalTimeGetExceptProirity & Request the current time from the framework, but exclude providers with priority ignorePrio.This allows a provider without an absolute time source to synchronise itself with other providers that do provide an absolute time.  pPrio returns the priority of the provider that supplied the result, which may be higher or lower than ignorePrio.
+generalTimeRegisterCurrentProvider &
+Register a current time provider with the framework.
+The getTime routine must return epicsTimeOK if it provided a valid time, or epicsTimeERROR if it could not.\\
+
+generalTimeRegisterEventProvider &
+Register a provider of Time Event times with the framework.
+The getEvent routine must return epicsTimeOK if it provided a valid time for the requested Time Event, or epicsTimeERROR if it could not.
+It is an implemetation decision by the provider whether a request for an Event that has never happened should return an error and/or a valid timestamp.\\
+
+generalTimeAddIntCurrentProvider &
+Add or replace an interrupt-safe provider routine for an already-registered current time provider with the given name and priority.\\
+
+generalTimeAddIntEventProvider &
+Add or replace an interrupt-safe provider routine for an already-registered event time provider with the given name and priority.\\
+
+generalTimeGetExceptProirity &
+Request the current time from the framework, but exclude providers with priority ignorePrio.
+This allows a provider without an absolute time source to synchronise itself with other providers that do provide an absolute time.
+pPrio returns the priority of the provider that supplied the result, which may be higher or lower than ignorePrio.
 \end{longtable}
 
 \end{center}
@@ -533,23 +572,34 @@ If multiple providers are registered at the same priority, they will be queried 
 until one is able to provide the time when requested.
 
 Some providers may start a task that periodically synchronizes themselves with a higher priority provider, using 
-generalTimeGetExceptPriority to ensure that they are themselves excluded from this time request.
+\verb|generalTimeGetExceptPriority()| to ensure that they are themselves excluded from this time request.
 
-Interrupt-safe providers are optional, but an IOC that needs to request the time from interrupt context must be using a 
-current or event time source that supports the appropriate request because only the most recently successful provider will 
-be used (the priority list is not traversed for these requests). The result returned is not protected against backwards 
-movement.
+Interrupt-safe providers are optional, but an IOC that needs to request the time from interrupt context must be using a current or event time source that supports the appropriate request because only the most recently successful provider will 
+be used (the priority list cannot be traversed for requests made from interrupt context).
+The result returned by is not protected against backwards movement.
 
 \subsection{Internal Interface}
 
-The generalTime framework also now provides the implementations of \index{epicsTimeGetCurrent}epicsTimeGetCurrent() and \index{epicsTimeGetEvent}epicsTimeGetEvent(). 
-If epicsTimeGetEvent() is called with an event number of 0 (epicsTimeEventCurrentTime) then it will get the time from 
-the best available current time provider.  Thus providers do not need to provide event times if they do not implement an 
-event system.
+The generalTime framework also now provides the implementations of the following routines that are declared in \verb|epicsTime.h|:
+
+\index{epicsTimeGetCurrent}
+\index{epicsTimeGetEvent}
+\index{epicsTimeGetCurrentInt}
+\index{epicsTimeGetEventInt}
+\begin{verbatim}
+int epicsTimeGetCurrent(epicsTimeStamp *pDest);
+int epicsTimeGetEvent(epicsTimeStamp *pDest, int eventNumber);
+int epicsTimeGetCurrentInt(epicsTimeStamp *pDest);
+int epicsTimeGetEventInt(epicsTimeStamp *pDest, int eventNumber);
+\end{verbatim}
+
+If \verb|epicsTimeGetEvent()| is called with an event number of 0 (\verb|epicsTimeEventCurrentTime|) it will return the time from the best available current time provider.
+Thus providers do not need to provide event times if they do not implement an event system.
 
 \subsection{Example}
 
-Soft device support is provided for ai, bo, longin and stringin records. A typical example is:
+Soft device support is provided for ai, bo, longin and stringin records.
+A typical example is:
 
 \begin{verbatim}
 record(ai, "$(IOC):GTIM_CURTIME") {
@@ -769,6 +819,12 @@ Each C function corresponds to one of the C++ methods.
 \index{epicsMutex.h}
 \subsection{C++ Interface}
 
+\index{epicsMutexLockOK}
+\index{epicsMutexLockTimeout}
+\index{epicsMutexLockError}
+\index{epicsMutexLockStatus}
+\index{newEpicsMutex}
+\index{epicsMutex}
 \begin{verbatim}
 typedef enum {
     epicsMutexLockOK, epicsMutexLockTimeout, epicsMutexLockError
@@ -791,26 +847,31 @@ private:
 };
 \end{verbatim}
 
-\index{epicsMutexLockOK}
-\index{epicsMutexLockTimeout}
-\index{epicsMutexLockError}
-\index{epicsMutexLockStatus}
-\index{epicsMutex}
-\index{newEpicsMutex}
 \begin{center}
-\begin{longtable}{p{1.38889in}p{5.0in}}
+\begin{longtable}{p{1.25in}p{4.5in}}
 \textbf{Method} & \textbf{Meaning}\\
 \hline
-epicsMutex & Create a mutual exclusion semaphore.\\
-\~{}epicsMutex & Remove the semaphore and any resources it uses.
+epicsMutex &
+Create a mutual exclusion semaphore.\\
+
+\~{}epicsMutex &
+Remove the semaphore and any resources it uses.
 Any further use of the semaphore result in unknown (most certainly bad) results.\\
-lock() & Wait until the resource is free.
+
+lock() &
+Wait until the resource is free.
 After a successful lock additional, i.e. recursive, locks of any type can be issued but each must have an associated unlock.\\
-tryLock() & Similar to lock except that, if the resource is owned by another thread, the call completes immediately.
+
+tryLock() &
+Similar to lock except that, if the resource is owned by another thread, the call completes immediately.
 The return value is (false,true) if the resource (is not, is) owned by the caller.\\
-unlock & Release the resource.
+
+unlock &
+Release the resource.
 If a thread issues recursive locks, there must be an unlock for each lock\\
-show & Display information about the semaphore.
+
+show &
+Display information about the semaphore.
 The results are architecture dependent.
 \end{longtable}
 
@@ -821,6 +882,7 @@ Mutual exclusion semaphores are for situations requiring mutually exclusive acce
 A mutual exclusion semaphore may be taken recursively, i.e. can be taken more than once by the owner thread before releasing it.
 Recursive takes are useful for a set of routines that call each other while working on a mutually exclusive resource.
 
+\index{newEpicsMutex}
 The \verb|newEpicsMutex| macro simplifies debugging by letting the mutex store the source filename and line-number where it was created, using the second form of the constructor.
 The C interface also stores this information.
 The \verb|epicsMutex::show()| routine can display that source location.
@@ -925,40 +987,116 @@ The default implementation uses POSIX spin locks on POSIX compliant systems, and
 \section{epicsStdlib}
 
 \index{epicsStdlib}
-\index{epicsStdlib.h}epicsStdlib.h includes stdlib.h and contains definitions for the following functions/macros.
+\index{epicsStdlib.h}
+\verb|epicsStdlib.h| includes \verb|stdlib.h| and \verb|epicsTypes.h| and provides declarations for a series of string to number conversion functions and macros.
+
+\subsection{Integer Parsing}
+
+These routines convert a string into an integer of the indicated type and number base.
+The units pointer argument may be NULL, but if not it will be left pointing to the first non-whitespace character following the numeric string, or to the terminating zero byte.
+
+\index{epicsParseLong}
+\index{epicsParseULong}
+\index{epicsParseLLong}
+\index{epicsParseULLong}
+\index{epicsParseInt8}
+\index{epicsParseUInt8}
+\index{epicsParseInt16}
+\index{epicsParseUInt16}
+\index{epicsParseInt32}
+\index{epicsParseUInt32}
+\index{epicsParseInt64}
+\index{epicsParseUInt64}
+\begin{verbatim}
+int epicsParseLong(const char *str, long *to, int base, char **units);
+int epicsParseULong(const char *str, unsigned long *to, int base,
+    char **units);
+int epicsParseLLong(const char *str, long long *to, int base, char **units);
+int epicsParseULLong(const char *str, unsigned long long *to, int base,
+    char **units);
+
+int epicsParseInt8(const char *str, epicsInt8 *to, int base, char **units);
+int epicsParseUInt8(const char *str, epicsUInt8 *to, int base, char **units);
+
+int epicsParseInt16(const char *str, epicsInt16 *to, int base, char **units);
+int epicsParseUInt16(const char *str, epicsUInt16 *to, int base, char **units);
+
+int epicsParseInt32(const char *str, epicsInt32 *to, int base, char **units);
+int epicsParseUInt32(const char *str, epicsUInt32 *to, int base, char **units);
+
+int epicsParseInt64(const char *str, epicsInt64 *to, int base, char **units);
+int epicsParseUInt64(const char *str, epicsUInt64 *to, int base, char **units);
+\end{verbatim}
+
+The return value from these routines is a status code, zero meaning OK.
+
+\subsection{Floating-point Parsing}
+
+These routines convert a string into a floating-point type.
 
 \begin{verbatim}
 double epicsStrtod(const char *str, char **endp);
-int epicsScanFloat(const char *str, float *dest);
-int epicsScanDouble(const char *str, double *dest);
+
+int epicsParseDouble(const char *str, double *to, char **units);
+int epicsParseFloat(const char *str, float *to, char **units);
+
+#define epicsParseFloat32(str, to, units) epicsParseFloat(str, to, units)
+#define epicsParseFloat64(str, to, units) epicsParseDouble(str, to, units)
 \end{verbatim}
 
 \index{epicsStrtod}
+\verb|epicsStrtod()| has the same semantics as the C99 function \verb|strtod()| and is provided because some architectures do not fully conform to the standard. It is implemented as a simple macro on those architectures that do conform.
+
+\index{epicsParseDouble}
+\index{epicsParseFloat}
+\verb|epicsParseDouble| and \verb|epicsParseFloat| convert a string into a variable of the indicated type.
+The units pointer argument may be NULL, but if not it will be left pointing to the first non-whitespace character following the numeric string, or to the terminating zero byte.
+
+The return value from these routines is a status code, zero meaning OK.
+
+\subsection{Replacements for scanf()}
+
+The following routines are implemented as macros that call routines described above.
+They return 1 for a successful conversion, 0 on failure, and can be used to replace equivalent calls to \verb|sscanf()|.
+
+\begin{verbatim}
+#define epicsScanLong(str, to, base) !epicsParseLong(str, to, base, NULL)
+#define epicsScanULong(str, to, base) !epicsParseULong(str, to, base, NULL)
+#define epicsScanLLong(str, to, base) !epicsParseLLong(str, to, base, NULL)
+#define epicsScanULLong(str, to, base) !epicsParseULLong(str, to, base, NULL)
+#define epicsScanFloat(str, to) !epicsParseFloat(str, to, NULL)
+#define epicsScanDouble(str, to) !epicsParseDouble(str, to, NULL)
+\end{verbatim}
+
+
 \index{epicsScanFloat}
 \index{epicsScanDouble}
-\verb|epicsStrtod| has the same semantics as the C99 function \verb|strtod|.  It is provided because some architectures have 
-implementations which do not accept NAN or INFINITY.   On architectures which provide an acceptable version of 
-\verb|strtod| this is implemented as a simple macro expansion.
-
-\index{strtod}
-\verb|epicsScanFloat| and \verb|epicsScanDouble| behave like sscanf with a \verb|"%f"| and \verb|"%lf"| format string, respectively.  
+\verb|epicsScanFloat| and \verb|epicsScanDouble| behave like sscanf with a \verb|"%f"| and \verb|"%lf"| format string, respectively.
 They are provided because some architectures have implementations of scanf which do not accept NAN or INFINITY.
-
 
 \section{epicsStdio}
 
-\index{epicsStdio}
-\index{epicsStdio.h}epicsStdio.h contains definitions for the following functions.
+\index{epicsStdio.h}
+The \verb|epicsStdio.h| first includes the operating systems's \verb|stdio.h| header, then provides definitions for the following functions:
 
 \begin{verbatim}
 int epicsSnprintf(char *str, size_t size,
     const char *format, ...);
 int epicsVsnprintf(char *str, size_t size,
     const char *format, va_list ap);
-void epicsTempName(char * pNameBuf, size_t nameBufLength );
-FILE * epicsShareAPI epicsTempFile ();
-enum TF_RETURN {TF_OK=0, TF_ERROR=1};
+
+enum TF_RETURN {TF_OK = 0, TF_ERROR = 1};
 enum TF_RETURN truncateFile(const char *pFileName, unsigned size );
+
+/* Stream redirection of standard streams */
+#define stdin epicsGetStdin()
+#define stdout epicsGetStdout()
+#define stderr epicsGetStderr()
+
+#define printf epicsStdoutPrintf
+#define puts epicsStdoutPuts
+#define putchar epicsStdoutPutchar
+
 FILE * epicsGetStdin(void);
 FILE * epicsGetStdout(void);
 FILE * epicsGetStderr(void);
@@ -968,13 +1106,14 @@ FILE * epicsGetThreadStderr(void);
 void epicsSetThreadStdin(FILE *);
 void epicsSetThreadStdout(FILE *);
 void epicsSetThreadStderr(FILE *);
+
 int epicsStdoutPrintf(const char *pformat, ...);
+int epicsStdoutPuts(const char *str);
+int epicsStdoutPutchar(int c);
 \end{verbatim}
 
 \index{epicsSnprintf}
 \index{epicsVsnprintf}
-\index{epicsTempName}
-\index{epicsTempFile}
 \index{truncateFile}
 \index{epicsGetStdin}
 \index{epicsGetStdout}
@@ -986,53 +1125,58 @@ int epicsStdoutPrintf(const char *pformat, ...);
 \index{epicsSetThreadStdout}
 \index{epicsSetThreadStderr}
 \index{epicsStdoutPrintf}
-\verb|epicsSnprintf| and \verb|epicsVsnprintf| are meant to have the same semantics as the C99 functions \verb|snprintf| and 
-\verb|vsnprintf|. They are provided because some architectures do not implement these functions, while others do not 
-implement the correct semantics. If you haven't heard of these C99 functions, \verb|snprintf| is like \verb|sprintf| except that 
-the \verb|size| argument gives the maximum number of characters (including the trailing zero byte) that may be placed in \verb|str|. 
-Similarly \verb|vsnprintf| is a size-limited version of \verb|vsprintf|. In both cases the return value is supposed to be the 
-number characters (not counting the terminating zero byte) that would be written to \verb|str| if it was large enough to hold 
-them all; the output has been truncated if the return value is \verb|size| or more.
+\index{epicsStdoutPuts}
+\index{epicsStdoutPutchar}
+\verb|epicsSnprintf| and \verb|epicsVsnprintf| are meant to have the same semantics as the C99 functions \verb|snprintf| and \verb|vsnprintf|.
+They are provided because some architectures do not implement these functions, while others implement them incorrectly.
+Standardized as a C99 function, \verb|snprintf| acts like \verb|sprintf| except that the \verb|size| argument gives the maximum number of characters (including the trailing zero byte) that may be placed in \verb|str|.
+Similarly \verb|vsnprintf| is a size-limited version of \verb|vsprintf|.
+In both cases the return values are supposed to be the number characters (not counting the terminating zero byte) that would be written to \verb|str| if it was large enough to hold them all; the output has been truncated if the return value is \verb|size| or more.
 
-On some operating systems the implementations of these functions may not always return the correct value. If the OS 
-implementation does not correctly return the number of characters that would have been written when the output gets 
-truncated, it is not worth trying to fix this as long as both return \verb|size-1| instead; the resulting string must always be 
-correctly terminated with a zero byte.
+On some operating systems though the implementations of these functions do not always return the correct value.
+If the OS implementation does not correctly return the number of characters that would have been written when the output gets truncated, it is not worth trying to fix this as long as they return \verb|size-1| instead; the resulting string must always be correctly terminated with a zero byte.
 
-Operating systems such as Solaris which follow the Single Unix Specification V2, \\ \verb|epicsSnprintf| and 
-\verb|epicsVsnprintf| do not provide correct C99 semantics for the return value when \verb|size| is given as zero.  On these 
-systems \verb|epicsSnprintf| and \verb|epicsVsnprintf| may return an error (a value less than zero) if a buffer length of 
-zero is passed in, so callers should not use that technique.
+On operating systems such as Solaris which follow the Single Unix Specification V2, the \verb|epicsSnprintf| and \verb|epicsVsnprintf| implementations may not provide correct C99 semantics for the return value when \verb|size| is given as zero.
+On these systems \verb|epicsSnprintf| and \verb|epicsVsnprintf| can return an error (a value less than zero) when a buffer length of zero is passed in, so callers should not use that technique to calculate the length of the buffer required.
 
-\verb|epicsTempName| and \verb|epicsTempFile| can be called to get unique filenames and files.
+\verb|truncateFile| returns \verb|TF_OK| if the file is less than size bytes or if it was successfully truncated.
+Returns \verb|TF_ERROR| if the file could not be truncated.
 
-\verb|truncateFile| returns \verb|TF_OK| if the file is less than size bytes or if it was successfully truncated. Returns \verb|TF_ERROR| 
-if the file could not be truncated. 
+The \verb|epicsSetThreadStdin|/\verb|Stdout|/\verb|Stderr| routines allow the standard file steams to be redirected on a per thread basis, e.g. calling \verb|epicsSetThreadStdout| will affect only the thread which calls it.
+To cancel a stream redirection, pass a NULL argument in another call to the same redirection routine that was used to set it.
 
-The Stdin/Stdout/Stderr routines allow these file steams to be redirected on a per thread basis, e.g. calling 
-\verb|epicsSetThreadStdout| will affect only the thread which calls it.
-
-\verb|epicsGetStdin|, ..., \verb|epicsStdoutPrintf| are not normally called by user code. Instead code that wants to 
-allow redirection needs only to include \verb|epicsStdioRedirect.h|
-
-\section{epicsStdioRedirect}
-
-\index{epicsStdioRedirect}
-Including this file cause the following names to be changed:
+The routines \verb|epicsGetStdin|/\verb|Stdout|/\verb|Stderr| and \verb|epicsStdoutPrintf|/\verb|Puts|/\verb|Putchar| are not normally named directly in user code.
+They are provided for the following macros that redefine the well-known C identifiers:
 
 \begin{itemize}
 \item \verb|stdin| becomes \verb|epicsGetStdin()|
-
 \item \verb|stdout| becomes \verb|epicsGetStdout()|
-
 \item \verb|stderr| becomes \verb|epicsGetStderr()|
-
 \item \verb|printf| becomes \verb|epicsStdoutPrintf|
-
+\item \verb|puts| becomes \verb|epicsStdoutPuts|
+\item \verb|putchar| becomes \verb|epicsStdoutPutchar|
 \end{itemize}
 
-This is done so that redirection can occur. A primary use of this facility is iocsh. It allows redirection of input and output. 
-In order for it to work, all modules involved in I/O can just include this header.
+This is done so that any I/O through these standard streams can be redirected, usually to or from a file.
+The primary use of this facility is iocsh, which allows redirection of the input and/or output streams when running commands.
+In order for the redirection to work, all modules involved in I/O must include \verb|epicsStdio.h| instead of the system header \verb|stdio.h|.
+
+\section{epicsTempFile}
+
+\index{epicsTempFile.h}
+\verb|epicsTempFile.h| provides definitions for the following functions:
+
+\begin{verbatim}
+void epicsTempName(char *pbuf, size_t buflen);
+FILE * epicsTempFile(void);
+\end{verbatim}
+\index{epicsTempName}
+\index{epicsTempFile}
+
+\verb|epicsTempName| and \verb|epicsTempFile| can be called to get unique filenames and open \verb|FILE *| pointers.
+Note that \verb|epicsTempName| cannot guarantee that the filenames it returns will not be created by some other thread or process after it has returned, although it does check that the filename it generates does not already exist.
+This security hole is why POSIX.1-2008 marked \verb|tempnam()| as obsolete.
+The \verb|epicsTempName| function will probably be deprecated in a future release of Base.
 
 \section{epicsThread}
 
@@ -1045,19 +1189,21 @@ In order for it to work, all modules involved in I/O can just include this heade
 \begin{verbatim}
 typedef void (*EPICSTHREADFUNC)(void *parm);
 
-static const unsigned epicsThreadPriorityMax = 99;
-static const unsigned epicsThreadPriorityMin = 0;
+#define epicsThreadPriorityMax          99
+#define epicsThreadPriorityMin           0
+
 /* some generic values */
-static const unsigned epicsThreadPriorityLow = 10;
-static const unsigned epicsThreadPriorityMedium = 50;
-static const unsigned epicsThreadPriorityHigh = 90;
+#define epicsThreadPriorityLow          10
+#define epicsThreadPriorityMedium       50
+#define epicsThreadPriorityHigh         90
+
 /* some iocCore specific values */
-static const unsigned epicsThreadPriorityCAServerLow = 20;
-static const unsigned epicsThreadPriorityCAServerHigh = 40;
-static const unsigned epicsThreadPriorityScanLow = 60;
-static const unsigned epicsThreadPriorityScanHigh = 70;
-static const unsigned epicsThreadPriorityIocsh = 91;
-static const unsigned epicsThreadPriorityBaseMax = 91;
+#define epicsThreadPriorityCAServerLow  20
+#define epicsThreadPriorityCAServerHigh 40
+#define epicsThreadPriorityScanLow      60
+#define epicsThreadPriorityScanHigh     70
+#define epicsThreadPriorityIocsh        91
+#define epicsThreadPriorityBaseMax      91
 
 /* stack sizes for each stackSizeClass are implementation and CPU dependent */
 typedef enum {
@@ -1070,6 +1216,9 @@ typedef enum {
 
 unsigned int epicsThreadGetStackSize(epicsThreadStackSizeClass size);
 
+/* (epicsThreadId)0 is guaranteed to be an invalid thread id */
+typedef struct epicsThreadOSD *epicsThreadId;
+
 typedef int epicsThreadOnceId;
 #define EPICS_THREAD_ONCE_INIT 0
 
@@ -1077,17 +1226,14 @@ void epicsThreadOnce(epicsThreadOnceId *id, EPICSTHREADFUNC, void *arg);
 
 void epicsThreadExitMain(void);
 
-/* (epicsThreadId)0 is guaranteed to be an invalid thread id */
-typedef struct epicsThreadOSD *epicsThreadId;
-
 epicsThreadId epicsThreadCreate(const char *name,
     unsigned int priority, unsigned int stackSize,
-    EPICSTHREADFUNC funptr,void *parm);
+    EPICSTHREADFUNC funptr, void *parm);
 void epicsThreadSuspendSelf(void);
 void epicsThreadResume(epicsThreadId id);
 unsigned int epicsThreadGetPriority(epicsThreadId id);
-unsigned int epicsThreadGetPrioritySelf();
-void epicsThreadSetPriority(epicsThreadId id,unsigned int priority);
+unsigned int epicsThreadGetPrioritySelf(void);
+void epicsThreadSetPriority(epicsThreadId id, unsigned int priority);
 epicsThreadBooleanStatus epicsThreadHighestPriorityLevelBelow (
         unsigned int priority, unsigned *pPriorityJustBelow);
 epicsThreadBooleanStatus epicsThreadLowestPriorityLevelAbove (
@@ -1106,7 +1252,13 @@ int epicsThreadIsOkToBlock(void);
 void epicsThreadSetOkToBlock(int isOkToBlock);
 
 void epicsThreadShowAll(unsigned int level);
-void epicsThreadShow(epicsThreadId id,unsigned int level);
+void epicsThreadShow(epicsThreadId id, unsigned int level);
+
+typedef void (*EPICS_THREAD_HOOK_ROUTINE)(epicsThreadId id);
+int epicsThreadHookAdd(EPICS_THREAD_HOOK_ROUTINE hook);
+int epicsThreadHookDelete(EPICS_THREAD_HOOK_ROUTINE hook);
+void epicsThreadHooksShow(void);
+void epicsThreadMap(EPICS_THREAD_HOOK_ROUTINE func);
 
 typedef void * epicsThreadPrivateId;
 epicsThreadPrivateId epicsThreadPrivateCreate(void);
@@ -1159,77 +1311,168 @@ void * epicsThreadPrivateGet(epicsThreadPrivateId);
 \index{epicsThreadSetOkToBlock}
 \index{epicsThreadShowAll}
 \index{epicsThreadShow}
+\index{EPICS\_THREAD\_HOOK\_ROUTINE}
+\index{epicsThreadHookAdd}
+\index{epicsThreadHookDelete}
+\index{epicsThreadHooksShow}
+\index{epicsThreadMap}
 \index{epicsThreadPrivateId}
 \index{epicsThreadPrivateCreate}
 \index{epicsThreadPrivateDelete}
 \index{epicsThreadPrivateSet}
 \index{epicsThreadPrivateGet}
+
 \begin{center}
 \begin{longtable}{p{2.375in}p{4.0in}}
-\textbf{Method} & \textbf{Meaning}\\
+\textbf{Routine} & \textbf{Meaning}\\
 \hline
-epicsThreadGetStackSize & Get a stack size value that can be given to epicsThreadCreate. The size argument should be one of the values epicsThreadStackSmall, epicsThreadStackMedium or epicsThreadStackBig.\\
-epicsThreadOnce & This is used as follows:       void myInitFunc(void * arg)       \{          ...        \}        epicsThreadOnceId onceFlag = EPICS\_THREAD\_ONCE\_INIT;          ...        epicsThreadOnce(\&onceFlag,myInitFunc,(void *)myParm);For each unique epicsThreadOnceId, epicsThreadOnce guarantees    1) myInitFunc is called only once.    2) myInitFunc completes before any epicsThreadOnce call completes.Note that myInitFunc must not call epicsThreadOnce with the same onceId.\\
-epicsThreadExitMain & If the main routine is done but wants to let other threads run it can call this routine. This should be the last call in main, except the final return. On most systems epicsThreadExitMain never returns. This must only be called by the main thread.\\
-epicsThreadCreate & Create a new thread. The use made of the priority, and stackSize arguments is implementation dependent. Some implementations may ignore one or other of these, but for portability appropriate values should be given for both. The value passed as the stackSize parameter should be obtained by calling epicsThreadGetStackSize. The funptr argument specifies a function that implements the thread, and parm is the single argument passed to funptr. A thread terminates when funptr returns.\\
-epicsThreadSuspendSelf & This causes the calling thread to suspend. The only way it can resume is for another thread to call epicsThreadResume.\\
-epicsThreadResume & Resume a suspended thread. Only do this if you know that it is safe to resume a suspended thread.\\
-epicsThreadGetPriority & Get the priority of the specified thread.\\
-epicsThreadGetPrioritySelf & Get the priority of this thread.\\
-epicsThreadSetPriority & Set a new priority for the specified thread. The result is implementation dependent.\\
-epicsThreadHighestPriorityLevelBelow & Get a priority that is just lower than the specified priority.\\
-epicsThreadLowestPriorityLevelAbove & Get a priority that is just above the specified priority.\\
-epicsThreadIsEqual & Compares two threadIds and returns (0,1) if they (are not, are) the same. \\
-epicsThreadIsSuspended & BAD NAME. taskwd needs this call. It really means: Is there something wrong with this thread? This could mean suspended or no longer exists or etc. It is a problem because it is implementation dependent. \\
-epicsThreadSleep & Sleep for the specified period of time, i.e. sleep without using the cpu. If delay is \textgreater{}0 then the thread will sleep at least until the next clock tick. The exact time is determined by the underlying architecture. If delay is \textless{}= 0 then a delay of 0 is requested of the underlying architecture. What happens is architecture dependent but often it allows other threads of the same priority to run.\\
-epicsThreadSleepQuantum & This function returns the minimum slumber interval obtainable with epicsThreadSleep() in seconds. On most OS there is a system scheduler interrupt interval which determines the value of this parameter. Knowledge of this parameter is used by the various components of EPICS to improve scheduling of software tasks intime when the reduction of average time scheduling errors is important.If this parameter is unknown or is unpredictable for a particular OS then it is safe to return zero.\\
-epicsThreadGetIdSelf & Get the threadId of the calling thread.\\
-epicsThreadGetId & Get the threadId of the specified thread. A return of 0 means that no thread was found with the specified name.\\
-epicsThreadGetCPUs & Get the number of CPUs (logical cores) available to the IOC. On systems that use Hyper-Threading, this may be up to twice the number of physical cores.\\
-epicsThreadGetNameSelf & Get the name of the calling thread.\\
-epicsThreadGetName & Get the name of the specified thread. The value is copied to a caller specified buffer so that if the thread terminates the caller is not left with a pointer to something that may no longer exist.\\
-epicsThreadIsOkToBlock & Is it OK for a thread to block? This can be called by support code that does not know if it is called in a thread that should not block. For example the errlog system calls this to decide when messages should be displayed on the console.\\
-epicsThreadSetOkToBlock & When a thread is started the default is that it is not allowed to block. This method can be called to change the state. For example iocsh calls this to specify that it is OK to block.\\
-epicsThreadShowAll & Display info about all threads.\\
-epicsThreadShow & Display info about the specified thread.\\
-epicsThreadPrivateCreate & Thread private variables are intended for use by legacy libraries written for a single threaded environment and which uses a global variable to store private data. The only code in base that currently needs this facility is channel access. A library that needs a private variable should make exactly one call to epicsThreadPrivateCreate. Each thread should call epicsThreadPrivateSet when the thread is created. Each library routine can call epicsThreadPrivateGet each time it is called.\\
-epicsThreadPrivateDelete & Delete a thread private variable.\\
-epicsThreadPrivateSet & Set the value for a thread private variable. \\
-epicsThreadPrivateGet & Get the value of a thread private variable, the value is the value set by the call to epicsThreadPrivateSet that was made by the same thread. If called before epicsThreadPrivateSet it returns 0.
+epicsThreadGetStackSize &
+Get a stack size value that can be given to epicsThreadCreate.
+The size argument should be one of the values epicsThreadStackSmall, epicsThreadStackMedium or epicsThreadStackBig.\\
+epicsThreadOnce &
+This is used as follows:
+\begin{verbatim}
+void myInitFunc(void * arg) {
+    ...
+}
+epicsThreadOnceId onceFlag =
+    EPICS_THREAD_ONCE_INIT;
+...
+epicsThreadOnce(&onceFlag, myInitFunc,
+    (void *)myParm);
+\end{verbatim}
+For each unique epicsThreadOnceId, epicsThreadOnce guarantees that
+1) myInitFunc will only be called only once.
+2) myInitFunc will have returned before any other epicsThreadOnce call returns.
+Note that myInitFunc must not call epicsThreadOnce with the same onceId.\\
+epicsThreadExitMain &
+If the main routine is done but wants to let other threads run it can call this routine.
+This should be the last call in main, except the final return.
+On most systems epicsThreadExitMain never returns.
+This must only be called by the main thread.\\
+epicsThreadCreate &
+Create a new thread.
+The use made of the priority, and stackSize arguments is implementation dependent.
+Some implementations may ignore one or other of these, but for portability appropriate values should be given for both.
+The value passed as the stackSize parameter should be obtained by calling epicsThreadGetStackSize.
+The funptr argument specifies a function that implements the thread, and parm is the single argument passed to funptr.
+A thread terminates when funptr returns.\\
+epicsThreadSuspendSelf &
+This causes the calling thread to suspend.
+The only way it can resume is for another thread to call epicsThreadResume.\\
+epicsThreadResume &
+Resume a suspended thread.
+Only do this if you know that it is safe to resume a suspended thread.\\
+epicsThreadGetPriority &
+Get the priority of the specified thread.\\
+epicsThreadGetPrioritySelf &
+Get the priority of this thread.\\
+epicsThreadSetPriority &
+Set a new priority for the specified thread.
+The result is implementation dependent.\\
+epicsThreadHighestPriorityLevelBelow &
+Get a priority that is just lower than the specified priority.\\
+epicsThreadLowestPriorityLevelAbove &
+Get a priority that is just above the specified priority.\\
+epicsThreadIsEqual &
+Compares two threadIds and returns (0,1) if they (are not, are) the same. \\
+epicsThreadIsSuspended &
+How and why a thread can be suspended is implementation dependent.
+A thread calling epicsThreadSuspendSelf should result in this routine returning true for that thread, but a thread may also be suspended for other reasons. \\
+epicsThreadSleep &
+Sleep for the specified period of time, i.e. sleep without using the cpu.
+If delay is \textgreater{}0 then the thread will sleep at least until the next clock tick.
+The exact time is determined by the underlying architecture.
+If delay is \textless{}= 0 then a delay of 0 is requested of the underlying architecture.
+What happens is architecture dependent but often it allows other threads of the same priority to run.\\
+epicsThreadSleepQuantum &
+This function returns the minimum slumber interval obtainable with epicsThreadSleep() in seconds.
+On most OS there is a system scheduler interrupt interval which determines the value of this parameter.
+Knowledge of this parameter is used by the various components of EPICS to improve scheduling of software tasks intime when the reduction of average time scheduling errors is important.
+If this parameter is unknown or is unpredictable for a particular OS then it is safe to return zero.\\
+epicsThreadGetIdSelf &
+Get the threadId of the calling thread.\\
+epicsThreadGetId &
+Get the threadId of the specified thread.
+A return value of 0 means that no thread was found with the specified name.\\
+epicsThreadGetCPUs &
+Get the number of CPUs (logical cores) available to the IOC.
+On systems that provide Hyper-Threading, this may be more the number of physical CPU cores.\\
+epicsThreadGetNameSelf &
+Get the name of the calling thread.\\
+epicsThreadGetName &
+Get the name of the specified thread.
+The value is copied to a caller specified buffer so that if the thread terminates the caller is not left with a pointer to something that may no longer exist.\\
+epicsThreadIsOkToBlock &
+Is it OK for a thread to block?
+This can be called by support code that does not know if it is called in a thread that should not block.
+For example the errlog system calls this to decide when messages should be displayed on the console.\\
+epicsThreadSetOkToBlock &
+When a thread is started the default is that it is not allowed to block.
+This method can be called to change the state.
+For example iocsh calls this to specify that it is OK to block.\\
+epicsThreadShowAll &
+Display info about all threads.\\
+epicsThreadShow &
+Display info about the specified thread.\\
+epicsThreadHookAdd &
+Register a routine to be called by every new thread before the thread function gets run.
+Hook routines will often register a thread exit routine with epicsAtThreadExit to release thread-specific resources they have allocated.\\
+epicsThreadHookDelete &
+Remove routine from the list of hooks run at thread creation time.\\
+epicsThreadHooksShow &
+Print the current list of hook function pointers.\\
+epicsThreadMap &
+Call func once for every known thread.\\
+epicsThreadPrivateCreate &
+Thread private variables are intended for use by legacy libraries written for a single threaded environment and which used a global variable to store private data.
+The only code in base that currently needs this facility is channel access.
+A library that needs a private variable should make exactly one call to epicsThreadPrivateCreate and store the index returned.
+Each thread can later call epicsThreadPrivateGet and epicsThreadPrivateSet with that index to access a thread-specific pointer store.\\
+epicsThreadPrivateDelete &
+Delete a thread private variable.\\
+epicsThreadPrivateSet &
+Set the value for a thread private pointer.\\
+epicsThreadPrivateGet &
+Get the value of a thread private pointer.
+The value returned is the last value given to epicsThreadPrivateSet by the same thread.
+If called before epicsThreadPrivateSet the pointer's value is NULL.\\
 \end{longtable}
 
 \end{center}
 
 
-epicsThread is meant as a somewhat minimal interface for multithreaded applications. It can be implemented on a wide 
-variety of systems with the restriction that the system MUST support a multithreaded environment. A POSIX pthreads 
-version is provided.
+The epicsThread API is meant as a somewhat minimal interface for multithreaded applications.
+It can be implemented on a wide variety of systems with the restriction that the system MUST support a multithreaded environment.
+A POSIX pthreads version is provided.
 
 The interface provides the following thread facilities, with restrictions as noted:
 
 \begin{itemize}
-\item Life cycle - A thread starts life as a result of a call to epicsThreadCreate. It terminates when the thread function 
-returns. It should not return until it has released all resources it uses. If a thread is expected to terminate as a natural 
-part of its life cycle then the thread function must return.
+\item Life cycle - A thread starts life as a result of a call to epicsThreadCreate.
+It terminates when the thread function returns.
+It should not return until it has released all resources it uses.
+If a thread is expected to terminate as a natural part of its life cycle then the thread function must return.
 
-\item epicsThreadOnce - This provides the ability to have an initialization function that is guaranteed to be called exactly 
-once.
+\item epicsThreadOnce - This provides the ability to have an initialization function that is guaranteed to be called exactly once.
 
-\item main - If a main routine finishes its work but wants to leave other threads running it can call epicsThreadExitMain, 
-which should be the last statement in main.
+\item main - If a main routine finishes its work but wants to leave other threads running it can call epicsThreadExitMain, which should be the last statement in main.
 
-\item Priorities - Ranges between 0 and 99 with a higher number meaning higher priority. A number of constants are 
-defined for iocCore specific threads. The underlying implementation may collapse the range 0 to 99 into a smaller 
-range; even a single priority. User code should never use priorities to guarantee correct behavior.
+\item Priorities - Ranges between 0 and 99 with a higher number meaning higher priority.
+A number of constants are defined for iocCore specific threads.
+The underlying implementation may collapse the range 0 to 99 into a smaller range; even a single priority.
+User code should never rely on the existence of multiple thread priorities to guarantee correct behavior.
 
-\item Stack Size - epicsThreadCreate accepts a stack size parameter. Three generic sizes are available: small, medium, 
-and large. Portable code should always use one of the generic sizes. Some implementation may ignore the stack 
-size request and use a system default instead. Virtual memory systems providing generous stack sizes can be 
-expected to use the system default.
+\item Stack Size - epicsThreadCreate accepts a stack size parameter.
+Three generic sizes are available: small, medium, and large.
+Portable code should always use one of the generic sizes.
+Some implementation may ignore the stack size request and use a system default instead.
+Virtual memory systems providing generous stack sizes can be expected to use the system default.
 
-\item epicsThreadId - This is given a value as a result of a call to epicsThreadCreate. A value of 0 always means no 
-thread. If a threadId is used for a thread that has terminated the result is not defined (but will normally lead to bad 
-things happening). Thus code that looks after other threads MUST be aware of threads terminating.
+\item epicsThreadId - Every epicsThread has an Id which gets returned by epicsThreadCreate and is valid as long as that thread still exists.
+A value of 0 always means no thread.
+If a threadId is used after the thread has terminated, the results are not defined (but will normally lead to bad things happening).
+Thus code that looks after other threads MUST be aware of threads terminating.
 
 \end{itemize}
 
@@ -1287,14 +1530,15 @@ private:
 
 \index{epicsThreadRunable}
 \index{epicsThread}
-The C++ interface is just a wrapper around the C interface. Two differences are the method \verb|start| and the class 
+The C++ interface is a wrapper around the C interface.
+Two differences are the method \verb|start| and the class 
 \verb|epicsThreadRunable|.
 
-The method \verb|start| must be called only after the \verb|epicsThead| object is constructed. It in turn calls the \verb|run| method of 
-the \verb|epicsThreadRunable| object.
+The \verb|start| method must not be called until after the \verb|epicsThread| constructor has returned.
+Calling the \verb|start| method allows the \verb|run| method of the \verb|epicsThreadRunable| object to be executed in the context of the new thread.
 
-Code using the C++ interface code must provide a class that derives from \verb|epicsThreadRunable|. One way to 
-accomplish this is as follows:
+Code using the C++ API must provide a class that derives from \verb|epicsThreadRunable|.
+For example:
 
 \begin{verbatim}
 class myThread: public epicsThreadRunable {
@@ -1303,8 +1547,6 @@ public:
     virtual ~myThread();
     virtual void run();
     epicsThread thread;
-
-    ...
 }
 
 myThread::myThread(int arg,const char *name) :
@@ -1317,9 +1559,7 @@ myThread::~myThread() {}
 
 void myThread::run()
 {
-
-    ...
-
+    // ...
 }
 \end{verbatim}
 
@@ -1639,10 +1879,11 @@ int epicsTime_gmtime ( const time_t *clock, struct tm *result );
 
 \end{verbatim}
 
-\index{epicsTime}The C interface provides most of the features as the C++ interface. The features of the C++ operators are provided as 
-functions.
+\index{epicsTime}
+The C interface provides most of the features as the C++ interface.
+The features of the C++ operators are provided as functions.
 
-Note that the epicsTimeGetCurrent and epicsTimeGetEvent routines are now implemented in epicsGeneralTime.c
+Note that the \verb|epicsTimeGetCurrent()| and \verb|epicsTimeGetEvent()| routines and their ISR-callable equivalents \verb|epicsTimeGetCurrentInt()| and \verb|epicsTimeGetEventInt()| are now implemented in epicsGeneralTime.c
 
 \section{osiPoolStatus}
 
