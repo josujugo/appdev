@@ -2,3 +2,4 @@ diags/
 AppDevGuide*
 *.backup
 *.out
+CAproto/

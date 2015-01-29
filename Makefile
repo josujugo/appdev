@@ -1,11 +1,20 @@
 # Makefile to build and install the Application Developers Guide
+# and the Channel Access Protocol Specification
 # Requires:
+#   AppDevGuide:
 #       latex2html and pdflatex
+#   CAproto:
+#       asciidoc and dia
 
 # Target installation directory
 INSTALL_DIR = /net/epics/Public/epics/base/R3-16/0-docs
 
-# Source directories
+
+#### Application Developers Guide
+
+ADG_DIR = AppDevGuide
+TARGET_PDF  += AppDevGuide.pdf
+TARGET_HTML += $(ADG_DIR)/index.html
 
 # Encapsulated PostScript Sources
 EPS_DIR = eps
@@ -49,6 +58,24 @@ TEX_SRCS += $(TEX_DIR)/libComOsi.tex
 TEX_SRCS += $(TEX_DIR)/registry.tex
 TEX_SRCS += $(TEX_DIR)/databaseStructures.tex
 
+
+#### CA Protocol Specification
+CAP_DIR = CAproto
+TARGET_HTML += $(CAP_DIR)/index.html
+
+# Asciidoc source file
+ASC_DIR = ca_protocol
+ASC_SRC = $(ASC_DIR)/ca_protocol.txt
+
+# Dia Sources
+DIA_DIR = $(ASC_DIR)/dia
+DIA_SRCS += $(DIA_DIR)/virtual-circuit.dia
+DIA_SRCS += $(DIA_DIR)/connection-states.dia
+DIA_SRCS += $(DIA_DIR)/repeater.dia
+
+
+#### Generator options
+
 # Options for latex2html:
 L2H_OPTS += -split +1
 L2H_OPTS += -link 2
@@ -57,28 +84,36 @@ L2H_OPTS += -show_section_numbers
 L2H_OPTS += -local_icons
 L2H_OPTS += -info 0
 
+# Options for asciidoc
+ASC_OPTS += -a numbered
+
+
 # Build targets
-TARGET_PDF  += AppDevGuide.pdf
-TARGET_HTML += AppDevGuide/index.html
-TARGETS = $(TARGET_PDF) $(TARGET_HTML)
+TARGETS += $(TARGET_PDF)
+TARGETS += $(TARGET_HTML)
 
 # Installation targets
 INSTALL_PDF  = $(addprefix $(INSTALL_DIR)/, $(TARGET_PDF))
 INSTALL_HTML = $(addprefix $(INSTALL_DIR)/, $(TARGET_HTML))
 INSTALL_TARGETS = $(INSTALL_PDF) $(INSTALL_HTML)
 
-# Converted Diagrams
+# Diagrams converted from EPS
 DIAGS_DIR = diags
 DIAGS = $(patsubst $(EPS_DIR)/%.eps,$(DIAGS_DIR)/%.pdf,$(EPS_SRCS))
+
+# Diagrams converted from dia
+PNGS = $(patsubst $(DIA_DIR)/%.dia,$(CAP_DIR)/%.png,$(DIA_SRCS))
 
 all: $(TARGETS)
 pdf: $(TARGET_PDF)
 html: $(TARGET_HTML)
 install: $(INSTALL_TARGETS)
 
+# rsync a single PDF file
 $(INSTALL_DIR)/%.pdf: %.pdf
 	rsync -av $< $(INSTALL_DIR)
 
+# rsync the whole directory containing the target .html file
 $(INSTALL_DIR)/%.html: %.html
 	rsync -av $(<D) $(INSTALL_DIR)
 
@@ -90,20 +125,28 @@ AppDevGuide.pdf: $(TEX_SRCS) $(DIAGS)
 	makeindex $(basename $@).idx
 	pdflatex $(basename $@) > pdflatex-3.out
 
-AppDevGuide/index.html: $(TEX_SRCS) $(EPS_SRCS)
-	@rm -f latex2html*.out
+$(ADG_DIR)/index.html: $(TEX_SRCS) $(EPS_SRCS)
+	@rm -f latex2html*.out $(ADG_DIR)/img*.png
 	latex2html $< $(L2H_OPTS) > latex2html.out
 	@echo '.'
 
 $(DIAGS_DIR)/%.pdf: $(EPS_DIR)/%.eps $(DIAGS_DIR)
 	epstopdf $< -o=$@
 
+$(CAP_DIR)/index.html: $(ASC_SRC) $(PNGS)
+	asciidoc $(ASC_OPTS) -o $@ $<
+
+$(CAP_DIR)/%.png: $(DIA_DIR)/%.dia $(CAP_DIR)
+	dia -t png -e $@ $<
+
 $(DIAGS_DIR):
+	mkdir -p $@
+$(CAP_DIR):
 	mkdir -p $@
 
 clean: cleanidx
-	rm -rf AppDevGuide
-	rm -rf $(DIAGS_DIR)
+	rm -rf $(ADG_DIR) $(DIAGS_DIR)
+	rm -rf $(CAP_DIR)
 
 cleanidx:
 	rm -f *.idx *.ind *.ilg *.log *.out *.pdf *.toc *.aux

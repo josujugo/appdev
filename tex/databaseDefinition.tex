@@ -3,7 +3,9 @@
 
 \section{Overview}
 
-This chapter describes \index{database definitions}database definitions. The following definitions are described:
+\index{database definitions}
+This chapter describes database definitions.
+The following definitions are described:
 
 \begin{itemize}
 \item Menu
@@ -17,8 +19,9 @@ This chapter describes \index{database definitions}database definitions. The fol
 \item Record Instance
 \end{itemize}
 
-Record Instances are fundamentally different from the other definitions. A file containing record instances should never 
-contain any of the other definitions and vice-versa. Thus the following convention is followed:
+Record Instances are fundamentally different from the other definitions.
+A file containing record instances should never contain any of the other definitions and vice-versa.
+Thus the following convention is followed:
 
 \begin{description}
 \index{Database Definition File}
@@ -28,9 +31,9 @@ contain any of the other definitions and vice-versa. Thus the following conventi
 \item [Record Instance File] A file that contains only record instance definitions.
 \end{description}
 
-This chapter also describes utility programs which operate on these definitions
+This chapter also describes utility programs which operate on these definitions.
 
-Any combination of definitions can appear in a single file or in a set of files related to each other via include files.
+Any combination of definitions can appear in a single file or in a set of files related to each other via include statements.
 
 \section{Summary of Database Syntax}
 
@@ -47,6 +50,8 @@ menu(name) {
     choice(choice_name, "choice_value")
     ...
 }
+
+recordtype(record_type) {}
 
 recordtype(record_type) {
     include "filename"
@@ -86,8 +91,8 @@ The Following defines a Record Instance
 
 \begin{verbatim}
 record(record_type, record_name) {
-include "filename"
-field(field_name, "value")
+    include "filename"
+    field(field_name, "value")
     alias(alias_name)
     info(info_name, "value")
     ...
@@ -142,24 +147,28 @@ alias
 \subsection{Unquoted Strings}
 
 \index{Unquoted String}
-In the summary section, some values are shown as quoted strings and some unquoted. The actual rule is that any string 
-consisting of only the following characters does not have to be quoted unless it contains one of the above keywords:
+In the summary section, some values are shown as quoted strings and some unquoted.
+The actual rule is that any string consisting of only the following characters does not need to be quoted unless it contains one of the above keywords:
 
 \begin{verbatim}
 a-z A-Z 0-9 _ - : . [ ] < > ;
 \end{verbatim}
 
-These are also the legal characters for process variable names. Thus in many cases quotes are not needed.
+These are also the legal characters for process variable names.
+Thus in many cases quotes are not needed.
 
 \subsection{Quoted Strings}
 
 \index{Quoted String}
-A quoted string can contain any ascii character except the quote character \verb|"|. The quote character itself can given by using \verb|\| as an escape. For example \verb|"\""| is a quoted string containing the single character \verb|"|.
+A quoted string can contain any ascii character except the quote character \verb|"|.
+The quote character itself can given by using a back-slash (\verb|\|) as an escape character.
+For example \verb|"\""| is a quoted string containing a single double-quote character.
 
 \subsection{Macro Substitution}
 
 \index{Macro Substitution}
-Macro substitutions are permitted inside quoted strings. Macro instances take the form:
+Macro substitutions are permitted inside quoted strings.
+Macro instances take the form:
 
 \begin{verbatim}
 $(name)
@@ -171,60 +180,64 @@ or
 ${name}
 \end{verbatim}
 
-There is no distinction between the use of parentheses or braces for delimiters, although the two must match for a given 
-macro instance. The macro name can be made up from other macros, for example:
+There is no distinction between the use of parentheses or braces for delimiters, although the opening and closing characters must match for each macro instance.
+A macro name can be constructed using other macros, for example:
 
 \begin{verbatim}
 $(name_$(sel))
 \end{verbatim}
 
-A macro instance can also provide a default value that is used when no macro with the given name is defined. The default 
-value can be defined in terms of other macros if desired, but cannot contain any unescaped comma characters. The syntax 
-for specifying a default value is as follows:
+A macro instance can also provide a default value that is used when no macro with the given name has been defined.
+The default value can itself be defined in terms of other macros if desired, but may not contain any unescaped comma characters.
+The syntax for specifying a default value is as follows:
 
 \begin{verbatim}
 $(name=default)
 \end{verbatim}
 
-Finally macro instances can also contain definitions of other macros, which can (temporarily) override any existing values 
-for those macros but are in scope only for the duration of the expansion of this macro instance. These definitions consist 
-of \verb|name=value| sequences separated by commas, for example:
+Finally macro instances can also set the values of other macros which may (temporarily) override any existing values for those macros, but the new values are in scope only for the duration of the expansion of this particular macro instance.
+These definitions consist of \verb|name=value| sequences separated by commas, for example:
 
 \begin{verbatim}
 $(abcd=$(a)$(b)$(c)$(d),a=A,b=B,c=C,d=D)
 \end{verbatim}
 
 \subsection{Escape Sequences}
+\label{subsec:Escape Sequences}
 
 \index{Escape Sequence}
-The database routines translate standard C escape sequences inside database field value strings only. The standard C 
-escape sequences supported are:
+The database routines translate standard C escape sequences inside database field value strings only.
+The standard C escape sequences supported are:
 
 \begin{verbatim}
 \a \b \f \n \r \t \v \\ \' \" \ooo \xhh
 \end{verbatim}
 
 \verb|\ooo| represents an octal number with 1, 2, or 3 digits.
-\verb|\xhh| represents a hexadecimal number which may have any number of hex digits but only the last 2 will be represented in the character generated.
+\verb|\xhh| represents a hexadecimal number which may have any number of hex digits, although only the last 2 will be represented in the character generated.
 
 \subsection{Comments}
 
 \index{comment -- Database Definitions}
 The comment symbol is ``\#''.
-Whenever the comment symbol appears, it and all characters through the end of the line are ignored.
+Whenever the comment symbol appears outside of a quoted string, it and all subsequent characters through the end of the line will be ignored.
 
 \subsection{Define before referencing}
 
-No item can be referenced until it is defined.
-For example a \verb|recordtype| menu field can not reference a menu unless that menu definition has already been defined.
-Another example is that a record instance can not appear until the associated record type has been defined.
+In general items cannot be referenced until they have been defined.
+For example a \verb|device| definition cannot appear until the \verb|recordtype| that it references has been defined or at least declared.
+Another example is that a record instance cannot appear until its associated record type has been defined.
+
+One notable exception to this rule is that within a \verb|recordtype| definition a menu field may reference a menu that has not been included directly by the record's \verb|.dbd| file.
 
 \subsection{Multiple Definitions}
 
 \index{Multiple Definitions}
 If a menu, device, driver, or breakpoint table is defined more than once, then only the first instance will be used.
-Subsequent definitions will be compared to the first one and an error will occur if they are different.
-Record type definitions are only allowed to be loaded once; duplicates will cause an error even if the later definitions are identical to the first.
+Subsequent definitions may be compared to the first one and an error reported if they are different (the \verb|dbdExpand.pl| program does this, the IOC currently does not).
+Record type definitions may only be loaded once; duplicates will cause an error even if the later definitions are identical to the first.
+However a record type declaration may be used in place of the record type definition in \verb|.dbd| files that define device support for that type.
+
 Record instance definitions are (normally) cumulative, so multiple instances of the same record may be loaded and each time a field value is encountered it replaces the previous value.
 
 \subsection{Filename Extensions}
@@ -239,11 +252,14 @@ By convention:
 
 \end{itemize}
 
-\section{\texttt{path addpath} -- Path Definition}
+\section{Database Definition Statements}
+\index{database definition statements}
+
+\subsection{\texttt{path addpath} -- Path Definition}
 
 \index{path -- Database Definitions}
 \index{addpath -- Database Definitions}
-\subsection{Format}
+\subsubsection{Format}
 
 \begin{verbatim}
 path "dir:dir...:dir"
@@ -253,50 +269,52 @@ addpath "dir:dir...:dir
 The path string follows the standard convention for the operating system, i.e. directory names are separated by a colon ``\verb|:|'' on Unix
 and a semicolon ``\verb|;|'' on Windows.
 
-The \verb|path| command specifies the current search path for use when loading database and database definition files.
-The \verb|addpath| appends directory names to the current path.
+The \verb|path| statement specifies the current search path for use when loading database and database definition files.
+The \verb|addpath| statement appends directories to the current path.
 The path is used to locate the initial database file and included files.
-An empty \verb|dir| at the beginning, middle, or end of a non-empty path string means the current directory.
+An empty path component at the beginning, middle, or end of a non-empty path string means search the current directory.
 For example:
 
 \begin{verbatim}
- nnn::mmm    # Current directory is between nnn and mmm
- :nnn        # Current directory is first
- nnn:        # Current directory is last
+nnn::mmm    # Current directory is between nnn and mmm
+:nnn        # Current directory is first
+nnn:        # Current directory is last
 \end{verbatim}
 
-Utilities which load database files (\verb|dbExpand|, \verb|dbLoadDatabase|, etc.) allow the user to specify an initial path. The 
-\verb|path| and \verb|addpath| commands can be used to change or extend the initial path.
+Utilities which load database files (\verb|dbExpand|, \verb|dbLoadDatabase|, etc.) allow the user to specify an initial path.
+The \verb|path| and \verb|addpath| commands can be used to change or extend that initial path.
 
 The initial path is determined as follows:
 
-\begin{description}
-\item If an initial path is specified, it is used. Else:
+\begin{enumerate}
+\item If path is provided with the command, it is used.
+Else:
 
-\item If the environment variable \verb|EPICS_DB_INCLUDE_PATH| is defined, it is used. Else:
+\item If the environment variable \verb|EPICS_DB_INCLUDE_PATH| is defined, it is used.
+Else:
 
-\item the default path is ``\verb|.|'', i.e. the current directory.
-\end{description}
+\item the path is ``\verb|.|'', i.e. the current directory.
+\end{enumerate}
 
-The path is used unless the filename contains a \verb|/| or \verb|\|.
-The first directory containing the specified filename is used.
+The search path is not used at all if the filename being searched for contains a \verb|/| or \verb|\| character.
+The first instance of the specified filename is used.
 
-\section{\texttt{include} -- Include File}
+\subsection{\texttt{include} -- Include Statement}
 
 \index{include -- Database Definitions}
-\subsection{Format}
+\subsubsection{Format}
 
 \begin{verbatim}
 include "filename"
 \end{verbatim}
 
 An include statement can appear at any place shown in the summary.
-It uses the path as specified above.
+It uses the search path as described above to locate the named file.
 
-\section{\texttt{menu} -- Menu Declaration}
-
+\subsection{\texttt{menu} -- Menu Definition}
 \index{menu -- Database Definitions}
-\subsection{Format}
+
+\subsubsection{Format}
 
 \begin{verbatim}
 menu(name) {
@@ -305,7 +323,7 @@ menu(name) {
 }
 \end{verbatim}
 
-\subsection{Definitions}
+\subsubsection{Definitions}
 
 \begin{description}
 \item [name] Name for menu. This is the unique name identifying the menu.
@@ -317,7 +335,7 @@ This must be a legal C/C++ identifier.
 \item [choice\_string] The text string associated with this particular choice.
 \end{description}
 
-\subsection{Example}
+\subsubsection{Example}
 
 \begin{verbatim}
 menu(menuYesNo) {
@@ -326,12 +344,14 @@ menu(menuYesNo) {
 }
 \end{verbatim}
 
-\section{\texttt{recordtype} -- Record Type Definition}
-
+\subsection{\texttt{recordtype} -- Record Type Definition}
 \index{record type -- Database Definitions}
-\subsection{Format}
+
+\subsubsection{Format}
 
 \begin{verbatim}
+recordtype(record_type) {}
+
 recordtype(record_type) {
     field(field_name, field_type) {
         asl(as_level)
@@ -344,7 +364,7 @@ recordtype(record_type) {
         base(base_type)
         size(size_value)
         extra("extra_info")
-        menu("name")
+        menu(name)
         prop(yesno)
     }
     %C_declaration
@@ -352,53 +372,57 @@ recordtype(record_type) {
 }
 \end{verbatim}
 
-\subsection{Field Definition Rules}
+\index{record type declaration}
+A record type statement that provides no field descriptions is a declaration, analagous to a function declaration (prototype) or forward definition in C.
+It allows the given record type name to be used in circumstances where the full record type definition is not needed.
 
-\index{field definition rules}
+\subsubsection{Field Descriptor Rules}
+
+\index{field descriptor rules}
 \begin{description}
 
-\index{asl -- field definition rules}
+\index{asl -- field descriptor rules}
 \item [asl] Sets the Access Security Level for the field.
 Access Security is discussed in chapter \ref{Access Security}.
 
-\index{initial -- field definition rules}
+\index{initial -- field descriptor rules}
 \item [initial] Provides an initial (default) value for the field.
 
-\index{promptgroup -- field definition rules}
+\index{promptgroup -- field descriptor rules}
 \item [promptgroup] The group to which the field belongs, for database configuration tools.
 
-\index{prompt -- field definition rules}
+\index{prompt -- field descriptor rules}
 \item [prompt] A prompt string for database configuration tools.
 Optional if \verb|promptgroup| is not defined.
 
-\index{special -- field definition rules}
+\index{special -- field descriptor rules}
 \item [special] If specified, special processing is required for this field at run time.
 
-\index{pp -- field definition rules}
+\index{pp -- field descriptor rules}
 \item [pp] Whether a passive record should be processed when Channel Access writes to this field.
 
-\index{interest -- field definition rules}
+\index{interest -- field descriptor rules}
 \item [interest] Interest level for the field.
 
-\index{base -- field definition rules}
+\index{base -- field descriptor rules}
 \item [base] For integer fields, the number base to use when converting the field value to a string.
 
-\index{size -- field definition rules}
+\index{size -- field descriptor rules}
 \item [size] Must be specified for \verb|DBF_STRING| fields.
 
-\index{extra -- field definition rules}
+\index{extra -- field descriptor rules}
 \item [extra] Must be specified for \verb|DBF_NOACCESS| fields.
 
-\index{menu -- field definition rules}
+\index{menu -- field descriptor rules}
 \item [menu] Must be specified for \verb|DBF_MENU| fields.
 It is the name of the associated menu.
 
-\index{prop -- field definition rules}
+\index{prop -- field descriptor rules}
 \item [prop] Must be \verb|YES| or \verb|NO| (default).
 Indicates that the field holds Channel Access meta-data.
 \end{description}
 
-\subsection{Definitions}
+\subsubsection{Definitions}
 
 \begin{description}
 \index{record\_type -- record type definition}
@@ -554,7 +578,7 @@ The definition must end with the fieldname in lower case.
 \item [\%C\_declaration] A percent sign \verb|%| inside the record body introduces a line of code that is to be included in the generated C header file.
 \end{description}
 
-\subsection{Example}
+\subsubsection{Example}
 
 The following is the definition of the event record type:
 
@@ -598,16 +622,16 @@ recordtype(event) {
 }
 \end{verbatim}
 
-\section{\texttt{device} -- Device Support Declaration}
+\subsection{\texttt{device} -- Device Support Declaration}
 
 \index{device -- Database Definitions}
-\subsection{Format}
+\subsubsection{Format}
 
 \begin{verbatim}
 device(record_type, link_type, dset_name, "choice_string")
 \end{verbatim}
 
-\subsection{Definitions}
+\subsubsection{Definitions}
 
 \begin{description}
 \index{record\_type -- device definition}
@@ -640,23 +664,23 @@ If the same combination appears more than once, only the first definition is use
 A \verb|choice_string| value may be reused for different record types, but must be unique for each specific record type.
 \end{description}
 
-\subsection{Examples}
+\subsubsection{Examples}
 
 \begin{verbatim}
 device(ai,CONSTANT,devAiSoft,"Soft Channel")
 device(ai,VME_IO,devAiXy566Se,"XYCOM-566 SE Scanned")
 \end{verbatim}
 
-\section{\texttt{driver} -- Driver Declaration}
+\subsection{\texttt{driver} -- Driver Declaration}
 
 \index{driver -- database definition}
-\subsection{Format}
+\subsubsection{Format}
 
 \begin{verbatim}
 driver(drvet_name)
 \end{verbatim}
 
-\subsection{Definitions}
+\subsubsection{Definitions}
 
 \begin{description}
 \index{drvet\_name -- driver definition}
@@ -664,23 +688,23 @@ driver(drvet_name)
 
 \end{description}
 
-\subsection{Examples}
+\subsubsection{Examples}
 
 \begin{verbatim}
 driver(drvVxi)
 driver(drvXy210)
 \end{verbatim}
 
-\section{\texttt{registrar} -- Registrar Declaration}
+\subsection{\texttt{registrar} -- Registrar Declaration}
 
 \index{registrar -- Database Defintions}
-\subsection{Format}
+\subsubsection{Format}
 
 \begin{verbatim}
 registrar(function_name)
 \end{verbatim}
 
-\subsection{Definitions}
+\subsubsection{Definitions}
 
 \begin{description}
 \index{function\_name -- registrar definition}
@@ -697,22 +721,22 @@ This can be used to register functions for use by subroutine records or that can
 application described in Section \ref{Example IOC Application}, ``Example IOC Application'' on page \pageref{Example IOC Application}
 gives an example of how to register functions for subroutine records.
 
-\subsection{Example}
+\subsubsection{Example}
 
 \begin{verbatim}
 registrar(myRegistrar)
 \end{verbatim}
 
-\section{\texttt{variable} -- Variable Declaration}
+\subsection{\texttt{variable} -- Variable Declaration}
 
 \index{variable -- Database Definitions}
-\subsection{Format}
+\subsubsection{Format}
 
 \begin{verbatim}
 variable(variable_name[, type])
 \end{verbatim}
 
-\subsection{Definitions}
+\subsubsection{Definitions}
 
 \begin{description}
 \index{variable\_name -- variable definition}
@@ -730,7 +754,7 @@ the variable can be read and set with the iocsh \verb|var| command (see Section 
 The example application described in Section \ref{Example IOC Application} on page \pageref{Example IOC Application}
 provides an example of how to register a debug variable for a subroutine record.
 
-\subsection{Example}
+\subsubsection{Example}
 
 In an application C source file:
 
@@ -747,16 +771,16 @@ In an application database definition file:
 variable(myParameter, double)
 \end{verbatim}
 
-\section{\texttt{function} -- Function Declaration}
+\subsection{\texttt{function} -- Function Declaration}
 
 \index{function -- Database Definitions}
-\subsection{Format}
+\subsubsection{Format}
 
 \begin{verbatim}
 function(function_name)
 \end{verbatim}
 
-\subsection{Definitions}
+\subsubsection{Definitions}
 
 \begin{description}
 \index{function\_name -- function definition}
@@ -766,13 +790,13 @@ function(function_name)
 This registers a function so that it can be found in the function registry for use by record types such as sub or aSub which refer to the function by name.
 The example application described in Section \ref{Example IOC Application} on page \pageref{Example IOC Application} provides an example of how to register functions for a subroutine record.
 
-\subsection{Example}
+\subsubsection{Example}
 
 In an application C source file:
 
 \begin{verbatim}
-#include <epicsExport.h>
 #include <registryFunction.h>
+#include <epicsExport.h>
 
 static long myFunction(void *argp) {
     /* my code ... */
@@ -786,11 +810,11 @@ In an application database definition file:
 function(myFunction)
 \end{verbatim}
 
-\section{\texttt{breaktable} -- Breakpoint Table}
+\subsection{\texttt{breaktable} -- Breakpoint Table}
 
 \index{breakpoint table -- Database Definitions}
 \index{breaktable}
-\subsection{Format}
+\subsubsection{Format}
 
 \begin{verbatim}
 breaktable(name) {
@@ -799,7 +823,7 @@ breaktable(name) {
 }
 \end{verbatim}
 
-\subsection{Definitions}
+\subsubsection{Definitions}
 
 \begin{description}
 \index{name -- breakpoint table}
@@ -813,7 +837,7 @@ If duplicates are specified the first is used.
 \item [eng\_value] The engineering value associated with the beginning of the interval.
 \end{description}
 
-\subsection{Example}
+\subsubsection{Example}
 
 \begin{verbatim}
 breaktable(typeJdegC) {
@@ -827,11 +851,11 @@ breaktable(typeJdegC) {
 }
 \end{verbatim}
 
-\section{\texttt{record} -- Record Instance}
+\subsection{\texttt{record} -- Record Instance}
 
 \index{record instance -- Database Definitions}
 \index{record}
-\subsection{Format}
+\subsubsection{Format}
 
 \begin{verbatim}
 record(record_type, record_name) {
@@ -843,7 +867,7 @@ record(record_type, record_name) {
 alias(record_name, alias_name)
 \end{verbatim}
 
-\subsection{Definitions}
+\subsubsection{Definitions}
 
 \begin{description}
 \index{record\_type -- record instance definition}
@@ -851,7 +875,7 @@ alias(record_name, alias_name)
 
 \index{record\_name -- record instance definition}
 \item [record\_name] The record name.
-This must be composed of the following characters:
+This must be composed out of only the following characters:
 
 \begin{verbatim}
 a-z A-Z 0-9 _ - + : [ ] < > ;
@@ -859,8 +883,7 @@ a-z A-Z 0-9 _ - + : [ ] < > ;
 
 NOTE: If macro substitutions are used the name must be quoted.
 
-If duplicate definitions are given for the same record, then the last value given for each field is the value assigned 
-to the field.
+If duplicate definitions are given for the same record, then the last value given for each field is the value assigned to the field.
 
 \index{alias\_name -- record instance definition}
 \item [alias\_name] An alternate name for the record, following the same rules as the record name.
@@ -869,21 +892,22 @@ to the field.
 \item [field\_name] A field name.
 
 \index{field value -- record instance definition}
-\item [field\_value] A value for the named field, depending on the particular field type.
-Inside double quotes the field value string may contain escaped C89 characters such as 
-\verb|\"|, \verb|\t|, \verb|\n|, \verb|\064| and \verb|\x7e|, and these will be translated appropriately when loading the database.
-Permitted values are as follows:
+\item [field\_value] A value for the named field, appropriate for its particular field type.
+When given inside double quotes the field value string may contain escaped characters which will be translated appropriately when loading the database.
+See section \ref{subsec:Escape Sequences} for the list of escaped characters supported.
+Permitted values for the various field types are as follows:
 
 \begin{itemize}
 \item \verb|DBF_STRING| \\
 Any ASCII string. If it exceeds the field length, it will be truncated.
 
 \item \verb|DBF_CHAR|, \verb|DBF_UCHAR|, \verb|DBF_SHORT|, \verb|DBF_USHORT|, \verb|DBF_LONG|, \verb|DBF_ULONG| \\
-A string that represents a valid integer. The standard C conventions are applied, i.e. a leading 0 means the 
-value is given in octal and a leading 0x means that value is given in hex.
+A string that represents a valid integer.
+The standard C conventions are applied, i.e. a leading 0 means the value is given in octal and a leading 0x means that value is given in hex.
 
 \item \verb|DBF_FLOAT|, \verb|DBF_DOUBLE| \\
 The string must represent a valid floating point number.
+Infinities or NaN are also allowed.
 
 \item \verb|DBF_MENU| \\
 The string must be one of the valid choices for the associated menu.
@@ -895,8 +919,7 @@ The string must be one of the valid device choice strings.
 NOTES:
 
 \begin{itemize}
-\item If the field name is \verb|INP| or \verb|OUT| then this field is associated with \verb|DTYP|, and the permitted values
-are determined by the link type of the device support selected by the current \verb|DTYP| choice string.
+\item If the field name is \verb|INP| or \verb|OUT| then this field is associated with \verb|DTYP|, and the permitted values are determined by the link type of the device support selected by the current \verb|DTYP| choice string.
 Other \verb|DBF_INLINK| and \verb|DBF_OUTLINK| fields must be either \verb|CONSTANT| or \verb|PV_LINK|s.
 
 \item A device support that specifies a link type of \verb|CONSTANT| can be given either a constant or a \verb|PV_LINK|.
@@ -1036,7 +1059,7 @@ IOC applications using this information item may place additional restrictions o
 
 \end{description}
 
-\subsection{Examples}
+\subsubsection{Examples}
 
 \begin{verbatim}
 record(ai,STS_AbAiMaS0) {

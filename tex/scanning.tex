@@ -1,4 +1,5 @@
 \chapter{Database Scanning}
+\label{chap:Database Scanning}
 
 \section{Overview}
 
@@ -550,7 +551,7 @@ static periodic_scan_list **papPeriodic;
 static epicsThreadId *periodicTaskId;
 \end{verbatim}
 
-The \verb|nPeriodic| value is the number of periodic scan rates in use, determined at \verb|iocInit| time by the \verb|initPeriodic| routine.
+The \verb|nPeriodic| variable holds the number of periodic scan rates configured.
 \verb|papPeriodic| points to an array of pointers to \verb|periodic_scan_lists|.
 There is an array element for each scan rate.
 A periodic scan task is created for each scan rate.

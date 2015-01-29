@@ -62,11 +62,13 @@ Each routine uses this structure to locate the information it needs and gives va
 All other fields are set to \verb|NULL|.
 
 \subsection{Field Types}
+\label{subsec:Field Types}
 
 \index{Database Configuration Field Types}
 Each database field has a type as defined in the next chapter.
-For static database access a new and simpler set of field types are defined.
-In addition, at runtime, a database field can be an array. With static database access, however, all fields are scalars.
+For static database access a simpler set of field types are defined.
+In addition, at runtime, a database field can be an array.
+With static database access, however, all fields are scalars.
 Static database access field types are called DCT field types.
 
 The DCT field types are:
@@ -382,8 +384,8 @@ int  dbGetFieldType(DBENTRY *pdbentry);
 \end{verbatim}
 
 \index{dbGetFieldType}
-This routine returns the integer value for a DCT field type, see Section14.2.3 on page198, for a description of the field 
-types.
+This routine returns the integer value for a DCT field type.
+See Section \ref{subsec:Field Types} for a description of the field types.
 
 \subsection{Get Field Name}
 

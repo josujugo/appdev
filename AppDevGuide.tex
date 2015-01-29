@@ -1,45 +1,56 @@
 \documentclass{book}
-\usepackage[margin=1in]{geometry}
-\usepackage{times}
-\usepackage{graphicx}
-\usepackage{longtable}
-\usepackage{fancyvrb}
 \usepackage{html}
 
-% Directories containing images
-\graphicspath{ {diags/}{eps/} }
+%begin{latexonly}
+% -------- Preamble for pdflatex only --------
 
+\usepackage{times}
+\usepackage{graphicx}
+
+% set margins
+\usepackage[margin=1in]{geometry}
 % left-align first line of new paragraph
 \usepackage{parskip}
+
+% make hyperlinks appear blue
+\usepackage{hyperref}
+\hypersetup{colorlinks, bookmarksnumbered, linkcolor=blue}
+
+% indent all code sections
+\usepackage{fancyvrb}
+\RecustomVerbatimEnvironment{verbatim}{Verbatim}{xleftmargin=\leftmargini}
+
+% mark overfull lines in the PDF output
+% enable this for debugging only
+%\overfullrule=1ex
+%end{latexonly}
+
+%begin{htmlonly}
+% -------- Preamble for latex2html only --------
+
+\htmlsetstyle[PRE.]{}{ margin-left=4em }
+%end{htmlonly}
+
+% -------- Preamble for both converters --------
+\usepackage{longtable}
+\usepackage{makeidx}
+\makeindex
+
+% directories containing images
+\graphicspath{ {diags/}{eps/} }
 
 % numbersubsubsections, reduce TOC depth
 \setcounter{secnumdepth}{3}
 \setcounter{tocdepth}{1}
 
-\usepackage{makeidx}
-\makeindex
-
-% pdf links
-\usepackage{hyperref}
-\hypersetup{colorlinks, bookmarksnumbered, linkcolor=blue}
-
-% make all dephts of bullet points a dot
+% make all depths of list items use the same bullet
 \renewcommand{\labelitemii}{\labelitemi}
 \renewcommand{\labelitemiii}{\labelitemi}
 \renewcommand{\labelitemiv}{\labelitemi}
 
-% indent all code sections
-\begin{latexonly}
-\RecustomVerbatimEnvironment
-  {verbatim}{Verbatim}
-  {xleftmargin=\leftmargini}
-\end{latexonly}
-\htmlsetstyle[PRE.]{}{ margin-left=4em }
-
 \begin{document}
 
 \addcontentsline{toc}{chapter}{EPICS Applications Developer's Guide}
-
 \input{tex/titlepage.tex}
 
 \tableofcontents
