@@ -3,7 +3,7 @@
 #       latex2html and pdflatex
 
 # Target installation directory
-INSTALL_DIR = /net/epics/Public/epics/base/R3-15/1-docs
+INSTALL_DIR = /net/epics/Public/epics/base/R3-16/0-docs
 
 # Source directories
 
