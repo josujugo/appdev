@@ -1943,25 +1943,44 @@ osiSpawnDetachedProcessReturn osiSpawnDetachedProcess(
 
 \end{verbatim}
 
-Not documented.
+Not otherwise documented.
 
-\section{osiSigPipeIgnore}
+\section{Ignoring Posix Signals}
 
-\index{osiSem.h}
-\index{osiSigPipeIgnore.h}
-\verb|osiSigPipeIgnore.h| contains the following:
+\index{epicsSignal.h}
+\verb|epicsSignal.h| contains the following commented declarations:
 
-\index{osiSigPipeIgnore.h}
+\index{epicsSignal.h}
 \begin{verbatim}
-void installSigPipeIgnore (void);
+/*
+ * Required to avoid problems with soft IOCs getting SIGHUPs
+ * when a Channel Access client disconnects:
+ */
+void epicsSignalInstallSigHupIgnore ( void );
+
+/*
+ * Required to avoid terminating a process which is blocking
+ * in a socket send() call when a SIGPIPE signal is generated
+ * by the OS:
+ */
+void epicsSignalInstallSigPipeIgnore ( void );
+
+/*
+ * Required only if shutdown() and close() do not interrupt
+ * a thread blocking in a socket system call:
+ */
+void epicsSignalInstallSigAlarmIgnore ( void );
+void epicsSignalRaiseSigAlarm ( struct epicsThreadOSD * );
 \end{verbatim}
 
-Not documented.
+Not otherwise documented.
 
-\section{osiSock.h}
+\section{OS-Independent Socket API}
 
 \index{osiSock.h}
-See the header file in \verb|src/libCom/osi|.
+The header file \verb|osiSock.h| provides wrappers around the different socket APIs provided by the supported operating systems.
+This API was designed to make it possible to write network applications that will compile and run on any OS.
+See the comments and declarations in the header file for details.
 
 \section{epicsMMIO}
 

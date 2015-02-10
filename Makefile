@@ -7,29 +7,16 @@
 #       asciidoc and dia
 
 # Target installation directory
+
 INSTALL_DIR = /net/epics/Public/epics/base/R3-16/0-docs
 
 
 #### Application Developers Guide
 
 ADG_DIR = AppDevGuide
-TARGET_PDF  += AppDevGuide.pdf
+ADG_PDF = AppDevGuide.pdf
+TARGET_PDF  += $(ADG_PDF)
 TARGET_HTML += $(ADG_DIR)/index.html
-
-# Encapsulated PostScript Sources
-EPS_DIR = eps
-EPS_SRCS += $(EPS_DIR)/overview_1.eps
-EPS_SRCS += $(EPS_DIR)/overview_6.eps
-EPS_SRCS += $(EPS_DIR)/accessSecurity_1.eps
-EPS_SRCS += $(EPS_DIR)/lockScanProcess_26.eps
-EPS_SRCS += $(EPS_DIR)/lockScanProcess_6.eps
-EPS_SRCS += $(EPS_DIR)/lockScanProcess_34.eps
-EPS_SRCS += $(EPS_DIR)/lockScanProcess_9.eps
-EPS_SRCS += $(EPS_DIR)/lockScanProcess_16.eps
-EPS_SRCS += $(EPS_DIR)/lockScanProcess_37.eps
-EPS_SRCS += $(EPS_DIR)/lockScanProcess_1.eps
-EPS_SRCS += $(EPS_DIR)/lockScanProcess_40.eps
-EPS_SRCS += $(EPS_DIR)/databaseStructures_1.eps
 
 # Latex Sources
 TEX_DIR = tex
@@ -58,9 +45,31 @@ TEX_SRCS += $(TEX_DIR)/libComOsi.tex
 TEX_SRCS += $(TEX_DIR)/registry.tex
 TEX_SRCS += $(TEX_DIR)/databaseStructures.tex
 
+# Encapsulated PostScript Sources
+EPS_DIR = eps
+EPS_SRCS += $(EPS_DIR)/overview_1.eps
+EPS_SRCS += $(EPS_DIR)/overview_6.eps
+EPS_SRCS += $(EPS_DIR)/accessSecurity_1.eps
+EPS_SRCS += $(EPS_DIR)/lockScanProcess_26.eps
+EPS_SRCS += $(EPS_DIR)/lockScanProcess_6.eps
+EPS_SRCS += $(EPS_DIR)/lockScanProcess_34.eps
+EPS_SRCS += $(EPS_DIR)/lockScanProcess_9.eps
+EPS_SRCS += $(EPS_DIR)/lockScanProcess_16.eps
+EPS_SRCS += $(EPS_DIR)/lockScanProcess_37.eps
+EPS_SRCS += $(EPS_DIR)/lockScanProcess_1.eps
+EPS_SRCS += $(EPS_DIR)/lockScanProcess_40.eps
+EPS_SRCS += $(EPS_DIR)/databaseStructures_1.eps
+
+# Diagrams converted from EPS
+DIAGS_DIR = diags
+DIAGS = $(patsubst $(EPS_DIR)/%.eps,$(DIAGS_DIR)/%.pdf,$(EPS_SRCS))
+
 
 #### CA Protocol Specification
+
 CAP_DIR = CAproto
+CAP_PDF = ca_protocol.pdf
+#TARGET_PDF  += $(CAP_PDF)
 TARGET_HTML += $(CAP_DIR)/index.html
 
 # Asciidoc source file
@@ -72,6 +81,9 @@ DIA_DIR = $(ASC_DIR)/dia
 DIA_SRCS += $(DIA_DIR)/virtual-circuit.dia
 DIA_SRCS += $(DIA_DIR)/connection-states.dia
 DIA_SRCS += $(DIA_DIR)/repeater.dia
+
+# Diagrams converted from dia
+PNGS = $(patsubst $(DIA_DIR)/%.dia,$(CAP_DIR)/%.png,$(DIA_SRCS))
 
 
 #### Generator options
@@ -97,17 +109,13 @@ INSTALL_PDF  = $(addprefix $(INSTALL_DIR)/, $(TARGET_PDF))
 INSTALL_HTML = $(addprefix $(INSTALL_DIR)/, $(TARGET_HTML))
 INSTALL_TARGETS = $(INSTALL_PDF) $(INSTALL_HTML)
 
-# Diagrams converted from EPS
-DIAGS_DIR = diags
-DIAGS = $(patsubst $(EPS_DIR)/%.eps,$(DIAGS_DIR)/%.pdf,$(EPS_SRCS))
-
-# Diagrams converted from dia
-PNGS = $(patsubst $(DIA_DIR)/%.dia,$(CAP_DIR)/%.png,$(DIA_SRCS))
-
 all: $(TARGETS)
 pdf: $(TARGET_PDF)
 html: $(TARGET_HTML)
 install: $(INSTALL_TARGETS)
+
+
+#### Install Rules
 
 # rsync a single PDF file
 $(INSTALL_DIR)/%.pdf: %.pdf
@@ -117,7 +125,10 @@ $(INSTALL_DIR)/%.pdf: %.pdf
 $(INSTALL_DIR)/%.html: %.html
 	rsync -av $(<D) $(INSTALL_DIR)
 
-AppDevGuide.pdf: $(TEX_SRCS) $(DIAGS)
+
+#### AppDevGuide Rules
+
+$(ADG_PDF): $(TEX_SRCS) $(DIAGS)
 	@rm -f pdflatex*.out
 	pdflatex $(basename $@) > pdflatex-1.out
 	makeindex $(basename $@).idx
@@ -133,16 +144,27 @@ $(ADG_DIR)/index.html: $(TEX_SRCS) $(EPS_SRCS)
 $(DIAGS_DIR)/%.pdf: $(EPS_DIR)/%.eps $(DIAGS_DIR)
 	epstopdf $< -o=$@
 
+$(DIAGS_DIR):
+	mkdir -p $@
+
+
+#### CAproto Rules
+
+# PDF rule is broken on RHEL 6:
+#$(CAP_PDF): $(ASC_SRC) $(PNGS)
+#	a2x $(ASC_OPTS) --destination-dir=$(@D) --format=pdf $<
+
 $(CAP_DIR)/index.html: $(ASC_SRC) $(PNGS)
 	asciidoc $(ASC_OPTS) -o $@ $<
 
 $(CAP_DIR)/%.png: $(DIA_DIR)/%.dia $(CAP_DIR)
 	dia -t png -e $@ $<
 
-$(DIAGS_DIR):
-	mkdir -p $@
 $(CAP_DIR):
 	mkdir -p $@
+
+
+#### Clean Rules etc.
 
 clean: cleanidx
 	rm -rf $(ADG_DIR) $(DIAGS_DIR)
