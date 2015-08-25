@@ -5,7 +5,6 @@
 % -------- Preamble for pdflatex only --------
 
 \usepackage{times}
-\usepackage{graphicx}
 
 % set margins
 \usepackage[margin=1in]{geometry}
@@ -35,6 +34,10 @@
 \usepackage{longtable}
 \usepackage{makeidx}
 \makeindex
+
+% This causes an error from latex2html but is required for the
+% title page to be rendered correctly as a PNG image.
+\usepackage{graphicx}
 
 % directories containing images
 \graphicspath{ {diags/}{eps/} }

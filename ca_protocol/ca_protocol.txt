@@ -2448,8 +2448,8 @@ dependent exception must always be provided.
 listed with all capitals, with underscore character (`_`) replacing spaces. 
 Additionally, all exception names are prefixed with string `ECA_`.
 
-Return codes are represented as `UINT16`. First 3 least signifficant bits 
-indicate severity, remaining 13 bits are return code ID.
+Return codes are represented as `UINT16`. The lowest 3 least bits 
+indicate severity, the higher 13 bits are a return code identifier.
 
 Return codes are communicated in the protocol by the `CA_PROTO_READ_NOTIFY`, 
 `CA_PROTO_WRITE_NOTIFY`, monitor subscription responses, and the 
@@ -2458,66 +2458,67 @@ Return codes are communicated in the protocol by the `CA_PROTO_READ_NOTIFY`,
 [options="header"]
 |====================
 |Code|Severity|ID|Value|Description
-|`ECA_NORMAL`|`CA_K_SUCCESS`|0|0|Normal successful completion"
-|`ECA_MAXIOC`|`CA_K_ERROR`|1|1|Maximum simultaneous IOC connections exceeded
-|`ECA_UKNHOST`|`CA_K_ERROR`|2|2|Unknown internet host
-|`ECA_UKNSERV`|`CA_K_ERROR`|3|3|Unknown internet service
-|`ECA_SOCK`|`CA_K_ERROR`|4|4|Unable to allocate a new socket
-|`ECA_CONN`|`CA_K_WARNING`|5|5|Unable to connect to internet host or service
-|`ECA_ALLOCMEM`|`CA_K_WARNING`|6|6|Unable to allocate additional dynamic memory
-|`ECA_UKNCHAN`|`CA_K_WARNING`|7|7|Unknown IO channel
-|`ECA_UKNFIELD`|`CA_K_WARNING`|8|8|Record field specified inappropriate for channel specified
-|`ECA_TOLARGE`|`CA_K_WARNING`|9|9|The requested data transfer is greater than available memory or `EPICS_CA_MAX_ARRAY_BYTES`
-|`ECA_TIMEOUT`|`CA_K_WARNING`|10|10|User specified timeout on IO operation expired
-|`ECA_NOSUPPORT`|`CA_K_WARNING`|11|11|Sorry, that feature is planned but not supported at this time
-|`ECA_STRTOBIG`|`CA_K_WARNING`|12|12|The supplied string is unusually large
-|`ECA_DISCONNCHID`|`CA_K_ERROR`|13|13|The request was ignored because the specified channel is disconnected
-|`ECA_BADTYPE`|`CA_K_ERROR`|14|14|The data type specifed is invalid
-|`ECA_CHIDNOTFND`|`CA_K_INFO`|15|15|Remote Channel not found
-|`ECA_CHIDRETRY`|`CA_K_INFO`|16|16|Unable to locate all user specified channels
-|`ECA_INTERNAL`|`CA_K_FATAL`|17|17|Channel Access Internal Failure
-|`ECA_DBLCLFAIL`|`CA_K_WARNING`|18|18|The requested local DB operation failed
-|`ECA_GETFAIL`|`CA_K_WARNING`|19|19|Channel read request failed
-|`ECA_PUTFAIL`|`CA_K_WARNING`|20|20|Channel write request failed
-|`ECA_ADDFAIL`|`CA_K_WARNING`|21|21|Channel subscription request failed
-|`ECA_BADCOUNT`|`CA_K_WARNING`|22|22|Invalid element count requested
-|`ECA_BADSTR`|`CA_K_ERROR`|23|23|Invalid string
-|`ECA_DISCONN`|`CA_K_WARNING`|24|24|Virtual circuit disconnect
-|`ECA_DBLCHNL`|`CA_K_WARNING`|25|25|Identical process variable name on multiple servers
-|`ECA_EVDISALLOW`|`CA_K_ERROR`|26|26|Request inappropriate within subscription (monitor) update callback
-|`ECA_BUILDGET`|`CA_K_WARNING`|27|27|Database value get for that channel failed during channel search
-|`ECA_NEEDSFP`|`CA_K_WARNING`|28|28|Unable to initialize without the vxWorks `VX_FP_TASK` task option set
-|`ECA_OVEVFAIL`|`CA_K_WARNING`|29|29|Event queue overflow has prevented first pass event after event add
-|`ECA_BADMONID`|`CA_K_ERROR`|30|30|Bad event subscription (monitor) identifier
-|`ECA_NEWADDR`|`CA_K_WARNING`|31|31|Remote channel has new network address
-|`ECA_NEWCONN`|`CA_K_INFO`|32|32|New or resumed network connection
-|`ECA_NOCACTX`|`CA_K_WARNING`|33|33|Specified task isnt a member of a CA context
-|`ECA_DEFUNCT`|`CA_K_FATAL`|34|34|Attempt to use defunct CA feature failed
-|`ECA_EMPTYSTR`|`CA_K_WARNING`|35|35|The supplied string is empty
-|`ECA_NOREPEATER`|`CA_K_WARNING`|36|36|Unable to spawn the CA repeater thread- auto reconnect will fail
-|`ECA_NOCHANMSG`|`CA_K_WARNING`|37|37|No channel id match for search reply- search reply ignored
-|`ECA_DLCKREST`|`CA_K_WARNING`|38|38|Reseting dead connection- will try to reconnect
-|`ECA_SERVBEHIND`|`CA_K_WARNING`|39|39|Server (IOC) has fallen behind or is not responding- still waiting
-|`ECA_NOCAST`|`CA_K_WARNING`|40|40|No internet interface with broadcast available
-|`ECA_BADMASK`|`CA_K_ERROR`|41|41|Invalid event selection mask
-|`ECA_IODONE`|`CA_K_INFO`|42|42|IO operations have completed
-|`ECA_IOINPROGRESS`|`CA_K_INFO`|43|43|IO operations are in progress
-|`ECA_BADSYNCGRP`|`CA_K_ERROR`|44|44|Invalid synchronous group identifier
-|`ECA_PUTCBINPROG`|`CA_K_ERROR`|45|45|Put callback timed out
-|`ECA_NORDACCESS`|`CA_K_WARNING`|46|46|Read access denied
-|`ECA_NOWTACCESS`|`CA_K_WARNING`|47|47|Write access denied
-|`ECA_ANACHRONISM`|`CA_K_ERROR`|48|48|Requested feature is no longer supported
-|`ECA_NOSEARCHADDR`|`CA_K_WARNING`|49|49|Empty PV search address list
-|`ECA_NOCONVERT`|`CA_K_WARNING`|50|50|No reasonable data conversion between client and server types
-|`ECA_BADCHID`|`CA_K_ERROR`|51|51|Invalid channel identifier
-|`ECA_BADFUNCPTR`|`CA_K_ERROR`|52|52|Invalid function pointer
-|`ECA_ISATTACHED`|`CA_K_WARNING`|53|53|Thread is already attached to a client context
-|`ECA_UNAVAILINSERV`|`CA_K_WARNING`|54|54|Not supported by attached service
-|`ECA_CHANDESTROY`|`CA_K_WARNING`|55|55|User destroyed channel
-|`ECA_BADPRIORITY`|`CA_K_ERROR`|56|56|Invalid channel priority
-|`ECA_NOTTHREADED`|`CA_K_ERROR`|57|57|Preemptive callback not enabled - additional threads may not join context
-|`ECA_16KARRAYCLIENT`|`CA_K_WARNING`|58|58|Client's protocol revision does not support transfers exceeding 16k bytes
-|`ECA_CONNSEQTMO`|`CA_K_WARNING`|59|59|Virtual circuit connection sequence aborted
+|`ECA_NORMAL`|`CA_K_SUCCESS`|0|1|Normal successful completion
+|`ECA_MAXIOC`|`CA_K_ERROR`|1|10|Maximum simultaneous IOC connections exceeded
+|`ECA_UKNHOST`|`CA_K_ERROR`|2|18|Unknown internet host
+|`ECA_UKNSERV`|`CA_K_ERROR`|3|26|Unknown internet service
+|`ECA_SOCK`|`CA_K_ERROR`|4|34|Unable to allocate a new socket
+|`ECA_CONN`|`CA_K_WARNING`|5|40|Unable to connect to internet host or service
+|`ECA_ALLOCMEM`|`CA_K_WARNING`|6|48|Unable to allocate additional dynamic memory
+|`ECA_UKNCHAN`|`CA_K_WARNING`|7|56|Unknown IO channel
+|`ECA_UKNFIELD`|`CA_K_WARNING`|8|64|Record field specified inappropriate for channel specified
+|`ECA_TOLARGE`|`CA_K_WARNING`|9|72|The requested data transfer is greater than available memory or `EPICS_CA_MAX_ARRAY_BYTES`
+|`ECA_TIMEOUT`|`CA_K_WARNING`|10|80|User specified timeout on IO operation expired
+|`ECA_NOSUPPORT`|`CA_K_WARNING`|11|88|Sorry, that feature is planned but not supported at this time
+|`ECA_STRTOBIG`|`CA_K_WARNING`|12|96|The supplied string is unusually large
+|`ECA_DISCONNCHID`|`CA_K_ERROR`|13|106|The request was ignored because the specified channel is disconnected
+|`ECA_BADTYPE`|`CA_K_ERROR`|14|114|The data type specifed is invalid
+|`ECA_CHIDNOTFND`|`CA_K_INFO`|15|123|Remote Channel not found
+|`ECA_CHIDRETRY`|`CA_K_INFO`|16|131|Unable to locate all user specified channels
+|`ECA_INTERNAL`|`CA_K_FATAL`|17|142|Channel Access Internal Failure
+|`ECA_DBLCLFAIL`|`CA_K_WARNING`|18|144|The requested local DB operation failed
+|`ECA_GETFAIL`|`CA_K_WARNING`|19|152|Channel read request failed
+|`ECA_PUTFAIL`|`CA_K_WARNING`|20|160|Channel write request failed
+|`ECA_ADDFAIL`|`CA_K_WARNING`|21|168|Channel subscription request failed
+|`ECA_BADCOUNT`|`CA_K_WARNING`|22|176|Invalid element count requested
+|`ECA_BADSTR`|`CA_K_ERROR`|23|186|Invalid string
+|`ECA_DISCONN`|`CA_K_WARNING`|24|192|Virtual circuit disconnect
+|`ECA_DBLCHNL`|`CA_K_WARNING`|25|200|Identical process variable name on multiple servers
+|`ECA_EVDISALLOW`|`CA_K_ERROR`|26|210|Request inappropriate within subscription (monitor) update callback
+|`ECA_BUILDGET`|`CA_K_WARNING`|27|216|Database value get for that channel failed during channel search
+|`ECA_NEEDSFP`|`CA_K_WARNING`|28|224|Unable to initialize without the vxWorks `VX_FP_TASK` task option set
+|`ECA_OVEVFAIL`|`CA_K_WARNING`|29|232|Event queue overflow has prevented first pass event after event add
+|`ECA_BADMONID`|`CA_K_ERROR`|30|242|Bad event subscription (monitor) identifier
+|`ECA_NEWADDR`|`CA_K_WARNING`|31|248|Remote channel has new network address
+|`ECA_NEWCONN`|`CA_K_INFO`|32|259|New or resumed network connection
+|`ECA_NOCACTX`|`CA_K_WARNING`|33|264|Specified task isnt a member of a CA context
+|`ECA_DEFUNCT`|`CA_K_FATAL`|34|278|Attempt to use defunct CA feature failed
+|`ECA_EMPTYSTR`|`CA_K_WARNING`|35|280|The supplied string is empty
+|`ECA_NOREPEATER`|`CA_K_WARNING`|36|288|Unable to spawn the CA repeater thread- auto reconnect will fail
+|`ECA_NOCHANMSG`|`CA_K_WARNING`|37|296|No channel id match for search reply- search reply ignored
+|`ECA_DLCKREST`|`CA_K_WARNING`|38|304|Reseting dead connection- will try to reconnect
+|`ECA_SERVBEHIND`|`CA_K_WARNING`|39|312|Server (IOC) has fallen behind or is not responding- still waiting
+|`ECA_NOCAST`|`CA_K_WARNING`|40|320|No internet interface with broadcast available
+|`ECA_BADMASK`|`CA_K_ERROR`|41|330|Invalid event selection mask
+|`ECA_IODONE`|`CA_K_INFO`|42|339|IO operations have completed
+|`ECA_IOINPROGRESS`|`CA_K_INFO`|43|347|IO operations are in progress
+|`ECA_BADSYNCGRP`|`CA_K_ERROR`|44|354|Invalid synchronous group identifier
+|`ECA_PUTCBINPROG`|`CA_K_ERROR`|45|362|Put callback timed out
+|`ECA_NORDACCESS`|`CA_K_WARNING`|46|368|Read access denied
+|`ECA_NOWTACCESS`|`CA_K_WARNING`|47|376|Write access denied
+|`ECA_ANACHRONISM`|`CA_K_ERROR`|48|386|Requested feature is no longer supported
+|`ECA_NOSEARCHADDR`|`CA_K_WARNING`|49|392|Empty PV search address list
+|`ECA_NOCONVERT`|`CA_K_WARNING`|50|400|No reasonable data conversion between client and server types
+|`ECA_BADCHID`|`CA_K_ERROR`|51|410|Invalid channel identifier
+|`ECA_BADFUNCPTR`|`CA_K_ERROR`|52|418|Invalid function pointer
+|`ECA_ISATTACHED`|`CA_K_WARNING`|53|424|Thread is already attached to a client context
+|`ECA_UNAVAILINSERV`|`CA_K_WARNING`|54|432|Not supported by attached service
+|`ECA_CHANDESTROY`|`CA_K_WARNING`|55|440|User destroyed channel
+|`ECA_BADPRIORITY`|`CA_K_ERROR`|56|450|Invalid channel priority
+|`ECA_NOTTHREADED`|`CA_K_ERROR`|57|458|Preemptive callback not enabled - additional threads may not join context
+|`ECA_16KARRAYCLIENT`|`CA_K_WARNING`|58|464|Client's protocol revision does not support transfers exceeding 16k bytes
+|`ECA_CONNSEQTMO`|`CA_K_WARNING`|59|472|Virtual circuit connection sequence aborted
+|`ECA_UNRESPTMO`|`CA_K_WARNING`|60|480|Virtual circuit unresponsive
 |====================
 
 
