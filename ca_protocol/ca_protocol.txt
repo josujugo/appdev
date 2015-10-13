@@ -388,6 +388,7 @@ If the payload size is not a multiple of 8, zero-padding must be performed to
 achieve 8-byte alignment.
 
 
+[[message-identifiers]]
 === Message Identifiers
 
 Some fields in messages serve as identifiers, which must be properly handled
