@@ -179,5 +179,19 @@ cleanidx:
 	rm -f *.idx *.ind *.ilg *.log *.out *.pdf *.toc *.aux
 	rm -f *.backup *~ tex/*.backup tex/*~
 
+gh-pages: pdf html
+	rm -f idx tree commit
+	GIT_INDEX_FILE=idx git update-index --add AppDevGuide.pdf index.html
+	GIT_INDEX_FILE=idx git update-index --add AppDevGuide/*.html AppDevGuide/*.css AppDevGuide/*.svg
+	GIT_INDEX_FILE=idx git update-index --add CAproto/*.html CAproto/*.png
+	GIT_INDEX_FILE=idx git update-index --add --cacheinfo 100644,`git hash-object --stdin -w < /dev/null`,.nojekyll
+	GIT_INDEX_FILE=idx git write-tree > tree
+	rm idx
+	git commit-tree -m "built from `git describe --tags --always --dirty --abbrev=20`" `cat tree` > commit
+	rm tree
+	git update-ref refs/heads/gh-pages `cat commit`
+	rm commit
+
 .PHONY: all pdf html install
 .PHONY: clean cleanidx
+.PHONY: gh-pages
