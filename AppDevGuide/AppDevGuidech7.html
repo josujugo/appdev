@@ -1,0 +1,1511 @@
+<?xml version="1.0" encoding="iso-8859-1" ?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">  
+<!--http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd-->  
+<html xmlns="http://www.w3.org/1999/xhtml"  
+> 
+<head><title>7 IOC Initialization</title> 
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" /> 
+<meta name="generator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
+<meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
+<!-- xhtml,2,html --> 
+<meta name="src" content="AppDevGuide.tex" /> 
+<meta name="date" content="2015-11-06 12:47:00" /> 
+<link rel="stylesheet" type="text/css" href="AppDevGuide.css" /> 
+</head><body 
+>
+<!--l. 1--><div class="crosslinks"><p class="noindent">[<a 
+href="AppDevGuidech8.html" >next</a>] [<a 
+href="AppDevGuidech6.html" >prev</a>] [<a 
+href="AppDevGuidech6.html#tailAppDevGuidech6.html" >prev-tail</a>] [<a 
+href="#tailAppDevGuidech7.html">tail</a>] [<a 
+href="AppDevGuide.html#AppDevGuidech7.html" >up</a>] </p></div>
+<h2 class="chapterHead"><span class="titlemark">Chapter&#x00A0;7</span><br /><a 
+ id="x9-2690007"></a>IOC Initialization</h2> <a 
+ id="dx9-269001"></a>
+<h3 class="sectionHead"><span class="titlemark">7.1    </span> <a 
+ id="x9-2700007.1"></a>Overview - Environments requiring a main program</h3>
+<!--l. 6--><p class="noindent" >If a main program is required (most likely on all environments except vxWorks and RTEMS), then initialization is
+performed by statements residing in startup scripts which are executed by <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocsh</span></span></span>. An example main program
+is:
+</p>
+<!--l. 9-->
+     <div class="lstlisting" id="listing-67"><span class="label"><a 
+ id="x9-270001r1"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">main</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">argc</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">argv</span><span 
+class="pcrr7t-">[])</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-270002r2"></a></span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-270003r3"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">if</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">argc</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x003E;=</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">2)</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-270004r4"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">iocsh</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">argv</span><span 
+class="pcrr7t-">[1]);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-270005r5"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">epicsThreadSleep</span><span 
+class="pcrr7t-">(.2);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-270006r6"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">}</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-270007r7"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">iocsh</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">NULL</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-270008r8"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">epicsExit</span><span 
+class="pcrr7t-">(0)</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-270009r9"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">return</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">0;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-270010r10"></a></span><span 
+class="pcrr7t-">}</span>
+     
+</div>
+<a 
+ id="dx9-270011"></a>
+<!--l. 23--><p class="noindent" >The first call to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocsh</span></span></span> executes commands from the startup script filename which must be passed as an argument to the
+program. The second call to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocsh</span></span></span> with a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">NULL</span></span></span> argument puts <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocsh</span></span></span> into interactive mode. This allows the user to issue
+the commands described in the chapter on &#8220;IOC Test Facilities&#8221; as well as some additional commands like
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">help</span></span></span>.
+</p><!--l. 27--><p class="noindent" >The command file passed is usually called the startup script, and contains statements like these:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-94">
+<div class="fancyvrb" id="fancyvrb94"><a 
+ id="x9-270013r1"></a>&#x00A0;&#x00A0;&#x003C;&#x00A0;envPaths<br class="fancyvrb" /><a 
+ id="x9-270015r2"></a>&#x00A0;&#x00A0;cd&#x00A0;${TOP}<br class="fancyvrb" /><a 
+ id="x9-270017r3"></a>&#x00A0;&#x00A0;dbLoadDatabase&#x00A0;"dbd/appname.dbd"<br class="fancyvrb" /><a 
+ id="x9-270019r4"></a>&#x00A0;&#x00A0;appname_registerRecordDeviceDriver&#x00A0;pdbbase
+<br class="fancyvrb" /><a 
+ id="x9-270021r5"></a>&#x00A0;&#x00A0;dbLoadRecords&#x00A0;"db/file.db",&#x00A0;"macro=value"<br class="fancyvrb" /><a 
+ id="x9-270023r6"></a>&#x00A0;&#x00A0;cd&#x00A0;${TOP}/iocBoot/${IOC}<br class="fancyvrb" /><a 
+ id="x9-270025r7"></a>&#x00A0;&#x00A0;iocInit</div></div>
+<!--l. 37--><p class="nopar" >
+</p><!--l. 39--><p class="noindent" >The <a 
+ id="dx9-270026"></a>envPaths file is automatically generated in the IOC&#8217;s boot directory and defines several environment variables that are
+useful later in the startup script. The definitions shown below are always provided; additional entries will be created for each
+support module referenced in the application&#8217;s <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">configure/RELEASE</span></span></span> file:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-95">
+<div class="fancyvrb" id="fancyvrb95"><a 
+ id="x9-270028r1"></a>&#x00A0;&#x00A0;epicsEnvSet("ARCH","linux-x86")<br class="fancyvrb" /><a 
+ id="x9-270030r2"></a>&#x00A0;&#x00A0;epicsEnvSet("IOC","iocname")
+<br class="fancyvrb" /><a 
+ id="x9-270032r3"></a>&#x00A0;&#x00A0;epicsEnvSet("TOP","/path/to/application")<br class="fancyvrb" /><a 
+ id="x9-270034r4"></a>&#x00A0;&#x00A0;epicsEnvSet("EPICS_BASE","/path/to/base")</div></div>
+<!--l. 47--><p class="nopar" >
+</p><!--l. 49--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">7.2    </span> <a 
+ id="x9-2710007.2"></a>Overview - vxWorks</h3>
+<!--l. 51--><p class="noindent" >After vxWorks is loaded at IOC boot time, commands like the following, normally placed in the <a 
+ id="dx9-271001"></a>vxWorks startup script, are
+issued to load and initialize the application code:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-96">
+<div class="fancyvrb" id="fancyvrb96"><a 
+ id="x9-271003r1"></a>&#x00A0;&#x00A0;#&#x00A0;Many&#x00A0;vxWorks&#x00A0;board&#x00A0;support&#x00A0;packages&#x00A0;need&#x00A0;the&#x00A0;following:
+<br class="fancyvrb" /><a 
+ id="x9-271005r2"></a>&#x00A0;&#x00A0;#cd&#x00A0;&#x003C;full&#x00A0;path&#x00A0;to&#x00A0;IOC&#x00A0;boot&#x00A0;directory&#x003E;<br class="fancyvrb" /><a 
+ id="x9-271007r3"></a>&#x00A0;&#x00A0;&#x003C;&#x00A0;cdCommands<br class="fancyvrb" /><a 
+ id="x9-271009r4"></a>&#x00A0;&#x00A0;cd&#x00A0;topbin<br class="fancyvrb" /><a 
+ id="x9-271011r5"></a>&#x00A0;&#x00A0;ld&#x00A0;0,0,&#x00A0;"appname.munch"
+<br class="fancyvrb" /><a 
+ id="x9-271013r6"></a>&#x00A0;&#x00A0;<br class="fancyvrb" /><a 
+ id="x9-271015r7"></a>&#x00A0;&#x00A0;cd&#x00A0;top<br class="fancyvrb" /><a 
+ id="x9-271017r8"></a>&#x00A0;&#x00A0;dbLoadDatabase&#x00A0;"dbd/appname.dbd"<br class="fancyvrb" /><a 
+ id="x9-271019r9"></a>&#x00A0;&#x00A0;appname_registerRecordDeviceDriver&#x00A0;pdbbase
+<br class="fancyvrb" /><a 
+ id="x9-271021r10"></a>&#x00A0;&#x00A0;dbLoadRecords&#x00A0;"db/file.db",&#x00A0;"macro=value"<br class="fancyvrb" /><a 
+ id="x9-271023r11"></a>&#x00A0;&#x00A0;<br class="fancyvrb" /><a 
+ id="x9-271025r12"></a>&#x00A0;&#x00A0;cd&#x00A0;startup<br class="fancyvrb" /><a 
+ id="x9-271027r13"></a>&#x00A0;&#x00A0;iocInit</div></div>
+<!--l. 67--><p class="nopar" >
+</p><!--l. 69--><p class="noindent" >The <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">cdCommands</span></span></span> script is automatically generated in the IOC boot directory and defines several vxWorks global variables
+that allow <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">cd</span></span></span> commands to various locations, and also sets several environment variables. The definitions shown below
+are always provided; additional entries will be created for each support module referenced in the application&#8217;s
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">configure/RELEASE</span></span></span> file:
+<a 
+ id="dx9-271028"></a>
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-97">
+<div class="fancyvrb" id="fancyvrb97"><a 
+ id="x9-271030r1"></a>&#x00A0;&#x00A0;startup&#x00A0;=&#x00A0;"/path/to/application/iocBoot/iocname"<br class="fancyvrb" /><a 
+ id="x9-271032r2"></a>&#x00A0;&#x00A0;putenv&#x00A0;"ARCH=vxWorks-68040"
+<br class="fancyvrb" /><a 
+ id="x9-271034r3"></a>&#x00A0;&#x00A0;putenv&#x00A0;"IOC=iocname"<br class="fancyvrb" /><a 
+ id="x9-271036r4"></a>&#x00A0;&#x00A0;top&#x00A0;=&#x00A0;"/path/to/application"<br class="fancyvrb" /><a 
+ id="x9-271038r5"></a>&#x00A0;&#x00A0;putenv&#x00A0;"TOP=/path/to/application"
+<br class="fancyvrb" /><a 
+ id="x9-271040r6"></a>&#x00A0;&#x00A0;topbin&#x00A0;=&#x00A0;"/path/to/application/bin/vxWorks-68040"<br class="fancyvrb" /><a 
+ id="x9-271042r7"></a>&#x00A0;&#x00A0;epics_base&#x00A0;=&#x00A0;"/path/to/base"
+<br class="fancyvrb" /><a 
+ id="x9-271044r8"></a>&#x00A0;&#x00A0;putenv&#x00A0;"EPICS_BASE=/path/to/base"<br class="fancyvrb" /><a 
+ id="x9-271046r9"></a>&#x00A0;&#x00A0;epics_basebin&#x00A0;=&#x00A0;"/path/to/base/bin/vxWorks-68040"</div></div>
+<!--l. 83--><p class="nopar" >
+</p><!--l. 85--><p class="noindent" >The <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ld</span></span></span> command in the startup script loads EPICS core, the record, device and driver support the IOC needs, and any
+application specific modules that have been linked into it.
+</p><!--l. 87--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbLoadDatabase</span></span></span> loads database definition files describing the record/device/driver support used by the
+application..
+</p><!--l. 89--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbLoadRecords</span></span></span> loads record instance definitions.
+</p><!--l. 91--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocInit</span></span></span> initializes the various epics components and starts the IOC running.
+</p><!--l. 93--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">7.3    </span> <a 
+ id="x9-2720007.3"></a>Overview - RTEMS</h3>
+<!--l. 95--><p class="noindent" >RTEMS applications can start up in many different ways depending on the board-support package for a particular piece of
+hardware. Systems which use the Cexp package can be treated much like vxWorks. Other systems first read initialization
+parameters from non-volatile memory or from a BOOTP/DHCP server. The exact mechanism depends upon the BSP. TFTP or
+NFS filesystems are then mounted and the IOC shell is used to read commands from a startup script. The location of this startup
+script is specified by a initialization parameter. This script is often similar or identical to the one used with vxWorks. The
+RTEMS startup code calls
+<a 
+ id="dx9-272001"></a>
+</p>
+<!--l. 105-->
+     <div class="lstlisting" id="listing-68"><span class="label"><a 
+ id="x9-272002r1"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">epicsRtemsInitPreSetBootConfigFromNVRAM</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">rtems_bsdnet_config</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;);</span>
+     
+</div>
+<!--l. 109--><p class="noindent" >just before setting the initialization parameters from non-volatile memory, and
+<a 
+ id="dx9-272003"></a>
+</p>
+<!--l. 112-->
+     <div class="lstlisting" id="listing-69"><span class="label"><a 
+ id="x9-272004r1"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">epicsRtemsInitPostSetBootConfigFromNVRAM</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">rtems_bsdnet_config</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;);</span>
+     
+</div>
+<a 
+ id="dx9-272005"></a>
+<!--l. 117--><p class="noindent" >just after setting the initialization parameters. An application may provide either or both of these routines to perform any
+custom initialization required. These function prototypes and some useful external variable declarations can be found in the
+header file <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">epicsRtemsInitHooks.h</span></span></span>
+                                                                                         
+                                                                                         
+</p><!--l. 121--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">7.4    </span> <a 
+ id="x9-2730007.4"></a>IOC Initialization</h3>
+<!--l. 123--><p class="noindent" >An IOC is normally started with the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocInit</span></span></span> command as shown in the startup scripts above, which is actually implemented
+in two distinct parts. The first part can be run separately as the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocBuild</span></span></span> command, which puts the IOC into a quiescent state
+without allowing the various internal threads it starts to actually run. From this state the second command <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocRun</span></span></span> can be used
+to bring it online very quickly. A running IOC can be quiesced using the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocPause</span></span></span> command, which freezes all internal
+operations; at this point the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocRun</span></span></span> command can restart it from where it left off, or the IOC can be shut down (exit the
+program, or reboot on vxWorks/RTEMS). Most device support and drivers have not yet been written with the possibility of
+pausing an IOC in mind though, so this feature may not be safe to use on an IOC which talks to external devices or
+software.
+<a 
+ id="dx9-273001"></a>
+<a 
+ id="dx9-273002"></a>
+<a 
+ id="dx9-273003"></a>
+<a 
+ id="dx9-273004"></a>
+</p><!--l. 133--><p class="noindent" >IOC initialization using the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocBuild</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocRun</span></span></span> commands then consists of the following steps:
+</p><!--l. 135--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">7.4.1    </span> <a 
+ id="x9-2740007.4.1"></a>Configure Main Thread</h4>
+<!--l. 137--><p class="noindent" >Providing the IOC has not already been initialized, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">initHookAtIocBuild</span></span></span> is announced first.
+<a 
+ id="dx9-274001"></a>
+<a 
+ id="dx9-274002"></a>
+</p><!--l. 141--><p class="noindent" >The main thread&#8217;s <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">epicsThreadIsOkToBlock</span></span></span> flag is set, the message &#8220;<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">Starting</span><span 
+class="pcrr7t-">&#x00A0;iocInit</span></span></span>&#8221; is logged and
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">epicsSignalInstallSigHupIgnore</span></span></span> called, which on Unix architectures prevents the process from shutting down if it
+later receives a HUP signal.
+<a 
+ id="dx9-274003"></a>
+</p><!--l. 146--><p class="noindent" >At this point, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">initHookAtBeginning</span></span></span> is announced.
+</p><!--l. 148--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">7.4.2    </span> <a 
+ id="x9-2750007.4.2"></a>General Purpose Modules</h4>
+<a 
+ id="dx9-275001"></a>
+<!--l. 151--><p class="noindent" >Calls <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">coreRelese</span></span></span> which prints a message showing which version of iocCore is being run.
+<a 
+ id="dx9-275002"></a>
+</p><!--l. 154--><p class="noindent" >Calls <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">taskwdInit</span></span></span> to start the task watchdog. This accepts requests to watch other tasks. It runs periodically and checks to
+see if any of the tasks is suspended. If so it issues an error message, and can also invoke callback routines registered by the
+task itself or by other software that is interested in the state of the IOC. See &#8221;Task Watchdog&#8221; on page <a 
+href="AppDevGuidech16.html#x18-70100016.3">543<!--tex4ht:ref: Task Watchdog --></a> for
+details.
+<a 
+ id="dx9-275003"></a>
+</p><!--l. 161--><p class="noindent" >Starts the general purpose callback tasks by calling <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">callbackInit</span></span></span>. Three tasks are started at different scheduling
+priorities.
+<a 
+ id="dx9-275004"></a>
+                                                                                         
+                                                                                         
+</p><!--l. 165--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">initHookAfterCallbackInit</span></span></span> is announced.
+</p><!--l. 167--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">7.4.3    </span> <a 
+ id="x9-2760007.4.3"></a>Channel Access Links</h4>
+<a 
+ id="dx9-276001"></a>
+<!--l. 170--><p class="noindent" >Calls <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbCaLinkInit</span></span></span>. The initializes the module that handles database channel access links, but does not allow its task to run
+yet.
+<a 
+ id="dx9-276002"></a>
+</p><!--l. 174--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">initHookAfterCaLinkInit</span></span></span> is announced.
+</p><!--l. 176--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">7.4.4    </span> <a 
+ id="x9-2770007.4.4"></a>Driver Support</h4>
+<a 
+ id="dx9-277001"></a>
+<!--l. 179--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">initDrvSup</span></span></span> locates each device driver entry table and calls the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">init</span></span></span> routine of each driver.
+<a 
+ id="dx9-277002"></a>
+</p><!--l. 182--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">initHookAfterInitDrvSup</span></span></span> is announced.
+</p><!--l. 184--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">7.4.5    </span> <a 
+ id="x9-2780007.4.5"></a>Record Support</h4>
+<a 
+ id="dx9-278001"></a>
+<!--l. 187--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">initRecSup</span></span></span> locates each record support entry table and calls the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">init</span></span></span> routine for each record type.
+<a 
+ id="dx9-278002"></a>
+</p><!--l. 190--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">initHookAfterInitRecSup</span></span></span> is announced.
+</p><!--l. 192--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">7.4.6    </span> <a 
+ id="x9-2790007.4.6"></a>Device Support</h4>
+<a 
+ id="dx9-279001"></a>
+<!--l. 195--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">initDevSup</span></span></span> locates each device support entry table and calls its <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">init</span></span></span> routine specifying that this is the initial
+call.
+<a 
+ id="dx9-279002"></a>
+</p><!--l. 198--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">initHookAfterInitDevSup</span></span></span> is announced.
+                                                                                         
+                                                                                         
+</p><!--l. 200--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">7.4.7    </span> <a 
+ id="x9-2800007.4.7"></a>Database Records</h4>
+<!--l. 202--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">initDatabase</span></span></span> is called which makes three passes over the database performing the following functions:
+<a 
+ id="dx9-280001"></a>
+</p><!--l. 205--><p class="noindent" >
+     </p><ol  class="enumerate1" >
+     <li 
+  class="enumerate" id="x9-280003x1">Initializes the fields <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">RSET</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">RDES</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">MLOK</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">MLIS</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">PACT</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DSET</span></span></span> for each record.
+<a 
+ id="dx9-280004"></a>
+     <!--l. 210--><p class="noindent" >Calls record support&#8217;s <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">init_record</span></span></span> (first pass).
+     </p></li>
+     <li 
+  class="enumerate" id="x9-280006x2">Convert each <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">PV_LINK</span></span></span> into a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DB_LINK</span></span></span> or <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">CA_LINK</span></span></span>
+<a 
+ id="dx9-280007"></a>
+     <!--l. 215--><p class="noindent" >Calls any extended device support&#8217;s <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">add_record</span></span></span> routine.
+     </p></li>
+     <li 
+  class="enumerate" id="x9-280009x3">Calls record support&#8217;s <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">init_record</span></span></span> (second pass).</li></ol>
+<!--l. 220--><p class="noindent" >Finally it registers an <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">epicsAtExit</span></span></span> routine to shut down the database when the IOC application exits.
+<a 
+ id="dx9-280010"></a>
+</p><!--l. 223--><p class="noindent" >Next <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbLockInitRecords</span></span></span> is called to create the lock sets.
+<a 
+ id="dx9-280011"></a>
+</p><!--l. 226--><p class="noindent" >Then <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbBkptInit</span></span></span> is run to initialize the database debugging module.
+<a 
+ id="dx9-280012"></a>
+</p><!--l. 229--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">initHookAfterInitDatabase</span></span></span> is announced.
+</p><!--l. 231--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">7.4.8    </span> <a 
+ id="x9-2810007.4.8"></a>Device Support again</h4>
+<a 
+ id="dx9-281001"></a>
+<!--l. 234--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">initDevSup</span></span></span> locates each device support entry table and calls its <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">init</span></span></span> routine specifying that this is the final
+call.
+<a 
+ id="dx9-281002"></a>
+</p><!--l. 237--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">initHookAfterFinishDevSup</span></span></span> is announced.
+</p><!--l. 239--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">7.4.9    </span> <a 
+ id="x9-2820007.4.9"></a>Scanning and Access Security</h4>
+<a 
+ id="dx9-282001"></a>
+<!--l. 242--><p class="noindent" >The periodic, event, and I/O event scanners are initialized by calling <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">scanInit</span></span></span>, but the scan threads created are not allowed
+to process any records yet.
+<a 
+ id="dx9-282002"></a>
+                                                                                         
+                                                                                         
+</p><!--l. 245--><p class="noindent" >A call to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asInit</span></span></span> initailizes access security. If this reports failure, the IOC initialization is aborted.
+<a 
+ id="dx9-282003"></a>
+</p><!--l. 249--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbProcessNotifyInit</span></span></span> initializes support for process notification.
+<a 
+ id="dx9-282004"></a>
+</p><!--l. 252--><p class="noindent" >After a short delay to allow settling, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">initHookAfterScanInit</span></span></span> is announced.
+</p><!--l. 254--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">7.4.10    </span> <a 
+ id="x9-2830007.4.10"></a>Initial Processing</h4>
+<a 
+ id="dx9-283001"></a>
+<!--l. 257--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">initialProcess</span></span></span> processes all records that have PINI set to YES.
+<a 
+ id="dx9-283002"></a>
+</p><!--l. 260--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">initHookAfterInitialProcess</span></span></span> is announced.
+</p><!--l. 262--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">7.4.11    </span> <a 
+ id="x9-2840007.4.11"></a>Channel Access Server</h4>
+<a 
+ id="dx9-284001"></a>
+<!--l. 265--><p class="noindent" >The Channel Access server is started by calling <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">rsrv_init</span></span></span>, but its tasks are not allowed to run so it does not announce its
+presence to the network yet.
+<a 
+ id="dx9-284002"></a>
+</p><!--l. 269--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">initHookAfterCaServerInit</span></span></span> is announced.
+<a 
+ id="dx9-284003"></a>
+<a 
+ id="dx9-284004"></a>
+</p><!--l. 273--><p class="noindent" >At this point, the IOC has been fully initialized but is still quiescent. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">initHookAfterIocBuilt</span></span></span> is announced. If started
+using <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocBuild</span></span></span> this command completes here.
+</p><!--l. 276--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">7.4.12    </span> <a 
+ id="x9-2850007.4.12"></a>Enable Record Processing</h4>
+<a 
+ id="dx9-285001"></a>
+<!--l. 279--><p class="noindent" >If the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocRun</span></span></span> command is used to bring the IOC out of its initial quiescent state, it starts here.
+<a 
+ id="dx9-285002"></a>
+</p><!--l. 282--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">initHookAtIocRun</span></span></span> is announced.
+<a 
+ id="dx9-285003"></a>
+<a 
+ id="dx9-285004"></a>
+<a 
+ id="dx9-285005"></a>
+</p><!--l. 287--><p class="noindent" >The routines <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">scanRun</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbCaRun</span></span></span> are called in turn to enable their associated tasks and set the global variable
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">interruptAccept</span></span></span> to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">TRUE</span></span></span> (this now happens inside <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">scanRun</span></span></span>). Until this is set all I/O interrupts should have been
+ignored.
+                                                                                         
+                                                                                         
+<a 
+ id="dx9-285006"></a>
+<a 
+ id="dx9-285007"></a>
+</p><!--l. 293--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">initHookAfterDatabaseRunning</span></span></span> is announced. If the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocRun</span></span></span> command (or <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocInit</span></span></span>) is being executed for the first
+time, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">initHookAfterInterruptAccept</span></span></span> is announced.
+</p><!--l. 296--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">7.4.13    </span> <a 
+ id="x9-2860007.4.13"></a>Enable CA Server</h4>
+<a 
+ id="dx9-286001"></a>
+<!--l. 299--><p class="noindent" >The Channel Access server tasks are allowed to run by calling <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">rsrv_run</span></span></span>.
+<a 
+ id="dx9-286002"></a>
+<a 
+ id="dx9-286003"></a>
+</p><!--l. 303--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">initHookAfterCaServerRunning</span></span></span> is announced. If the IOC is starting for the first time, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">initHookAtEnd</span></span></span> is
+announced.
+<a 
+ id="dx9-286004"></a>
+</p><!--l. 307--><p class="noindent" >A command completion message is logged, and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">initHookAfterIocRunning</span></span></span> is announced.
+</p><!--l. 309--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">7.5    </span> <a 
+ id="x9-2870007.5"></a>Pausing an IOC</h3>
+<a 
+ id="dx9-287001"></a>
+<a 
+ id="dx9-287002"></a>
+<!--l. 313--><p class="noindent" >The command <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocPause</span></span></span> brings a running IOC to a quiescent state with all record processing frozen (other than
+possibly the completion of asynchronous I/O operations). A paused IOC may be able to be restarted using the
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocRun</span></span></span> command, but whether it will fully recover or not can depend on how long it has been quiescent and the
+status of any device drivers which have been running. The operations which make up the pause operation are as
+follows:
+</p><!--l. 319--><p class="noindent" >
+<a 
+ id="dx9-287003"></a>
+     </p><ol  class="enumerate1" >
+     <li 
+  class="enumerate" id="x9-287005x1"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">initHookAtIocPause</span></span></span> is announced.
+<a 
+ id="dx9-287006"></a>
+     </li>
+     <li 
+  class="enumerate" id="x9-287008x2">The Channel Access Server tasks are paused by calling <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">rsrv_pause</span></span></span>
+<a 
+ id="dx9-287009"></a>
+     </li>
+     <li 
+  class="enumerate" id="x9-287011x3"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">initHookAfterCaServerPaused</span></span></span> is announced.
+<a 
+ id="dx9-287012"></a>
+<a 
+ id="dx9-287013"></a>
+<a 
+ id="dx9-287014"></a>
+     </li>
+     <li 
+  class="enumerate" id="x9-287016x4">The routines <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbCaPause</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">scanPause</span></span></span> are called to pause their associated tasks and set the global variable
+     <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">interruptAccept</span></span></span> to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">FALSE</span></span></span>.
+                                                                                         
+                                                                                         
+<a 
+ id="dx9-287017"></a>
+     </li>
+     <li 
+  class="enumerate" id="x9-287019x5"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">initHookAfterDatabasePaused</span></span></span> is announced.
+<a 
+ id="dx9-287020"></a>
+     </li>
+     <li 
+  class="enumerate" id="x9-287022x6">After logging a pause message, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">initHookAfterIocPaused</span></span></span> is announced.</li></ol>
+<!--l. 342--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">7.6    </span> <a 
+ id="x9-2880007.6"></a>Changing iocCore fixed limits</h3>
+<!--l. 344--><p class="noindent" >The following commands can be issued after iocCore is loaded to change iocCore fixed limits. The commands should be given
+before any <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbLoadDatabase</span></span></span> commands.
+<a 
+ id="dx9-288001"></a>
+<a 
+ id="dx9-288002"></a>
+<a 
+ id="dx9-288003"></a>
+<a 
+ id="dx9-288004"></a>
+<a 
+ id="dx9-288005"></a>
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-98">
+<div class="fancyvrb" id="fancyvrb98"><a 
+ id="x9-288007r1"></a>&#x00A0;&#x00A0;callbackSetQueueSize(size)<br class="fancyvrb" /><a 
+ id="x9-288009r2"></a>&#x00A0;&#x00A0;dbPvdTableSize(size)<br class="fancyvrb" /><a 
+ id="x9-288011r3"></a>&#x00A0;&#x00A0;scanOnceSetQueueSize(size)
+<br class="fancyvrb" /><a 
+ id="x9-288013r4"></a>&#x00A0;&#x00A0;errlogInit(buffersize)<br class="fancyvrb" /><a 
+ id="x9-288015r5"></a>&#x00A0;&#x00A0;errlogInit2(buffersize,&#x00A0;maxMessageSize)</div></div>
+<!--l. 358--><p class="nopar" >
+</p><!--l. 360--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">7.6.1    </span> <a 
+ id="x9-2890007.6.1"></a>callbackSetQueueSize</h4>
+<!--l. 362--><p class="noindent" >Requests for the general putpose callback tasks are placed in a ring buffer. This command can be used to set the size
+for the ring buffers. The default is 2000. A message is issued when a ring buffer overflows. It should rarely be
+necessary to override this default. Normally the ring buffer overflow messages appear when a callback task
+fails.
+</p><!--l. 369--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">7.6.2    </span> <a 
+ id="x9-2900007.6.2"></a>dbPvdTableSize</h4>
+<!--l. 371--><p class="noindent" >Record instance names are stored in a process variable directory, which is a hash table. The default number of hash entries is
+512. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbPvdTableSize</span></span></span> can be called to change the size. It must be called before any <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbLoad</span></span></span> commands and must be a
+power of 2 between 256 and 65536. If an IOC contains very large databases (several thousand records) then a larger hash table
+size speeds up searches for records.
+</p><!--l. 377--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">7.6.3    </span> <a 
+ id="x9-2910007.6.3"></a>scanOnceSetQueueSize</h4>
+<a 
+ id="dx9-291001"></a>
+<!--l. 380--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">scanOnce</span></span></span> requests are placed in a ring buffer. This command can be used to set the size for the ring buffer. The default is
+1000. It should rarely be necessary to override this default. Normally the ring buffer overflow messages appear when the
+scanOnce task fails.
+</p><!--l. 386--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">7.6.4    </span> <a 
+ id="x9-2920007.6.4"></a>errlogInit or errlogInit2</h4>
+<!--l. 388--><p class="noindent" >These commands can increase (but not decrease) the default buffer and maximum message sizes for the errlog message queue.
+The default buffer size is 1280 bytes, the maximum message size defaults to 256 bytes.
+                                                                                         
+                                                                                         
+</p><!--l. 391--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">7.7    </span> <a 
+ id="x9-2930007.7"></a>initHooks</h3>
+<a 
+ id="dx9-293001"></a>
+<!--l. 394--><p class="noindent" >The inithooks facility allows application functions to be called at various states during ioc initialization. The states are defined
+in <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">initHooks.h</span></span></span>, which contains the following definitions:
+<a 
+ id="dx9-293002"></a>
+<a 
+ id="dx9-293003"></a>
+<a 
+ id="dx9-293004"></a>
+<a 
+ id="dx9-293005"></a>
+</p>
+<!--l. 401-->
+     <div class="lstlisting" id="listing-70"><span class="label"><a 
+ id="x9-293006r1"></a></span><span 
+class="pcrb7t-">typedef</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">enum</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293007r2"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">initHookAtIocBuild</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">=</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">0,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">/&#x22C6;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">Start</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">of</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">iocBuild</span><span 
+class="pcrro7t-">/</span><span 
+class="pcrro7t-">iocInit</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">commands</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x22C6;/</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293008r3"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">initHookAtBeginning</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293009r4"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">initHookAfterCallbackInit</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293010r5"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">initHookAfterCaLinkInit</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293011r6"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">initHookAfterInitDrvSup</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293012r7"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">initHookAfterInitRecSup</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293013r8"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">initHookAfterInitDevSup</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293014r9"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">initHookAfterInitDatabase</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293015r10"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">initHookAfterFinishDevSup</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293016r11"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">initHookAfterScanInit</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293017r12"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">initHookAfterInitialProcess</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293018r13"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">initHookAfterCaServerInit</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293019r14"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">initHookAfterIocBuilt</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">/&#x22C6;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">End</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">of</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">iocBuild</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">command</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x22C6;/</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293020r15"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293021r16"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">initHookAtIocRun</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">/&#x22C6;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">Start</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">of</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">iocRun</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">command</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x22C6;/</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293022r17"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">initHookAfterDatabaseRunning</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293023r18"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">initHookAfterCaServerRunning</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293024r19"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">initHookAfterIocRunning</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">/&#x22C6;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">End</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">of</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">iocRun</span><span 
+class="pcrro7t-">/</span><span 
+class="pcrro7t-">iocInit</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">commands</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x22C6;/</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293025r20"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293026r21"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">initHookAtIocPause</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">/&#x22C6;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">Start</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">of</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">iocPause</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">command</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x22C6;/</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293027r22"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">initHookAfterCaServerPaused</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293028r23"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">initHookAfterDatabasePaused</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293029r24"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">initHookAfterIocPaused</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">/&#x22C6;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">End</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">of</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">iocPause</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">command</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x22C6;/</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293030r25"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293031r26"></a></span><span 
+class="pcrro7t-">/&#x22C6;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">Deprecated</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">states</span><span 
+class="pcrro7t-">,</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">provided</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">for</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">backwards</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">compatibility</span><span 
+class="pcrro7t-">.</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293032r27"></a></span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x22C6;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">These</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">states</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">are</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">announced</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">at</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">the</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">same</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">point</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">they</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">were</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">before</span><span 
+class="pcrro7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293033r28"></a></span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x22C6;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">but</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">will</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">not</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">be</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">repeated</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">if</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">the</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">IOC</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">gets</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">paused</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">and</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">restarted</span><span 
+class="pcrro7t-">.</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293034r29"></a></span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x22C6;/</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293035r30"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">initHookAfterInterruptAccept</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">/&#x22C6;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">After</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">initHookAfterDatabaseRunning</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x22C6;/</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293036r31"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">initHookAtEnd</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">/&#x22C6;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">Before</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">initHookAfterIocRunning</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x22C6;/</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293037r32"></a></span><span 
+class="pcrr7t-">}</span><span 
+class="pcrr7t-">initHookState</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293038r33"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293039r34"></a></span><span 
+class="pcrb7t-">typedef</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(&#x22C6;</span><span 
+class="pcrr7t-">initHookFunction</span><span 
+class="pcrr7t-">)(</span><span 
+class="pcrr7t-">initHookState</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">state</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293040r35"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">initHookRegister</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">initHookFunction</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">func</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293041r36"></a></span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">initHookName</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">state</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<!--l. 440--><p class="noindent" >Any functions that are registered before <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocInit</span></span></span> reaches the desired state will be called when it reaches that state. The
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">initHookName</span></span></span> function returns a static string representation of the state passed into it which is intended for printing. The
+following skeleton code shows how to use this facility:
+</p>
+<!--l. 444-->
+     <div class="lstlisting" id="listing-71"><span class="label"><a 
+ id="x9-293042r1"></a></span><span 
+class="pcrb7t-">static</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">initHookFunction</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">myHookFunction</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293043r2"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293044r3"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">myHookInit</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293045r4"></a></span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293046r5"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">return</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">initHookRegister</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">myHookFunction</span><span 
+class="pcrr7t-">));</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293047r6"></a></span><span 
+class="pcrr7t-">}</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293048r7"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293049r8"></a></span><span 
+class="pcrb7t-">static</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">myHookFunction</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">initHookState</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">state</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293050r9"></a></span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293051r10"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">switch</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">state</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293052r11"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">case</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">initHookAfterInitRecSup</span><span 
+class="pcrr7t-">:</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293053r12"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">...</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293054r13"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">break</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293055r14"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">case</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">initHookAfterInterruptAccept</span><span 
+class="pcrr7t-">:</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293056r15"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">...</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293057r16"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">break</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293058r17"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">default</span><span 
+class="pcrr7t-">:</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293059r18"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">break</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293060r19"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">}</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x9-293061r20"></a></span><span 
+class="pcrr7t-">}</span>
+     
+</div>
+<!--l. 467--><p class="noindent" >An arbitrary number of functions can be registered.
+</p><!--l. 469--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">7.8    </span> <a 
+ id="x9-2940007.8"></a>Environment Variables</h3>
+<a 
+ id="dx9-294001"></a>
+<!--l. 472--><p class="noindent" >Various environment variables are used by iocCore:
+<a 
+ id="dx9-294002"></a>
+<a 
+ id="dx9-294003"></a>
+<a 
+ id="dx9-294004"></a>
+<a 
+ id="dx9-294005"></a>
+<a 
+ id="dx9-294006"></a>
+<a 
+ id="dx9-294007"></a>
+<a 
+ id="dx9-294008"></a>
+<a 
+ id="dx9-294009"></a>
+<a 
+ id="dx9-294010"></a>
+<a 
+ id="dx9-294011"></a>
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-99">
+<div class="fancyvrb" id="fancyvrb99"><a 
+ id="x9-294013r1"></a>&#x00A0;&#x00A0;EPICS_CA_ADDR_LIST<br class="fancyvrb" /><a 
+ id="x9-294015r2"></a>&#x00A0;&#x00A0;EPICS_CA_AUTO_ADDR_LIST<br class="fancyvrb" /><a 
+ id="x9-294017r3"></a>&#x00A0;&#x00A0;EPICS_CA_CONN_TMO<br class="fancyvrb" /><a 
+ id="x9-294019r4"></a>&#x00A0;&#x00A0;EPICS_CAS_BEACON_PERIOD
+<br class="fancyvrb" /><a 
+ id="x9-294021r5"></a>&#x00A0;&#x00A0;EPICS_CA_REPEATER_PORT<br class="fancyvrb" /><a 
+ id="x9-294023r6"></a>&#x00A0;&#x00A0;EPICS_CA_SERVER_PORT<br class="fancyvrb" /><a 
+ id="x9-294025r7"></a>&#x00A0;&#x00A0;EPICS_CA_MAX_ARRAY_BYTES
+<br class="fancyvrb" /><a 
+ id="x9-294027r8"></a>&#x00A0;&#x00A0;EPICS_TS_NTP_INET<br class="fancyvrb" /><a 
+ id="x9-294029r9"></a>&#x00A0;&#x00A0;EPICS_IOC_LOG_PORT<br class="fancyvrb" /><a 
+ id="x9-294031r10"></a>&#x00A0;&#x00A0;EPICS_IOC_LOG_INET</div></div>
+<!--l. 495--><p class="nopar" >
+</p><!--l. 497--><p class="noindent" >For an explanation of the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">EPICS_CA_</span></span></span>... and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">EPICS_CAS_</span></span></span>... variables see the EPICS Channel Access Reference Manual.
+For an explaination of the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">EPICS_IOC_LOG_</span></span></span>... variables see &#8221;iocLogClient&#8221; on page <a 
+href="AppDevGuidech10.html#x12-47200010.7.2">427<!--tex4ht:ref: iocLogClient --></a> of this manual.
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">EPICS_TS_NTP_INET</span></span></span> is used only on vxWorks and RTEMS, where it sets the address of the Network Time Protocol server.
+If it is not defined the IOC uses the boot server as its NTP server.
+</p><!--l. 502--><p class="noindent" >These variables can be set through iocsh via the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">epicsEnvSet</span></span></span> command, or on vxWorks using <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">putenv</span></span></span>. For
+example:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-100">
+<div class="fancyvrb" id="fancyvrb100"><a 
+ id="x9-294033r1"></a>&#x00A0;&#x00A0;epicsEnvSet("EPICS_CA_CONN_TMO,"10")</div></div>
+<!--l. 507--><p class="nopar" >
+<a 
+ id="dx9-294034"></a>
+</p><!--l. 510--><p class="noindent" >All <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">epicsEnvSet</span></span></span> commands should be issued after iocCore is loaded and before any dbLoad commands.
+</p><!--l. 512--><p class="noindent" >The following commands can be issued to iocsh:
+<a 
+ id="dx9-294035"></a>
+</p><!--l. 515--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">epicsPrtEnvParams</span></span></span> &#8211; This shows just the environment variables used by iocCore.
+<a 
+ id="dx9-294036"></a>
+</p><!--l. 518--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">epicsEnvShow</span></span></span> &#8211; This shows all environment variables on your system.
+</p><!--l. 520--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">7.9    </span> <a 
+ id="x9-2950007.9"></a>Initialize Logging</h3>
+<a 
+ id="dx9-295001"></a>
+<!--l. 523--><p class="noindent" >Initialize the logging system. See the chapter on &#8220;IOC Error Logging&#8221; for details. The following can be used to direct the log
+client to use a specific host log server.
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-101">
+<div class="fancyvrb" id="fancyvrb101"><a 
+ id="x9-295003r1"></a>&#x00A0;&#x00A0;epicsEnvSet("EPICS_IOC_LOG_PORT",&#x00A0;"&#x003C;port&#x003E;")<br class="fancyvrb" /><a 
+ id="x9-295005r2"></a>&#x00A0;&#x00A0;epicsEnvSet("EPICS_IOC_LOG_INET",&#x00A0;"&#x003C;inet&#x00A0;addr&#x003E;")</div></div>
+<!--l. 530--><p class="nopar" >
+</p><!--l. 532--><p class="noindent" >These command must be given immediately after iocCore is loaded.
+</p><!--l. 534--><p class="noindent" >To start logging you must issue the command:
+<a 
+ id="dx9-295006"></a>
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-102">
+<div class="fancyvrb" id="fancyvrb102"><a 
+ id="x9-295008r1"></a>&#x00A0;&#x00A0;iocLogInit</div></div>
+<!--l. 539--><p class="nopar" >
+                                                                                         
+                                                                                         
+</p>
+<!--l. 1--><div class="crosslinks"><p class="noindent">[<a 
+href="AppDevGuidech8.html" >next</a>] [<a 
+href="AppDevGuidech6.html" >prev</a>] [<a 
+href="AppDevGuidech6.html#tailAppDevGuidech6.html" >prev-tail</a>] [<a 
+href="AppDevGuidech7.html" >front</a>] [<a 
+href="AppDevGuide.html#AppDevGuidech7.html" >up</a>] </p></div>
+<!--l. 1--><p class="noindent" ><a 
+ id="tailAppDevGuidech7.html"></a> </p> 
+</body></html> 

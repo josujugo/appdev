@@ -1,0 +1,1553 @@
+<?xml version="1.0" encoding="iso-8859-1" ?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">  
+<!--http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd-->  
+<html xmlns="http://www.w3.org/1999/xhtml"  
+> 
+<head><title>9 IOC Test Facilities</title> 
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" /> 
+<meta name="generator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
+<meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
+<!-- xhtml,2,html --> 
+<meta name="src" content="AppDevGuide.tex" /> 
+<meta name="date" content="2015-11-06 12:47:00" /> 
+<link rel="stylesheet" type="text/css" href="AppDevGuide.css" /> 
+</head><body 
+>
+<!--l. 1--><div class="crosslinks"><p class="noindent">[<a 
+href="AppDevGuidech10.html" >next</a>] [<a 
+href="AppDevGuidech8.html" >prev</a>] [<a 
+href="AppDevGuidech8.html#tailAppDevGuidech8.html" >prev-tail</a>] [<a 
+href="#tailAppDevGuidech9.html">tail</a>] [<a 
+href="AppDevGuide.html#AppDevGuidech9.html" >up</a>] </p></div>
+<h2 class="chapterHead"><span class="titlemark">Chapter&#x00A0;9</span><br /><a 
+ id="x11-3770009"></a>IOC Test Facilities</h2>
+<h3 class="sectionHead"><span class="titlemark">9.1    </span> <a 
+ id="x11-3780009.1"></a>Overview</h3>
+<!--l. 5--><p class="noindent" >This chapter describes a number of IOC test routines that are of interest to both application developers and system developers.
+The routines are available from either iocsh or the vxWorks shell. In both shells the parentheses around arguments are optional.
+On vxWorks all character string arguments must be enclosed in double quote characters <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">""</span></span></span> and all arguments must be
+separated by commas. For <a 
+ id="dx11-378001"></a>iocsh single or double quotes must be used around string arguments that contain
+spaces or commas but are otherwise optional, and arguments may be separated by either commas or spaces. For
+example:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-113">
+<div class="fancyvrb" id="fancyvrb113"><a 
+ id="x11-378003r1"></a>&#x00A0;&#x00A0;dbpf("aiTest","2")<br class="fancyvrb" /><a 
+ id="x11-378005r2"></a>&#x00A0;&#x00A0;dbpf&#x00A0;"aiTest","2"</div></div>
+<!--l. 15--><p class="nopar" >
+</p><!--l. 17--><p class="noindent" >are both valid with both iocsh and with the vxWorks shell.
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-114">
+<div class="fancyvrb" id="fancyvrb114"><a 
+ id="x11-378007r1"></a>&#x00A0;&#x00A0;dbpf&#x00A0;aiTest&#x00A0;2</div></div>
+<!--l. 21--><p class="nopar" >
+</p><!--l. 23--><p class="noindent" >Is valid for iocsh but not for the vxWorks shell.
+</p><!--l. 25--><p class="noindent" >Both iosch and vxWorks shells allow output redirection, i.e. the standard output of any command can be redirected to a file. For
+example
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-115">
+<div class="fancyvrb" id="fancyvrb115"><a 
+ id="x11-378009r1"></a>&#x00A0;&#x00A0;dbl&#x00A0;&#x003E;&#x00A0;dbl.lst</div></div>
+<!--l. 30--><p class="nopar" >
+</p><!--l. 32--><p class="noindent" >will send the output of the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbl</span></span></span> command to the file <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbl.lst</span></span></span>
+</p><!--l. 34--><p class="noindent" >If iocsh is being used it provides help for all commands that have been registered. Just type
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-116">
+<div class="fancyvrb" id="fancyvrb116"><a 
+ id="x11-378011r1"></a>&#x00A0;&#x00A0;help</div></div>
+<!--l. 38--><p class="nopar" >
+</p><!--l. 40--><p class="noindent" >or
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-117">
+<div class="fancyvrb" id="fancyvrb117"><a 
+ id="x11-378013r1"></a>&#x00A0;&#x00A0;help&#x00A0;pattern&#x22C6;</div></div>
+<!--l. 44--><p class="nopar" >
+</p><!--l. 46--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">9.2    </span> <a 
+ id="x11-3790009.2"></a>Database List, Get, Put</h3>
+<!--l. 48--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.2.1    </span> <a 
+ id="x11-3800009.2.1"></a>dbl</h4>
+<a 
+ id="dx11-380001"></a>
+<!--l. 51--><p class="noindent" >Database List:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-118">
+<div class="fancyvrb" id="fancyvrb118"><a 
+ id="x11-380003r1"></a>&#x00A0;&#x00A0;dbl("&#x003C;record&#x00A0;type&#x003E;","&#x003C;field&#x00A0;list&#x003E;")</div></div>
+<!--l. 55--><p class="nopar" >
+</p><!--l. 57--><p class="noindent" >Examples
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-119">
+<div class="fancyvrb" id="fancyvrb119"><a 
+ id="x11-380005r1"></a>&#x00A0;&#x00A0;dbl<br class="fancyvrb" /><a 
+ id="x11-380007r2"></a>&#x00A0;&#x00A0;dbl("ai")<br class="fancyvrb" /><a 
+ id="x11-380009r3"></a>&#x00A0;&#x00A0;dbl("&#x22C6;")<br class="fancyvrb" /><a 
+ id="x11-380011r4"></a>&#x00A0;&#x00A0;dbl("")</div></div>
+<!--l. 64--><p class="nopar" >
+</p><!--l. 66--><p class="noindent" >This command prints the names of records in the run time database. If <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;record</span><span 
+class="pcrr7t-">&#x00A0;type&#x003E;</span></span></span> is empty <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">("")</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">"&#x22C6;"</span></span></span>, or not
+specified, all records are listed. If <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;record</span><span 
+class="pcrr7t-">&#x00A0;type&#x003E;</span></span></span> is specified, then only the names of the records of that type are
+listed.
+</p><!--l. 70--><p class="noindent" >If <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;field</span><span 
+class="pcrr7t-">&#x00A0;list&#x003E;</span></span></span> is given and not empty then the values of the fields specified are also printed.
+</p><!--l. 72--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.2.2    </span> <a 
+ id="x11-3810009.2.2"></a>dbgrep</h4>
+<a 
+ id="dx11-381001"></a>
+<!--l. 75--><p class="noindent" >List Record Names That Match a Pattern:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-120">
+<div class="fancyvrb" id="fancyvrb120"><a 
+ id="x11-381003r1"></a>&#x00A0;&#x00A0;dbgrep("&#x003C;pattern&#x003E;")</div></div>
+<!--l. 79--><p class="nopar" >
+</p><!--l. 81--><p class="noindent" >Examples
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-121">
+<div class="fancyvrb" id="fancyvrb121"><a 
+ id="x11-381005r1"></a>&#x00A0;&#x00A0;dbgrep("S0&#x22C6;")<br class="fancyvrb" /><a 
+ id="x11-381007r2"></a>&#x00A0;&#x00A0;dbgrep("&#x22C6;gpibAi&#x22C6;")</div></div>
+<!--l. 86--><p class="nopar" >
+</p><!--l. 88--><p class="noindent" >Lists all record names that match a pattern. The pattern can contain any characters that are legal in record names as well as &#8221;<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x22C6;</span></span></span>&#8221;,
+which matches 0 or more characters.
+</p><!--l. 91--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.2.3    </span> <a 
+ id="x11-3820009.2.3"></a>dbla</h4>
+<a 
+ id="dx11-382001"></a>
+<!--l. 94--><p class="noindent" >List Record Alias Names with optional pattern:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-122">
+<div class="fancyvrb" id="fancyvrb122"><a 
+ id="x11-382003r1"></a>&#x00A0;&#x00A0;dbla<br class="fancyvrb" /><a 
+ id="x11-382005r2"></a>&#x00A0;&#x00A0;dbla("&#x003C;pattern&#x003E;")</div></div>
+<!--l. 99--><p class="nopar" >
+</p><!--l. 101--><p class="noindent" >Lists the names of all aliases (which match the pattern if given) and the records they refer to. Examples:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-123">
+<div class="fancyvrb" id="fancyvrb123"><a 
+ id="x11-382007r1"></a>&#x00A0;&#x00A0;dbla<br class="fancyvrb" /><a 
+ id="x11-382009r2"></a>&#x00A0;&#x00A0;dbla&#x00A0;"alia&#x22C6;"</div></div>
+<!--l. 106--><p class="nopar" >
+</p><!--l. 108--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.2.4    </span> <a 
+ id="x11-3830009.2.4"></a>dba</h4>
+<a 
+ id="dx11-383001"></a>
+<!--l. 111--><p class="noindent" >Database Address:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-124">
+<div class="fancyvrb" id="fancyvrb124"><a 
+ id="x11-383003r1"></a>&#x00A0;&#x00A0;dba("&#x003C;record_name.field_name&#x003E;")</div></div>
+<!--l. 115--><p class="nopar" >
+</p><!--l. 117--><p class="noindent" >Example
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-125">
+<div class="fancyvrb" id="fancyvrb125"><a 
+ id="x11-383005r1"></a>&#x00A0;&#x00A0;dba("aitest")<br class="fancyvrb" /><a 
+ id="x11-383007r2"></a>&#x00A0;&#x00A0;dba("aitest.VAL")</div></div>
+<!--l. 122--><p class="nopar" >
+</p><!--l. 124--><p class="noindent" >This command calls <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbNameToAddr</span></span></span> and then prints the value of each field in the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbAddr</span></span></span> structure describing the field. If
+the field name is not specified then <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">VAL</span></span></span> is assumed (the two examples above are equivalent).
+</p><!--l. 127--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.2.5    </span> <a 
+ id="x11-3840009.2.5"></a>dbgf</h4>
+<a 
+ id="dx11-384001"></a>
+<!--l. 130--><p class="noindent" >Get Field:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-126">
+<div class="fancyvrb" id="fancyvrb126"><a 
+ id="x11-384003r1"></a>&#x00A0;&#x00A0;dbgf("&#x003C;record_name.field_name&#x003E;")</div></div>
+<!--l. 134--><p class="nopar" >
+</p><!--l. 136--><p class="noindent" >Example:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-127">
+<div class="fancyvrb" id="fancyvrb127"><a 
+ id="x11-384005r1"></a>&#x00A0;&#x00A0;dbgf("aitest")<br class="fancyvrb" /><a 
+ id="x11-384007r2"></a>&#x00A0;&#x00A0;dbgf)"aitest.VAL")</div></div>
+<!--l. 141--><p class="nopar" >
+</p><!--l. 143--><p class="noindent" >This performs a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbNameToAddr</span></span></span> and then a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbGetField</span></span></span>. It prints the field type and value. If the field name is not specified
+then <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">VAL</span></span></span> is assumed (the two examples above are equivalent). Note that <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbGetField</span></span></span> locks the record lockset, so <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbgf</span></span></span> will
+not work on a record with a stuck lockset; use <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbpr</span></span></span> instead in this case.
+</p><!--l. 147--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.2.6    </span> <a 
+ id="x11-3850009.2.6"></a>dbpf</h4>
+<a 
+ id="dx11-385001"></a>
+<!--l. 150--><p class="noindent" >Put Field:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-128">
+<div class="fancyvrb" id="fancyvrb128"><a 
+ id="x11-385003r1"></a>&#x00A0;&#x00A0;dbpf("&#x003C;record_name.field_name&#x003E;","&#x003C;value&#x003E;")</div></div>
+<!--l. 154--><p class="nopar" >
+</p><!--l. 156--><p class="noindent" >Example:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-129">
+<div class="fancyvrb" id="fancyvrb129"><a 
+ id="x11-385005r1"></a>&#x00A0;&#x00A0;dbpf("aitest","5.0")</div></div>
+<!--l. 160--><p class="nopar" >
+</p><!--l. 162--><p class="noindent" >This command performs a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbNameToAddr</span></span></span> followed by a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbPutField</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbgf</span></span></span>. If <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;field_name&#x003E;</span></span></span> is not specified
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">VAL</span></span></span> is assumed.
+</p><!--l. 165--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.2.7    </span> <a 
+ id="x11-3860009.2.7"></a>dbpr</h4>
+<a 
+ id="dx11-386001"></a>
+<!--l. 168--><p class="noindent" >Print Record:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-130">
+<div class="fancyvrb" id="fancyvrb130"><a 
+ id="x11-386003r1"></a>&#x00A0;&#x00A0;dbpr("&#x003C;record_name&#x003E;",&#x003C;interest&#x00A0;level&#x003E;)</div></div>
+<!--l. 172--><p class="nopar" >
+</p><!--l. 174--><p class="noindent" >Example
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-131">
+<div class="fancyvrb" id="fancyvrb131"><a 
+ id="x11-386005r1"></a>&#x00A0;&#x00A0;dbpr("aitest",2)</div></div>
+<!--l. 178--><p class="nopar" >
+</p><!--l. 180--><p class="noindent" >This command prints all fields of the specified record up to and including those with the indicated interest level. Interest level
+has one of the following values:
+</p>
+     <ul class="itemize1">
+     <li class="itemize">0: Fields of interest to an Application developer and that can be changed as a result of record processing.
+     </li>
+     <li class="itemize">1: Fields of interest to an Application developer and that do not change during record processing.
+     </li>
+     <li class="itemize">2: Fields of major interest to a System developer.
+     </li>
+     <li class="itemize">3: Fields of minor interest to a System developer.
+     </li>
+     <li class="itemize">4: Fields of no interest.
+     </li></ul>
+<!--l. 196--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.2.8    </span> <a 
+ id="x11-3870009.2.8"></a> dbtr</h4>
+<a 
+ id="dx11-387001"></a>
+<!--l. 199--><p class="noindent" >Test Record:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-132">
+<div class="fancyvrb" id="fancyvrb132"><a 
+ id="x11-387003r1"></a>&#x00A0;&#x00A0;dbtr("&#x003C;record_name&#x003E;")</div></div>
+<!--l. 203--><p class="nopar" >
+</p><!--l. 205--><p class="noindent" >This calls <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbNameToAddr</span></span></span>, then <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbProcess</span></span></span> and finally <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbpr</span></span></span> (interest level 3). Its purpose is to test record
+processing.
+</p><!--l. 207--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.2.9    </span> <a 
+ id="x11-3880009.2.9"></a>dbnr</h4>
+<a 
+ id="dx11-388001"></a>
+<!--l. 210--><p class="noindent" >Print number of records:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-133">
+<div class="fancyvrb" id="fancyvrb133"><a 
+ id="x11-388003r1"></a>&#x00A0;&#x00A0;dbnr(&#x003C;all_recordtypes&#x003E;)</div></div>
+<!--l. 214--><p class="nopar" >
+</p><!--l. 216--><p class="noindent" >This command displays the number of records of each type and the total number of records. If <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">all_record_types</span></span></span> is 0 then
+only record types with record instances are displayed otherwise all record types are displayed.
+</p><!--l. 219--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">9.3    </span> <a 
+ id="x11-3890009.3"></a>Breakpoints</h3>
+<a 
+ id="dx11-389001"></a>
+<!--l. 222--><p class="noindent" >A breakpoint facility that allows the user to step through database processing on a per lockset basis. This facility has been
+constructed in such a way that the execution of all locksets other than ones with breakpoints will not be interrupted. This was
+done by executing the records in the context of a separate task.
+</p><!--l. 226--><p class="noindent" >The breakpoint facility records all attempts to process records in a lockset containing breakpoints. A record that is processed
+through external means, e.g.: a scan task, is called an entrypoint into that lockset. The <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbstat</span></span></span> command described below will
+list all detected entrypoints to a lockset, and at what rate they have been detected.
+</p><!--l. 230--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.3.1    </span> <a 
+ id="x11-3900009.3.1"></a>dbb</h4>
+<a 
+ id="dx11-390001"></a>
+<!--l. 233--><p class="noindent" >Set Breakpoint:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-134">
+<div class="fancyvrb" id="fancyvrb134"><a 
+ id="x11-390003r1"></a>&#x00A0;&#x00A0;dbb("&#x003C;record_name&#x003E;")</div></div>
+<!--l. 237--><p class="nopar" >
+</p><!--l. 239--><p class="noindent" >Sets a breakpoint in a record. Automatically spawns the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">bkptCont</span></span></span>, or breakpoint continuation task (one per lockset). Further
+record execution in this lockset is run within this task&#8217;s context. This task will automatically quit if two conditions are met, all
+breakpoints have been removed from records within the lockset, and all breakpoints within the lockset have been
+continued.
+</p><!--l. 244--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.3.2    </span> <a 
+ id="x11-3910009.3.2"></a>dbd</h4>
+<a 
+ id="dx11-391001"></a>
+<!--l. 247--><p class="noindent" >Remove Breakpoint:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-135">
+<div class="fancyvrb" id="fancyvrb135"><a 
+ id="x11-391003r1"></a>&#x00A0;&#x00A0;dbd("&#x003C;record_name&#x003E;")</div></div>
+<!--l. 251--><p class="nopar" >
+</p><!--l. 253--><p class="noindent" >Removes a breakpoint from a record.
+</p><!--l. 255--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.3.3    </span> <a 
+ id="x11-3920009.3.3"></a>dbs</h4>
+<a 
+ id="dx11-392001"></a>
+<!--l. 258--><p class="noindent" >Single Step:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-136">
+<div class="fancyvrb" id="fancyvrb136"><a 
+ id="x11-392003r1"></a>&#x00A0;&#x00A0;dbs("&#x003C;record_name&#x003E;")</div></div>
+<!--l. 262--><p class="nopar" >
+</p><!--l. 264--><p class="noindent" >Steps through execution of records within a lockset. If this command is called without an argument, it will automatically step
+starting with the last detected breakpoint.
+</p><!--l. 267--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.3.4    </span> <a 
+ id="x11-3930009.3.4"></a>dbc</h4>
+<a 
+ id="dx11-393001"></a>
+<!--l. 270--><p class="noindent" >Continue:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-137">
+<div class="fancyvrb" id="fancyvrb137"><a 
+ id="x11-393003r1"></a>&#x00A0;&#x00A0;dbc("&#x003C;record_name&#x003E;")</div></div>
+<!--l. 274--><p class="nopar" >
+</p><!--l. 276--><p class="noindent" >Continues execution until another breakpoint is found. This command may also be called without an argument.
+</p><!--l. 278--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.3.5    </span> <a 
+ id="x11-3940009.3.5"></a>dbp </h4>
+<a 
+ id="dx11-394001"></a>
+<!--l. 281--><p class="noindent" >Print Fields Of Suspended Record:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-138">
+<div class="fancyvrb" id="fancyvrb138"><a 
+ id="x11-394003r1"></a>&#x00A0;&#x00A0;dbp("&#x003C;record_name&#x003E;,&#x003C;interest_level&#x003E;)</div></div>
+<!--l. 285--><p class="nopar" >
+</p><!--l. 287--><p class="noindent" >Prints out the fields of the last record whose execution was suspended.
+</p><!--l. 289--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.3.6    </span> <a 
+ id="x11-3950009.3.6"></a>dbap</h4>
+<a 
+ id="dx11-395001"></a>
+<!--l. 292--><p class="noindent" >Auto Print:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-139">
+<div class="fancyvrb" id="fancyvrb139"><a 
+ id="x11-395003r1"></a>&#x00A0;&#x00A0;dbap("&#x003C;record_name&#x003E;")</div></div>
+<!--l. 296--><p class="nopar" >
+</p><!--l. 298--><p class="noindent" >Toggles the automatic record printing feature. If this feature is enabled for a given record, it will automatically be printed after
+the record is processed.
+</p><!--l. 301--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.3.7    </span> <a 
+ id="x11-3960009.3.7"></a>dbstat</h4>
+<a 
+ id="dx11-396001"></a>
+<!--l. 304--><p class="noindent" >Status:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-140">
+<div class="fancyvrb" id="fancyvrb140"><a 
+ id="x11-396003r1"></a>&#x00A0;&#x00A0;dbstat</div></div>
+<!--l. 308--><p class="nopar" >
+</p><!--l. 310--><p class="noindent" >Prints out the status of all locksets that are suspended or contain breakpoints. This lists all the records with breakpoints set,
+what records have the autoprint feature set (by <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbap</span></span></span>), and what entrypoints have been detected. It also displays
+the vxWorks task ID of the breakpoint continuation task for the lockset. Here is an example output from this
+call:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-141">
+<div class="fancyvrb" id="fancyvrb141"><a 
+ id="x11-396005r1"></a>&#x00A0;&#x00A0;LSet:&#x00A0;00009&#x00A0;&#x00A0;Stopped&#x00A0;at:&#x00A0;so#B:&#x00A0;00001&#x00A0;&#x00A0;&#x00A0;T:&#x00A0;0x23cafac<br class="fancyvrb" /><a 
+ id="x11-396007r2"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;Entrypoint:&#x00A0;so#C:&#x00A0;00001&#x00A0;&#x00A0;&#x00A0;C/S:&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;0.1
+<br class="fancyvrb" /><a 
+ id="x11-396009r3"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;Breakpoint:&#x00A0;so(ap)<br class="fancyvrb" /><a 
+ id="x11-396011r4"></a>&#x00A0;&#x00A0;LSet:&#x00A0;00008#B:&#x00A0;00001&#x00A0;&#x00A0;&#x00A0;T:&#x00A0;0x22fee4c<br class="fancyvrb" /><a 
+ id="x11-396013r5"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;Breakpoint:&#x00A0;output</div></div>
+<!--l. 320--><p class="nopar" >
+</p><!--l. 322--><p class="noindent" >The above indicates that two locksets contain breakpoints. One lockset is stopped at record &#8220;<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">so</span></span></span>.&#8221; The other is not currently
+stopped, but contains a breakpoint at record &#8220;<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">output</span></span></span>.&#8221; &#8220;<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">LSet:</span></span></span>&#8221; is the lockset number that is being considered. &#8221;<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">#B:</span></span></span>&#8221; is the
+number of breakpoints set in records within that lockset. &#8220;<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">T:</span></span></span>&#8221; is the vxWorks task ID of the continuation task.
+&#8220;<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">C:</span></span></span>&#8221; is the total number of calls to the entrypoint that have been detected. &#8220;<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">C/S:</span></span></span>&#8221; is the number of those calls
+that have been detected per second. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">(ap)</span></span></span> indicates that the autoprint feature has been turned on for record
+&#8220;<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">so</span></span></span>.&#8221;
+</p><!--l. 328--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">9.4    </span> <a 
+ id="x11-3970009.4"></a>Trace Processing</h3>
+<a 
+ id="dx11-397001"></a>
+<!--l. 331--><p class="noindent" >The user should also be aware of the field <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">TPRO</span></span></span>, which is present in every database record. If it is set <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">TRUE</span></span></span> then a message is
+printed each time its record is processed and a message is printed for each record processed as a result of it being
+processed.
+<a 
+ id="dx11-397002"></a>
+</p><!--l. 336--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">9.5    </span> <a 
+ id="x11-3980009.5"></a>Error Logging</h3>
+<!--l. 338--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.5.1    </span> <a 
+ id="x11-3990009.5.1"></a>eltc</h4>
+<a 
+ id="dx11-399001"></a>
+<!--l. 341--><p class="noindent" >Display error log messages on console:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-142">
+<div class="fancyvrb" id="fancyvrb142"><a 
+ id="x11-399003r1"></a>&#x00A0;&#x00A0;eltc(int&#x00A0;noYes)</div></div>
+<!--l. 345--><p class="nopar" >
+</p><!--l. 347--><p class="noindent" >This determines if error messages are displayed on the IOC console. 0 means no and any other value means
+yes.
+</p><!--l. 349--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.5.2    </span> <a 
+ id="x11-4000009.5.2"></a>errlogInit, errlogInit2</h4>
+<!--l. 351--><p class="noindent" >Initialize error log client buffering
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-143">
+<div class="fancyvrb" id="fancyvrb143"><a 
+ id="x11-400002r1"></a>&#x00A0;&#x00A0;errlogInit(int&#x00A0;bufSize)<br class="fancyvrb" /><a 
+ id="x11-400004r2"></a>&#x00A0;&#x00A0;errlogInit2(int&#x00A0;bufSize,&#x00A0;int&#x00A0;maxMsgSize)</div></div>
+<!--l. 356--><p class="nopar" >
+</p><!--l. 358--><p class="noindent" >The error log client maintains a circular buffer of messages that are waiting to be sent to the log server. If not set
+using one or other of these routines the default value for bufSize is 1280 bytes and for maxMsgSize is 256
+bytes.
+</p><!--l. 361--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.5.3    </span> <a 
+ id="x11-4010009.5.3"></a>errlog</h4>
+<!--l. 363--><p class="noindent" >Send a message to the log server
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-144">
+<div class="fancyvrb" id="fancyvrb144"><a 
+ id="x11-401002r1"></a>&#x00A0;&#x00A0;errlog("&#x003C;message&#x003E;")</div></div>
+<!--l. 367--><p class="nopar" >
+</p><!--l. 369--><p class="noindent" >This command is provided for use from the ioc shell only. It sends its string argument and a new-line to the log server, without
+displaying it on the IOC console. Note that the iocsh will have expanded any environment variable macros in the string (if it
+was double-quoted) before passing it to errlog.
+</p><!--l. 373--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">9.6    </span> <a 
+ id="x11-4020009.6"></a>Hardware Reports</h3>
+<!--l. 375--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.6.1    </span> <a 
+ id="x11-4030009.6.1"></a>dbior</h4>
+<a 
+ id="dx11-403001"></a>
+<!--l. 378--><p class="noindent" >I/O Report:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-145">
+<div class="fancyvrb" id="fancyvrb145"><a 
+ id="x11-403003r1"></a>&#x00A0;&#x00A0;dbior&#x00A0;("&#x003C;driver_name&#x003E;",&#x003C;interest&#x00A0;level&#x003E;)</div></div>
+<!--l. 382--><p class="nopar" >
+</p><!--l. 384--><p class="noindent" >This command calls the report entry of the indicated driver. If <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;driver_name&#x003E;</span></span></span> is &#8220;&#8221; or &#8220;*&#8221;, then a report for all drivers is
+generated. The command also calls the report entry of all device support modules. Interest level is one of the
+following:
+</p>
+     <ul class="itemize1">
+     <li class="itemize">0: Print a short report for each module.
+     </li>
+     <li class="itemize">1: Print additional information.
+     </li>
+     <li class="itemize">2: Print even more info. The user may be prompted for options.
+     </li></ul>
+<!--l. 396--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.6.2    </span> <a 
+ id="x11-4040009.6.2"></a>dbhcr</h4>
+<a 
+ id="dx11-404001"></a>
+<!--l. 399--><p class="noindent" >Hardware Configuration Report:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-146">
+<div class="fancyvrb" id="fancyvrb146"><a 
+ id="x11-404003r1"></a>&#x00A0;&#x00A0;dbhcr()</div></div>
+<!--l. 403--><p class="nopar" >
+</p><!--l. 405--><p class="noindent" >This command produces a report of all hardware links. To use it on the IOC, issue the command:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-147">
+<div class="fancyvrb" id="fancyvrb147"><a 
+ id="x11-404005r1"></a>&#x00A0;&#x00A0;dbhcr&#x00A0;&#x003E;&#x00A0;report</div></div>
+<!--l. 409--><p class="nopar" >
+</p><!--l. 411--><p class="noindent" >The report will probably not be in the sort order desired. The Unix command:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-148">
+<div class="fancyvrb" id="fancyvrb148"><a 
+ id="x11-404007r1"></a>&#x00A0;&#x00A0;sort&#x00A0;report&#x00A0;&#x003E;&#x00A0;report.sort</div></div>
+<!--l. 415--><p class="nopar" >
+</p><!--l. 417--><p class="noindent" >should produce the sort order you desire.
+</p><!--l. 419--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">9.7    </span> <a 
+ id="x11-4050009.7"></a>Scan Reports</h3>
+<!--l. 421--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.7.1    </span> <a 
+ id="x11-4060009.7.1"></a>scanppl</h4>
+<a 
+ id="dx11-406001"></a>
+<!--l. 424--><p class="noindent" >Print Periodic Lists:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-149">
+<div class="fancyvrb" id="fancyvrb149"><a 
+ id="x11-406003r1"></a>&#x00A0;&#x00A0;scanppl(double&#x00A0;rate)</div></div>
+<!--l. 428--><p class="nopar" >
+</p><!--l. 430--><p class="noindent" >This routine prints a list of all records in the periodic scan list of the specified rate. If rate is 0.0 all period lists are
+shown.
+</p><!--l. 432--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.7.2    </span> <a 
+ id="x11-4070009.7.2"></a>scanpel</h4>
+<a 
+ id="dx11-407001"></a>
+<!--l. 435--><p class="noindent" >Print Event Lists:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-150">
+<div class="fancyvrb" id="fancyvrb150"><a 
+ id="x11-407003r1"></a>&#x00A0;&#x00A0;scanpel(int&#x00A0;event_number)</div></div>
+<!--l. 439--><p class="nopar" >
+</p><!--l. 441--><p class="noindent" >This routine prints a list of all records in the event scan list for the specified event nunber. If event_number is 0 all event scan
+lists are shown.
+</p><!--l. 444--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.7.3    </span> <a 
+ id="x11-4080009.7.3"></a>scanpiol</h4>
+<a 
+ id="dx11-408001"></a>
+<!--l. 447--><p class="noindent" >Print I/O Event Lists:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-151">
+<div class="fancyvrb" id="fancyvrb151"><a 
+ id="x11-408003r1"></a>&#x00A0;&#x00A0;scanpiol</div></div>
+<!--l. 451--><p class="nopar" >
+</p><!--l. 453--><p class="noindent" >This routine prints a list of all records in the I/O event scan lists.
+</p><!--l. 455--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">9.8    </span> <a 
+ id="x11-4090009.8"></a>General Time</h3>
+<!--l. 457--><p class="noindent" >The built-in time providers depend on the IOC&#8217;s target architecture, so some of the specific subsystem report commands listed
+below are only available on the architectures that use that particular provider.
+</p><!--l. 460--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.8.1    </span> <a 
+ id="x11-4100009.8.1"></a>generalTimeReport</h4>
+<a 
+ id="dx11-410001"></a>
+<!--l. 463--><p class="noindent" >Format:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-152">
+<div class="fancyvrb" id="fancyvrb152"><a 
+ id="x11-410003r1"></a>&#x00A0;&#x00A0;generalTimeReport(int&#x00A0;level)</div></div>
+<!--l. 467--><p class="nopar" >
+</p><!--l. 469--><p class="noindent" >This routine displays the time providers and their priority levels that have registered with the General Time
+subsystem for both current and event times. At level 1 it also shows the current time as obtained from each
+provider.
+</p><!--l. 472--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.8.2    </span> <a 
+ id="x11-4110009.8.2"></a>installLastResortEventProvider</h4>
+<a 
+ id="dx11-411001"></a>
+<!--l. 475--><p class="noindent" >Format:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-153">
+<div class="fancyvrb" id="fancyvrb153"><a 
+ id="x11-411003r1"></a>&#x00A0;&#x00A0;installLastResortEventProvider</div></div>
+<!--l. 479--><p class="nopar" >
+</p><!--l. 481--><p class="noindent" >Installs the optional Last Resort event provider at priority 999, which returns the current time for every event
+number.
+</p><!--l. 483--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.8.3    </span> <a 
+ id="x11-4120009.8.3"></a>NTPTime_Report</h4>
+<a 
+ id="dx11-412001"></a>
+<!--l. 486--><p class="noindent" >Format:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-154">
+<div class="fancyvrb" id="fancyvrb154"><a 
+ id="x11-412003r1"></a>&#x00A0;&#x00A0;NTPTime_Report(int&#x00A0;level)</div></div>
+<!--l. 490--><p class="nopar" >
+</p><!--l. 492--><p class="noindent" >Only vxWorks and RTEMS targets use this time provider. The report displays the provider&#8217;s synchronization state, and at
+interest level 1 it also gives the synchronization interval, when it last synchronized, the nominal and measured system tick rates,
+and on vxWorks the NTP server address.
+</p><!--l. 496--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.8.4    </span> <a 
+ id="x11-4130009.8.4"></a>NTPTime_Shutdown</h4>
+<!--l. 498--><p class="noindent" >Format:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-155">
+<div class="fancyvrb" id="fancyvrb155"><a 
+ id="x11-413002r1"></a>&#x00A0;&#x00A0;NTPTime_Shutdown</div></div>
+<!--l. 502--><p class="nopar" >
+</p><!--l. 504--><p class="noindent" >On vxWorks and RTEMS this command shuts down the NTP time synchronization thread. With the thread shut down, the
+driver will no longer act as a current time provider.
+</p><!--l. 507--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.8.5    </span> <a 
+ id="x11-4140009.8.5"></a>ClockTime_Report</h4>
+<a 
+ id="dx11-414001"></a>
+<!--l. 510--><p class="noindent" >Format:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-156">
+<div class="fancyvrb" id="fancyvrb156"><a 
+ id="x11-414003r1"></a>&#x00A0;&#x00A0;ClockTime_Report(int&#x00A0;level)</div></div>
+<!--l. 514--><p class="nopar" >
+</p><!--l. 516--><p class="noindent" >This time provider is used on several target architectures, registered as the time provider of last resort. On vxWorks and
+RTEMS the report displays the synchronization state, when it last synchronized the system time with a higher priority provider,
+and the synchronization interval. On workstation operating systems the synchronization task is not started on the
+assumption that some other process is taking care of synchronzing the OS clock as appropriate, so the report is
+minimal.
+</p><!--l. 521--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.8.6    </span> <a 
+ id="x11-4150009.8.6"></a>ClockTime_Shutdown</h4>
+<a 
+ id="dx11-415001"></a>
+<!--l. 524--><p class="noindent" >Format:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-157">
+<div class="fancyvrb" id="fancyvrb157"><a 
+ id="x11-415003r1"></a>&#x00A0;&#x00A0;ClockTime_Shutdown</div></div>
+<!--l. 528--><p class="nopar" >
+</p><!--l. 530--><p class="noindent" >Some sites may prefer to provide their own implementation of a system clock time provider to replace the built-in one. On
+vxWorks and RTEMS this command stops the OS Clock synchronization thread, allowing the OS clock to free-run. The time
+provider <span 
+class="ptmri7t-">will </span>continue to return the current system time after this command is used however.
+</p><!--l. 534--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">9.9    </span> <a 
+ id="x11-4160009.9"></a>Access Security Commands</h3>
+<!--l. 536--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.9.1    </span> <a 
+ id="x11-4170009.9.1"></a>asSetSubstitutions</h4>
+<!--l. 538--><p class="noindent" >Format:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-158">
+<div class="fancyvrb" id="fancyvrb158"><a 
+ id="x11-417002r1"></a>&#x00A0;&#x00A0;asSetSubstitutions("substitutions")</div></div>
+<!--l. 542--><p class="nopar" >
+</p><!--l. 544--><p class="noindent" >Specifies macro substitutions used when access security is initialized.
+</p><!--l. 546--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.9.2    </span> <a 
+ id="x11-4180009.9.2"></a>asSetFilename</h4>
+<a 
+ id="dx11-418001"></a>
+<!--l. 549--><p class="noindent" >Format:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-159">
+<div class="fancyvrb" id="fancyvrb159"><a 
+ id="x11-418003r1"></a>&#x00A0;&#x00A0;asSetFilename("&#x003C;filename&#x003E;")</div></div>
+<!--l. 553--><p class="nopar" >
+</p><!--l. 555--><p class="noindent" >This command defines a new access security file.
+</p><!--l. 557--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.9.3    </span> <a 
+ id="x11-4190009.9.3"></a>asInit</h4>
+<a 
+ id="dx11-419001"></a>
+<!--l. 560--><p class="noindent" >Format:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-160">
+<div class="fancyvrb" id="fancyvrb160"><a 
+ id="x11-419003r1"></a>&#x00A0;&#x00A0;asInit</div></div>
+<!--l. 564--><p class="nopar" >
+</p><!--l. 566--><p class="noindent" >This command reinitializes the access security system. It rereads the access security file in order to create the new access
+security database. This command is useful either because the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asSetFilename</span></span></span> command was used to change the file or
+because the file itself was modified. Note that it is also possible to reinitialize the access security via a subroutine record. See
+the access security document for details.
+</p><!--l. 571--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.9.4    </span> <a 
+ id="x11-4200009.9.4"></a>asdbdump</h4>
+<a 
+ id="dx11-420001"></a>
+<!--l. 574--><p class="noindent" >Format:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-161">
+<div class="fancyvrb" id="fancyvrb161"><a 
+ id="x11-420003r1"></a>&#x00A0;&#x00A0;asdbdump</div></div>
+<!--l. 578--><p class="nopar" >
+</p><!--l. 580--><p class="noindent" >This provides a complete dump of the access security database.
+</p><!--l. 582--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.9.5    </span> <a 
+ id="x11-4210009.9.5"></a>aspuag</h4>
+<a 
+ id="dx11-421001"></a>
+<!--l. 585--><p class="noindent" >Format:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-162">
+<div class="fancyvrb" id="fancyvrb162"><a 
+ id="x11-421003r1"></a>&#x00A0;&#x00A0;aspuag("&#x003C;user&#x00A0;access&#x00A0;group&#x003E;")</div></div>
+<!--l. 589--><p class="nopar" >
+</p><!--l. 591--><p class="noindent" >Print the members of the user access group. If no user access group is specified then the members of all user access groups are
+displayed.
+</p><!--l. 594--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.9.6    </span> <a 
+ id="x11-4220009.9.6"></a>asphag</h4>
+<a 
+ id="dx11-422001"></a>
+<!--l. 597--><p class="noindent" >Format:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-163">
+<div class="fancyvrb" id="fancyvrb163"><a 
+ id="x11-422003r1"></a>&#x00A0;&#x00A0;asphag("&#x003C;host&#x00A0;access&#x00A0;group&#x003E;")</div></div>
+<!--l. 601--><p class="nopar" >
+</p><!--l. 603--><p class="noindent" >Print the members of the host access group. If no host access group is specified then the members of all host access groups are
+displayed.
+</p><!--l. 606--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.9.7    </span> <a 
+ id="x11-4230009.9.7"></a>asprules</h4>
+<a 
+ id="dx11-423001"></a>
+<!--l. 609--><p class="noindent" >Format:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-164">
+<div class="fancyvrb" id="fancyvrb164"><a 
+ id="x11-423003r1"></a>&#x00A0;&#x00A0;asprules("&#x003C;access&#x00A0;security&#x00A0;group&#x003E;")</div></div>
+<!--l. 613--><p class="nopar" >
+</p><!--l. 615--><p class="noindent" >Print the rules for the specified access security group or if no group is specified for all groups.
+</p><!--l. 617--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.9.8    </span> <a 
+ id="x11-4240009.9.8"></a>aspmem</h4>
+<a 
+ id="dx11-424001"></a>
+<!--l. 620--><p class="noindent" >Format:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-165">
+<div class="fancyvrb" id="fancyvrb165"><a 
+ id="x11-424003r1"></a>&#x00A0;&#x00A0;aspmem("&#x003C;access&#x00A0;security&#x00A0;group&#x003E;",&#x00A0;&#x003C;print&#x00A0;clients&#x003E;)</div></div>
+<!--l. 624--><p class="nopar" >
+</p><!--l. 626--><p class="noindent" >Print the members (records) that belong to the specified access security group, for all groups if no group is
+specified. If <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;print</span><span 
+class="pcrr7t-">&#x00A0;clients&#x003E;</span></span></span> is (0, 1) then Channel Access clients attached to each member (are not, are)
+shown.
+</p><!--l. 629--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">9.10    </span> <a 
+ id="x11-4250009.10"></a>Channel Access Reports</h3>
+<!--l. 631--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.10.1    </span> <a 
+ id="x11-4260009.10.1"></a>casr</h4>
+<a 
+ id="dx11-426001"></a>
+<!--l. 634--><p class="noindent" >Channel Access Server Report
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-166">
+<div class="fancyvrb" id="fancyvrb166"><a 
+ id="x11-426003r1"></a>&#x00A0;&#x00A0;casr(&#x003C;level&#x003E;)</div></div>
+<!--l. 638--><p class="nopar" >
+</p><!--l. 640--><p class="noindent" >Level can have one of the following values:
+     </p><dl class="description"><dt class="description">
+ </dt><dd 
+class="description">0
+     <!--l. 646--><p class="noindent" >Prints server&#8217;s protocol version level and a one line summary for each client attached. The summary lines contain
+     the client&#8217;s login name, client&#8217;s host name, client&#8217;s protocol version number, and the number of channel created
+     within the server by the client.
+     </p></dd><dt class="description">
+ </dt><dd 
+class="description">1
+     <!--l. 652--><p class="noindent" >Level one provides all information in level 0 and adds the task id used by the server for each client, the client&#8217;s
+     IP protocol type, the file number used by the server for the client, the number of seconds elapsed since the last
+     request was received from the client, the number of seconds elapsed since the last response was sent to the client,
+     the number of unprocessed request bytes from the client, the number of response bytes which have not been
+     flushed to the client, the client&#8217;s IP address, the client&#8217;s port number, and the client&#8217;s state.
+     </p></dd><dt class="description">
+ </dt><dd 
+class="description">2
+     <!--l. 661--><p class="noindent" >Level two provides all information in levels 0 and 1 and adds the number of bytes allocated by each client and
+     a list of channel names used by each client. Level 2 also provides information about the number of bytes in
+     the server&#8217;s free memory pool, the distribution of entries in the server&#8217;s resource hash table, and the list of IP
+     addresses to which the server is sending beacons. The channel names are shown in the form:
+     </p><!--l. 666--><p class="noindent" ><span 
+class="cmmi-10">&#x003C;</span>name<span 
+class="cmmi-10">&#x003E;</span>(nrw)
+     </p><!--l. 668--><p class="noindent" >where
+         </p><dl class="description"><dt class="description">
+      </dt><dd 
+class="description">n is number of ca_add_events the client has on this channel
+         </dd><dt class="description">
+      </dt><dd 
+class="description">r is (-,R) if client (does not, does) have read access to the channel.
+         </dd><dt class="description">
+      </dt><dd 
+class="description">w is(-, W) if client (does not, does) have write access to the channel.</dd></dl>
+     </dd></dl>
+<!--l. 678--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.10.2    </span> <a 
+ id="x11-4270009.10.2"></a>dbel</h4>
+<a 
+ id="dx11-427001"></a>
+<!--l. 681--><p class="noindent" >Format:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-167">
+<div class="fancyvrb" id="fancyvrb167"><a 
+ id="x11-427003r1"></a>&#x00A0;&#x00A0;dbel("&#x003C;record_name&#x003E;")</div></div>
+<!--l. 685--><p class="nopar" >
+</p><!--l. 687--><p class="noindent" >This routine prints the Channel Access event list for the specified record.
+</p><!--l. 689--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.10.3    </span> <a 
+ id="x11-4280009.10.3"></a>dbcar</h4>
+<a 
+ id="dx11-428001"></a>
+<!--l. 692--><p class="noindent" >Database to Channel Access Report - See &#8220;Record Link Reports&#8221;
+</p><!--l. 694--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.10.4    </span> <a 
+ id="x11-4290009.10.4"></a>ascar</h4>
+<a 
+ id="dx11-429001"></a>
+<!--l. 697--><p class="noindent" >Format:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-168">
+<div class="fancyvrb" id="fancyvrb168"><a 
+ id="x11-429003r1"></a>&#x00A0;&#x00A0;ascar(level)</div></div>
+<!--l. 701--><p class="nopar" >
+</p><!--l. 703--><p class="noindent" >Prints a report of the channel access links for the INP fields of the access security rules. Level 0 produces a summary report.
+Level 1 produces a summary report plus details on any unconnect channels. Level 2 produces the summary nreport plus a detail
+report on each channel.
+</p><!--l. 707--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">9.11    </span> <a 
+ id="x11-4300009.11"></a>Interrupt Vectors</h3>
+<!--l. 709--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.11.1    </span> <a 
+ id="x11-4310009.11.1"></a>veclist</h4>
+<a 
+ id="dx11-431001"></a>
+<!--l. 712--><p class="noindent" >Format:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-169">
+<div class="fancyvrb" id="fancyvrb169"><a 
+ id="x11-431003r1"></a>&#x00A0;&#x00A0;veclist</div></div>
+<!--l. 716--><p class="nopar" >
+</p><!--l. 718--><p class="noindent" >NOTE: This routine is only available on vxWorks. On PowerPC CPUs it requires BSP support to work, and even then it cannot
+display chained interrupts using the same vector.
+</p><!--l. 721--><p class="noindent" >Print Interrupt Vector List
+</p><!--l. 723--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">9.12    </span> <a 
+ id="x11-4320009.12"></a>Miscellaneous</h3>
+<!--l. 725--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.12.1    </span> <a 
+ id="x11-4330009.12.1"></a>epicsParamShow</h4>
+<a 
+ id="dx11-433001"></a>
+<!--l. 728--><p class="noindent" >Format:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-170">
+<div class="fancyvrb" id="fancyvrb170"><a 
+ id="x11-433003r1"></a>&#x00A0;&#x00A0;epicsParamShow<br class="fancyvrb" /><a 
+ id="x11-433005r2"></a>&#x00A0;&#x00A0;epicsPrtEnvParams</div></div>
+<!--l. 733--><p class="nopar" >
+</p><!--l. 735--><p class="noindent" >Print the environment variables that are created with epicsEnvSet. These are defined in <span 
+class="cmmi-10">&#x003C;</span>base<span 
+class="cmmi-10">&#x003E;</span>/config/CONFIG_ENV and
+<span 
+class="cmmi-10">&#x003C;</span>base<span 
+class="cmmi-10">&#x003E;</span>/config/CONFIG_SITE_ENV or else by user applications calling <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">epicsEnvSet</span></span></span>.
+</p><!--l. 738--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.12.2    </span> <a 
+ id="x11-4340009.12.2"></a>epicsEnvShow</h4>
+<a 
+ id="dx11-434001"></a>
+<!--l. 741--><p class="noindent" >Format:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-171">
+<div class="fancyvrb" id="fancyvrb171"><a 
+ id="x11-434003r1"></a>&#x00A0;&#x00A0;epicsEnvShow("&#x003C;name&#x003E;")</div></div>
+<!--l. 745--><p class="nopar" >
+</p><!--l. 747--><p class="noindent" >Show Environment variables. On vxWorks it shows the variables created via calls to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">putenv</span></span></span>.
+</p><!--l. 749--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.12.3    </span> <a 
+ id="x11-4350009.12.3"></a>coreRelease</h4>
+<a 
+ id="dx11-435001"></a>
+<!--l. 752--><p class="noindent" >Format:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-172">
+<div class="fancyvrb" id="fancyvrb172"><a 
+ id="x11-435003r1"></a>&#x00A0;&#x00A0;coreRelease</div></div>
+<!--l. 756--><p class="nopar" >
+</p><!--l. 758--><p class="noindent" >Print release information for iocCore.
+</p><!--l. 760--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">9.13    </span> <a 
+ id="x11-4360009.13"></a>Database System Test Routines</h3>
+<!--l. 762--><p class="noindent" >These routines are normally only of interest to EPICS system developers NOT to Application Developers.
+</p><!--l. 764--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.13.1    </span> <a 
+ id="x11-4370009.13.1"></a>dbtgf</h4>
+<a 
+ id="dx11-437001"></a>
+<!--l. 767--><p class="noindent" >Test Get Field:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-173">
+<div class="fancyvrb" id="fancyvrb173"><a 
+ id="x11-437003r1"></a>&#x00A0;&#x00A0;dbtgf("&#x003C;record_name.field_name&#x003E;")</div></div>
+<!--l. 771--><p class="nopar" >
+</p><!--l. 773--><p class="noindent" >Example:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-174">
+<div class="fancyvrb" id="fancyvrb174"><a 
+ id="x11-437005r1"></a>&#x00A0;&#x00A0;dbtgf("aitest")<br class="fancyvrb" /><a 
+ id="x11-437007r2"></a>&#x00A0;&#x00A0;dbtgf("aitest.VAL")</div></div>
+<!--l. 778--><p class="nopar" >
+</p><!--l. 780--><p class="noindent" >This performs a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbNameToAddr</span></span></span> and then calls <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbGetField</span></span></span> with all possible request types and options. It prints the results
+of each call. This routine is of most interest to system developers for testing database access.
+</p><!--l. 783--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.13.2    </span> <a 
+ id="x11-4380009.13.2"></a>dbtpf</h4>
+<a 
+ id="dx11-438001"></a>
+<!--l. 786--><p class="noindent" >Test Put Field:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-175">
+<div class="fancyvrb" id="fancyvrb175"><a 
+ id="x11-438003r1"></a>&#x00A0;&#x00A0;dbtpf("&#x003C;record_name.field_name&#x003E;","&#x003C;value&#x003E;")</div></div>
+<!--l. 790--><p class="nopar" >
+</p><!--l. 792--><p class="noindent" >Example:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-176">
+<div class="fancyvrb" id="fancyvrb176"><a 
+ id="x11-438005r1"></a>&#x00A0;&#x00A0;dbtpf("aitest","5.0")</div></div>
+<!--l. 796--><p class="nopar" >
+</p><!--l. 798--><p class="noindent" >This command performs a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbNameToAddr</span></span></span>, then calls <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbPutField</span></span></span>, followed by <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbgf</span></span></span> for each possible request type. This
+routine is of interest to system developers for testing database access.
+</p><!--l. 801--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.13.3    </span> <a 
+ id="x11-4390009.13.3"></a>dbtpn</h4>
+<a 
+ id="dx11-439001"></a>
+<!--l. 804--><p class="noindent" >Test Process Notify:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-177">
+<div class="fancyvrb" id="fancyvrb177"><a 
+ id="x11-439003r1"></a>&#x00A0;&#x00A0;dbtpn("&#x003C;record_name.field_name&#x003E;")<br class="fancyvrb" /><a 
+ id="x11-439005r2"></a>&#x00A0;&#x00A0;dbtpn("&#x003C;record_name.field_name&#x003E;","&#x003C;value&#x003E;")</div></div>
+<!--l. 809--><p class="nopar" >
+</p><!--l. 811--><p class="noindent" >Example:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-178">
+<div class="fancyvrb" id="fancyvrb178"><a 
+ id="x11-439007r1"></a>&#x00A0;&#x00A0;dbtpn("aitest")<br class="fancyvrb" /><a 
+ id="x11-439009r2"></a>&#x00A0;&#x00A0;dbtpn("aitest","5.0")</div></div>
+<!--l. 816--><p class="nopar" >
+</p><!--l. 818--><p class="noindent" >This command performs a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbProcessNotify</span></span></span> request. If a non-null value argument string is provided it issues a
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">putProcessRequest</span></span></span> to the named record; if no value is provided it issues a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">processGetRequest</span></span></span>. This routine is
+mainly of interest to system developers for testing database access.
+</p><!--l. 823--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">9.14    </span> <a 
+ id="x11-4400009.14"></a>Record Link Reports</h3>
+<!--l. 825--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.14.1    </span> <a 
+ id="x11-4410009.14.1"></a>dblsr</h4>
+<a 
+ id="dx11-441001"></a>
+<!--l. 828--><p class="noindent" >Lock Set Report:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-179">
+<div class="fancyvrb" id="fancyvrb179"><a 
+ id="x11-441003r1"></a>&#x00A0;&#x00A0;dblsr(&#x003C;recordname&#x003E;,&#x003C;level&#x003E;)</div></div>
+<!--l. 832--><p class="nopar" >
+</p><!--l. 834--><p class="noindent" >This command generates a report showing the lock set to which each record belongs. If <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">recordname</span></span></span> is 0, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">""</span></span></span>, or <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">"&#x22C6;"</span></span></span> all
+records are shown, otherwise only records in the same lock set as <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">recordname</span></span></span> are shown.
+</p><!--l. 837--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">level</span></span></span> can have the following values:
+     </p><dl class="description"><dt class="description">
+ </dt><dd 
+class="description">0 - Show lock set information only.
+     </dd><dt class="description">
+ </dt><dd 
+class="description">1 - Show each record in the lock set.
+     </dd><dt class="description">
+ </dt><dd 
+class="description">2 - Show each record and all database links in the lock set.
+     </dd></dl>
+<!--l. 848--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.14.2    </span> <a 
+ id="x11-4420009.14.2"></a>dbLockShowLocked</h4>
+<a 
+ id="dx11-442001"></a>
+<!--l. 851--><p class="noindent" >Show locked locksets:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-180">
+<div class="fancyvrb" id="fancyvrb180"><a 
+ id="x11-442003r1"></a>&#x00A0;&#x00A0;dbLockShowLocked(&#x003C;level&#x003E;)</div></div>
+<!--l. 855--><p class="nopar" >
+</p><!--l. 857--><p class="noindent" >This command generates a report showing all locked locksets, the records they contain, the lockset state and the thread that
+currently owns the lockset. The <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">level</span></span></span> argument is passed to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">epicsMutexShow</span></span></span> to adjust the information reported about
+each locked epicsMutex.
+</p><!--l. 861--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.14.3    </span> <a 
+ id="x11-4430009.14.3"></a>dbcar</h4>
+<a 
+ id="dx11-443001"></a>
+<!--l. 864--><p class="noindent" >Database to channel access report
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-181">
+<div class="fancyvrb" id="fancyvrb181"><a 
+ id="x11-443003r1"></a>&#x00A0;&#x00A0;dbcar(&#x003C;recordname&#x003E;,&#x003C;level&#x003E;)</div></div>
+<!--l. 868--><p class="nopar" >
+</p><!--l. 870--><p class="noindent" >This command generates a report showing database channel access links. If <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">recordname</span></span></span> is &#8220;*&#8221; then information about all
+records is shown otherwise only information about the specified record.
+</p><!--l. 873--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">level</span></span></span> can have the following values:
+     </p><dl class="description"><dt class="description">
+ </dt><dd 
+class="description">0 - Show summary information only.
+     </dd><dt class="description">
+ </dt><dd 
+class="description">1 - Show summary and each CA link that is not connected.
+     </dd><dt class="description">
+ </dt><dd 
+class="description">2 - Show summary and status of each CA link.
+     </dd></dl>
+<!--l. 884--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.14.4    </span> <a 
+ id="x11-4440009.14.4"></a>dbhcr</h4>
+<a 
+ id="dx11-444001"></a>
+<!--l. 887--><p class="noindent" >Report hardware links. See &#8220;Hardware Reports&#8221;.
+</p><!--l. 889--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">9.15    </span> <a 
+ id="x11-4450009.15"></a>Old Database Access Testing</h3>
+<!--l. 891--><p class="noindent" >These routines are of interest to EPICS system developers. They are used to test the old database access interface, which is still
+used by Channel Access.
+</p><!--l. 894--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.15.1    </span> <a 
+ id="x11-4460009.15.1"></a>gft</h4>
+<a 
+ id="dx11-446001"></a>
+<!--l. 897--><p class="noindent" >Get Field Test:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-182">
+<div class="fancyvrb" id="fancyvrb182"><a 
+ id="x11-446003r1"></a>&#x00A0;&#x00A0;gft("&#x003C;record_name.field_name&#x003E;")</div></div>
+<!--l. 901--><p class="nopar" >
+</p><!--l. 903--><p class="noindent" >Example:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-183">
+<div class="fancyvrb" id="fancyvrb183"><a 
+ id="x11-446005r1"></a>&#x00A0;&#x00A0;gft("aitest")<br class="fancyvrb" /><a 
+ id="x11-446007r2"></a>&#x00A0;&#x00A0;gft("aitest.VAL")</div></div>
+<!--l. 908--><p class="nopar" >
+</p><!--l. 910--><p class="noindent" >This performs a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">db_name_to_addr</span></span></span> and then calls <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">db_get_field</span></span></span> with all possible request types. It prints the results of
+each call. This routine is of interest to system developers for testing database access.
+</p><!--l. 913--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.15.2    </span> <a 
+ id="x11-4470009.15.2"></a>pft</h4>
+<a 
+ id="dx11-447001"></a>
+<!--l. 916--><p class="noindent" >Put Field Test:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-184">
+<div class="fancyvrb" id="fancyvrb184"><a 
+ id="x11-447003r1"></a>&#x00A0;&#x00A0;pft("&#x003C;record_name.field_name&#x003E;","&#x003C;value&#x003E;")</div></div>
+<!--l. 920--><p class="nopar" >
+</p><!--l. 922--><p class="noindent" >Example:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-185">
+<div class="fancyvrb" id="fancyvrb185"><a 
+ id="x11-447005r1"></a>&#x00A0;&#x00A0;pft("aitest","5.0")</div></div>
+<!--l. 926--><p class="nopar" >
+</p><!--l. 928--><p class="noindent" >This command performs a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">db_name_to_addr</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">db_put_field</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">db_get_field</span></span></span> and prints the result for each possible
+request type. This routine is of interest to system developers for testing database access.
+</p><!--l. 931--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.15.3    </span> <a 
+ id="x11-4480009.15.3"></a>tpn</h4>
+<a 
+ id="dx11-448001"></a>
+<!--l. 934--><p class="noindent" >Test Process Notify:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-186">
+<div class="fancyvrb" id="fancyvrb186"><a 
+ id="x11-448003r1"></a>&#x00A0;&#x00A0;tpn("&#x003C;record_name.field_name&#x003E;","&#x003C;value&#x003E;")</div></div>
+<!--l. 938--><p class="nopar" >
+</p><!--l. 940--><p class="noindent" >Example:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-187">
+<div class="fancyvrb" id="fancyvrb187"><a 
+ id="x11-448005r1"></a>&#x00A0;&#x00A0;tpn("aitest","5.0")</div></div>
+<!--l. 944--><p class="nopar" >
+</p><!--l. 946--><p class="noindent" >This routine tests the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbProcessNotify</span></span></span> API when used via the old database access interface. It only supports issuing a
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">putProcessRequest</span></span></span> to the named record.
+</p><!--l. 949--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">9.16    </span> <a 
+ id="x11-4490009.16"></a>Routines to dump database information</h3>
+<!--l. 951--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.16.1    </span> <a 
+ id="x11-4500009.16.1"></a>dbDumpPath</h4>
+<a 
+ id="dx11-450001"></a>
+<!--l. 954--><p class="noindent" >Dump Path:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-188">
+<div class="fancyvrb" id="fancyvrb188"><a 
+ id="x11-450003r1"></a>&#x00A0;&#x00A0;dbDumpPath(pdbbase)</div></div>
+<!--l. 958--><p class="nopar" >
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-189">
+<div class="fancyvrb" id="fancyvrb189"><a 
+ id="x11-450005r1"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;dbDumpPath(pdbbase)</div></div>
+<!--l. 962--><p class="nopar" >
+</p><!--l. 964--><p class="noindent" >The current path for database includes is displayed.
+</p><!--l. 966--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.16.2    </span> <a 
+ id="x11-4510009.16.2"></a>dbDumpMenu</h4>
+<a 
+ id="dx11-451001"></a>
+<!--l. 969--><p class="noindent" >Dump Menu:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-190">
+<div class="fancyvrb" id="fancyvrb190"><a 
+ id="x11-451003r1"></a>&#x00A0;&#x00A0;dbDumpMenu(pdbbase,"&#x003C;menu&#x003E;")</div></div>
+<!--l. 973--><p class="nopar" >
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-191">
+<div class="fancyvrb" id="fancyvrb191"><a 
+ id="x11-451005r1"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;dbDumpMenu(pdbbase,"menuScan")</div></div>
+<!--l. 977--><p class="nopar" >
+</p><!--l. 979--><p class="noindent" >If the second argument is 0 then all menus are displayed.
+</p><!--l. 983--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.16.3    </span> <a 
+ id="x11-4520009.16.3"></a>dbDumpRecordType</h4>
+<a 
+ id="dx11-452001"></a>
+<!--l. 986--><p class="noindent" >Dump Record Description:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-192">
+<div class="fancyvrb" id="fancyvrb192"><a 
+ id="x11-452003r1"></a>&#x00A0;&#x00A0;dbDumpRecordType(pdbbase,"&#x003C;record&#x00A0;type&#x003E;")</div></div>
+<!--l. 990--><p class="nopar" >
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-193">
+<div class="fancyvrb" id="fancyvrb193"><a 
+ id="x11-452005r1"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;dbDumpRecordType(pdbbase,"ai")</div></div>
+<!--l. 994--><p class="nopar" >
+</p><!--l. 996--><p class="noindent" >If the second argument is 0 then all descriptions of all records are displayed.
+</p><!--l. 998--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.16.4    </span> <a 
+ id="x11-4530009.16.4"></a>dbDumpField</h4>
+<a 
+ id="dx11-453001"></a>
+<!--l. 1001--><p class="noindent" >Dump Field Description:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-194">
+<div class="fancyvrb" id="fancyvrb194"><a 
+ id="x11-453003r1"></a>&#x00A0;&#x00A0;dbDumpField(pdbbase,"&#x003C;record&#x00A0;type&#x003E;","&#x003C;field&#x00A0;name&#x003E;")</div></div>
+<!--l. 1005--><p class="nopar" >
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-195">
+<div class="fancyvrb" id="fancyvrb195"><a 
+ id="x11-453005r1"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;dbDumpField(pdbbase,"ai","VAL")</div></div>
+<!--l. 1009--><p class="nopar" >
+</p><!--l. 1011--><p class="noindent" >If the second argument is 0 then the field descriptions of all records are displayed. If the third argument is 0 then the description
+of all fields are displayed.
+</p><!--l. 1014--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.16.5    </span> <a 
+ id="x11-4540009.16.5"></a>dbDumpDevice</h4>
+<a 
+ id="dx11-454001"></a>
+<!--l. 1017--><p class="noindent" >Dump Device Support:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-196">
+<div class="fancyvrb" id="fancyvrb196"><a 
+ id="x11-454003r1"></a>&#x00A0;&#x00A0;dbDumpDevice(pdbbase,"&#x003C;record&#x00A0;type&#x003E;")</div></div>
+<!--l. 1021--><p class="nopar" >
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-197">
+<div class="fancyvrb" id="fancyvrb197"><a 
+ id="x11-454005r1"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;dbDumpDevice(pdbbase,"ai")</div></div>
+<!--l. 1025--><p class="nopar" >
+</p><!--l. 1027--><p class="noindent" >If the second argument is 0 then the device support for all record types is displayed.
+</p><!--l. 1029--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.16.6    </span> <a 
+ id="x11-4550009.16.6"></a>dbDumpDriver</h4>
+<a 
+ id="dx11-455001"></a>
+<!--l. 1032--><p class="noindent" >Dump Driver Support:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-198">
+<div class="fancyvrb" id="fancyvrb198"><a 
+ id="x11-455003r1"></a>&#x00A0;&#x00A0;dbDumpDriver(pdbbase)</div></div>
+<!--l. 1036--><p class="nopar" >
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-199">
+<div class="fancyvrb" id="fancyvrb199"><a 
+ id="x11-455005r1"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;dbDumpDriver(pdbbase)</div></div>
+<!--l. 1040--><p class="nopar" >
+</p><!--l. 1042--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.16.7    </span> <a 
+ id="x11-4560009.16.7"></a>dbDumpRecord</h4>
+<a 
+ id="dx11-456001"></a>
+<!--l. 1045--><p class="noindent" >Dump Record Instances:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-200">
+<div class="fancyvrb" id="fancyvrb200"><a 
+ id="x11-456003r1"></a>&#x00A0;&#x00A0;dbDumpRecord(pdbbase,"&#x003C;record&#x00A0;type&#x003E;",level)</div></div>
+<!--l. 1049--><p class="nopar" >
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-201">
+<div class="fancyvrb" id="fancyvrb201"><a 
+ id="x11-456005r1"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;dbDumpRecords(pdbbase,"ai")</div></div>
+<!--l. 1053--><p class="nopar" >
+</p><!--l. 1055--><p class="noindent" >If the second argument is 0 then the record instances for all record types are displayed. The third argument determines which
+fields are displayed just like for the command <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbpr</span></span></span>.
+</p><!--l. 1058--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.16.8    </span> <a 
+ id="x11-4570009.16.8"></a>dbDumpBreaktable</h4>
+<!--l. 1060--><p class="noindent" >Dump breakpoint table
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-202">
+<div class="fancyvrb" id="fancyvrb202"><a 
+ id="x11-457002r1"></a>&#x00A0;&#x00A0;dbDumpBreaktable(pdbbase,name)</div></div>
+<!--l. 1064--><p class="nopar" >
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-203">
+<div class="fancyvrb" id="fancyvrb203"><a 
+ id="x11-457004r1"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;dbDumpBreaktable(pdbbase,"typeKdegF")</div></div>
+<!--l. 1068--><p class="nopar" >
+</p><!--l. 1070--><p class="noindent" >This command dumps a breakpoint table. If the second argument is 0 all breakpoint tables are dumped.
+</p><!--l. 1072--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">9.16.9    </span> <a 
+ id="x11-4580009.16.9"></a>dbPvdDump</h4>
+<a 
+ id="dx11-458001"></a>
+<!--l. 1075--><p class="noindent" >Dump the Process variable Directory:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-204">
+<div class="fancyvrb" id="fancyvrb204"><a 
+ id="x11-458003r1"></a>&#x00A0;&#x00A0;dbPvdDump(pdbbase,verbose)</div></div>
+<!--l. 1079--><p class="nopar" >
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-205">
+<div class="fancyvrb" id="fancyvrb205"><a 
+ id="x11-458005r1"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;dbPvdDump(pdbbase,0)</div></div>
+<!--l. 1083--><p class="nopar" >
+</p><!--l. 1085--><p class="noindent" >This command shows how many records are mapped to each hash table entry of the process variable directory. If verbose is not
+0 then the command also displays the names which hash to each hash table entry.
+                                                                                         
+                                                                                         
+</p>
+<!--l. 1--><div class="crosslinks"><p class="noindent">[<a 
+href="AppDevGuidech10.html" >next</a>] [<a 
+href="AppDevGuidech8.html" >prev</a>] [<a 
+href="AppDevGuidech8.html#tailAppDevGuidech8.html" >prev-tail</a>] [<a 
+href="AppDevGuidech9.html" >front</a>] [<a 
+href="AppDevGuide.html#AppDevGuidech9.html" >up</a>] </p></div>
+<!--l. 1--><p class="noindent" ><a 
+ id="tailAppDevGuidech9.html"></a> </p> 
+</body></html> 

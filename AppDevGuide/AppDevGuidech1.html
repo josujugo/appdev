@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="iso-8859-1" ?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">  
+<!--http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd-->  
+<html xmlns="http://www.w3.org/1999/xhtml"  
+> 
+<head><title>1 Introduction</title> 
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" /> 
+<meta name="generator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
+<meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
+<!-- xhtml,2,html --> 
+<meta name="src" content="AppDevGuide.tex" /> 
+<meta name="date" content="2015-11-06 12:47:00" /> 
+<link rel="stylesheet" type="text/css" href="AppDevGuide.css" /> 
+</head><body 
+>
+<!--l. 1--><div class="crosslinks"><p class="noindent">[<a 
+href="AppDevGuidech2.html" >next</a>] [<a 
+href="AppDevGuideli1.html" >prev</a>] [<a 
+href="AppDevGuideli1.html#tailAppDevGuideli1.html" >prev-tail</a>] [<a 
+href="#tailAppDevGuidech1.html">tail</a>] [<a 
+href="AppDevGuide.html#AppDevGuidech1.html" >up</a>] </p></div>
+<h2 class="chapterHead"><span class="titlemark">Chapter&#x00A0;1</span><br /><a 
+ id="x3-20001"></a>Introduction</h2>
+<h3 class="sectionHead"><span class="titlemark">1.1    </span> <a 
+ id="x3-30001.1"></a>Overview</h3>
+<!--l. 5--><p class="noindent" >This document describes the core software that resides in an<a 
+ id="dx3-3001"></a> Input/Output Controller (IOC), one of the major
+components of <a 
+ id="dx3-3002"></a>EPICS. It is intended for anyone developing EPICS IOC databases and/or new record/device/driver
+support.
+</p><!--l. 8--><p class="noindent" >The plan of the book is:
+     </p><dl class="description"><dt class="description">
+<span 
+class="ptmb7t-">Getting Started</span> </dt><dd 
+class="description">                                                                                                                                                               <br 
+class="newline" />A brief description of how to create EPICS support and ioc applications.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">EPICS Overview</span> </dt><dd 
+class="description">                                                                                                                                                             <br 
+class="newline" />An overview of EPICS is presented, showing how the IOC software fits into EPICS.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">EPICS Build Facility</span> </dt><dd 
+class="description">                                                                                                                                                      <br 
+class="newline" />This  chapter  describes  the  EPICS  build  facility  including  directory  structure,  environment  and  system
+     requirements, configuration files, Makefiles, and related build tools.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">Database Locking, Scanning, and Processing</span> </dt><dd 
+class="description">                                                                                                              <br 
+class="newline" />Overview of three closely related IOC concepts. These concepts are at the heart of what constitutes an EPICS
+     IOC.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">Database Definition</span> </dt><dd 
+class="description">                                                                                                                                                        <br 
+class="newline" />This chapter gives a complete description of the format of the files that describe IOC databases. This is the
+     format used by Database Configuration Tools and is also the format used to load databases into an IOC.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">IOC Initialization</span> </dt><dd 
+class="description">                                                                                                                                                           <br 
+class="newline" />A great deal happens at IOC initialization. This chapter removes some of the mystery about initialization.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">Access Security</span> </dt><dd 
+class="description">                                                                                                                                                               <br 
+class="newline" />Channel Access Security is implemented in IOCs. This chapter explains how it is configured and also how it is
+     implemented.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">IOC Test Facilities</span> </dt><dd 
+class="description">                                                                                                                                                          <br 
+class="newline" />Epics supplied test routines that can be executed via the epics or vxWorks shell.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">IOC Error Logging</span> </dt><dd 
+class="description">                                                                                                                                                        <br 
+class="newline" />IOC code can call routines that send messages to a system wide error logger.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">Record Support</span> </dt><dd 
+class="description">                                                                                                                                                              <br 
+class="newline" />The concept of record support is discussed. This information is necessary for anyone who wishes to provide
+     customized record and device support.
+                                                                                         
+                                                                                         
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">Device Support</span> </dt><dd 
+class="description">                                                                                                                                                                <br 
+class="newline" />The concept of device support is discussed. Device support takes care of the hardware specific details of record
+     support, i.e. it is the interface between hardware and a record support module. Device support can directly access
+     hardware or may interface to driver support.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">Driver Support</span> </dt><dd 
+class="description">                                                                                                                                                                <br 
+class="newline" />The concepts of driver support is discussed. Drivers, which are not always needed, have no knowledge of records
+     but just take care of interacting with hardware. Guidelines are given about when driver support, instead of just
+     device support, should be provided.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">Static Database Access</span> </dt><dd 
+class="description">                                                                                                                                                   <br 
+class="newline" />This is a library that works on both Host and IOC. For IOCs it works and on initialized or uninitialized EPICS
+     databases.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">Runtime Database Access</span> </dt><dd 
+class="description">                                                                                                                                              <br 
+class="newline" />The heart of the IOC software is the memory resident database. This chapter describes the interface to this
+     database.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">Device Support Library</span> </dt><dd 
+class="description">                                                                                                                                                 <br 
+class="newline" />A set of routines are provided for device support modules that use shared resources such as VME address space.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">EPICS General Purpose Tasks</span> </dt><dd 
+class="description">                                                                                                                                      <br 
+class="newline" />General purpose callback tasks and task watchdog.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">Database Scanning</span> </dt><dd 
+class="description">                                                                                                                                                         <br 
+class="newline" />Database scan tasks, i.e. the tasks that request records to process.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">IOC Shell</span> </dt><dd 
+class="description">                                                                                                                                                                         <br 
+class="newline" />The EPICS IOC shell is a simple command interpreter which provides a subset of the capabilities of the vxWorks
+     shell.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">libCom</span> </dt><dd 
+class="description">                                                                                                                                                                             <br 
+class="newline" />EPICS base includes a subdirectory src/libCom, which contains a number of c and c++ libraries that are used
+     by the other components of base. This chapter describes most of these libraries.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">libCom OSI</span> </dt><dd 
+class="description">                                                                                                                                                                     <br 
+class="newline" />This chapter describes the libraries in libCom that provide Operating System Independent (OSI) interrfaces used
+     by the rest of EPICS base. LibCom also contains operating system dependent code that implements the OSI
+     interfaces.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">Registry</span> </dt><dd 
+class="description">                                                                                                                                                                           <br 
+class="newline" />Under vxWorks osiFindGlobalSymbol can be used to dynamically bind to record, device, and driver support.
+     Since on some systems this always returns failure, a registry facility is provided to implement the binding. The
+     basic idea is that any storage meant to be &#8220;globally&#8221; accessable must be registered before it can be accessed
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">Database Structures</span> </dt><dd 
+class="description">                                                                                                                                                       <br 
+class="newline" />A description of the internal database structures.
+                                                                                         
+                                                                                         
+     </dd></dl>
+<!--l. 96--><p class="noindent" >Other than the overview chapter this document describes only core IOC software. Thus it does not describe other EPICS tools
+which run in an IOC such as the sequencer. It also does not describe Channel Access.
+</p><!--l. 99--><p class="noindent" >The reader of this manual should also be aware the following additional documentation:
+</p>
+     <ul class="itemize1">
+     <li class="itemize"><span 
+class="ptmri7t-">EPICS Record Reference Manual</span>, Philip Stanley, Janet Anderson and Marty Kraimer
+     </li>
+     <li class="itemize"><span 
+class="ptmri7t-">EPICS R3.14 Channel Access Reference Manual</span>, Jeffrey O. Hill
+     </li>
+     <li class="itemize"><span 
+class="ptmri7t-">vxWorks Programmer&#8217;s Guide</span>, Wind River Systems
+     </li>
+     <li class="itemize"><span 
+class="ptmri7t-">vxWorks Reference Manual</span>, Wind River Systems
+     </li>
+     <li class="itemize">RTEMS C User&#8217;s Guide, Online Applications Research
+     </li></ul>
+<!--l. 114--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">1.2    </span> <a 
+ id="x3-40001.2"></a>Acknowledgments</h3>
+<!--l. 116--><p class="noindent" >The basic model of what an IOC should do and how to do it was developed by Bob Dalesio at LANL/GTA. The principle ideas
+for Channel Access were developed by Jeff Hill at LANL/GTA. Bob and Jeff also were the principle implementers of the
+original IOC software. This software (called GTACS) was developed over a period of several years with feedback from
+LANL/GTA users. Without their ideas EPICS would not exist.
+</p><!--l. 122--><p class="noindent" >During 1990 and 1991, ANL/APS undertook a major revision of the IOC software with the major goal being to provide easily
+extendible record and device support. Marty Kraimer (ANL/APS) was primarily responsible for designing the data
+structures needed to support extendible record and device support and for making the changes needed to the
+IOC resident software. Bob Zieman (ANL/APS) designed and implemented the UNIX build tools and IOC
+modules necessary to support the new facilities. Frank Lenkszus (ANL/APS) made extensive changes to the
+Database Configuration Tool (DCT) necessary to support the new facilities. Janet Anderson developed methods to
+systematically test various features of the IOC software and is the principal implementer of changes to record
+support.
+</p><!--l. 128--><p class="noindent" >During 1993 and 1994, Matt Needes at LANL implemented and supplied the description of fast database links and the database
+debugging tools.
+</p><!--l. 130--><p class="noindent" >During 1993 and 1994 Jim Kowalkowski at ANL/APS developed GDCT and also developed the ASCII database instance
+format now used as the standard format. At that time he also created the functionality of the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbLoadRecords</span></span></span> and
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbLoadTemplate</span></span></span> commands.
+</p><!--l. 133--><p class="noindent" >The <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">build</span></span></span> utility method resulted in the generation of binary files of UNIX that were loaded into IOCs. As new IOC
+architectures started being supported this caused problems. During 1995, after learning from an abandoned effort now referred
+to as <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">EpicsRX</span></span></span>, the build utilities and binary file (called <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">default.dctsdr</span></span></span>) were replaced by all ASCII files. The new
+method provides architecture independence and a more flexible environment for configuring the record types, device and driver
+support. This principle implementer was Marty Kraimer with many ideas contributed by John Winans and Jeff Hill. Bob
+Dalesio made sure that we did not go too far, i.e. 1) make it difficult to upgrade existing applications and 2) lose
+                                                                                         
+                                                                                         
+performance.
+</p><!--l. 140--><p class="noindent" >In early 1996 Bob Dalesio tackled the problem of allowing runtime link modification. This turned into a cooperative
+development effort between Bob and Marty Kraimer. The effort included new code for database to Channel Access links, a new
+library for lock sets, and a cleaner interface for accessing database links.
+</p><!--l. 144--><p class="noindent" >In early 1999 the port of iocCore to non vxWorks operating systems was started. The principle developers were Marty Kraimer,
+Jeff Hill, and Janet Anderson. William Lupton converted the sequencer as well as helping with the posix threads
+implementation of osiSem and osiThread. Eric Norum provided the port to RTEMS and also contributed the shell that is used
+on non vxWorks environments. Ralph Lange provided the port to HPUX.
+</p><!--l. 150--><p class="noindent" >Many other people have been involved with EPICS development, including new record, device, and driver support
+modules.
+                                                                                         
+                                                                                         
+</p>
+<!--l. 1--><div class="crosslinks"><p class="noindent">[<a 
+href="AppDevGuidech2.html" >next</a>] [<a 
+href="AppDevGuideli1.html" >prev</a>] [<a 
+href="AppDevGuideli1.html#tailAppDevGuideli1.html" >prev-tail</a>] [<a 
+href="AppDevGuidech1.html" >front</a>] [<a 
+href="AppDevGuide.html#AppDevGuidech1.html" >up</a>] </p></div>
+<!--l. 1--><p class="noindent" ><a 
+ id="tailAppDevGuidech1.html"></a> </p> 
+</body></html> 

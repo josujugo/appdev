@@ -1,0 +1,2260 @@
+<?xml version="1.0" encoding="iso-8859-1" ?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">  
+<!--http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd-->  
+<html xmlns="http://www.w3.org/1999/xhtml"  
+> 
+<head><title>12 Device Support</title> 
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" /> 
+<meta name="generator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
+<meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
+<!-- xhtml,2,html --> 
+<meta name="src" content="AppDevGuide.tex" /> 
+<meta name="date" content="2015-11-06 12:47:00" /> 
+<link rel="stylesheet" type="text/css" href="AppDevGuide.css" /> 
+</head><body 
+>
+<!--l. 1--><div class="crosslinks"><p class="noindent">[<a 
+href="AppDevGuidech13.html" >next</a>] [<a 
+href="AppDevGuidech11.html" >prev</a>] [<a 
+href="AppDevGuidech11.html#tailAppDevGuidech11.html" >prev-tail</a>] [<a 
+href="#tailAppDevGuidech12.html">tail</a>] [<a 
+href="AppDevGuide.html#AppDevGuidech12.html" >up</a>] </p></div>
+<h2 class="chapterHead"><span class="titlemark">Chapter&#x00A0;12</span><br /><a 
+ id="x14-51800012"></a>Device Support</h2> <a 
+ id="dx14-518001"></a>
+<h3 class="sectionHead"><span class="titlemark">12.1    </span> <a 
+ id="x14-51900012.1"></a>Overview</h3>
+<!--l. 6--><p class="noindent" >In addition to a record support module, each record type can have an arbitrary number of device support modules. The purpose
+of device support is to hide hardware specific details from record processing routines. Thus support can be developed for a new
+device without changing the record support routines.
+</p><!--l. 10--><p class="noindent" >A device support routine has knowledge of the record definition. It also knows how to talk to the hardware directly or how to
+call a device driver which interfaces to the hardware. Thus device support routines are the interface between hardware specific
+fields in a database record and device drivers or the hardware itself.
+</p><!--l. 14--><p class="noindent" >Release 3.14.8 introduced the concept of <a 
+ id="dx14-519001"></a>extended device support, which provides an optional interface that a device support
+can implement to obtain notification when a record&#8217;s address is changed at runtime. This permits records to be reconnected to a
+different kind of I/O device, or just to a different signal on the same device. Extended device support is described in more detail
+in Section <a 
+href="#x14-52800012.5">12.5<!--tex4ht:ref: sec:Extended Device Support --></a> below.
+</p><!--l. 19--><p class="noindent" >Database common contains two device related fields:
+</p>
+     <ul class="itemize1">
+     <li class="itemize"><a 
+ id="dx14-519002"></a>dtyp: Device Type.
+     </li>
+     <li class="itemize"><a 
+ id="dx14-519003"></a>dset: Address of Device Support Entry Table.
+     </li></ul>
+<!--l. 28--><p class="noindent" >The field <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DTYP</span></span></span> contains the index of the menu choice as defined by the device ASCII definitions. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocInit</span></span></span> uses this field and
+the device support structures defined in <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">devSup.h</span></span></span> to initialize the field <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DSET</span></span></span>. Thus record support can locate its associated
+device support via the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DSET</span></span></span> field.
+</p><!--l. 32--><p class="noindent" >Device support modules can be divided into two basic classes: synchronous and asynchronous. Synchronous device support is
+used for hardware that can be accessed without delays for I/O. Many register based devices are synchronous devices. Other
+devices, for example all GPIB devices, can only be accessed via I/O requests that may take large amounts of time to complete.
+Such devices must have associated asynchronous device support. Asynchronous device support makes it more difficult to create
+databases that have linked records.
+</p><!--l. 38--><p class="noindent" >If a device can be accessed with a delay of less then a few microseconds then synchronous device support is appropriate. If a
+device causes delays of greater than 100 microseconds then asynchronous device support is appropriate. If the delay is between
+these values your guess about what to do is as good as mine. Perhaps you should ask the hardware designer why such a device
+was created.
+</p><!--l. 43--><p class="noindent" >If a device takes a long time to accept requests there is another option than asynchronous device support. A driver
+can be created that periodically polls all its attached input devices. The device support just returns the latest
+polled value. For outputs, device support just notifies the driver that a new value must be written. the driver,
+during one of its polling phases, writes the new value. The EPICS Allen Bradley device/driver support is a good
+example.
+</p><!--l. 48--><p class="noindent" >
+</p>
+                                                                                         
+                                                                                         
+<h3 class="sectionHead"><span class="titlemark">12.2    </span> <a 
+ id="x14-52000012.2"></a>Example Synchronous Device Support Module</h3>
+<!--l. 50-->
+     <div class="lstlisting" id="listing-163"><span class="label"><a 
+ id="x14-520001r1"></a></span><span 
+class="pcrro7t-">/&#x22C6;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">Create</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">the</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">dset</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">for</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">devAiSoft</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x22C6;/</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520002r2"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">init_record</span><span 
+class="pcrr7t-">();</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520003r3"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">read_ai</span><span 
+class="pcrr7t-">();</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520004r4"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520005r5"></a></span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520006r6"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">number</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520007r7"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">DEVSUPFUN</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">report</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520008r8"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">DEVSUPFUN</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">init</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520009r9"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">DEVSUPFUN</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">init_record</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520010r10"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">DEVSUPFUN</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">get_ioint_info</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520011r11"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">DEVSUPFUN</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">read_ai</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520012r12"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">DEVSUPFUN</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">special_linconv</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520013r13"></a></span><span 
+class="pcrr7t-">}</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">devAiSoft</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">=</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520014r14"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">6,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520015r15"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">NULL</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520016r16"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">NULL</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520017r17"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">init_record</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520018r18"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">NULL</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520019r19"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">read_ai</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520020r20"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">NULL</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520021r21"></a></span><span 
+class="pcrr7t-">};</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520022r22"></a></span><span 
+class="pcrr7t-">epicsExportAddress</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">dset</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">devAiSoft</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520023r23"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520024r24"></a></span><span 
+class="pcrb7t-">static</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">init_record</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">precord</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520025r25"></a></span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520026r26"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">aiRecord</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pai</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">=</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">aiRecord</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;)</span><span 
+class="pcrr7t-">precord</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520027r27"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">status</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520028r28"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520029r29"></a></span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">/&#x22C6;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">ai</span><span 
+class="pcrro7t-">.</span><span 
+class="pcrro7t-">inp</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">must</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">be</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">a</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">CONSTANT</span><span 
+class="pcrro7t-">,</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">PV_LINK</span><span 
+class="pcrro7t-">,</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">DB_LINK</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">or</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">CA_LINK</span><span 
+class="pcrro7t-">&#x22C6;/</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520030r30"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">switch</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">pai</span><span 
+class="pcrr7t-">-&#x003E;</span><span 
+class="pcrr7t-">inp</span><span 
+class="pcrr7t-">.</span><span 
+class="pcrr7t-">type</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520031r31"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">case</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">CONSTANT</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">:</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520032r32"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">if</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">recGblInitConstantLink</span><span 
+class="pcrr7t-">(&amp;</span><span 
+class="pcrr7t-">pai</span><span 
+class="pcrr7t-">-&#x003E;</span><span 
+class="pcrr7t-">inp</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">DBF_DOUBLE</span><span 
+class="pcrr7t-">,&amp;</span><span 
+class="pcrr7t-">pai</span><span 
+class="pcrr7t-">-&#x003E;</span><span 
+class="pcrr7t-">val</span><span 
+class="pcrr7t-">))</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520033r33"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">pai</span><span 
+class="pcrr7t-">-&#x003E;</span><span 
+class="pcrr7t-">udf</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">=</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">FALSE</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520034r34"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">break</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520035r35"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520036r36"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">case</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">PV_LINK</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">:</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520037r37"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">case</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DB_LINK</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">:</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520038r38"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">case</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">CA_LINK</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">:</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520039r39"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">break</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520040r40"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">default</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">:</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520041r41"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">recGblRecordError</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">S_db_badField</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;)</span><span 
+class="pcrr7t-">pai</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520042r42"></a></span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrro7t-">devAiSoft</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">(</span><span 
+class="pcrro7t-">init_record</span><span 
+class="pcrro7t-">)</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">Illegal</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">INP</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">field</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520043r43"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">return</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">S_db_badField</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520044r44"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">}</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520045r45"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520046r46"></a></span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">/&#x22C6;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">Make</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">sure</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">record</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">processing</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">routine</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">does</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">not</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">perform</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">any</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">conversion</span><span 
+class="pcrro7t-">&#x22C6;/</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520047r47"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">pai</span><span 
+class="pcrr7t-">-&#x003E;</span><span 
+class="pcrr7t-">linr</span><span 
+class="pcrr7t-">=0;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520048r48"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">return</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">0;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520049r49"></a></span><span 
+class="pcrr7t-">}</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520050r50"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520051r51"></a></span><span 
+class="pcrb7t-">static</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">read_ai</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">precord</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520052r52"></a></span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520053r53"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">aiRecord</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pai</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">=(</span><span 
+class="pcrr7t-">aiRecord</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;)</span><span 
+class="pcrr7t-">precord</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520054r54"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">status</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520055r55"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520056r56"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">status</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">=</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbGetGetLink</span><span 
+class="pcrr7t-">(&amp;(</span><span 
+class="pcrr7t-">pai</span><span 
+class="pcrr7t-">-&#x003E;</span><span 
+class="pcrr7t-">inp</span><span 
+class="pcrr7t-">.</span><span 
+class="pcrr7t-">value</span><span 
+class="pcrr7t-">.</span><span 
+class="pcrr7t-">db_link</span><span 
+class="pcrr7t-">),</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520057r57"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;)</span><span 
+class="pcrr7t-">pai</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">DBR_DOUBLE</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&amp;(</span><span 
+class="pcrr7t-">pai</span><span 
+class="pcrr7t-">-&#x003E;</span><span 
+class="pcrr7t-">val</span><span 
+class="pcrr7t-">),</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">0,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">1);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520058r58"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">if</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">pai</span><span 
+class="pcrr7t-">-&#x003E;</span><span 
+class="pcrr7t-">inp</span><span 
+class="pcrr7t-">.</span><span 
+class="pcrr7t-">type</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">!=</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">CONSTANT</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&amp;&amp;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">RTN_SUCCESS</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">status</span><span 
+class="pcrr7t-">))</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520059r59"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">pai</span><span 
+class="pcrr7t-">-&#x003E;</span><span 
+class="pcrr7t-">udf</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">=</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">FALSE</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520060r60"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">return</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">2;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrro7t-">/&#x22C6;</span><span 
+class="pcrro7t-">don</span><span 
+class="pcrro7t-">'</span><span 
+class="pcrro7t-">t</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">convert</span><span 
+class="pcrro7t-">&#x22C6;/</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-520061r61"></a></span><span 
+class="pcrr7t-">}</span>
+     
+</div>
+<a 
+ id="dx14-520062"></a>
+<!--l. 115--><p class="noindent" >The example is <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">devAiSoft</span></span></span>, which supports soft analog inputs. The <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">INP</span></span></span> field can be a constant or a database link or a
+channel access link. Only two routines are provided (the rest are declared <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">NULL</span></span></span>). The <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">init_record</span></span></span> routine first checks that
+the link type is valid. If the link is a constant it initializes <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">VAL</span></span></span>. If the link is a Process Variable link it calls <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbCaGetLink</span></span></span> to
+turn it into a Channel Access link. The <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">read_ai</span></span></span> routine obtains an input value if the link is a database or Channel Access
+link, otherwise it doesn&#8217;t have to do anything.
+</p><!--l. 124--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">12.3    </span> <a 
+ id="x14-52100012.3"></a>Example Asynchronous Device Support Module</h3>
+<a 
+ id="dx14-521001"></a>
+<!--l. 127--><p class="noindent" >This example shows how to write an asynchronous device support routine. It does the following sequence of
+operations:
+</p><!--l. 130--><p class="noindent" >
+     </p><ol  class="enumerate1" >
+     <li 
+  class="enumerate" id="x14-521003x1">When first called <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">PACT</span></span></span> is <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">FALSE</span></span></span>. It arranges for a callback (<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">myCallback</span></span></span>) routine to be called after a number
+     of seconds specified by the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DISV</span></span></span> field.
+     </li>
+     <li 
+  class="enumerate" id="x14-521005x2">It prints a message stating that processing has started, sets <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">PACT</span></span></span> to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">TRUE</span></span></span>, and returns. The record processing
+     routine returns without completing processing.
+     </li>
+     <li 
+  class="enumerate" id="x14-521007x3">When  the  specified  time  elapses  <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">myCallback</span></span></span> is  called.  It  calls  <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbScanLock</span></span></span> to  lock  the  record,  calls
+     <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">process</span></span></span>,  and  calls  <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbScanUnlock</span></span></span> to  unlock  the  record.  It  directly  calls  the  <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">process</span></span></span> entry  of  the
+     record support module, which it locates via the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">RSET</span></span></span> field in <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbCommon</span></span></span>, rather than calling <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbProcess</span></span></span>.
+     <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbProcess</span></span></span> would not call <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">process</span></span></span> because <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">PACT</span></span></span> is <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">TRUE</span></span></span>.
+     </li>
+     <li 
+  class="enumerate" id="x14-521009x4">When <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">process</span></span></span> executes, it again calls <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">read_ai</span></span></span>. This time <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">PACT</span></span></span> is <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">TRUE</span></span></span>.
+     </li>
+     <li 
+  class="enumerate" id="x14-521011x5"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">read_ai</span></span></span> prints a message stating that record processing is complete and returns a status of 2. Normally a value
+     of 0 would be returned. The value 2 tells the record support routine not to attempt any conversions. This is a
+     convention (a bad convention!) used by the analog input record.
+     </li>
+     <li 
+  class="enumerate" id="x14-521013x6">When <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">read_ai</span></span></span> returns the record processing routine completes record processing.
+     </li></ol>
+<!--l. 153--><p class="noindent" >At this point the record has been completely processed. The next time process is called everything starts all
+over.
+</p><!--l. 156--><p class="noindent" >Note that this is somewhat of an artificial example since real code of this form would more likely use the
+callbackcallbackRequestProcessCallbackDelayed function to perform the required processing.
+                                                                                         
+                                                                                         
+</p>
+<!--l. 158-->
+     <div class="lstlisting" id="listing-164"><span class="label"><a 
+ id="x14-521014r1"></a></span><span 
+class="pcrb7t-">static</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">myCallback</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">CALLBACK</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pcallback</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521015r2"></a></span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521016r3"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbCommon</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">precord</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521017r4"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">rset</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">prset</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521018r5"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521019r6"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">callbackGetUser</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">precord</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">pcallback</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521020r7"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">prset</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">=</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">rset</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;)(</span><span 
+class="pcrr7t-">precord</span><span 
+class="pcrr7t-">-&#x003E;</span><span 
+class="pcrr7t-">rset</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521021r8"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbScanLock</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">precord</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521022r9"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">prset</span><span 
+class="pcrr7t-">-&#x003E;</span><span 
+class="pcrr7t-">process</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">precord</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521023r10"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbScanUnlock</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">precord</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521024r11"></a></span><span 
+class="pcrr7t-">}</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521025r12"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521026r13"></a></span><span 
+class="pcrb7t-">static</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">init_record</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">aiRecord</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pai</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521027r14"></a></span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521028r15"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">CALLBACK</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pcallback</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521029r16"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">switch</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">pai</span><span 
+class="pcrr7t-">-&#x003E;</span><span 
+class="pcrr7t-">inp</span><span 
+class="pcrr7t-">.</span><span 
+class="pcrr7t-">type</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521030r17"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">case</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">CONSTANT</span><span 
+class="pcrr7t-">:</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521031r18"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">pcallback</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">=</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">CALLBACK</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;)(</span><span 
+class="pcrr7t-">calloc</span><span 
+class="pcrr7t-">(1,</span><span 
+class="pcrb7t-">sizeof</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">CALLBACK</span><span 
+class="pcrr7t-">)));</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521032r19"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">callbackSetCallback</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">myCallback</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">pcallback</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521033r20"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">callbackSetUser</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">pai</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">pcallback</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521034r21"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">pai</span><span 
+class="pcrr7t-">-&#x003E;</span><span 
+class="pcrr7t-">dpvt</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">=</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;)</span><span 
+class="pcrr7t-">pcallback</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521035r22"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">break</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521036r23"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521037r24"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">default</span><span 
+class="pcrr7t-">:</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521038r25"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">recGblRecordError</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">S_db_badField</span><span 
+class="pcrr7t-">,(</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;)</span><span 
+class="pcrr7t-">pai</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521039r26"></a></span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrro7t-">devAiTestAsyn</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">(</span><span 
+class="pcrro7t-">init_record</span><span 
+class="pcrro7t-">)</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">Illegal</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">INP</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">field</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521040r27"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">return</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">S_db_badField</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521041r28"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">}</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521042r29"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">return</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">0;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521043r30"></a></span><span 
+class="pcrr7t-">}</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521044r31"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521045r32"></a></span><span 
+class="pcrb7t-">static</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">read_ai</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">aiRecord</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pai</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521046r33"></a></span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521047r34"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">CALLBACK</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pcallback</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">=</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">CALLBACK</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;)</span><span 
+class="pcrr7t-">pai</span><span 
+class="pcrr7t-">-&#x003E;</span><span 
+class="pcrr7t-">dpvt</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521048r35"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">if</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">pai</span><span 
+class="pcrr7t-">-&#x003E;</span><span 
+class="pcrr7t-">pact</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521049r36"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">pai</span><span 
+class="pcrr7t-">-&#x003E;</span><span 
+class="pcrr7t-">val</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">+=</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">0.1;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrro7t-">/&#x22C6;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">Change</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">VAL</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">just</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">to</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">show</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">we</span><span 
+class="pcrro7t-">'</span><span 
+class="pcrro7t-">ve</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">done</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">something</span><span 
+class="pcrro7t-">.</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x22C6;/</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521050r37"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">pai</span><span 
+class="pcrr7t-">-&#x003E;</span><span 
+class="pcrr7t-">udf</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">=</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">FALSE</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrro7t-">/&#x22C6;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">We</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">modify</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">VAL</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">so</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">we</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">are</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">responsible</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">for</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">UDF</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">too</span><span 
+class="pcrro7t-">.</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x22C6;/</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521051r38"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">printf</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrro7t-">Completed</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">asynchronous</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">processing</span><span 
+class="pcrro7t-">:</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">%</span><span 
+class="pcrro7t-">s</span><span 
+class="pcrro7t-">\</span><span 
+class="pcrro7t-">n</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">pai</span><span 
+class="pcrr7t-">-&#x003E;</span><span 
+class="pcrr7t-">name</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521052r39"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">return</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">2;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrro7t-">/&#x22C6;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">don</span><span 
+class="pcrro7t-">'</span><span 
+class="pcrro7t-">t</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">convert</span><span 
+class="pcrro7t-">&#x22C6;/</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521053r40"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">}</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521054r41"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">printf</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrro7t-">Starting</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">asynchronous</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">processing</span><span 
+class="pcrro7t-">:</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">%</span><span 
+class="pcrro7t-">s</span><span 
+class="pcrro7t-">\</span><span 
+class="pcrro7t-">n</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">pai</span><span 
+class="pcrr7t-">-&#x003E;</span><span 
+class="pcrr7t-">name</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521055r42"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">pai</span><span 
+class="pcrr7t-">-&#x003E;</span><span 
+class="pcrr7t-">pact</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">=</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">TRUE</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521056r43"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">callbackRequestDelayed</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">pcallback</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">pai</span><span 
+class="pcrr7t-">-&#x003E;</span><span 
+class="pcrr7t-">disv</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521057r44"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">return</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">0;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521058r45"></a></span><span 
+class="pcrr7t-">}</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521059r46"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521060r47"></a></span><span 
+class="pcrro7t-">/&#x22C6;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">Create</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">the</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">dset</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">for</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">devAiTestAsyn</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x22C6;/</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521061r48"></a></span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521062r49"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">number</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521063r50"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">DEVSUPFUN</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">report</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521064r51"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">DEVSUPFUN</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">init</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521065r52"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">DEVSUPFUN</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">init_record</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521066r53"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">DEVSUPFUN</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">get_ioint_info</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521067r54"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">DEVSUPFUN</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">read_ai</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521068r55"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">DEVSUPFUN</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">special_linconv</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521069r56"></a></span><span 
+class="pcrr7t-">}</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">devAiTestAsyn</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">=</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521070r57"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">6,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521071r58"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">NULL</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521072r59"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">NULL</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521073r60"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">init_record</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521074r61"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">NULL</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521075r62"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">read_ai</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521076r63"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">NULL</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521077r64"></a></span><span 
+class="pcrr7t-">};</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-521078r65"></a></span><span 
+class="pcrr7t-">epicsExportAddress</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">dset</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">devAiTestAsyn</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<!--l. 226--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">12.4    </span> <a 
+ id="x14-52200012.4"></a>Device Support Routines</h3>
+<!--l. 228--><p class="noindent" >This section describes the routines defined in the DSET. Any routine that does not apply to a specific record type must be
+declared <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">NULL</span></span></span>.
+</p><!--l. 231--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">12.4.1    </span> <a 
+ id="x14-52300012.4.1"></a>Generate Device Report</h4>
+<!--l. 233-->
+     <div class="lstlisting" id="listing-165"><span class="label"><a 
+ id="x14-523001r1"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">report</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-523002r2"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">interest</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx14-523003"></a>
+<!--l. 239--><p class="noindent" >This routine is responsible for reporting all I/O cards it has found. The <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">interest</span></span></span> value is provided to allow for different
+kinds of reports, or to control how much detail to display. If a device support module is using a driver, it may choose not to
+implement this routine because the driver generates the report.
+</p><!--l. 243--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">12.4.2    </span> <a 
+ id="x14-52400012.4.2"></a>Initialize Device Processing</h4>
+<a 
+ id="dx14-524001"></a>
+<!--l. 247-->
+     <div class="lstlisting" id="listing-166"><span class="label"><a 
+ id="x14-524002r1"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">init</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-524003r2"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">after</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx14-524004"></a>
+<!--l. 253--><p class="noindent" >This routine is called twice at IOC initialization time. Any action is device specific. This routine is called twice: once before
+any database records are initialized, and once after all records are initialized but before the scan tasks are started. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">after</span></span></span> has
+the value 0 before and 1 after record initialization.
+                                                                                         
+                                                                                         
+</p><!--l. 258--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">12.4.3    </span> <a 
+ id="x14-52500012.4.3"></a>Initialize Specific Record</h4>
+<a 
+ id="dx14-525001"></a>
+<!--l. 262-->
+     <div class="lstlisting" id="listing-167"><span class="label"><a 
+ id="x14-525002r1"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">init_record</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-525003r2"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">precord</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">/&#x22C6;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">addr</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">of</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">record</span><span 
+class="pcrro7t-">&#x22C6;/</span>
+     
+</div>
+<a 
+ id="dx14-525004"></a>
+<!--l. 268--><p class="noindent" >The record support <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">init_record</span></span></span> routine calls this routine.
+</p><!--l. 270--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">12.4.4    </span> <a 
+ id="x14-52600012.4.4"></a>Get I/O Interrupt Information</h4>
+<!--l. 272-->
+     <div class="lstlisting" id="listing-168"><span class="label"><a 
+ id="x14-526001r1"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">get_ioint_info</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-526002r2"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">cmd</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-526003r3"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbCommon</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">precord</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-526004r4"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">IOSCANPVT</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">ppvt</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx14-526005"></a>
+<!--l. 280--><p class="noindent" >This is called by the I/O interrupt scan task. If <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">cmd</span></span></span> is (0,1) then this routine is being called when the associated record is being
+(placed in, taken out of) an I/O scan list. See chapter <a 
+href="AppDevGuidech17.html#x19-70200017">17<!--tex4ht:ref: chap:Database Scanning --></a> for details.
+</p><!--l. 284--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">12.4.5    </span> <a 
+ id="x14-52700012.4.5"></a>Other Device Support Routines</h4>
+<!--l. 286--><p class="noindent" >All other device support routines are record type specific.
+</p><!--l. 288--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">12.5    </span> <a 
+ id="x14-52800012.5"></a>Extended Device Support</h3>
+<a 
+ id="dx14-528001"></a>
+<!--l. 292--><p class="noindent" >This section describes the additional behaviour and routines required for a device support layer to support online changes to a
+record&#8217;s hardware address.
+                                                                                         
+                                                                                         
+</p><!--l. 294--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">12.5.1    </span> <a 
+ id="x14-52900012.5.1"></a>Rationale</h4>
+<!--l. 296--><p class="noindent" >In releases prior to R3.14.8 it is possible to change the value of the INP or OUT field of a record but (unless a soft device
+support is in use) this generally has no effect on the behaviour of the device support at all. Some device supports have been
+written that check this hardware address field for changes every time they process, but they are in the minority and in any case
+they do not provide any means to switch between different device support layers at runtime since no software is present that can
+lookup a new value for the DSET field after iocInit.
+</p><!--l. 300--><p class="noindent" >The extended device interface has been carefully designed to retain maximal backwards compatibility with existing device and
+record support layers, and as a result it cannot just introduce new routines into the DSET:
+</p>
+     <ul class="itemize1">
+     <li class="itemize">Different record types have different numbers of DSET routines
+     </li>
+     <li class="itemize">Every device support layer defines its own DSET structure layout
+     </li>
+     <li class="itemize">Some device support layers add their own routines to the DSET (GPIB, BitBus)
+     </li></ul>
+<!--l. 311--><p class="noindent" >Since both basic and extended device support layers have to co-exist within the same IOC, some rules are enforced concerning
+whether the device address of a particular record is allowed to be changed:
+</p><!--l. 313--><p class="noindent" >
+     </p><ol  class="enumerate1" >
+     <li 
+  class="enumerate" id="x14-529002x1">Records that were connected at iocInit to a device support layer that does not implement the extended interface
+     are never allowed to have address fields changed at runtime.
+     </li>
+     <li 
+  class="enumerate" id="x14-529004x2">Extended  device  support  layers  are  not  required  to  implement  both  the  <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">add_record</span></span></span> and  <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">del_record</span></span></span>
+     routines, thus some devices may only allow one-way changes.
+     </li>
+     <li 
+  class="enumerate" id="x14-529006x3">The old device support layer is informed and allowed to refuse an address change before the field change is
+     made (it does not get to see the new address).
+     </li>
+     <li 
+  class="enumerate" id="x14-529008x4">The new device support layer is informed after the field change has been made, and it may refuse to accept the
+     record. In this case the record will be set as permanently busy (PACT=true) until an address is accepted.
+     </li>
+     <li 
+  class="enumerate" id="x14-529010x5">Record support layers can also get notified about this process by making their address field special, in which
+     case the record type&#8217;s special routine can refuse to accept the new address before it is presented to the device
+     support layer. Special cannot prevent the old device support from being disconnected however.
+     </li></ol>
+<!--l. 328--><p class="noindent" >If an address change is refused, the change to the INP or OUT field will cause an error or exception to be passed to
+the software performing the change. If this was a Channel Access client the result is to generate an exception
+callback.
+</p><!--l. 331--><p class="noindent" >To switch to a different device support layer, it is necessary to change the DTYP field before the INP or OUT field. The change
+to the DTYP field has no effect until the latter field change takes place.
+                                                                                         
+                                                                                         
+</p><!--l. 334--><p class="noindent" >If a record is set to I/O Interrupt scan but the new layer does not support this, the scan will be changed to Passive.
+</p><!--l. 336--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">12.5.2    </span> <a 
+ id="x14-53000012.5.2"></a>Initialization/Registration</h4>
+<!--l. 338--><p class="noindent" >Device support that implements the extended behaviour must provide an <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">init</span></span></span> routine in the Device Support Entry Table (see
+Section <a 
+href="#x14-52400012.4.2">12.4.2<!--tex4ht:ref: subsec:Initialize Device Processing --></a>). In the first call to this routine (pass 0) it registers the address of its Device Support eXtension Table (DSXT) in
+a call to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">devExtend</span></span></span>.
+</p><!--l. 341--><p class="noindent" >The only exception to this registration requirement is when the device support uses a link type of CONSTANT. In this
+circumstance the system will automatically register an empty DSXT for that particular support layer (both the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">add_record</span></span></span>
+and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">del_record</span></span></span> routines pointed to by this DSXT do nothing and return zero). This exception allows existing soft channel
+device support layers to continue to work without requiring any modification, since the iocCore software already takes care of
+changes to PV_LINK addresses.
+</p><!--l. 347--><p class="noindent" >The following is an example of a DSXT and the initialization routine that registers it:
+</p>
+<!--l. 349-->
+     <div class="lstlisting" id="listing-169"><span class="label"><a 
+ id="x14-530001r1"></a></span><span 
+class="pcrb7t-">static</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dsxt</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">myDsxt</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">=</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-530002r2"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">add_record</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">del_record</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-530003r3"></a></span><span 
+class="pcrr7t-">};</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-530004r4"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-530005r5"></a></span><span 
+class="pcrb7t-">static</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">init</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">pass</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-530006r6"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">if</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">pass</span><span 
+class="pcrr7t-">==0)</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">devExtend</span><span 
+class="pcrr7t-">(&amp;</span><span 
+class="pcrr7t-">myDsxt</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-530007r7"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">return</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">0;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-530008r8"></a></span><span 
+class="pcrr7t-">}</span>
+     
+</div>
+<!--l. 360--><p class="noindent" >A call to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">devExtend</span></span></span> can only be made during the first pass of the device support initialization process, and registers the
+DSXT for that device support layer. If called at any other time it will log an error message and immediately
+return.
+</p><!--l. 363--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">12.5.3    </span> <a 
+ id="x14-53100012.5.3"></a>Device Support eXtension Table</h4>
+<!--l. 365--><p class="noindent" >The full definition of <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;dsxt</span></span></span> is found in devSup.h and currently looks like this:
+</p>
+<!--l. 367-->
+     <div class="lstlisting" id="listing-170"><span class="label"><a 
+ id="x14-531001r1"></a></span><span 
+class="pcrb7t-">typedef</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dsxt</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-531002r2"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(&#x22C6;</span><span 
+class="pcrr7t-">add_record</span><span 
+class="pcrr7t-">)(</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbCommon</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">precord</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-531003r3"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(&#x22C6;</span><span 
+class="pcrr7t-">del_record</span><span 
+class="pcrr7t-">)(</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbCommon</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">precord</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-531004r4"></a></span><span 
+class="pcrr7t-">}</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dsxt</span><span 
+class="pcrr7t-">;</span>
+     
+</div>
+<a 
+ id="dx14-531005"></a>
+<!--l. 375--><p class="noindent" >There may be future additions to this table to support additional functionality; such extensions may only be made by changing
+the devSup.h header file and rebuilding EPICS Base and all support modules, thus neither record types nor device support are
+permitted to make any private use of this table.
+</p><!--l. 377--><p class="noindent" >The two function pointers are the means by which the extended device support is notified about the record instances it is being
+given or that are being moved away from its control. In both cases the only parameter is a pointer to the record concerned,
+which the code will have to cast to the appropriate pointer for the record type. The return value from the routines should be zero
+for success, or an EPICS error status code.
+                                                                                         
+                                                                                         
+</p><!--l. 381--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">12.5.4    </span> <a 
+ id="x14-53200012.5.4"></a>Add Record Routine</h4>
+<!--l. 383-->
+     <div class="lstlisting" id="listing-171"><span class="label"><a 
+ id="x14-532001r1"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">add_record</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-532002r2"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbCommon</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">precord</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx14-532003"></a>
+<!--l. 389--><p class="noindent" >This function is called to offer a new record to the device support. It is also called during iocInit, in between the pass 0 and pass
+1 calls to the regular device support <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">init_record</span></span></span> routine (described in Section <a 
+href="#x14-52500012.4.3">12.4.3<!--tex4ht:ref: subsec:Initialize Specific Record --></a> above). When converting an existing
+device support layer, this routine will usually be very similar to the old <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">init_record</span></span></span> routine, although in some cases it may
+be necessary to do a little more work depending on the particular record type involved. The extra code required in these cases
+can generally be copied straight from the record type implementation itself. This is necessary because the record type has no
+knowledge of the address change that is taking place, so the device support must perform any bitmask generation and/or
+readback value conversions itself. This document does not attempt to describe all the necessary processing for the various
+different standard record types, although the following (incomplete) list is presented as an aid to device support
+authors:
+</p>
+     <ul class="itemize1">
+     <li class="itemize">mbbi/mbbo record types: Set SHFT, convert NOBT and SHFT into MASK
+     </li>
+     <li class="itemize">bi/bo record types: Set SHFT, convert SHFT to MASK
+     </li>
+     <li class="itemize">analog record types: Calculate ESLO and EOFF
+     </li>
+     <li class="itemize">Output record types: Possibly read the current value from hardware and back-convert to VAL, or send the current
+     record output value to the hardware. <span 
+class="ptmri7t-">This behaviour is not required or defined, and it&#8217;s not obvious what should</span>
+     <span 
+class="ptmri7t-">be done. There may be complications here with ao records using OROC and/or OIF=Incremental; solutions to</span>
+     <span 
+class="ptmri7t-">this issue have yet to be considered by the community.</span>
+     </li></ul>
+<!--l. 411--><p class="noindent" >If the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">add_record</span></span></span> routine discovers any errors, say in the link address, it should return a non-zero error status value to reject
+the record. This will cause the record&#8217;s PACT field to be set, preventing any further processing of this record until some other
+address change to it gets accepted.
+</p><!--l. 414--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">12.5.5    </span> <a 
+ id="x14-53300012.5.5"></a>Delete Record Routine</h4>
+<!--l. 416-->
+     <div class="lstlisting" id="listing-172"><span class="label"><a 
+ id="x14-533001r1"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">del_record</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x14-533002r2"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbCommon</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">precord</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx14-533003"></a>
+                                                                                         
+                                                                                         
+<!--l. 422--><p class="noindent" >This function is called to notify the device support of a request to change the hardware address of a record, and allow the device
+support to free up any resources it may have dedicated to this particular record.
+</p><!--l. 424--><p class="noindent" >Before this routine is called, the record will have had its SCAN field changed to Passive if it had been set to I/O Interrupt. This
+ensures that the device support&#8217;s <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">get_ioint_info</span></span></span> routine is never called after the the call to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">del_record</span></span></span> has returned
+successfully, although it may also lead to the possibility of missed interrupts if the address change is rejected by the
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">del_record</span></span></span> routine.
+</p><!--l. 427--><p class="noindent" >If the device support is unable to disconnect from the hardware for some reason, this routine should return a non-zero error
+status value, which will prevent the hardware address from being changed. In this event the SCAN field will be restored if it
+was originally set to I/O Interrupt.
+</p><!--l. 430--><p class="noindent" >After a successfull call to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">del_record</span></span></span>, the record&#8217;s DPVT field is set to NULL and PACT is cleared, ready for use by the
+new device support.
+</p><!--l. 432--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">12.5.6    </span> <a 
+ id="x14-53400012.5.6"></a>Init Record Routine</h4>
+<!--l. 434--><p class="noindent" >The <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">init_record</span></span></span> routine from the DSET (section <a 
+href="#x14-52500012.4.3">12.4.3<!--tex4ht:ref: subsec:Initialize Specific Record --></a>) is called by the record type, and must still be provided since the
+record type&#8217;s per-record initialization is run some time <span 
+class="ptmri7t-">after </span>the initial call to the DSXT&#8217;s <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">add_record</span></span></span> routine. Most record
+types perform some initialization of record fields at this point, and an extended device support layer may have to fix
+anything that the record overwrites. The following (incomplete) list is presented as an aid to device support
+authors:
+</p>
+     <ul class="itemize1">
+     <li class="itemize">mbbi/mbbo record types: Calculate MASK from SHFT
+     </li>
+     <li class="itemize">analog record types: Calculate ESLO and EOFF
+     </li>
+     <li class="itemize">Output record types: Perform readback of the initial raw value from the hardware.
+     </li></ul>
+                                                                                         
+                                                                                         
+<!--l. 1--><div class="crosslinks"><p class="noindent">[<a 
+href="AppDevGuidech13.html" >next</a>] [<a 
+href="AppDevGuidech11.html" >prev</a>] [<a 
+href="AppDevGuidech11.html#tailAppDevGuidech11.html" >prev-tail</a>] [<a 
+href="AppDevGuidech12.html" >front</a>] [<a 
+href="AppDevGuide.html#AppDevGuidech12.html" >up</a>] </p></div>
+<!--l. 1--><p class="noindent" ><a 
+ id="tailAppDevGuidech12.html"></a> </p> 
+</body></html> 

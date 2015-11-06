@@ -1,0 +1,3023 @@
+<?xml version="1.0" encoding="iso-8859-1" ?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">  
+<!--http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd-->  
+<html xmlns="http://www.w3.org/1999/xhtml"  
+> 
+<head><title>8 Access Security</title> 
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" /> 
+<meta name="generator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
+<meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
+<!-- xhtml,2,html --> 
+<meta name="src" content="AppDevGuide.tex" /> 
+<meta name="date" content="2015-11-06 12:47:00" /> 
+<link rel="stylesheet" type="text/css" href="AppDevGuide.css" /> 
+</head><body 
+>
+<!--l. 1--><div class="crosslinks"><p class="noindent">[<a 
+href="AppDevGuidech9.html" >next</a>] [<a 
+href="AppDevGuidech7.html" >prev</a>] [<a 
+href="AppDevGuidech7.html#tailAppDevGuidech7.html" >prev-tail</a>] [<a 
+href="#tailAppDevGuidech8.html">tail</a>] [<a 
+href="AppDevGuide.html#AppDevGuidech8.html" >up</a>] </p></div>
+<h2 class="chapterHead"><span class="titlemark">Chapter&#x00A0;8</span><br /><a 
+ id="x10-2960008"></a>Access Security</h2> <a 
+ id="dx10-296001"></a>
+<h3 class="sectionHead"><span class="titlemark">8.1    </span> <a 
+ id="x10-2970008.1"></a>Overview</h3>
+<!--l. 7--><p class="noindent" >This chapter describes access security, i.e. the system that limits access to IOC databases. It consists of the following
+sections:
+     </p><dl class="description"><dt class="description">
+<span 
+class="ptmb7t-">Overview</span> </dt><dd 
+class="description">This section
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">Quick start</span> </dt><dd 
+class="description">A summary of the steps necessary to start access security.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">User&#8217;s Guide</span> </dt><dd 
+class="description">This explains what access security is and how to use it.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">Design Summary</span> </dt><dd 
+class="description">Functional Requirements and Design Overview.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">Application Programmer&#8217;s Interface</span> </dt><dd 
+class="description">
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">Database Access Security</span> </dt><dd 
+class="description">Access Security features for EPICS IOC databases.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">Channel Access Security</span> </dt><dd 
+class="description">Access Security features in Channel Access
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">Trapping Channel Access Writes</span> </dt><dd 
+class="description">This allows trapping of all writes from external channel access clients.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">Implementation Overview</span> </dt><dd 
+class="description"></dd></dl>
+<!--l. 22--><p class="noindent" >The requirements for access security were generated at ANL/APS in 1992. The requirements document is:
+</p><!--l. 24--><p class="noindent" ><span 
+class="ptmri7t-">EPICS: Channel Access Security - Functional Requirements</span>, Ned D. Arnold, 03/-9/92.
+</p><!--l. 26--><p class="noindent" >This document is available through the EPICS website.
+</p><!--l. 28--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">8.2    </span> <a 
+ id="x10-2980008.2"></a>Quick Start</h3>
+<!--l. 30--><p class="noindent" >In order to &#8220;turn on&#8221; access security for a particular IOC the following must be done:
+</p>
+     <ul class="itemize1">
+     <li class="itemize">Create the access security file.
+                                                                                         
+                                                                                         
+     </li>
+     <li class="itemize">IOC databases may have to be modified
+         <ul class="itemize2">
+         <li class="itemize">Record instances may have to have values assigned to field ASG. If ASG is null the record is in group
+         DEFAULT.
+<a 
+ id="dx10-298001"></a>
+<a 
+ id="dx10-298002"></a>
+         </li>
+         <li class="itemize">Access  security  files  can  be  reloaded  after  <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocInit</span></span></span> via  a  subroutine  record  with  <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asSubInit</span></span></span> and
+         <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asSubProcess</span></span></span> as the associated subroutines. Writing the value 1 to this record will cause a reload.
+         </li></ul>
+     </li>
+     <li class="itemize">The startup script must contain the following command before iocInit.
+<a 
+ id="dx10-298003"></a>
+                                                                                         
+                                                                                         
+     <div class="verbatim" id="verbatim-103">
+     <div class="fancyvrb" id="fancyvrb103"><a 
+ id="x10-298005r1"></a>&#x00A0;&#x00A0;asSetFilename("/full/path/to/accessSecurityFile")</div></div>
+     <!--l. 53--><p class="nopar" >
+     </p></li>
+     <li class="itemize">The following is an optional command.
+<a 
+ id="dx10-298006"></a>
+                                                                                         
+                                                                                         
+     <div class="verbatim" id="verbatim-104">
+     <div class="fancyvrb" id="fancyvrb104"><a 
+ id="x10-298008r1"></a>&#x00A0;&#x00A0;asSetSubstitutions("var1=sub1,var2=sub2,...")</div></div>
+     <!--l. 60--><p class="nopar" ></p></li></ul>
+<!--l. 63--><p class="noindent" >The following rules decide if access security is turned on for an IOC:
+</p>
+     <ul class="itemize1">
+     <li class="itemize">If <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asSetFilename</span></span></span> is not executed before iocInit, access security will <span 
+class="ptmri7t-">never </span>be started.
+     </li>
+     <li class="itemize">If <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asSetFile</span></span></span> is given and any error occurs while first initializing access security, then <span 
+class="ptmri7t-">all </span>access to that ioc is
+     denied.
+     </li>
+     <li class="itemize">If after successfully starting access security, an attempt is made to restart and an error occurs then the previous
+     access security configuration is maintained.</li></ul>
+<!--l. 74--><p class="noindent" >After an IOC has been booted with access security enabled, the access security rules can be changed by issuing the
+asSetFilename, asSetSubstitutions, and asInit. The functions asInitialize, asInitFile, and asInitFP, which are described below,
+can also be used.
+</p><!--l. 78--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">8.3    </span> <a 
+ id="x10-2990008.3"></a>User&#8217;s Guide</h3>
+<!--l. 80--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">8.3.1    </span> <a 
+ id="x10-3000008.3.1"></a>Features</h4>
+<!--l. 82--><p class="noindent" >Access security protects IOC databases from unauthorized Channel Access Clients. Access security is based on the
+following:
+     </p><dl class="description"><dt class="description">
+<span 
+class="ptmb7t-">Who</span> </dt><dd 
+class="description">Userid of the channel access client.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">Where</span> </dt><dd 
+class="description">Hostid where the user is logged on. This is the host on which the channel access client exists. Thus no attempt
+     is made to see if a user is local or is remotely logged on to the host.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">What</span> </dt><dd 
+class="description">Individual fields of records are protected. Each record has a field containing the Access Security Group (ASG)
+     to which the record belongs. Each field has an access security level, either <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ASL0</span></span></span> or <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ASL1</span></span></span>. The security level is
+     defined in the record definition file. Thus the access security level for a field is the same for all record instances
+     of a record type.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">When</span> </dt><dd 
+class="description">Access rules can contain input links and calculations similar to the calculation record.</dd></dl>
+                                                                                         
+                                                                                         
+<!--l. 101--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">8.3.2    </span> <a 
+ id="x10-3010008.3.2"></a>Limitations</h4>
+<!--l. 103--><p class="noindent" >An IOC database can be accessed only via Channel Access or via the vxWorks or ioc shell. It is assumed that access to the local
+IOC console is protected via physical security, and that network access is protected via normal networking and physical
+security methods.
+</p><!--l. 107--><p class="noindent" >No attempt has been made to protect against the sophisticated saboteur. Network and physical security methods must be used to
+limit access to the subnet on which the iocs reside.
+</p><!--l. 110--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">8.3.3    </span> <a 
+ id="x10-3020008.3.3"></a>Definitions</h4>
+<!--l. 112--><p class="noindent" >This document uses the following terms:
+<a 
+ id="dx10-302001"></a>
+     </p><dl class="description"><dt class="description">
+<span 
+class="ptmb7t-">ASL</span> </dt><dd 
+class="description">Access Security Level (Called access level in Req Doc)
+<a 
+ id="dx10-302002"></a>
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">ASG</span> </dt><dd 
+class="description">Access Security Group (Called PV Group in Req Doc)
+<a 
+ id="dx10-302003"></a>
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">UAG</span> </dt><dd 
+class="description">User Access Group
+<a 
+ id="dx10-302004"></a>
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">HAG</span> </dt><dd 
+class="description">Host Access Group</dd></dl>
+<!--l. 128--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">8.3.4    </span> <a 
+ id="x10-3030008.3.4"></a>Access Security Configuration File</h4>
+<a 
+ id="dx10-303001"></a>
+<!--l. 131--><p class="noindent" >This section describes the format of a file containing definitions of the user access groups, host access groups, and
+access security groups. An IOC creates an access configuration database by reading an access configuration file
+(the extension <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">.acf</span></span></span> is recommended). Lets first give a simple example and then a complete description of the
+syntax.
+                                                                                         
+                                                                                         
+</p><!--l. 135--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.3.4.1    </span> <a 
+ id="x10-3040008.3.4.1"></a>Simple Example</h5>
+                                                                                         
+                                                                                         
+<div class="verbatim" id="verbatim-105">
+<div class="fancyvrb" id="fancyvrb105"><a 
+ id="x10-304002r1"></a>&#x00A0;&#x00A0;UAG(uag)&#x00A0;{user1,user2}<br class="fancyvrb" /><a 
+ id="x10-304004r2"></a>&#x00A0;&#x00A0;HAG(hag)&#x00A0;{host1,host2}<br class="fancyvrb" /><a 
+ id="x10-304006r3"></a>&#x00A0;&#x00A0;ASG(DEFAULT)&#x00A0;{<br class="fancyvrb" /><a 
+ id="x10-304008r4"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;RULE(1,READ)
+<br class="fancyvrb" /><a 
+ id="x10-304010r5"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;RULE(1,WRITE)&#x00A0;{<br class="fancyvrb" /><a 
+ id="x10-304012r6"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;UAG(uag)<br class="fancyvrb" /><a 
+ id="x10-304014r7"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;HAG(hag)<br class="fancyvrb" /><a 
+ id="x10-304016r8"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;}<br class="fancyvrb" /><a 
+ id="x10-304018r9"></a>&#x00A0;&#x00A0;}</div></div>
+<!--l. 147--><p class="nopar" >
+</p><!--l. 149--><p class="noindent" >These rules provide read access to anyone located anywhere and write access to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">user1</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">user2</span></span></span> if they are located at
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">host1</span></span></span> or <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">host2</span></span></span>.
+</p><!--l. 152--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.3.4.2    </span> <a 
+ id="x10-3050008.3.4.2"></a>Syntax Definition</h5>
+<!--l. 154--><p class="noindent" >In the following description:
+     </p><dl class="description"><dt class="description">
+ </dt><dd 
+class="description"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">[</span><span 
+class="pcrr7t-">&#x00A0;]</span></span></span> surrounds optional elements
+     </dd><dt class="description">
+ </dt><dd 
+class="description"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">|</span></span></span> separates alternatives
+     </dd><dt class="description">
+ </dt><dd 
+class="description"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">...</span></span></span> means that an arbitrary number of definitions may be given.
+     </dd><dt class="description">
+ </dt><dd 
+class="description"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">#</span></span></span> introduces a comment line</dd></dl>
+<!--l. 163--><p class="noindent" >The elements <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;name&#x003E;</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;user&#x003E;</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;host&#x003E;</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;pvname&#x003E;</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;calculation&#x003E;</span></span></span> can be given as quoted or unquoted strings.
+The rules for unquoted strings are the same as for database definitions.
+<a 
+ id="dx10-305001"></a>
+<a 
+ id="dx10-305002"></a>
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-106">
+<div class="fancyvrb" id="fancyvrb106"><a 
+ id="x10-305004r1"></a>&#x00A0;&#x00A0;UAG(&#x003C;name&#x003E;)&#x00A0;[{&#x00A0;&#x003C;user&#x003E;&#x00A0;[,&#x00A0;&#x003C;user&#x003E;&#x00A0;...]&#x00A0;}]<br class="fancyvrb" /><a 
+ id="x10-305006r2"></a>&#x00A0;&#x00A0;...<br class="fancyvrb" /><a 
+ id="x10-305008r3"></a>&#x00A0;&#x00A0;HAG(&#x003C;name&#x003E;)&#x00A0;[{&#x00A0;&#x003C;host&#x003E;&#x00A0;[,&#x00A0;&#x003C;host&#x003E;&#x00A0;...]&#x00A0;}]
+<br class="fancyvrb" /><a 
+ id="x10-305010r4"></a>&#x00A0;&#x00A0;...<br class="fancyvrb" /><a 
+ id="x10-305012r5"></a>&#x00A0;&#x00A0;ASG(&#x003C;name&#x003E;)&#x00A0;[{<br class="fancyvrb" /><a 
+ id="x10-305014r6"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;[INP&#x003C;index&#x003E;(&#x003C;pvname&#x003E;)<br class="fancyvrb" /><a 
+ id="x10-305016r7"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;...]
+<br class="fancyvrb" /><a 
+ id="x10-305018r8"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;RULE(&#x003C;level&#x003E;,NONE&#x00A0;|&#x00A0;READ&#x00A0;|&#x00A0;WRITE&#x00A0;[,&#x00A0;NOTRAPWRITE&#x00A0;|&#x00A0;TRAPWRITE])&#x00A0;{<br class="fancyvrb" /><a 
+ id="x10-305020r9"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;[UAG(&#x003C;name&#x003E;&#x00A0;[,&#x003C;name&#x003E;&#x00A0;...])]
+<br class="fancyvrb" /><a 
+ id="x10-305022r10"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;[HAG(&#x003C;name&#x003E;&#x00A0;[,&#x003C;name&#x003E;&#x00A0;...])]<br class="fancyvrb" /><a 
+ id="x10-305024r11"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;CALC(&#x003C;calculation&#x003E;)<br class="fancyvrb" /><a 
+ id="x10-305026r12"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;}<br class="fancyvrb" /><a 
+ id="x10-305028r13"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;...<br class="fancyvrb" /><a 
+ id="x10-305030r14"></a>&#x00A0;&#x00A0;}]<br class="fancyvrb" /><a 
+ id="x10-305032r15"></a>&#x00A0;&#x00A0;...</div></div>
+<!--l. 184--><p class="nopar" >
+</p><!--l. 186--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.3.4.3    </span> <a 
+ id="x10-3060008.3.4.3"></a>Discussion</h5>
+     <ul class="itemize1">
+     <li class="itemize"><a 
+ id="dx10-306001"></a>UAG: User Access Group. This is a list of user names. The list may be empty. A user name may appear in
+     more than one UAG. To match, a user name must be identical to the user name read by the CA client library
+     running on the client machine. For vxWorks clients, the user name is usually taken from the user field of the
+     boot parameters.
+     </li>
+     <li class="itemize"><a 
+ id="dx10-306002"></a>HAG: Host Access Group. This is a list of host names. It may be empty. The same host name can appear in
+     multiple HAGs. To match, a host name must match the host name read by the CA client library running on the
+     client machine; both names are converted to lower case before comparison however. For vxWorks clients, the
+     host name is usually taken from the target name of the boot parameters.
+     </li>
+     <li class="itemize"><a 
+ id="dx10-306003"></a>ASG: An access security group. The group <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DEFAULT</span></span></span> is a special case. If a member specifies a null group or a
+     group which has no ASG definition then the member is assigned to the group <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DEFAULT</span></span></span>.
+     </li>
+     <li class="itemize"><a 
+ id="dx10-306004"></a>INP<span 
+class="cmmi-10">&#x003C;</span>index<span 
+class="cmmi-10">&#x003E; </span>Index must have one of the values <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">A</span></span></span> to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">L</span></span></span>. These are just like the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">INP</span></span></span> fields of a calculation record.
+     It is necessary to define <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">INP</span></span></span> fields if a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">CALC</span></span></span> field is defined in any <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">RULE</span></span></span> for the ASG.
+     </li>
+     <li class="itemize"><a 
+ id="dx10-306005"></a>RULE  This  defines  access  permissions.  <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;level&#x003E;</span></span></span> must  be  0  or  1.  Permission  for  a  level  1  field  implies
+     permission for level 0 fields. The permissions are <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">NONE</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">READ</span></span></span>, and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">WRITE</span></span></span>. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">WRITE</span></span></span> permission implies <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">READ</span></span></span>
+     permission. The standard EPICS record types have all fields set to level 1 except for <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">VAL</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">CMD</span></span></span> (command),
+     and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">RES</span></span></span> (reset). An optional argument specifies if writes should be trapped. See the section below on trapping
+     Channel Access writes for how this is used. If not given the default is NOTRAPWRITE.
+         <ul class="itemize2">
+         <li class="itemize"><a 
+ id="dx10-306006"></a>UAG specifies a list of user access groups that can have the access privilege. If UAG is not defined then all
+         users are allowed.
+         </li>
+         <li class="itemize"><a 
+ id="dx10-306007"></a>HAG specifies a list of host access groups that have the access privilege. If HAG is not defined then all
+         hosts are allowed.
+         </li>
+         <li class="itemize"><a 
+ id="dx10-306008"></a>CALC is just like the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">CALC</span></span></span> field of a calculation record except that the result must evaluate to TRUE
+         or  <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">FALSE</span></span></span>.  The  rule  only  applies  if  the  calculation  result  is  <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">TRUE</span></span></span>,  where  the  actual  test  for  <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">TRUE</span></span></span> is
+                                                                                         
+                                                                                         
+         <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">(0.99</span><span 
+class="pcrr7t-">&#x00A0;&#x003C;</span><span 
+class="pcrr7t-">&#x00A0;result</span><span 
+class="pcrr7t-">&#x00A0;&#x003C;</span><span 
+class="pcrr7t-">&#x00A0;1.01)</span></span></span>.  Anything  else  is  regarded  as  <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">FALSE</span></span></span> and  will  cause  the  rule  to  be
+         ignored. Assignment statements are not permitted in CALC expressions here.
+         </li></ul>
+     </li></ul>
+<!--l. 232--><p class="noindent" >Each IOC record contains a field <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ASG</span></span></span>, which specifies the name of the ASG to which the record belongs. If this field
+is null or specifies a group which is not defined in the access security file then the record is placed in group
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DEFAULT</span></span></span>.
+</p><!--l. 235--><p class="noindent" >The access privilege for a channel access client is determined as follows:
+</p><!--l. 237--><p class="noindent" >
+     </p><ol  class="enumerate1" >
+     <li 
+  class="enumerate" id="x10-306010x1">The ASG associated with the record is searched.
+     </li>
+     <li 
+  class="enumerate" id="x10-306012x2">Each RULE is checked for the following:
+     <!--l. 242--><p class="noindent" >
+         </p><ol  class="enumerate2" >
+         <li 
+  class="enumerate" id="x10-306014x1">The field&#8217;s level must be less than or equal to the level for this RULE.
+         </li>
+         <li 
+  class="enumerate" id="x10-306016x2">If UAG is defined, the user must belong to one of the specified UAGs. If UAG is not defined all users are
+         accepted.
+         </li>
+         <li 
+  class="enumerate" id="x10-306018x3">If HAG is defined, the user&#8217;s host must belong to one one of the HAGs. If HAG is not defined all hosts are
+         accepted.
+         </li>
+         <li 
+  class="enumerate" id="x10-306020x4">If CALC is specified, the calculation must yield the value 1, i.e. TRUE. If any of the INP fields associated
+         with this calculation are in INVALID alarm severity the calculation is considered false. The actual test for
+         TRUE is .99 <span 
+class="cmmi-10">&#x003C; </span>result <span 
+class="cmmi-10">&#x003C; </span>1.01.
+         </li></ol>
+     </li>
+     <li 
+  class="enumerate" id="x10-306022x3">The maximum access allowed by step 2 is the access chosen.
+     </li></ol>
+<!--l. 262--><p class="noindent" >Multiple RULEs can be defined for a given ASG, even RULEs with identical levels and access permissions. The TRAPWRITE
+setting used for a client is determined by the first WRITE rule that passes the rule checks.
+</p><!--l. 265--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">8.3.5    </span> <a 
+ id="x10-3070008.3.5"></a>ascheck - Check Syntax of Access Configuration File</h4>
+<!--l. 267--><p class="noindent" >After creating or modifying an access configuration file it can be checked for syntax errors by issuing the command:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-107">
+<div class="fancyvrb" id="fancyvrb107"><a 
+ id="x10-307002r1"></a>&#x00A0;&#x00A0;ascheck&#x00A0;-S&#x00A0;"xxx=yyy,..."&#x00A0;&#x003C;&#x00A0;"filename"</div></div>
+<!--l. 271--><p class="nopar" >
+<a 
+ id="dx10-307003"></a>
+</p><!--l. 273--><p class="noindent" >This is a Unix command. It displays errors on <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">stdout</span></span></span>. If no errors are detected it prints nothing. Only syntax errors not logic
+errors are detected. Thus it is still possible to get your self in trouble. The flag <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">-S</span></span></span> means a set of macro substitutions may
+appear. This is just like the macro substitutions for dbLoadDatabase.
+</p><!--l. 277--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">8.3.6    </span> <a 
+ id="x10-3080008.3.6"></a>IOC Access Security Initialization</h4>
+<a 
+ id="dx10-308001"></a>
+<!--l. 280--><p class="noindent" >In order to have access security turned on during IOC initialization the following command must appear in the startup file
+before <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocInit</span></span></span> is called:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-108">
+<div class="fancyvrb" id="fancyvrb108"><a 
+ id="x10-308003r1"></a>&#x00A0;&#x00A0;asSetFilename("/full/path/to/access/security/file.acf")</div></div>
+<!--l. 285--><p class="nopar" >
+<a 
+ id="dx10-308004"></a>
+</p><!--l. 287--><p class="noindent" >If this command is not used then access security will not be started by <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocInit</span></span></span>. If an error occurs when iocInit calls <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asInit</span></span></span>
+than all access to the ioc is disabled, i.e. no channel access client will be able to access the ioc. Note that this command does not
+read the file itself, it just saves the argument string for use later on, nor does it save the current working directory,
+which is why the use of an absolute path-name for the file is recommended (a path name could be specified
+relative to the current directory at the time when <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocInit</span></span></span> is run, but this is not recommended if the IOC also
+loads the subroutine record support as a later reload of the file might happen after the current directory had been
+changed).
+</p><!--l. 294--><p class="noindent" >Access security also supports macro substitution just like <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbLoadDatabase</span></span></span>. The following command specifies the desired
+substitutions:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-109">
+<div class="fancyvrb" id="fancyvrb109"><a 
+ id="x10-308006r1"></a>&#x00A0;&#x00A0;asSetSubstitutions("var1=sub1,var2=sub2,...")</div></div>
+<!--l. 299--><p class="nopar" >
+<a 
+ id="dx10-308007"></a>
+</p><!--l. 301--><p class="noindent" >This command must be issued before <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocInit</span></span></span>.
+</p><!--l. 303--><p class="noindent" >After an IOC is initialized the access security database can be changed. The preferred way is via the subroutine
+record described in the next section. It can also be changed by issuing the following command to the vxWorks
+shell:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-110">
+<div class="fancyvrb" id="fancyvrb110"><a 
+ id="x10-308009r1"></a>&#x00A0;&#x00A0;asInit</div></div>
+<!--l. 308--><p class="nopar" >
+<a 
+ id="dx10-308010"></a>
+</p><!--l. 310--><p class="noindent" >It is also possible to reissue <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asSetFilename</span></span></span> and/or <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asSetSubstitutions</span></span></span> before <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asInit</span></span></span>. If any error occurs during
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asInit</span></span></span> the old access security configuration is maintained. It is NOT permissable to call <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asInit</span></span></span> before <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocInit</span></span></span> is
+called.
+</p><!--l. 314--><p class="noindent" >Restarting access security after ioc initialization is an expensive operation and should not be used as a regular
+procedure.
+</p><!--l. 316--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">8.3.7    </span> <a 
+ id="x10-3090008.3.7"></a>Database Configuration</h4>
+<!--l. 320--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.3.7.1    </span> <a 
+ id="x10-3100008.3.7.1"></a>Access Security Group</h5>
+<a 
+ id="dx10-310001"></a>
+<!--l. 323--><p class="noindent" >Each database record has a field <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ASG</span></span></span> which holds a character string. Any database configuration tool can be used to give a
+value to this field. If the ASG of a record is not defined or is not equal to a ASG in the configuration file then the record is
+placed in <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DEFAULT</span></span></span>.
+</p><!--l. 327--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.3.7.2    </span> <a 
+ id="x10-3110008.3.7.2"></a>Subroutine Record Support</h5>
+<!--l. 329--><p class="noindent" >Two subroutines, which can be attached to a subroutine record, are available (provided with <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocCore</span></span></span>):
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-111">
+<div class="fancyvrb" id="fancyvrb111"><a 
+ id="x10-311002r1"></a>&#x00A0;&#x00A0;asSubInit<br class="fancyvrb" /><a 
+ id="x10-311004r2"></a>&#x00A0;&#x00A0;asSubProcess</div></div>
+<!--l. 334--><p class="nopar" ><a 
+ id="dx10-311005"></a><a 
+ id="dx10-311006"></a>NOTE: These subroutines are automatically registered thus do NOT put a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">registrar</span></span></span> definition in your database definition
+file.
+</p><!--l. 340--><p class="noindent" >If a record is created that attaches to these routines, it can be used to force the IOC to load a new access configuration database.
+To change the access configuration:
+</p><!--l. 343--><p class="noindent" >
+     </p><ol  class="enumerate1" >
+     <li 
+  class="enumerate" id="x10-311008x1">Modify the file specified by the last call to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asSetFilename</span></span></span> so that it contains the new configuration desired.
+     </li>
+     <li 
+  class="enumerate" id="x10-311010x2">Write a 1 to the subroutine record <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">VAL</span></span></span> field. Note that this can be done via channel access.
+     </li></ol>
+<!--l. 350--><p class="noindent" >The following action is taken:
+</p><!--l. 352--><p class="noindent" >
+     </p><ol  class="enumerate1" >
+     <li 
+  class="enumerate" id="x10-311012x1">When the value is found to be 1, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asInit</span></span></span> is called and the value set back to 0.
+     </li>
+     <li 
+  class="enumerate" id="x10-311014x2">The record is treated as an asynchronous record. Completion occurs when the new access configuration has been
+     initialized or a time-out occurs. If initialization fails the record is placed into alarm with a severity determined
+     by <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">BRSV</span></span></span>.
+     </li></ol>
+<!--l. 361--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.3.7.3    </span> <a 
+ id="x10-3120008.3.7.3"></a>Record Type Description</h5>
+<!--l. 363--><p class="noindent" >Each field of each record type has an associated access security level of <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ASL0</span></span></span> or <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ASL1</span></span></span>. See the chapter &#8220;Database Definition&#8221;
+for details.
+</p><!--l. 366--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">8.3.8    </span> <a 
+ id="x10-3130008.3.8"></a>Example:</h4>
+<!--l. 368--><p class="noindent" >Lets design a set of rules for a Linac. Assume the following:
+</p><!--l. 370--><p class="noindent" >
+     </p><ol  class="enumerate1" >
+     <li 
+  class="enumerate" id="x10-313002x1">Anyone can have read access to all fields at anytime.
+     </li>
+     <li 
+  class="enumerate" id="x10-313004x2">Linac engineers, located in the injection control or control room, can have write access to most level 0 fields
+     only if the Linac is not in operational mode.
+                                                                                         
+                                                                                         
+     </li>
+     <li 
+  class="enumerate" id="x10-313006x3">Operators, located in the injection control or control room, can have write access to most level 0 fields anytime.
+     </li>
+     <li 
+  class="enumerate" id="x10-313008x4">The operations supervisor, linac supervisor, and the application developers can have write access to all fields but
+     must have some way of not changing something inadvertently.
+     </li>
+     <li 
+  class="enumerate" id="x10-313010x5">Most records use the above rules but a few (high voltage power supplies, etc.) are placed under tighter control.
+     These will follow rules 1 and 4 but not 2 or 3.
+     </li>
+     <li 
+  class="enumerate" id="x10-313012x6">IOC channel access clients always have level 1 write privilege.
+     </li></ol>
+<!--l. 388--><p class="noindent" >Most Linac IOC records will not have the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ASG</span></span></span> field defined and will thus be placed in ASG <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DEFAULT</span></span></span>. The following records
+will have an <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ASG</span></span></span> defined:
+</p>
+     <ul class="itemize1">
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">LI:OPSTATE</span></span></span> and any other records that need tighter control have <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ASG="critical</span></span></span>&#8221;. One such record could
+     be a subroutine record used to cause a new access configuration file to be loaded. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">LI:OPSTATE</span></span></span> has the value
+     (0,1) if the Linac is (not operational, operational).
+     </li>
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">LI:lev1permit</span></span></span> has <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ASG="permit"</span></span></span>. In order for the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">opSup</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">linacSup</span></span></span>, or an <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">appDev</span></span></span> to have write
+     privilege to everything this record must be set to the value 1.
+     </li></ul>
+<!--l. 401--><p class="noindent" >The following access configuration satisfies the above rules.
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-112">
+<div class="fancyvrb" id="fancyvrb112"><a 
+ id="x10-313014r1"></a>&#x00A0;&#x00A0;UAG(op)&#x00A0;{op1,op2,superguy}<br class="fancyvrb" /><a 
+ id="x10-313016r2"></a>&#x00A0;&#x00A0;UAG(opSup)&#x00A0;{superguy}<br class="fancyvrb" /><a 
+ id="x10-313018r3"></a>&#x00A0;&#x00A0;UAG(linac)&#x00A0;{waw,nassiri,grelick,berg,fuja,gsm}
+<br class="fancyvrb" /><a 
+ id="x10-313020r4"></a>&#x00A0;&#x00A0;UAG(linacSup)&#x00A0;{gsm}<br class="fancyvrb" /><a 
+ id="x10-313022r5"></a>&#x00A0;&#x00A0;UAG(appDev)&#x00A0;{nda,kko}<br class="fancyvrb" /><a 
+ id="x10-313024r6"></a>&#x00A0;&#x00A0;HAG(icr)&#x00A0;{silver,phebos,gaea}
+<br class="fancyvrb" /><a 
+ id="x10-313026r7"></a>&#x00A0;&#x00A0;HAG(cr)&#x00A0;{mars,hera,gold}<br class="fancyvrb" /><a 
+ id="x10-313028r8"></a>&#x00A0;&#x00A0;HAG(ioc)&#x00A0;{ioclic1,ioclic2,ioclid1,ioclid2,ioclid3,ioclid4,ioclid5}
+<br class="fancyvrb" /><a 
+ id="x10-313030r9"></a>&#x00A0;&#x00A0;ASG(DEFAULT)&#x00A0;{<br class="fancyvrb" /><a 
+ id="x10-313032r10"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;INPA(LI:OPSTATE)<br class="fancyvrb" /><a 
+ id="x10-313034r11"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;INPB(LI:lev1permit)<br class="fancyvrb" /><a 
+ id="x10-313036r12"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;RULE(0,WRITE)&#x00A0;{
+<br class="fancyvrb" /><a 
+ id="x10-313038r13"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;UAG(op)<br class="fancyvrb" /><a 
+ id="x10-313040r14"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;HAG(icr,cr)<br class="fancyvrb" /><a 
+ id="x10-313042r15"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;CALC("A=1")<br class="fancyvrb" /><a 
+ id="x10-313044r16"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;}<br class="fancyvrb" /><a 
+ id="x10-313046r17"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;RULE(0,WRITE)&#x00A0;{
+<br class="fancyvrb" /><a 
+ id="x10-313048r18"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;UAG(op,linac,appdev)<br class="fancyvrb" /><a 
+ id="x10-313050r19"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;HAG(icr,cr)<br class="fancyvrb" /><a 
+ id="x10-313052r20"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;CALC("A=0")<br class="fancyvrb" /><a 
+ id="x10-313054r21"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;}<br class="fancyvrb" /><a 
+ id="x10-313056r22"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;RULE(1,WRITE)&#x00A0;{
+<br class="fancyvrb" /><a 
+ id="x10-313058r23"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;UAG(opSup,linacSup,appdev)<br class="fancyvrb" /><a 
+ id="x10-313060r24"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;CALC("B=1")<br class="fancyvrb" /><a 
+ id="x10-313062r25"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;}<br class="fancyvrb" /><a 
+ id="x10-313064r26"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;RULE(1,READ)<br class="fancyvrb" /><a 
+ id="x10-313066r27"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;RULE(1,WRITE)&#x00A0;{
+<br class="fancyvrb" /><a 
+ id="x10-313068r28"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;HAG(ioc)<br class="fancyvrb" /><a 
+ id="x10-313070r29"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;}<br class="fancyvrb" /><a 
+ id="x10-313072r30"></a>&#x00A0;&#x00A0;}<br class="fancyvrb" /><a 
+ id="x10-313074r31"></a>&#x00A0;&#x00A0;ASG(permit)&#x00A0;{<br class="fancyvrb" /><a 
+ id="x10-313076r32"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;RULE(0,WRITE)&#x00A0;{<br class="fancyvrb" /><a 
+ id="x10-313078r33"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;UAG(opSup,linacSup,appDev)
+<br class="fancyvrb" /><a 
+ id="x10-313080r34"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;}<br class="fancyvrb" /><a 
+ id="x10-313082r35"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;RULE(1,READ)<br class="fancyvrb" /><a 
+ id="x10-313084r36"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;RULE(1,WRITE)&#x00A0;{<br class="fancyvrb" /><a 
+ id="x10-313086r37"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;HAG(ioc)<br class="fancyvrb" /><a 
+ id="x10-313088r38"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;}<br class="fancyvrb" /><a 
+ id="x10-313090r39"></a>&#x00A0;&#x00A0;}<br class="fancyvrb" /><a 
+ id="x10-313092r40"></a>&#x00A0;&#x00A0;ASG(critical)&#x00A0;{
+<br class="fancyvrb" /><a 
+ id="x10-313094r41"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;INPB(LI:lev1permit)<br class="fancyvrb" /><a 
+ id="x10-313096r42"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;RULE(1,WRITE)&#x00A0;{<br class="fancyvrb" /><a 
+ id="x10-313098r43"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;UAG(opSup,linacSup,appdev)
+<br class="fancyvrb" /><a 
+ id="x10-313100r44"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;CALC("B=1")<br class="fancyvrb" /><a 
+ id="x10-313102r45"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;}<br class="fancyvrb" /><a 
+ id="x10-313104r46"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;RULE(1,READ)<br class="fancyvrb" /><a 
+ id="x10-313106r47"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;RULE(1,WRITE)&#x00A0;{<br class="fancyvrb" /><a 
+ id="x10-313108r48"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;HAG(ioc)<br class="fancyvrb" /><a 
+ id="x10-313110r49"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;}<br class="fancyvrb" /><a 
+ id="x10-313112r50"></a>&#x00A0;&#x00A0;}</div></div>
+<!--l. 454--><p class="nopar" >
+</p><!--l. 456--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">8.4    </span> <a 
+ id="x10-3140008.4"></a>Design Summary</h3>
+<!--l. 458--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">8.4.1    </span> <a 
+ id="x10-3150008.4.1"></a>Summary of Functional Requirements</h4>
+<!--l. 460--><p class="noindent" >A brief summary of the Functional Requirements is:
+</p><!--l. 462--><p class="noindent" >
+     </p><ol  class="enumerate1" >
+     <li 
+  class="enumerate" id="x10-315002x1">Each field of each record type is assigned an access security level.
+     </li>
+     <li 
+  class="enumerate" id="x10-315004x2">Each record instance is assigned to a unique access security group.
+     </li>
+     <li 
+  class="enumerate" id="x10-315006x3">Each user is assigned to one or more user access groups.
+     </li>
+     <li 
+  class="enumerate" id="x10-315008x4">Each node is assigned to a host access group.
+     </li>
+     <li 
+  class="enumerate" id="x10-315010x5">For each access security group a set of access rules can be defined. Each rule specifies:
+     <!--l. 473--><p class="noindent" >
+         </p><ol  class="enumerate2" >
+         <li 
+  class="enumerate" id="x10-315012x1">Access security level
+         </li>
+         <li 
+  class="enumerate" id="x10-315014x2">READ or READ/WRITE access.
+                                                                                         
+                                                                                         
+         </li>
+         <li 
+  class="enumerate" id="x10-315016x3">An optional list of User Access Groups or * meaning anyone.
+         </li>
+         <li 
+  class="enumerate" id="x10-315018x4">An optional list of Host Access Groups or * meaning anywhere.
+         </li>
+         <li 
+  class="enumerate" id="x10-315020x5">Conditions based on values of process variables
+         </li></ol>
+     </li></ol>
+<!--l. 489--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">8.4.2    </span> <a 
+ id="x10-3160008.4.2"></a>Additional Requirements</h4>
+<!--l. 491--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.4.2.1    </span> <a 
+ id="x10-3170008.4.2.1"></a>Performance</h5>
+<!--l. 493--><p class="noindent" >Although the functional requirements doesn&#8217;t mention it, a fundamental goal is performance. The design provides almost no
+overhead during normal database access and moderate overhead for the following: channel access client/server connection, ioc
+initialization, a change in value of a process variable referenced by an access calculation, and dynamically changing a records
+access control group. Dynamically changing the user access groups, host access groups, or the rules, however, can be a time
+consuming operation. This is done, however, by a low priority IOC task and thus does not impact normal ioc
+operation.
+</p><!--l. 500--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.4.2.2    </span> <a 
+ id="x10-3180008.4.2.2"></a>Generic Implementation</h5>
+<!--l. 502--><p class="noindent" >Access security should be implemented as a stand alone system, i.e. it should not be imbedded tightly in database or channel
+access.
+</p><!--l. 505--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.4.2.3    </span> <a 
+ id="x10-3190008.4.2.3"></a>No Access Security within an IOC</h5>
+<!--l. 507--><p class="noindent" >Within an IOC no access security is invoked. This means that database links and local channel access clients calls are not
+subject to access control. Also test routines such as dbgf should not be subject to access control.
+                                                                                         
+                                                                                         
+</p><!--l. 510--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.4.2.4    </span> <a 
+ id="x10-3200008.4.2.4"></a>Defaults</h5>
+<!--l. 512--><p class="noindent" >It must be possible to easily define default access rules.
+</p><!--l. 514--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.4.2.5    </span> <a 
+ id="x10-3210008.4.2.5"></a>Access Security is Optional</h5>
+<!--l. 516--><p class="noindent" >When an IOC is initialized, access security is optional.
+</p><!--l. 518--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">8.4.3    </span> <a 
+ id="x10-3220008.4.3"></a>Design Overview</h4>
+<!--l. 520--><p class="noindent" >The implementation provides a library of routines for accessing the security system. This library has no knowledge of channel
+access or IOC databases, i.e. it is generic. Database access, which is responsible for protecting an IOC database, calls library
+routines to add each IOC record to one of the access control groups.
+</p><!--l. 524--><p class="noindent" >Lets briefly discuss the access security system and how database access and channel access interact with it.
+</p><!--l. 526--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.4.3.1    </span> <a 
+ id="x10-3230008.4.3.1"></a>Configuration File</h5>
+<!--l. 528--><p class="noindent" >User access groups, host access groups, and access security groups are configured via an ASCII file.
+</p><!--l. 530--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.4.3.2    </span> <a 
+ id="x10-3240008.4.3.2"></a>Access Security Library</h5>
+<!--l. 532--><p class="noindent" >The access security library consists of the following groups of routines: initialization, group manipulation, client manipulation,
+access computation, and diagnostic. The initialization routine reads a configuration file and creates a memory resident access
+control database. The group manipulation routines allow members to be added and removed from access groups. The client
+routines provide services for clients attached to members.
+</p><!--l. 537--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.4.3.3    </span> <a 
+ id="x10-3250008.4.3.3"></a>IOC Database Access Security</h5>
+<!--l. 539--><p class="noindent" >The interface between an IOC database and the access security system.
+                                                                                         
+                                                                                         
+</p><!--l. 541--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.4.3.4    </span> <a 
+ id="x10-3260008.4.3.4"></a>Channel Access Security</h5>
+<!--l. 543--><p class="noindent" >Whenever the Channel Access broadcast server receives a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ca_search</span></span></span> request and finds the process variable, it calls
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asAddClient</span></span></span>. Whenever it disconnects it calls <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asRemoveClient</span></span></span>. Whenever it issues a get or put to the database it must
+call <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asCheckGet</span></span></span> or <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asCheckPut</span></span></span>.
+</p><!--l. 547--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">8.4.4    </span> <a 
+ id="x10-3270008.4.4"></a>Comments</h4>
+<!--l. 549--><p class="noindent" >It is likely that the access rules will be defined such that many IOCs will attach to a common process variable. As a result the
+IOC containing the PV will have many CA clients.
+</p><!--l. 552--><p class="noindent" >What about password protection and encryption? I maintain that this is a problem to be solved in a level above the access
+security described in this document. This is the issue of protecting against the sophisticated saboteur.
+</p><!--l. 555--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">8.4.5    </span> <a 
+ id="x10-3280008.4.5"></a>Performance and Memory Requirements</h4>
+<!--l. 557--><p class="noindent" >Performance has not yet been measured but during the tests to measure memory usage no noticeable change in performance
+during ioc initialization or during Channel Access clients connection was noticed. Unless access privilege is violated the
+overhead during channel access gets and puts is only an extra comparison.
+</p><!--l. 561--><p class="noindent" >In order to measure memory usage, the following test was performed:
+</p><!--l. 563--><p class="noindent" >
+     </p><ol  class="enumerate1" >
+     <li 
+  class="enumerate" id="x10-328002x1">A database consisting of 5000 soft analog records was created.
+     </li>
+     <li 
+  class="enumerate" id="x10-328004x2">A channel access client (<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">caput</span></span></span>) was created that performs <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ca_put</span></span></span>s on each of the 5000 channels. Each time
+     it begins a new set of puts the value increments by 1.
+     </li>
+     <li 
+  class="enumerate" id="x10-328006x3">A channel access client (<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">caget</span></span></span>) was created that has monitors on each of the 5000 channels.
+     </li></ol>
+<!--l. 573--><p class="noindent" >The memory consumption was measured before <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocInit</span></span></span>, after <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocInit</span></span></span>, after <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">caput</span></span></span> connected to all channels, and after
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">caget</span></span></span> connected to all 5000 channels. This was done for APS release 3.11.5 (before access security) and the first version
+which included access security. The results were: </p>
+<div class="center" 
+>
+<!--l. 576--><p class="noindent" >
+<a 
+ id="x10-328007r1"></a></p>
+<!--l. 578--><div class="longtable"> <table id="TBL-2" class="longtable" 
+cellspacing="0" cellpadding="0"  
+><colgroup id="TBL-2-1g"><col 
+id="TBL-2-1" /><col 
+id="TBL-2-2" /><col 
+id="TBL-2-3" /></colgroup>
+                                                                                         
+                                                                                         
+<tr  
+ style="vertical-align:baseline;" id="TBL-2-1-"><td  style="white-space:wrap; text-align:left;" id="TBL-2-1-1"  
+class="td11">
+<!--l. 578--><p class="noindent" >            </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-2-1-2"  
+class="td11">
+<!--l. 578--><p class="noindent" ><span 
+class="ptmb7t-">R3.11.5</span>                </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-2-1-3"  
+class="td11">
+<!--l. 578--><p class="noindent" ><span 
+class="ptmb7t-">After</span>                    </p></td>
+</tr><tr 
+class="hline"><td><hr /></td><td><hr /></td><td><hr /></td></tr><tr  
+ style="vertical-align:baseline;" id="TBL-2-2-"><td  style="white-space:wrap; text-align:left;" id="TBL-2-2-1"  
+class="td11">
+<!--l. 580--><p class="noindent" >Before iocInit       </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-2-2-2"  
+class="td11">
+<!--l. 580--><p class="noindent" >4,244,520             </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-2-2-3"  
+class="td11">
+<!--l. 580--><p class="noindent" >4,860,840             </p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-2-3-"><td  style="white-space:wrap; text-align:left;" id="TBL-2-3-1"  
+class="td11">
+<!--l. 581--><p class="noindent" >After iocInit         </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-2-3-2"  
+class="td11">
+<!--l. 581--><p class="noindent" >4,995,416             </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-2-3-3"  
+class="td11">
+<!--l. 581--><p class="noindent" >5,964,904             </p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-2-4-"><td  style="white-space:wrap; text-align:left;" id="TBL-2-4-1"  
+class="td11">
+<!--l. 582--><p class="noindent" >After caput           </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-2-4-2"  
+class="td11">
+<!--l. 582--><p class="noindent" >5,449,780             </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-2-4-3"  
+class="td11">
+<!--l. 582--><p class="noindent" >6,658,868             </p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-2-5-"><td  style="white-space:wrap; text-align:left;" id="TBL-2-5-1"  
+class="td11">
+<!--l. 583--><p class="noindent" >After caget           </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-2-5-2"  
+class="td11">
+<!--l. 583--><p class="noindent" >8,372,444             </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-2-5-3"  
+class="td11">
+<!--l. 583--><p class="noindent" >9,751,796             </p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-2-6-"><td  style="white-space:wrap; text-align:left;" id="TBL-2-6-1"  
+class="td11">            </td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-2-7-"><td  style="white-space:wrap; text-align:left;" id="TBL-2-7-1"  
+class="td11">
+<!--l. 584--><p class="noindent" >            </p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-2-8-"><td  style="white-space:wrap; text-align:left;" id="TBL-2-8-1"  
+class="td11">
+<!--l. 584--><p class="noindent" >            </p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-2-9-"><td  style="white-space:wrap; text-align:left;" id="TBL-2-9-1"  
+class="td11">              </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-9-2"  
+class="td11">              </td><td  style="white-space:wrap; text-align:left;" id="TBL-2-9-3"  
+class="td11">
+</td></tr>
+</table></div>
+</div>
+<!--l. 589--><p class="noindent" >Before the database was loaded the memory used was 1,249,692 bytes. Thus most of the memory usage before iocInit resulted
+from storage for records. The increase since R3.11.5 results from added fields to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbCommon</span></span></span>. Fields were added for access
+security, synchronous time support and for the new caching put support. The other increases in memory usage result from the
+control blocks needed to support access control. The entire design was based on maximum performance. This resulted in
+increased memory usage.
+</p><!--l. 595--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">8.5    </span> <a 
+ id="x10-3290008.5"></a>Access Security Application Programmer&#8217;s Interface</h3>
+<!--l. 597--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">8.5.1    </span> <a 
+ id="x10-3300008.5.1"></a>Introduction</h4>
+<!--l. 599--><p class="noindent" >File <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asLib.h</span></span></span> describes the access security data structures and the last section of this chapter has a diagram describing the
+relationship between the structures. The structures are:
+</p>
+     <ul class="itemize1">
+     <li class="itemize">ASBASE - Contains the list head for lists of UAGs, HAGs, and ASGs
+     </li>
+     <li class="itemize">UAG - A user access group.
+     </li>
+     <li class="itemize">HAG - A host access group
+     </li>
+     <li class="itemize">ASG - An access secuity group. It contains the list head for ASGINPs, ASGRULEs, and ASGMEMBERs
+                                                                                         
+                                                                                         
+     </li>
+     <li class="itemize">ASGINP - Contains the information for an INPx.
+     </li>
+     <li class="itemize">ASGRULE - Contains the information for a rule
+     </li>
+     <li class="itemize">ASGMEMBER - Contains the information for a member of an access secururity group. It contains the list head
+     for ASGCLIENTs.
+     </li></ul>
+<!--l. 620--><p class="noindent" >All structures except ASGMEMBER and ASGCLIENT are created by the access security library itself when
+it reads an access security file. An ASGMEMBER is created each time asAddMember is called by code that
+interfaces to the database. An ASGCLIENT is created each time asAddClient is called by a channel access
+server.
+</p><!--l. 624--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">8.5.2    </span> <a 
+ id="x10-3310008.5.2"></a>Definitions</h4>
+<!--l. 626--><p class="noindent" >The following are descriptions of arguments of routines described later.
+</p>
+<!--l. 628-->
+     <div class="lstlisting" id="listing-72"><span class="label"><a 
+ id="x10-331001r1"></a></span><span 
+class="pcrb7t-">typedef</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asgMember</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">ASMEMBERPVT</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-331002r2"></a></span><span 
+class="pcrb7t-">typedef</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asgClient</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">ASCLIENTPVT</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-331003r3"></a></span><span 
+class="pcrb7t-">typedef</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(&#x22C6;</span><span 
+class="pcrr7t-">ASINPUTFUNCPTR</span><span 
+class="pcrr7t-">)(</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">buf</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">max_size</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-331004r4"></a></span><span 
+class="pcrb7t-">typedef</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">enum</span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-331005r5"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asClientCOAR</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">/&#x22C6;</span><span 
+class="pcrro7t-">Change</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">of</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">access</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">rights</span><span 
+class="pcrro7t-">&#x22C6;/</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-331006r6"></a></span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">/&#x22C6;</span><span 
+class="pcrro7t-">For</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">now</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">this</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">is</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">all</span><span 
+class="pcrro7t-">&#x22C6;/</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-331007r7"></a></span><span 
+class="pcrr7t-">}</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asClientStatus</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-331008r8"></a></span><span 
+class="pcrb7t-">typedef</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(&#x22C6;</span><span 
+class="pcrr7t-">ASCLIENTCALLBACK</span><span 
+class="pcrr7t-">)(</span><span 
+class="pcrr7t-">ASCLIENTPVT</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">asClientStatus</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<!--l. 640--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">8.5.3    </span> <a 
+ id="x10-3320008.5.3"></a>Initialization</h4>
+<!--l. 642-->
+     <div class="lstlisting" id="listing-73"><span class="label"><a 
+ id="x10-332001r1"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asInitialize</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">ASINPUTFUNPTR</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">inputFunction</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-332002r2"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asInitFile</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">filename</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">substitutions</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-332003r3"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asInitFP</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">FILE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">fp</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">substitutions</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx10-332004"></a>
+<a 
+ id="dx10-332005"></a>
+<a 
+ id="dx10-332006"></a>
+<!--l. 651--><p class="noindent" >These routines read an access definition file and perform all initialization necessary. The caller must provide a routine to
+provide input lines for <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asInitialize</span></span></span>. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asInitFile</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asInitFP</span></span></span> do their own input and also perform macro
+substitutions.
+</p><!--l. 656--><p class="noindent" >The initilization routines can be called multiple times. If an access system already exists the old definitions are removed and the
+new one initialized. Existing members are placed in the new <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ASG</span></span></span>s.
+                                                                                         
+                                                                                         
+</p><!--l. 659--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">8.5.4    </span> <a 
+ id="x10-3330008.5.4"></a>Group manipulation</h4>
+<!--l. 661--><p class="noindent" >The routines are called by code that knows how to associate ASG names with the database. In the case of IOC databases,
+dbCommon has a field ASG. At IOC initialization a call is made to asAddMember for every record instance in the IOC
+database.
+</p><!--l. 665--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.5.4.1    </span> <a 
+ id="x10-3340008.5.4.1"></a>add Member</h5>
+<!--l. 667-->
+     <div class="lstlisting" id="listing-74"><span class="label"><a 
+ id="x10-334001r1"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asAddMember</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">ASMEMBERPVT</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">ppvt</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">asgName</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx10-334002"></a>
+<!--l. 672--><p class="noindent" >This routine adds a new member to ASG <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asgName</span></span></span>. The calling routine must provide storage for <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ASMEMBERPVT</span></span></span>. Upon
+successful return <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x22C6;ppvt</span></span></span> will be equal to the address of storage used by the access control system. The access system keeps an
+orphan list for all <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asgNames</span></span></span> not defined in the access configuration.
+</p><!--l. 676--><p class="noindent" >The caller must provide permanent storage for <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asgName</span></span></span>.
+</p><!--l. 678--><p class="noindent" >This routine returns <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">S_asLib_asNotActive</span></span></span> without doing anything if access control is not active.
+</p><!--l. 680--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.5.4.2    </span> <a 
+ id="x10-3350008.5.4.2"></a>remove Member</h5>
+<!--l. 682-->
+     <div class="lstlisting" id="listing-75"><span class="label"><a 
+ id="x10-335001r1"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asRemoveMember</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">ASMEMBERPVT</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">ppvt</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx10-335002"></a>
+<!--l. 687--><p class="noindent" >This routine removes a member from an access control group. If any clients are still present it returns an error status of
+S_asLib_clientExists without removing the member.
+</p><!--l. 690--><p class="noindent" >This routine returns S_asLib_asNotActive without doing anything if access control is not active.
+</p><!--l. 692--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.5.4.3    </span> <a 
+ id="x10-3360008.5.4.3"></a>get Member Pvt</h5>
+<!--l. 694-->
+                                                                                         
+                                                                                         
+     <div class="lstlisting" id="listing-76"><span class="label"><a 
+ id="x10-336001r1"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">asGetMemberPvt</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">ASMEMBERPVT</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">pvt</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx10-336002"></a>
+<!--l. 699--><p class="noindent" >For each member, the access system keeps a pointer that can be used by the caller. This routine returns the value of the
+pointer.
+</p><!--l. 702--><p class="noindent" >This routine returns NULL if access security is not active
+</p><!--l. 704--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.5.4.4    </span> <a 
+ id="x10-3370008.5.4.4"></a>put Member Pvt</h5>
+<!--l. 706-->
+     <div class="lstlisting" id="listing-77"><span class="label"><a 
+ id="x10-337001r1"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asPutMemberPvt</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">ASMEMBERPVT</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">pvt</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">userPvt</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx10-337002"></a>
+<!--l. 711--><p class="noindent" >This routine is used to set the pointer returned by asGetMemberPvt.
+</p><!--l. 713--><p class="noindent" >This routine returns <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">S_asLib_asNotActive</span></span></span> without doing anything if access control is not active.
+</p><!--l. 715--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.5.4.5    </span> <a 
+ id="x10-3380008.5.4.5"></a>change Group</h5>
+<!--l. 717-->
+     <div class="lstlisting" id="listing-78"><span class="label"><a 
+ id="x10-338001r1"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asChangeGroup</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">ASMEMBERPVT</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">ppvt</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">newAsgName</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx10-338002"></a>
+<!--l. 721--><p class="noindent" >This routine changes the group for an existing member. The access rights of all clients of the member are recomputed.
+</p><!--l. 723--><p class="noindent" >The caller must provide permanent storage for <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">newAsgName</span></span></span>.
+</p><!--l. 725--><p class="noindent" >This routine returns <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">S_asLib_asNotActive</span></span></span> without doing anything if access control is not active.
+</p><!--l. 727--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">8.5.5    </span> <a 
+ id="x10-3390008.5.5"></a> Client Manipulation</h4>
+<!--l. 729--><p class="noindent" >This code is called by a channel access server.
+                                                                                         
+                                                                                         
+</p><!--l. 731--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.5.5.1    </span> <a 
+ id="x10-3400008.5.5.1"></a>add Client</h5>
+<!--l. 733-->
+     <div class="lstlisting" id="listing-79"><span class="label"><a 
+ id="x10-340001r1"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asAddClient</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">ASCLIENTPVT</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">ppvt</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">ASMEMBERPVT</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">pvt</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asl</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-340002r2"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">user</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">host</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx10-340003"></a>
+<!--l. 739--><p class="noindent" >This routine adds a client to an ASG member. The calling routine must provide storage for the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ASCLIENTPVT</span></span></span> pointer.
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ASMEMBERPVT</span></span></span> is the value that was set by calling <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asAddMember</span></span></span>. The database code and the server code must develop a
+convention that allows the server code to locate the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ASMEMBERPVT</span></span></span>. For IOC databases, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ASMEMBERPVT</span></span></span> is kept in
+dbCommon. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asl</span></span></span> is the access security level.
+</p><!--l. 746--><p class="noindent" >The caller must provide permanent storage for <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">user</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">host</span></span></span>. Note that user is &#8220;const char *&#8221; but host is just &#8220;char *&#8221;. The
+reason is the host names are converted to lower case.
+</p><!--l. 750--><p class="noindent" >This routine returns <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">S_asLib_asNotActive</span></span></span> without doing anything if access control is not active.
+</p><!--l. 752--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.5.5.2    </span> <a 
+ id="x10-3410008.5.5.2"></a>change Client</h5>
+<!--l. 754-->
+     <div class="lstlisting" id="listing-80"><span class="label"><a 
+ id="x10-341001r1"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asChangeClient</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">ASCLIENTPVT</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">ppvt</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asl</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-341002r2"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">user</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">host</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx10-341003"></a>
+<!--l. 760--><p class="noindent" >This routine changes one or more of the values <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asl</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">user</span></span></span>, and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">host</span></span></span> for an existing client. Again the caller must provide
+permanent storage for <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">user</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">host</span></span></span>. It is permissible to use the same <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">user</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">host</span></span></span> used in the call to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asAddClient</span></span></span>
+with different values.
+</p><!--l. 764--><p class="noindent" >This routine returns <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">S_asLib_asNotActive</span></span></span> without doing anything if access control is not active.
+</p><!--l. 766--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.5.5.3    </span> <a 
+ id="x10-3420008.5.5.3"></a>remove Client</h5>
+<!--l. 768-->
+     <div class="lstlisting" id="listing-81"><span class="label"><a 
+ id="x10-342001r1"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asRemoveClient</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">ASCLIENTPVT</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pvt</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx10-342002"></a>
+<!--l. 773--><p class="noindent" >This call removes a client.
+</p><!--l. 775--><p class="noindent" >This routine returns <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">S_asLib_asNotActive</span></span></span> without doing anything if access control is not active.
+                                                                                         
+                                                                                         
+</p><!--l. 777--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.5.5.4    </span> <a 
+ id="x10-3430008.5.5.4"></a>get Client Pvt</h5>
+<!--l. 779-->
+     <div class="lstlisting" id="listing-82"><span class="label"><a 
+ id="x10-343001r1"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">asGetClientPvt</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">ASCLIENTPVT</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">pvt</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx10-343002"></a>
+<!--l. 784--><p class="noindent" >For each client, the access system keeps a pointer that can be used by the caller. This routine returns the value of the
+pointer.
+</p><!--l. 787--><p class="noindent" >This routine returns <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">NULL</span></span></span> if access security is not active.
+</p><!--l. 789--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.5.5.5    </span> <a 
+ id="x10-3440008.5.5.5"></a>put Client Pvt</h5>
+<!--l. 791-->
+     <div class="lstlisting" id="listing-83"><span class="label"><a 
+ id="x10-344001r1"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asPutClientPvt</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">ASCLIENTPVT</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">pvt</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">userPvt</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx10-344002"></a>
+<!--l. 796--><p class="noindent" >This routine is used to set the pointer returned by <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asGetClientPvt</span></span></span>.
+</p><!--l. 798--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.5.5.6    </span> <a 
+ id="x10-3450008.5.5.6"></a>register Callback</h5>
+<!--l. 800-->
+     <div class="lstlisting" id="listing-84"><span class="label"><a 
+ id="x10-345001r1"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asRegisterClientCallback</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">ASCLIENTPVT</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">pvt</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-345002r2"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">ASCLIENTCALLBACK</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">pcallback</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx10-345003"></a>
+<!--l. 806--><p class="noindent" >This routine registers a callback that will be called whenever the access privilege of the client changes.
+</p><!--l. 808--><p class="noindent" >This routine returns <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">S_asLib_asNotActive</span></span></span> without doing anything if access control is not active.
+                                                                                         
+                                                                                         
+</p><!--l. 810--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.5.5.7    </span> <a 
+ id="x10-3460008.5.5.7"></a>check Get</h5>
+<!--l. 812-->
+     <div class="lstlisting" id="listing-85"><span class="label"><a 
+ id="x10-346001r1"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asCheckGet</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">ASCLIENTPVT</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">pvt</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx10-346002"></a>
+<!--l. 817--><p class="noindent" >This routine, actually a macro, returns <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">TRUE</span></span></span> if the client has read access rights.
+</p><!--l. 819--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.5.5.8    </span> <a 
+ id="x10-3470008.5.5.8"></a>check Put</h5>
+<!--l. 821-->
+     <div class="lstlisting" id="listing-86"><span class="label"><a 
+ id="x10-347001r1"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asCheckPut</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">ASCLIENTPVT</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">pvt</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx10-347002"></a>
+<!--l. 826--><p class="noindent" >This routine, actually a macro, returns <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">TRUE</span></span></span> if the client has write access rights.
+</p><!--l. 828--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.5.5.9    </span> <a 
+ id="x10-3480008.5.5.9"></a>asTrapWriteBefore and asTrapWriteAfter</h5>
+<a 
+ id="dx10-348001"></a>
+<a 
+ id="dx10-348002"></a>
+<!--l. 832-->
+     <div class="lstlisting" id="listing-87"><span class="label"><a 
+ id="x10-348003r1"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">asTrapWriteBefore</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">ASCLIENTPVT</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">clientPvt</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-348004r2"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">userid</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">hostid</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">serverSpecific</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-348005r3"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">asTrapWriteAfter</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">trapPvt</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<!--l. 838--><p class="noindent" >These routines must be called before and after any write performed for a client, to permit any registered listeners to be notified.
+The value returned by the call to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asTrapWriteBefore</span></span></span> is the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">trapPvt</span></span></span> value that must subsequently be passed to the
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asTrapWriteAfter</span></span></span> routine. The <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">serverSpecific</span></span></span> argument is assigned to the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">serverSpecific</span></span></span> field of the
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asTrapWriteMessage</span></span></span> described below.
+</p><!--l. 842--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">8.5.6    </span> <a 
+ id="x10-3490008.5.6"></a>Access Computation</h4>
+                                                                                         
+                                                                                         
+<!--l. 844--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.5.6.1    </span> <a 
+ id="x10-3500008.5.6.1"></a>compute all Asg</h5>
+<!--l. 846-->
+     <div class="lstlisting" id="listing-88"><span class="label"><a 
+ id="x10-350001r1"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asComputeAllAsg</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx10-350002"></a>
+<!--l. 851--><p class="noindent" >This routine calls <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asComputeAsg</span></span></span> for each access security group.
+</p><!--l. 853--><p class="noindent" >This routine returns <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">S_asLib_asNotActive</span></span></span> without doing anything if access control is not active.
+</p><!--l. 855--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.5.6.2    </span> <a 
+ id="x10-3510008.5.6.2"></a>compute Asg</h5>
+<!--l. 857-->
+     <div class="lstlisting" id="listing-89"><span class="label"><a 
+ id="x10-351001r1"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asComputeAsg</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">ASG</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pasg</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx10-351002"></a>
+<!--l. 862--><p class="noindent" >This routine calculates all <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">CALC</span></span></span> entries for the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ASG</span></span></span> and calls <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asCompute</span></span></span> for each client of each member of the specified
+access security group.
+</p><!--l. 864--><p class="noindent" >This routine returns <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">S_asLib_asNotActive</span></span></span> without doing anything if access control is not active.
+</p><!--l. 866--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.5.6.3    </span> <a 
+ id="x10-3520008.5.6.3"></a>compute access</h5>
+<!--l. 868--><p class="noindent" >rights
+</p>
+<!--l. 870-->
+     <div class="lstlisting" id="listing-90"><span class="label"><a 
+ id="x10-352001r1"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asCompute</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">ASCLIENTPVT</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">pvt</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx10-352002"></a>
+<!--l. 875--><p class="noindent" >This routine computes the access rights of a client. This routine is normally called by the access library itself rather than user
+code.
+</p><!--l. 878--><p class="noindent" >This routine returns <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">S_asLib_asNotActive</span></span></span> without doing anything if access control is not active.
+                                                                                         
+                                                                                         
+</p><!--l. 880--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">8.5.7    </span> <a 
+ id="x10-3530008.5.7"></a>Diagnostics</h4>
+<!--l. 882--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.5.7.1    </span> <a 
+ id="x10-3540008.5.7.1"></a>Dump</h5>
+<!--l. 884-->
+     <div class="lstlisting" id="listing-91"><span class="label"><a 
+ id="x10-354001r1"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asDump</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(&#x22C6;</span><span 
+class="pcrr7t-">member</span><span 
+class="pcrr7t-">)(</span><span 
+class="pcrr7t-">ASMEMBERPVT</span><span 
+class="pcrr7t-">),</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-354002r2"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(&#x22C6;</span><span 
+class="pcrr7t-">client</span><span 
+class="pcrr7t-">)(</span><span 
+class="pcrr7t-">ASCLIENTPVT</span><span 
+class="pcrr7t-">),</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">verbose</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-354003r3"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asDumpFP</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">FILE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">fp</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(&#x22C6;</span><span 
+class="pcrr7t-">member</span><span 
+class="pcrr7t-">)(</span><span 
+class="pcrr7t-">ASMEMBERPVT</span><span 
+class="pcrr7t-">),</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-354004r4"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(&#x22C6;</span><span 
+class="pcrr7t-">client</span><span 
+class="pcrr7t-">)(</span><span 
+class="pcrr7t-">ASCLIENTPVT</span><span 
+class="pcrr7t-">),</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">verbose</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx10-354005"></a>
+<a 
+ id="dx10-354006"></a>
+<!--l. 893--><p class="noindent" >These routines print the current access security database. If verbose is 0 (<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">FALSE</span></span></span>), then only the information obtained from the
+access security file is printed.
+</p><!--l. 896--><p class="noindent" >If verbose is <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">TRUE</span></span></span> then additional information is printed. The value of each <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">INP</span></span></span> is displayed. The list of members belonging
+to each ASG and the clients belonging to each member are displayed. If member callback is specified as an
+argument, then it is called for each member. If client callback is specified, it is called for each access security
+client.
+</p><!--l. 902--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.5.7.2    </span> <a 
+ id="x10-3550008.5.7.2"></a>Dump UAG</h5>
+<!--l. 904-->
+     <div class="lstlisting" id="listing-92"><span class="label"><a 
+ id="x10-355001r1"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asDumpUag</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">uagname</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-355002r2"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asDumpUagFP</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">FILE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">fp</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">uagname</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx10-355003"></a>
+<a 
+ id="dx10-355004"></a>
+<!--l. 911--><p class="noindent" >These routines display the specified <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">UAG</span></span></span> or if <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">uagname</span></span></span> is <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">NULL</span></span></span> each <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">UAG</span></span></span> defined in the access security database.
+</p><!--l. 913--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.5.7.3    </span> <a 
+ id="x10-3560008.5.7.3"></a>Dump HAG</h5>
+<!--l. 915-->
+     <div class="lstlisting" id="listing-93"><span class="label"><a 
+ id="x10-356001r1"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asDumpHag</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">hagname</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-356002r2"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asDumpHagFP</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">FILE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">fp</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">hagname</span><span 
+class="pcrr7t-">);</span>
+     
+                                                                                         
+                                                                                         
+</div>
+<a 
+ id="dx10-356003"></a>
+<a 
+ id="dx10-356004"></a>
+<!--l. 922--><p class="noindent" >These routines display the specified <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">UAG</span></span></span> or if <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">uagname</span></span></span> is <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">NULL</span></span></span> each <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">UAG</span></span></span> defined in the access security database.
+</p><!--l. 924--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.5.7.4    </span> <a 
+ id="x10-3570008.5.7.4"></a>Dump Rules</h5>
+<!--l. 926-->
+     <div class="lstlisting" id="listing-94"><span class="label"><a 
+ id="x10-357001r1"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asDumpRules</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">asgname</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-357002r2"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asDumpRulesFP</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">FILE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">fp</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">asgname</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx10-357003"></a>
+<a 
+ id="dx10-357004"></a>
+<!--l. 933--><p class="noindent" >These routines display the rules for the specified <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ASG</span></span></span> or if <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asgname</span></span></span> is <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">NULL</span></span></span> the rules for each ASG defined in the access
+security database.
+</p><!--l. 936--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.5.7.5    </span> <a 
+ id="x10-3580008.5.7.5"></a>Dump member</h5>
+<!--l. 938-->
+     <div class="lstlisting" id="listing-95"><span class="label"><a 
+ id="x10-358001r1"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asDumpMem</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">asgname</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-358002r2"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(&#x22C6;</span><span 
+class="pcrr7t-">memcallback</span><span 
+class="pcrr7t-">)(</span><span 
+class="pcrr7t-">ASMEMBERPVT</span><span 
+class="pcrr7t-">),</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">clients</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-358003r3"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asDumpMemFP</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">FILE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">fp</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">asgname</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-358004r4"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(&#x22C6;</span><span 
+class="pcrr7t-">memcallback</span><span 
+class="pcrr7t-">)(</span><span 
+class="pcrr7t-">ASMEMBERPVT</span><span 
+class="pcrr7t-">),</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">clients</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx10-358005"></a>
+<a 
+ id="dx10-358006"></a>
+<!--l. 947--><p class="noindent" >This routine displays the member and, if clients is <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">TRUE</span></span></span>, client information for the specified <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ASG</span></span></span> or if <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asgname</span></span></span> is <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">NULL</span></span></span> the
+member and client information for each <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ASG</span></span></span> defined in the access security database. It also calls <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">memcallback</span></span></span> for each
+member if this argument is not <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">NULL</span></span></span>.
+</p><!--l. 950--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.5.7.6    </span> <a 
+ id="x10-3590008.5.7.6"></a>Dump hash table</h5>
+<!--l. 952-->
+     <div class="lstlisting" id="listing-96"><span class="label"><a 
+ id="x10-359001r1"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asDumpHash</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-359002r2"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asDumpHash</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">FILE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">fp</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">);</span>
+     
+                                                                                         
+                                                                                         
+</div>
+<a 
+ id="dx10-359003"></a>
+<a 
+ id="dx10-359004"></a>
+<!--l. 959--><p class="noindent" >These show the contents of the hash table used to locate <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">UAG</span></span></span>s and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">HAG</span></span></span>s,
+</p><!--l. 961--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">8.6    </span> <a 
+ id="x10-3600008.6"></a>Database Access Security</h3>
+<!--l. 963--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">8.6.1    </span> <a 
+ id="x10-3610008.6.1"></a>Access Level definition</h4>
+<!--l. 965--><p class="noindent" >The definition of access level means that a level is defined for each field of each record type.
+</p><!--l. 967--><p class="noindent" >
+     </p><ol  class="enumerate1" >
+     <li 
+  class="enumerate" id="x10-361002x1"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;dbFldDes</span></span></span> in <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbBase.h</span></span></span> contains a field <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">as_level</span></span></span>. In addition definitions are provided for the
+     symbols <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ASL0</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ASL1</span></span></span>.
+     </li>
+     <li 
+  class="enumerate" id="x10-361004x2">Each field description in a record description contains a field with the value <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ASLx</span></span></span>.</li></ol>
+<!--l. 974--><p class="noindent" >The meanings of the <a 
+ id="dx10-361005"></a>Access Security Level definitions are as follows:
+</p>
+     <ul class="itemize1">
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ASL0</span></span></span> Assigned to fields used during normal operation
+     </li>
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ASL1</span></span></span> Assigned to fields that may be sensitive to change. Permission to access this level implies permission for
+     <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ASL0</span></span></span>.</li></ul>
+<a 
+ id="dx10-361006"></a>
+<a 
+ id="dx10-361007"></a>
+<!--l. 985--><p class="noindent" >Most record types assign ASL as follows: The fields <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">VAL</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">RES</span></span></span> (Reset), and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">CMD</span></span></span> use the value <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ASL0</span></span></span>. All other fields use
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ASL1</span></span></span>.
+</p><!--l. 989--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">8.6.2    </span> <a 
+ id="x10-3620008.6.2"></a>Access Security Group definition</h4>
+<!--l. 991--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;dbCommon</span></span></span> contains the fields <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ASG</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ASP</span></span></span>. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ASG</span></span></span> (Access Security Group) is a character string. The value can be
+assigned via a database configuration tool or else a utility could be provided to assign values during ioc initialization. ASP is an
+access security private field. It contains the address of an <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ASGMEMBER</span></span></span>.
+                                                                                         
+                                                                                         
+</p><!--l. 997--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">8.6.3    </span> <a 
+ id="x10-3630008.6.3"></a>Database Access Library</h4>
+<!--l. 999--><p class="noindent" >Two files <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asDbLib.c</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asCa.c</span></span></span> implement the interface between IOC databases and access control. They contain the
+following routines:
+</p><!--l. 1002--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.6.3.1    </span> <a 
+ id="x10-3640008.6.3.1"></a>Initialization</h5>
+<!--l. 1004-->
+     <div class="lstlisting" id="listing-97"><span class="label"><a 
+ id="x10-364001r1"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asSetFilename</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">acf</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx10-364002"></a>
+<!--l. 1009--><p class="noindent" >Calling this routine sets the filename of an access configuration file, but does not save the current working directory, so the use
+of an absolute pathname is strongly recommended. The next call to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asInit</span></span></span> uses this filename. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asSetFilename</span></span></span> must be
+called before <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocInit</span></span></span> otherwise access configuration is disabled. Is access security is disabled during <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocInit</span></span></span> it will never
+be turned on.
+</p>
+<!--l. 1014-->
+     <div class="lstlisting" id="listing-98"><span class="label"><a 
+ id="x10-364003r1"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asSetSubstitutions</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">substitutions</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx10-364004"></a>
+<!--l. 1019--><p class="noindent" >This routine specifies macro substitutions for use while reading the configuration file.
+</p>
+<!--l. 1021-->
+     <div class="lstlisting" id="listing-99"><span class="label"><a 
+ id="x10-364005r1"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asInit</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-364006r2"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asInitAsyn</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">ASDBCALLBACK</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pcallback</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx10-364007"></a>
+<a 
+ id="dx10-364008"></a>
+<!--l. 1028--><p class="noindent" >This routines call <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asInitialize</span></span></span>. If the current access configuration file, as specified by <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asSetFilename</span></span></span>, is
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">NULL</span></span></span> then the routine just returns, otherwise the configuration file is used to create the access configuration
+database. After initialization all records in the database are made members of the appropriate access control
+group.
+</p><!--l. 1032--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asInit</span></span></span> is called by <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocInit</span></span></span>, and can also be called after <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocInit</span></span></span> to change the access configuration
+information.
+</p><!--l. 1034--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asInitAsyn</span></span></span> spawns a task <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asInitTask</span></span></span> to perform the initialization. This allows <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asInitAsyn</span></span></span> to be called from a
+subroutine called by the process entry of a subroutine record. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asInitTask</span></span></span> calls <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">taskwdInsert</span></span></span> so that if it suspends for
+some reason <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">taskwd</span></span></span> can detect the failure.
+                                                                                         
+                                                                                         
+</p><!--l. 1037--><p class="noindent" >If the caller provides an <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ASDBCALLBACK</span></span></span> then when either initialization completes or <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">taskwd</span></span></span> detects a failure the user&#8217;s
+callback routine is called via one of the standard callback tasks.
+</p><!--l. 1039--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asInitAsyn</span></span></span> will return a value of <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">-1</span></span></span> if access initialization is already active. It returns 0 if <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asInitTask</span></span></span> is successfully
+spawned.
+</p><!--l. 1042--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.6.3.2    </span> <a 
+ id="x10-3650008.6.3.2"></a>Routines used by Channel Access Server</h5>
+<!--l. 1044-->
+     <div class="lstlisting" id="listing-100"><span class="label"><a 
+ id="x10-365001r1"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asDbGetAsl</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">paddr</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx10-365002"></a>
+<!--l. 1049--><p class="noindent" >Get Access Security level for the field referenced by a database access structure. The argument is defined as a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">void&#x22C6;</span></span></span> so that
+both old and new database access can be used.
+</p>
+<!--l. 1052-->
+     <div class="lstlisting" id="listing-101"><span class="label"><a 
+ id="x10-365003r1"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asDbGetMemberPvt</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">paddr</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx10-365004"></a>
+<!--l. 1057--><p class="noindent" >Get <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ASMEMBERPVT</span></span></span> for the field referenced by a database access structure. The argument is defined as a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">void&#x22C6;</span></span></span> so that both
+old and new database access can be used.
+</p><!--l. 1060--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.6.3.3    </span> <a 
+ id="x10-3660008.6.3.3"></a>Routine to test asAddClient</h5>
+<!--l. 1062-->
+     <div class="lstlisting" id="listing-102"><span class="label"><a 
+ id="x10-366001r1"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">astac</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pname</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">user</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">host</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx10-366002"></a>
+<!--l. 1067--><p class="noindent" >This is a routine to test <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asAddClient</span></span></span>. It simulates the calls that are made by Channel Access.
+                                                                                         
+                                                                                         
+</p><!--l. 1070--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.6.3.4    </span> <a 
+ id="x10-3670008.6.3.4"></a>Subroutines attached to a subroutine record</h5>
+<!--l. 1072--><p class="noindent" >These routines are provided so that a channel access client can force an ioc to load a new access configuration
+database.
+</p>
+<!--l. 1074-->
+     <div class="lstlisting" id="listing-103"><span class="label"><a 
+ id="x10-367001r1"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asSubInit</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">subRecord</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">prec</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">pass</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-367002r2"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asSubProcess</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">subRecord</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">prec</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx10-367003"></a>
+<a 
+ id="dx10-367004"></a>
+<!--l. 1081--><p class="noindent" >These are routines that can be attached to a subroutine record. Whenever a 1 is written to the record, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asSubProcess</span></span></span> calls
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asInit</span></span></span>. If <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asInit</span></span></span> returns success, it returns asynchronously. When <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asInitTask</span></span></span> calls the completion routine
+supplied by <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asSubProcess</span></span></span>, the completion status is used to determine whether to place the record in alarm or
+not.
+</p><!--l. 1086--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">8.6.3.5    </span> <a 
+ id="x10-3680008.6.3.5"></a>Diagnostic Routines</h5>
+<!--l. 1088--><p class="noindent" >These routines provide interfaces to the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asDump</span></span></span> routines described in the previous chapter. They do NOT lock before calling
+the associated routine. Thus they may fail if the access security configuration is changing while they are running. However the
+danger of the user accidently aborting a command and leaving the access security system locked is considered a risk that should
+be avoided.
+</p>
+<!--l. 1093-->
+     <div class="lstlisting" id="listing-104"><span class="label"><a 
+ id="x10-368001r1"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asdbdump</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-368002r2"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asdbdumpFP</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">FILE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">fp</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx10-368003"></a>
+<a 
+ id="dx10-368004"></a>
+<!--l. 1100--><p class="noindent" >These routines call <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asDumpFP</span></span></span> with a member callback and with verbose <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">TRUE</span></span></span>.
+</p>
+<!--l. 1102-->
+     <div class="lstlisting" id="listing-105"><span class="label"><a 
+ id="x10-368005r1"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">aspuag</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">uagname</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-368006r2"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">aspuagFP</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">FILE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">fp</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">uagname</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx10-368007"></a>
+<a 
+ id="dx10-368008"></a>
+<!--l. 1109--><p class="noindent" >These routines call <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asDumpUagFP</span></span></span>.
+</p>
+<!--l. 1111-->
+                                                                                         
+                                                                                         
+     <div class="lstlisting" id="listing-106"><span class="label"><a 
+ id="x10-368009r1"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asphag</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">hagname</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-368010r2"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asphagFP</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">FILE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">fp</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">hagname</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx10-368011"></a>
+<a 
+ id="dx10-368012"></a>
+<!--l. 1118--><p class="noindent" >These routines call <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asDumpHagFP</span></span></span>.
+</p>
+<!--l. 1120-->
+     <div class="lstlisting" id="listing-107"><span class="label"><a 
+ id="x10-368013r1"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asprules</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">asgname</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-368014r2"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asprulesFP</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">FILE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">fp</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">asgname</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx10-368015"></a>
+<a 
+ id="dx10-368016"></a>
+<!--l. 1127--><p class="noindent" >These routines call <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asDumpRulesFP</span></span></span>.
+</p>
+<!--l. 1129-->
+     <div class="lstlisting" id="listing-108"><span class="label"><a 
+ id="x10-368017r1"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">aspmem</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">asgname</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">clients</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-368018r2"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">aspmemFP</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">FILE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">fp</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">asgname</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">clients</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx10-368019"></a>
+<a 
+ id="dx10-368020"></a>
+<!--l. 1136--><p class="noindent" >These routines call <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asDumpMemFP</span></span></span>.
+</p><!--l. 1138--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">8.7    </span> <a 
+ id="x10-3690008.7"></a>Channel Access Security</h3>
+<!--l. 1140--><p class="noindent" >EPICS Access Security was originally designed to protect Input Output Controllers (IOCs) from unauthorized access via the
+Channel Access (CA) network protocol. It can also be used by any Channel Access Server (CAS) tool. For example the
+Channel Access PV Gateway implements its own access security. This section describes the interaction between a CA server
+and the Access Security system. It also briefly describes how the current access rights state is communicated to clients of the
+EPICS control system via the CA client interface.
+</p><!--l. 1146--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">8.7.1    </span> <a 
+ id="x10-3700008.7.1"></a>CA Server Interfaces to the Access Security System</h4>
+<!--l. 1148--><p class="noindent" >The CA server calls <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asAddClient()</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asRegisterClientCallback()</span></span></span> for each of the channels that a client
+connects to the server. The routine <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asRemoveClient()</span></span></span> is called whenever the client clears (removes) a channel or when the
+client disconnects.
+                                                                                         
+                                                                                         
+</p><!--l. 1151--><p class="noindent" >The server maintains storage for the clients host and user names. The initial value of these strings are supplied to the server
+when the client connects and can be updated at any time by the client. When these strings change then <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asChangeClient()</span></span></span>
+is called for each of the channels maintained by the server for the client.
+</p><!--l. 1155--><p class="noindent" >The server checks for read access when processing gets and for write access when processing puts. If access is denied an
+exception message will be sent to the client. The macros <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asCheckGet()</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asCheckPut()</span></span></span> perform the
+checks.
+</p><!--l. 1159--><p class="noindent" >The server checks for read access when processing requests to register an event callback (monitor) for the client. If there is read
+access the server always sends an initial update indicating the current value. If there isn&#8217;t read access the server sends one
+update indicating no read access and disables subsequent updates.
+</p><!--l. 1163--><p class="noindent" >The server registers a callback with <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asRegisterClientCallback()</span></span></span> in order to receives asynchronous notification of
+access rights changes. When a channel&#8217;s access rights change, the server communicates the current state to the client library. If
+read access to a channel is lost and there are events (monitors) registered on the channel then the server sends an update to the
+client for each of them indicating no access and disables future updates for each event. If read access is reestablished to a
+channel and there are events (monitors) registered on the channel, the server reenables updates and sends an initial update
+message to the client for each of them.
+</p><!--l. 1168--><p class="noindent" >The server must also call <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asTrapWriteBefore()</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asTrapWriteAfter()</span></span></span> before and after a put request from a
+client is performed.
+</p><!--l. 1170--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">8.7.2    </span> <a 
+ id="x10-3710008.7.2"></a>Client Interfaces</h4>
+<!--l. 1172--><p class="noindent" >Additional details on the channel access client side callable interfaces to access security can be obtained from the Channel
+Access Reference Manual.
+</p><!--l. 1174--><p class="noindent" >The client library stores and maintains the current state of the access rights for each channel that it has established. The
+client library receives asynchronous updates of the current access rights state from the server. It uses this state to
+check for read access when processing gets and for write access when processing puts. If a program issues a
+channel access request that is inconsistent with the client library&#8217;s current knowledge of the access rights state,
+the access is denied and an error code is returned to the application. The current access rights state as known
+by the client library can be tested by an applications program with the C macros <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ca_read_access()</span></span></span> and
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ca_write_access()</span></span></span>.
+</p><!--l. 1180--><p class="noindent" >An application program can also receive asynchronous notification of changes to the access rights state by registering a
+function to be called whenever the client library updates its knowledge of the access rights state. The application&#8217;s callback
+function is installed using <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ca_replace_access_rights_event()</span></span></span>.
+</p><!--l. 1183--><p class="noindent" >If the access rights state changes in the server after a request is queued in the client library but before the request is processed
+by the server, it is possible that the request will fail in the server. Under these circumstances then an exception will be raised in
+the client.
+</p><!--l. 1186--><p class="noindent" >The server always sends one update to the client when the event (monitor) is initially registered. If there isn&#8217;t
+read access then the status in the arguments to the application program&#8217;s event call back function indicates no
+read access and the value in the arguments to the clients event call back is set to zero. If the read access right
+changes after the event is initially registered, another update is supplied to the application programs call back
+function.
+</p><!--l. 1190--><p class="noindent" >
+</p>
+                                                                                         
+                                                                                         
+<h3 class="sectionHead"><span class="titlemark">8.8    </span> <a 
+ id="x10-3720008.8"></a>Trapping Channel Access Writes</h3>
+<!--l. 1192--><p class="noindent" >Access security provides a facility <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asTrapWrite</span></span></span> that can monitor write requests and pass them to any software that registers
+a listener function. In order to use this facility three things are necessary:
+</p><!--l. 1195--><p class="noindent" >
+<a 
+ id="dx10-372001"></a>
+<a 
+ id="dx10-372002"></a>
+     </p><ol  class="enumerate1" >
+     <li 
+  class="enumerate" id="x10-372004x1">The  server  using  this  library  must  call  <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asTrapWriteBefore()</span></span></span> and  <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asTrapWriteAfter()</span></span></span>.  These
+     routines are defined in asLib.h. The RSRV channel access server running on the IOC makes these calls.
+     </li>
+     <li 
+  class="enumerate" id="x10-372006x2"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asTrapWrite()</span></span></span> gets  called  by  <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asTrapWriteBefore()</span></span></span> and<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x00A0;asTrapWriteAfter()</span></span></span> and  uses  the
+     <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">TRAPWRITE</span></span></span> option specified with the RULEs given in the access configuration file to decide if listeners should
+     be called. asTrapWrite also includes a routine <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asTrapWriteRegisterListener()</span></span></span>.
+     </li>
+     <li 
+  class="enumerate" id="x10-372008x3">Some facility not included with access security must call <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asTrapWriteRegisterListener()</span></span></span>. If nothing
+     calls <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asTrapWriteRegisterListener</span></span></span>, asTrapWrite does nothing.
+     </li></ol>
+<!--l. 1210--><p class="noindent" >The remainder of this section describes how a facility can use <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asTrapWrite.h</span></span></span>, which is defined as:
+<a 
+ id="dx10-372009"></a>
+<a 
+ id="dx10-372010"></a>
+<a 
+ id="dx10-372011"></a>
+<a 
+ id="dx10-372012"></a>
+<a 
+ id="dx10-372013"></a>
+</p>
+<!--l. 1217-->
+     <div class="lstlisting" id="listing-109"><span class="label"><a 
+ id="x10-372014r1"></a></span><span 
+class="pcrb7t-">typedef</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asTrapWriteMessage</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-372015r2"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">userid</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-372016r3"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">hostid</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-372017r4"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">serverSpecific</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-372018r5"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">userPvt</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-372019r6"></a></span><span 
+class="pcrr7t-">}</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asTrapWriteMessage</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-372020r7"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-372021r8"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-372022r9"></a></span><span 
+class="pcrb7t-">typedef</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">asTrapWriteId</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-372023r10"></a></span><span 
+class="pcrb7t-">typedef</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">(&#x22C6;</span><span 
+class="pcrr7t-">asTrapWriteListener</span><span 
+class="pcrr7t-">)(</span><span 
+class="pcrr7t-">asTrapWriteMessage</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pmessage</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">after</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-372024r11"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-372025r12"></a></span><span 
+class="pcrr7t-">asTrapWriteId</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asTrapWriteRegisterListener</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">asTrapWriteListener</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">func</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x10-372026r13"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">asTrapWriteUnregisterListener</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">asTrapWriteId</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">id</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx10-372027"></a>
+<a 
+ id="dx10-372028"></a>
+<a 
+ id="dx10-372029"></a>
+<!--l. 1236--><p class="noindent" >After a facility calls <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asTrapWriteRegisterListener()</span></span></span> its <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asTrapWriteListener()</span></span></span> will get called before and
+after each write with an associated RULE that has the option TRAPWRITE set.
+<a 
+ id="dx10-372030"></a>
+</p><!--l. 1240--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asTrapWriteRegisterListener()</span></span></span> is passed the address of an <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asTrapWriteMessage</span></span></span>. This message contains the
+following fields:
+</p>
+     <ul class="itemize1">
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">userid</span></span></span> - Userid of whoever originated the request.
+     </li>
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">hostid</span></span></span> - Hostid of whoever originated the request.
+     </li>
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">serverSpecific</span></span></span> - The meaning of this field is server specific. If the listener uses this field it must know
+     what type of server is supplying the messages. It is the value the server provides to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asTrapWriteBefore</span></span></span>.
+                                                                                         
+                                                                                         
+     </li>
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">userPvt</span></span></span> - This field is for use by the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asTrapWriteListener</span></span></span>. When the listener is called before the write,
+     <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">userPvt</span></span></span> has the value 0. The listener can give it any value it desires and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">userPvt</span></span></span> will have have the same
+     value when the listener gets called after the write.</li></ul>
+<!--l. 1257--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asTrapWriteListener</span></span></span> delays the associated server thread so it must not do anything that causes it to
+block.
+<a 
+ id="dx10-372031"></a>
+</p><!--l. 1260--><p class="noindent" >The IOC&#8217;s RSRV server the calls <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asTrapWriteBefore</span></span></span> with <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">serverSpecific</span></span></span> set to a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbChannel</span><span 
+class="pcrr7t-">&#x00A0;&#x22C6;</span></span></span> describing the
+PV.
+</p><!--l. 1262--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">8.9    </span> <a 
+ id="x10-3730008.9"></a>Access Control: Implementation Overview</h3>
+<!--l. 1264--><p class="noindent" >This section provides a few aids for reading the access security code. Include file <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asLib.h</span></span></span> describes the control blocks used
+by the access security library.
+</p><!--l. 1267--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">8.9.1    </span> <a 
+ id="x10-3740008.9.1"></a>Implementation Overview</h4>
+<!--l. 1269--><p class="noindent" >The following files form the access security system:
+     </p><dl class="description"><dt class="description">
+<span 
+class="ptmb7t-">asLib.h</span> </dt><dd 
+class="description">
+     <!--l. 1274--><p class="noindent" >Definitions for the portion of access security that is independent of IOC databases.
+     </p></dd><dt class="description">
+<span 
+class="ptmb7t-">asDbLib.h</span> </dt><dd 
+class="description">
+     <!--l. 1278--><p class="noindent" >Definitions for access routines that interface to an IOC database.
+     </p></dd><dt class="description">
+<span 
+class="ptmb7t-">asLib</span><span 
+class="ptmb7t-">_lex.l</span> </dt><dd 
+class="description">
+     <!--l. 1282--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">Lex</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">Yacc</span></span></span> (actually EPICS <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">flex</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">antelope</span></span></span>) are used to parse the access configuration file. This is
+     the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">lex</span></span></span> input file.
+     </p></dd><dt class="description">
+<span 
+class="ptmb7t-">asLib.y</span> </dt><dd 
+class="description">
+     <!--l. 1286--><p class="noindent" >This is the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">yacc</span></span></span> input file. Note that it includes <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asLibRoutines.c</span></span></span>, which do most of the work.
+     </p></dd><dt class="description">
+<span 
+class="ptmb7t-">asLibRoutines.c</span> </dt><dd 
+class="description">
+     <!--l. 1290--><p class="noindent" >These are the routines that implement access security. This code has no knowledge of the database or channel
+     access. It is a general purpose access security implementation.
+                                                                                         
+                                                                                         
+     </p></dd><dt class="description">
+<span 
+class="ptmb7t-">asDbLib.c</span> </dt><dd 
+class="description">
+     <!--l. 1294--><p class="noindent" >This contains the code for interfacing access security to the IOC database.
+     </p></dd><dt class="description">
+<span 
+class="ptmb7t-">asCa.c</span> </dt><dd 
+class="description">
+     <!--l. 1298--><p class="noindent" >This code contains the channel access client code that implements the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">INP</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">CALC</span></span></span> definitions in an access
+     security database.
+     </p></dd><dt class="description">
+<span 
+class="ptmb7t-">ascheck.c</span> </dt><dd 
+class="description">
+     <!--l. 1302--><p class="noindent" >The Unix program which performs a syntax check on a configuration file.</p></dd></dl>
+<!--l. 1305--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">8.9.2    </span> <a 
+ id="x10-3750008.9.2"></a>Locking</h4>
+<!--l. 1307--><p class="noindent" >Because it is possible for multiple tasks to simultaneously modify the access security database it is necessary to
+provide locking. Rather than try to provide low level locking, the entire access security database is locked during
+critical operations. The only things this should hold up are access initialization, CA searches, CA clears, and
+diagnostic routines. It should NEVER cause record processing to wait. In addition CA gets and puts should never be
+delayed. One exception exists. If the ASG field of a record is changed then <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">asChangeGroup</span></span></span> is called which
+locks.
+</p><!--l. 1313--><p class="noindent" >All operations invoked from outside the access security library that cause changes to the internal structures of the access
+security database.routines lock.
+</p><!--l. 1316--><p class="noindent" >
+                                                                                         
+                                                                                         
+</p>
+<h3 class="sectionHead"><span class="titlemark">8.10    </span> <a 
+ id="x10-3760008.10"></a>Structures</h3>
+<div class="center" 
+>
+<!--l. 1320--><p class="noindent" >
+</p><!--l. 1321--><p class="noindent" ><img 
+src="accessSecurity_1.svg" alt="accessSecurity&#x02D9;1.svg"  
+ /></p></div>
+<!--l. 1--><div class="crosslinks"><p class="noindent">[<a 
+href="AppDevGuidech9.html" >next</a>] [<a 
+href="AppDevGuidech7.html" >prev</a>] [<a 
+href="AppDevGuidech7.html#tailAppDevGuidech7.html" >prev-tail</a>] [<a 
+href="AppDevGuidech8.html" >front</a>] [<a 
+href="AppDevGuide.html#AppDevGuidech8.html" >up</a>] </p></div>
+<!--l. 1--><p class="noindent" ><a 
+ id="tailAppDevGuidech8.html"></a> </p> 
+</body></html> 

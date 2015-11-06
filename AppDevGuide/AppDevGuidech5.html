@@ -1,0 +1,960 @@
+<?xml version="1.0" encoding="iso-8859-1" ?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">  
+<!--http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd-->  
+<html xmlns="http://www.w3.org/1999/xhtml"  
+> 
+<head><title>5 Database Locking, Scanning, And Processing</title> 
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" /> 
+<meta name="generator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
+<meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
+<!-- xhtml,2,html --> 
+<meta name="src" content="AppDevGuide.tex" /> 
+<meta name="date" content="2015-11-06 12:47:00" /> 
+<link rel="stylesheet" type="text/css" href="AppDevGuide.css" /> 
+</head><body 
+>
+<!--l. 1--><div class="crosslinks"><p class="noindent">[<a 
+href="AppDevGuidech6.html" >next</a>] [<a 
+href="AppDevGuidech4.html" >prev</a>] [<a 
+href="AppDevGuidech4.html#tailAppDevGuidech4.html" >prev-tail</a>] [<a 
+href="#tailAppDevGuidech5.html">tail</a>] [<a 
+href="AppDevGuide.html#AppDevGuidech5.html" >up</a>] </p></div>
+<h2 class="chapterHead"><span class="titlemark">Chapter&#x00A0;5</span><br /><a 
+ id="x7-1710005"></a>Database Locking, Scanning, And Processing</h2>
+<h3 class="sectionHead"><span class="titlemark">5.1    </span> <a 
+ id="x7-1720005.1"></a>Overview</h3>
+<!--l. 5--><p class="noindent" >Before describing particular components of the IOC software, it is helpful to give an overview of three closely related topics:
+Database locking, scanning, and processing. Locking is done to prevent two different tasks from simultaneously modifying
+related database records. Database scanning is the mechanism for deciding when records should be processed. The basics of
+record processing involves obtaining the current value of input fields and outputting the current value of output fields. As
+records become more complex so does the record processing.
+</p><!--l. 11--><p class="noindent" >One powerful feature of the DATABASE is that records can contain links to other records. This feature also
+causes considerable complication. Thus, before discussing locking, scanning, and processing, record links are
+described.
+</p><!--l. 15--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">5.2    </span> <a 
+ id="x7-1730005.2"></a>Record Links</h3>
+<a 
+ id="dx7-173001"></a>
+<!--l. 18--><p class="noindent" >A database record may contain links to other records. Each link is one of the following types:
+</p>
+     <ul class="itemize1">
+     <li class="itemize"><a 
+ id="dx7-173002"></a>INLINK
+     </li>
+     <li class="itemize"><a 
+ id="dx7-173003"></a>OUTLINK
+     <!--l. 25--><p class="noindent" >INLINKs and OUTLINKs can be one of the following:
+</p>
+         <ul class="itemize2">
+         <li class="itemize"><a 
+ id="dx7-173004"></a> constant link
+         <!--l. 30--><p class="noindent" >Not discussed in this chapter
+         </p></li>
+         <li class="itemize"><a 
+ id="dx7-173005"></a>database link
+         <!--l. 34--><p class="noindent" >A link to another record in the same IOC.
+         </p></li>
+         <li class="itemize"><a 
+ id="dx7-173006"></a>channel access link
+         <!--l. 38--><p class="noindent" >A link to a record in another IOC. It is accessed via a special IOC client task. It is also possible to force a
+         link to be a channel access link even it references a record in the same IOC.
+         </p></li>
+         <li class="itemize">hardware link
+                                                                                         
+                                                                                         
+         <!--l. 44--><p class="noindent" >Not discussed in this chapter
+</p>
+         </li></ul>
+     </li>
+     <li class="itemize"><a 
+ id="dx7-173007"></a>FWDLINK
+     <!--l. 50--><p class="noindent" >A forward link refers to a record that should be processed whenever the record containing the forward link is processed.
+     The following types are supported:
+</p>
+         <ul class="itemize2">
+         <li class="itemize">constant link
+         <!--l. 57--><p class="noindent" >Ignored.
+         </p></li>
+         <li class="itemize">database link
+         <!--l. 61--><p class="noindent" >A link to another record in the same IOC.
+         </p></li>
+         <li class="itemize">channel access link
+         <!--l. 65--><p class="noindent" >A link to a record in another IOC or a link forced to be a channel access link. Unless the link references
+         the PROC field it is ignored. If it does reference the PROC field a channel access put with a value of 1 is
+         issued.
+</p>
+         </li></ul>
+     </li></ul>
+<!--l. 72--><p class="noindent" >Links are defined in file <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">link.h</span></span></span>.
+</p><!--l. 74--><p class="noindent" >NOTE: This chapter discusses mainly database links.
+</p><!--l. 76--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">5.3    </span> <a 
+ id="x7-1740005.3"></a>Database Links</h3>
+<!--l. 78--><p class="noindent" >Database links are referenced by calling one of the following routines:
+</p>
+     <ul class="itemize1">
+     <li class="itemize"><a 
+ id="dx7-174001"></a>dbGetLink: The value of the field referenced by the input link retrieved.
+     </li>
+     <li class="itemize"><a 
+ id="dx7-174002"></a>dbPutLink: The value of the field referenced by the output link is changed.
+     </li>
+     <li class="itemize"><a 
+ id="dx7-174003"></a>dbScanPassive: The record referred to by the forward link is processed if it is passive.
+     </li></ul>
+                                                                                         
+                                                                                         
+<!--l. 92--><p class="noindent" >A forward link only points to a (normally passive) record that should be processed after the record that contains the
+link.
+</p><!--l. 94--><p class="noindent" >For input and output links, two additional attributes can be specified by the application developer: process passive, and
+maximize severity.
+</p><!--l. 96--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">5.3.1    </span> <a 
+ id="x7-1750005.3.1"></a>Process Passive</h4>
+<a 
+ id="dx7-175001"></a>
+<!--l. 99--><p class="noindent" >The Process Passive attribute takes the value <a 
+ id="dx7-175002"></a><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">NPP</span></span></span> (Non-Process Passive) or <a 
+ id="dx7-175003"></a><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">PP</span></span></span> (Process Passive). It determines if the linked
+record should be processed before getting a value from an input link or after writing a value to an output link. The
+linked record will be processed only if link&#8217;s Process Passive attribute is <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">PP</span></span></span> and the target record&#8217;s <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">SCAN</span></span></span> field is
+Passive.
+</p><!--l. 103--><p class="noindent" >NOTE: Three other options may also be specified: CA, CP, and CPP. These options force the link to be handled like a Channel
+Access Link. See last section of this chapter for details.
+</p><!--l. 107--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">5.3.2    </span> <a 
+ id="x7-1760005.3.2"></a>Maximize Severity</h4>
+<a 
+ id="dx7-176001"></a>
+<!--l. 110--><p class="noindent" >The Maximize Severity attribute is one of <a 
+ id="dx7-176002"></a><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">NMS</span></span></span> (Non-Maximize Severity), <a 
+ id="dx7-176003"></a><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">MS</span></span></span> (Maximize Severity), <a 
+ id="dx7-176004"></a><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">MSS</span></span></span> (Maximize Status and
+Severity) or <a 
+ id="dx7-176005"></a><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">MSI</span></span></span> (Maximize Severity if Invalid). It determines whether alarm severity is propagated across links. If the attribute
+is <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">MSI</span></span></span> only a severity of <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">INVALID_ALARM</span></span></span> is propagated; settings of <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">MS</span></span></span> or <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">MSS</span></span></span> propagate all alarms that
+are more severe than the record&#8217;s current severity. For input links the alarm severity of the record referred to
+by the link is propagated to the record containing the link. For output links the alarm severity of the record
+containing the link is propagated to the record referred to by the link. If the severity is changed the associated alarm
+status is set to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">LINK_ALARM</span></span></span>, except if the attribute is <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">MSS</span></span></span> when the alarm status will be copied along with the
+severity.
+<a 
+ id="dx7-176006"></a>
+</p><!--l. 121--><p class="noindent" >The method of determining if the alarm status and severity should be changed is called &#8220;maximize severity&#8221;. In addition to its
+actual status and severity, each record also has a new status and severity. The new status and severity are initially 0, which
+means <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">NO_ALARM</span></span></span>. Every time a software component wants to modify the status and severity, it first checks the new severity
+and only makes a change if the severity it wants to set is greater than the current new severity. If it does make a change, it
+changes the new status and new severity, not the current status and severity. When database monitors are checked, which is
+normally done by a record processing routine, the current status and severity are set equal to the new values
+and the new values reset to zero. The end result is that the current alarm status and severity reflect the highest
+severity outstanding alarm. If multiple alarms of the same severity are present the alarm status reflects the first one
+detected.
+</p><!--l. 132--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">5.4    </span> <a 
+ id="x7-1770005.4"></a>Database Locking</h3>
+                                                                                         
+                                                                                         
+<a 
+ id="dx7-177001"></a>
+<!--l. 135--><p class="noindent" >The purpose of database locking is to prevent a record from being processed simultaneously by two different tasks. In addition,
+it prevents &#8220;outside&#8221; tasks from changing any field while the record is being processed.
+</p><!--l. 138--><p class="noindent" >The following routines are used for database locking.
+</p>
+<!--l. 140-->
+     <div class="lstlisting" id="listing-1"><span class="label"><a 
+ id="x7-177002r1"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbScanLock</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbCommon</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">precord</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x7-177003r2"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbScanUnlock</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbCommon</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">precord</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx7-177004"></a>
+<a 
+ id="dx7-177005"></a>
+<!--l. 147--><p class="noindent" >The basic idea is to call <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbScanLock</span></span></span> before accessing database records and calling <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbScanUnlock</span></span></span> afterwords. Because of
+database links (Input, Output, and Forward) a modification to one record can cause modification to other records. Records
+linked together with database links are placed in the same lock set. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbScanLock</span></span></span> locks the entire lock set, not just the record
+requested. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbScanUnlock</span></span></span> unlocks the entire set.
+</p><!--l. 153--><p class="noindent" >The following rules determine when the lock routines must be called:
+</p><!--l. 155--><p class="noindent" >
+     </p><ol  class="enumerate1" >
+     <li 
+  class="enumerate" id="x7-177007x1">The periodic, I/O event, and event tasks lock before and unlock after processing:
+     </li>
+     <li 
+  class="enumerate" id="x7-177009x2"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbPutField</span></span></span> locks before modifying a record and unlocks afterwards.
+     </li>
+     <li 
+  class="enumerate" id="x7-177011x3"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbGetField</span></span></span> locks before reading and unlocks afterwards.
+     </li>
+     <li 
+  class="enumerate" id="x7-177013x4">Any  asynchronous  record  support  completion  routine  must  lock  before  modifying  a  record  and  unlock
+     afterwards.
+     </li></ol>
+<a 
+ id="dx7-177014"></a>
+<a 
+ id="dx7-177015"></a>
+<!--l. 168--><p class="noindent" >All records connected by any kind of database link are placed in the same lock set. Versions of EPICS Base prior to R3.14
+allowed an NPP NMS input link to span two different lock sets, but this was not safe where the read and write operations on the
+field value were not atomic in nature and is no longer available to break a lockset.
+</p><!--l. 171--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">5.5    </span> <a 
+ id="x7-1780005.5"></a>Database Scanning</h3>
+<a 
+ id="dx7-178001"></a>
+<!--l. 174--><p class="noindent" >Database scanning refers to requests that database records be processed. Four types of scanning are possible:
+</p><!--l. 177--><p class="noindent" >
+     </p><ol  class="enumerate1" >
+     <li 
+  class="enumerate" id="x7-178003x1"><a 
+ id="dx7-178004"></a>Periodic - Records are scanned at regular intervals.
+                                                                                         
+                                                                                         
+     </li>
+     <li 
+  class="enumerate" id="x7-178006x2"><a 
+ id="dx7-178007"></a>I/O event - A record is scanned as the result of an I/O interrupt.
+     </li>
+     <li 
+  class="enumerate" id="x7-178009x3"><a 
+ id="dx7-178010"></a>Event - A record is scanned as the result of any task issuing a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">post_event</span></span></span> request.
+     </li>
+     <li 
+  class="enumerate" id="x7-178012x4"><a 
+ id="dx7-178013"></a>Passive - A record is scanned as a result of a call to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbScanPassive</span></span></span>. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbScanPassive</span></span></span> will issue a record
+     processing request if and only if the record is passive and is not already being processed.
+     </li></ol>
+<!--l. 189--><p class="noindent" >A <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbScanPassive</span></span></span> request results from a task calling one of the following routines:
+</p>
+     <ul class="itemize1">
+     <li class="itemize"><a 
+ id="dx7-178014"></a>dbScanPassive: Only the record processing routines <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbGetLink</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbPutLink</span></span></span>, and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbPutField</span></span></span> call the
+     <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbScanPassive</span></span></span> routine. Record processing routines call it for each forward link in the record.
+     </li>
+     <li class="itemize"><a 
+ id="dx7-178015"></a>dbPutField:  This  routine  sets  the  target  field  value  and  then,  if  the  field  was  marked  <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">pp(TRUE)</span></span></span> it  calls
+     <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbScanPassive</span></span></span>. Each field of each record type has an attribute <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">pp</span></span></span> declared as either <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">TRUE</span></span></span> or <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">FALSE</span></span></span> in
+     the record definition file. The attribute is a global property which is set by the record type. This use of <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">pp</span></span></span> only
+     affects calls to the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbPutField</span></span></span> routine. If <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbPutField</span></span></span> finds the record already active (this can happen to
+     asynchronous records) and it is supposed to cause it to process, it arranges for it to be processed again once the
+     current processing completes.
+     </li>
+     <li class="itemize"><a 
+ id="dx7-178016"></a>dbGetLink: If the link includes the process passive flag <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">PP</span></span></span> this routine first calls <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbScanPassive</span></span></span> to process
+     the target record. Whether or not <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbScanPassive</span></span></span> was called, it then obtains the value from the target field.
+     </li>
+     <li class="itemize"><a 
+ id="dx7-178017"></a>dbPutLink:  This  routine  sets  the  target  field.  Then,  if  the  link  includes  the  process  passive  flag  <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">PP</span></span></span> it  calls
+     <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbScanPassive</span></span></span> to process the target record. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbPutLink</span></span></span> is only called from record processing routines. If
+     <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbPutLink</span></span></span> finds the record already active because of a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbPutField</span></span></span> directed to this record then it arranges
+     for the record to be processed again later, once the current processing completes.
+     </li></ul>
+<!--l. 211--><p class="noindent" >All non-record processing tasks (Channel Access, Sequence Programs, etc.) call <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbGetField</span></span></span> to obtain database values.
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbGetField</span></span></span> just reads values without asking that a record be processed.
+</p><!--l. 214--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">5.6    </span> <a 
+ id="x7-1790005.6"></a>Record Processing</h3>
+<a 
+ id="dx7-179001"></a>
+<!--l. 217--><p class="noindent" >A record is processed as a result of a call to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbProcess</span></span></span>. Each record support module must supply a routine <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">process</span></span></span>. This
+routine does most of the work related to record processing. Since the details of record processing are record type specific this
+topic is discussed in greater detail in the Chapter &#8220;Record Support&#8221;.
+<a 
+ id="dx7-179002"></a>
+                                                                                         
+                                                                                         
+</p><!--l. 223--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">5.7    </span> <a 
+ id="x7-1800005.7"></a>Guidelines for Creating Database Links</h3>
+<a 
+ id="dx7-180001"></a>
+<!--l. 226--><p class="noindent" >The ability to link records together is an extremely powerful feature of the IOC software. In order to use links properly it is
+important that the Application Developer understand how they are processed. As an introduction consider the following
+example:
+</p>
+<div class="center" 
+>
+<!--l. 230--><p class="noindent" >
+</p><!--l. 231--><p class="noindent" ><img 
+src="lockScanProcess_6.svg" alt="lockScanProcess&#x02D9;6.svg"  
+ /></p></div>
+<!--l. 234--><p class="noindent" >Assume that A, B, and C are all passive records. The notation states that A has a forward link to B and B to C. C has an input
+link obtaining a value from A. Assume, for some reason, A gets processed. The following sequence of events
+occurs:
+</p><!--l. 240--><p class="noindent" >
+     </p><ol  class="enumerate1" >
+     <li 
+  class="enumerate" id="x7-180003x1">A begins processing. While processing a request is made to process B.
+     </li>
+     <li 
+  class="enumerate" id="x7-180005x2">B starts processing. While processing a request is made to process C.
+     </li>
+     <li 
+  class="enumerate" id="x7-180007x3">C starts processing. One of the first steps is to get a value from A via the input link.
+     </li>
+     <li 
+  class="enumerate" id="x7-180009x4">At this point a question occurs. Note that the input link specifies process passive (signified by the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">PP</span></span></span> after
+     <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">InLink</span></span></span>). But process passive states that A should be processed before the value is retrieved. Are we in an
+     infinite loop? The answer is no. Every record contains a field <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">PACT</span></span></span> (processing active), which is set <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">TRUE</span></span></span> when
+     record processing begins and is not set <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">FALSE</span></span></span> until all processing completes. When C is processed A still has
+     <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">PACT</span></span></span><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">TRUE</span></span></span> and will not be processed again.
+     </li>
+     <li 
+  class="enumerate" id="x7-180011x5">C obtains the value from A and completes its processing. Control returns to B.
+     </li>
+     <li 
+  class="enumerate" id="x7-180013x6">B completes returning control to A
+     </li>
+     <li 
+  class="enumerate" id="x7-180015x7">A completes processing.
+     </li></ol>
+<!--l. 267--><p class="noindent" >This brief example demonstrates that database links need more discussion.
+</p><!--l. 269--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">5.7.1    </span> <a 
+ id="x7-1810005.7.1"></a>Rules Relating to Database Links</h4>
+                                                                                         
+                                                                                         
+<!--l. 271--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">5.7.1.1    </span> <a 
+ id="x7-1820005.7.1.1"></a>Processing Order</h5>
+<!--l. 273--><p class="noindent" >The processing order follows the following rules:
+</p><!--l. 275--><p class="noindent" >
+     </p><ol  class="enumerate1" >
+     <li 
+  class="enumerate" id="x7-182002x1">Forward links are processed in order from left to right and top to bottom. For example the following records are
+     processed in the order <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">FLNK1</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">FLNK2</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">FLNK3</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">FLNK4</span></span></span> .
+     <div class="center" 
+>
+<!--l. 279--><p class="noindent" >
+</p><!--l. 280--><p class="noindent" ><img 
+src="lockScanProcess_9.svg" alt="lockScanProcess&#x02D9;9.svg"  
+ /></p></div>
+     </li>
+     <li 
+  class="enumerate" id="x7-182004x2">If a record has multiple input links (such as the calculation or select records) the input values are nornally fetched in the
+     natural order. For example for link fields named <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">INPA</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">INPB</span></span></span>, ..., <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">INPL</span></span></span>, the links would be read in the order A, B, C etc.
+     Thus if obtaining an input results in a record being processed, the processing order is guaranteed. Some record types may
+     not follow this rule however.
+     </li>
+     <li 
+  class="enumerate" id="x7-182006x3">All input and output links are processed before the forward link.
+     </li></ol>
+<!--l. 292--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">5.7.1.2    </span> <a 
+ id="x7-1830005.7.1.2"></a>Lock Sets</h5>
+<!--l. 294--><p class="noindent" >All records, except for the conditions listed in the next paragraph, linked together directly or indirectly are placed in the same
+lock set. When <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbScanLock</span></span></span> is called the entire set, not just the specified record, is locked. This prevents two different tasks
+from simultaneously modifying records in the same lock set.
+</p><!--l. 299--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">5.7.1.3    </span> <a 
+ id="x7-1840005.7.1.3"></a>PACT - Process Active</h5>
+<!--l. 301--><p class="noindent" >Every record contains a field <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">PACT</span></span></span>. This field is set <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">TRUE</span></span></span> at the beginning of record processing and is not set <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">FALSE</span></span></span> until the
+record is completely processed. To prevent infinite processing loops, whenever a record gets processed through a forward link,
+or a database link with the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">PP</span></span></span> link option, the linking record&#8217;s <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">PACT</span></span></span> field is saved and set to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">TRUE</span></span></span>, then restored again
+afterwards. The example given at the beginning of this section gives an example. It will be seen in the next two sections that
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">PACT</span></span></span> has other uses.
+                                                                                         
+                                                                                         
+</p><!--l. 307--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">5.7.1.4    </span> <a 
+ id="x7-1850005.7.1.4"></a>Process Passive: Link option</h5>
+<!--l. 309--><p class="noindent" >Input and output links have an option called process passive. For each such link the application developer can specify process
+passive <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">TRUE</span></span></span> (<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">PP</span></span></span>) or process passive <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">FALSE</span></span></span> (<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">NPP</span></span></span>). Consider the following example:
+</p>
+<div class="center" 
+>
+<!--l. 313--><p class="noindent" >
+</p><!--l. 314--><p class="noindent" ><img 
+src="lockScanProcess_16.svg" alt="lockScanProcess&#x02D9;16.svg"  
+ /></p></div>
+<!--l. 317--><p class="noindent" >Assume that all records except fanout are passive. When the fanout record is processed the following sequence of events
+occur:
+</p><!--l. 320--><p class="noindent" >
+     </p><ol  class="enumerate1" >
+     <li 
+  class="enumerate" id="x7-185002x1">Fanout starts processing and asks that B be processed.
+     </li>
+     <li 
+  class="enumerate" id="x7-185004x2">B begins processing. It calls <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbGetLink</span></span></span> to obtain data from A.
+     </li>
+     <li 
+  class="enumerate" id="x7-185006x3">Because the input link has process passive true, a request is made to process A.
+     </li>
+     <li 
+  class="enumerate" id="x7-185008x4">A is processed, the data value fetched, and control is returned to B
+     </li>
+     <li 
+  class="enumerate" id="x7-185010x5">B completes processing and control is returned to fanout. Fanout asks that C be processed.
+     </li>
+     <li 
+  class="enumerate" id="x7-185012x6">C begins processing. It calls <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbGetLink</span></span></span> to obtain data from A.
+     </li>
+     <li 
+  class="enumerate" id="x7-185014x7">Because the input link has process passive <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">TRUE</span></span></span>, a request is made to process A.
+     </li>
+     <li 
+  class="enumerate" id="x7-185016x8">A is processed, the data value fetched, and control is returned to C.
+     </li>
+     <li 
+  class="enumerate" id="x7-185018x9">C completes processing and returns to fanout
+     </li>
+     <li 
+  class="enumerate" id="x7-185020x10">The fanout completes
+     </li></ol>
+<!--l. 346--><p class="noindent" >Note that A was processed twice. This is unnecessary. If the input link to C were declared No Process Passive then A would
+only be processed once. Thus a better solution would be:
+</p>
+<div class="center" 
+>
+<!--l. 351--><p class="noindent" >
+                                                                                         
+                                                                                         
+</p><!--l. 352--><p class="noindent" ><img 
+src="lockScanProcess_26.svg" alt="lockScanProcess&#x02D9;26.svg"  
+ /></p></div>
+<!--l. 355--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">5.7.1.5    </span> <a 
+ id="x7-1860005.7.1.5"></a>Process Passive: Field attribute</h5>
+<a 
+ id="dx7-186001"></a>
+<!--l. 358--><p class="noindent" >All record type field definitions have an attribute called <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">process_passive</span></span></span> which is specified in the record definition file. It
+cannot be changed by an IOC application developer. This attribute is used only by <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbPutField</span></span></span>. It determines if a passive
+record will be processed after <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbPutField</span></span></span> sets a field in the record. Consult the record specific information in the record
+reference manual for the setting of individual fields.
+</p><!--l. 364--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">5.7.1.6    </span> <a 
+ id="x7-1870005.7.1.6"></a>Maximize Severity: Link option</h5>
+<a 
+ id="dx7-187001"></a>
+<!--l. 367--><p class="noindent" >Input and output links have an option called maximize severity. For each such link the application developer can specify the
+option as <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">MS</span></span></span> (Maximize Severity), <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">NMS</span></span></span> (Non-Maximize Severity), <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">MSS</span></span></span> (Maximize Status and Severity) or <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">MSI</span></span></span> (Maximize
+Severity if Invalid).
+</p><!--l. 370--><p class="noindent" >When database input or output links are defined, the application developer can use this option to specify whether and how
+alarm severities should be propagated across links with the data. The alarm severity is transferred only if the new severity will
+be greater than the current severity of the destination record. If the severity is propagated the alarm status is set
+equal to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">LINK_ALARM</span></span></span> (unless the link option is <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">MSS</span></span></span> when the alarm status will also be copied from the source
+record).
+</p><!--l. 374--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">5.8    </span> <a 
+ id="x7-1880005.8"></a>Guidelines for Synchronous Records</h3>
+<a 
+ id="dx7-188001"></a>
+<!--l. 377--><p class="noindent" >A synchronous record is a record that can be completely processed without waiting. Thus the application developer never needs
+to consider the possibility of delays when he defines a set of related records. The only consideration is deciding when records
+should be processed and in what order a set of records should be processed.
+</p><!--l. 381--><p class="noindent" >The following reviews the methods available to the application programmer for deciding when to process a record and for
+enforcing the order of record processing.
+</p><!--l. 384--><p class="noindent" >
+     </p><ol  class="enumerate1" >
+     <li 
+  class="enumerate" id="x7-188003x1">A record can be scanned periodically (at one of several rates), via I/O event, or via Event.
+     </li>
+     <li 
+  class="enumerate" id="x7-188005x2">For each periodic group and for each Event group the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">PHAS</span></span></span> field can be used to specify processing order.
+     </li>
+     <li 
+  class="enumerate" id="x7-188007x3">The application programmer has no control over the record processing order of records in different groups.
+                                                                                         
+                                                                                         
+     </li>
+     <li 
+  class="enumerate" id="x7-188009x4">The disable fields (<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">SDIS</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DISA</span></span></span>, and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DISV</span></span></span>) can be used to disable records from being processed. By letting the
+     <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">SDIS</span></span></span> field of an entire set of records refer to the same input record, the entire set can be enabled or disabled
+     simultaneously. See the Record Reference Manual for details.
+     </li>
+     <li 
+  class="enumerate" id="x7-188011x5">A record (periodic or other) can be the root of a set of passive records that will all be processed whenever the
+     root record is processed. The set is formed by input, output, and forward links.
+     </li>
+     <li 
+  class="enumerate" id="x7-188013x6">The <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">process_passive</span></span></span> attribute of each record field determines if a passive record will be processed when
+     a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbPutField</span></span></span> is directed to the field. The application developer must be aware of the possibility of record
+     processing being triggered by external sources using this mechanism.
+     </li>
+     <li 
+  class="enumerate" id="x7-188015x7">The <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">process_passive</span></span></span> option for input and output links provides the application developer control over how
+     a set of records are scanned.
+     </li>
+     <li 
+  class="enumerate" id="x7-188017x8">General  link  structures  can  be  defined.  The  application  programmer  should  be  wary,  however,  of  defining
+     arbitrary structures without carefully analyzing the processing order.</li></ol>
+<!--l. 407--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">5.9    </span> <a 
+ id="x7-1890005.9"></a>Guidelines for Asynchronous Records</h3>
+<a 
+ id="dx7-189001"></a>
+<!--l. 410--><p class="noindent" >The previous discussion does not cover asynchronous device support. An example might be a GPIB input record. When the
+record is processed the GPIB request is started and the processing routine returns. Processing, however, is not really complete
+until the GPIB request completes. This is handled via an asynchronous completion routine. Let&#8217;s state a few attributes of
+asynchronous record processing.
+</p><!--l. 417--><p class="noindent" >During the initial processing for all asynchronous records the following is done:
+</p><!--l. 419--><p class="noindent" >
+     </p><ol  class="enumerate1" >
+     <li 
+  class="enumerate" id="x7-189003x1"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">PACT</span></span></span> is set <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">TRUE</span></span></span>
+     </li>
+     <li 
+  class="enumerate" id="x7-189005x2">Data is obtained for all input links
+     </li>
+     <li 
+  class="enumerate" id="x7-189007x3">Record processing is started
+     </li>
+     <li 
+  class="enumerate" id="x7-189009x4">The record processing routine returns
+     </li></ol>
+<!--l. 430--><p class="noindent" >The asynchronous completion routine performs the following algorithm:
+</p><!--l. 432--><p class="noindent" >
+     </p><ol  class="enumerate1" >
+     <li 
+  class="enumerate" id="x7-189011x1">Record processing continues
+     </li>
+     <li 
+  class="enumerate" id="x7-189013x2">Record specific alarm conditions are checked
+                                                                                         
+                                                                                         
+     </li>
+     <li 
+  class="enumerate" id="x7-189015x3">Monitors are raised
+     </li>
+     <li 
+  class="enumerate" id="x7-189017x4">Forward links are processed
+     </li>
+     <li 
+  class="enumerate" id="x7-189019x5"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">PACT</span></span></span> is set <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">FALSE</span></span></span>.
+     </li></ol>
+<!--l. 445--><p class="noindent" >A few attributes of the above rules are:
+</p><!--l. 447--><p class="noindent" >
+     </p><ol  class="enumerate1" >
+     <li 
+  class="enumerate" id="x7-189021x1">Asynchronous record processing does not delay the scanners.
+     </li>
+     <li 
+  class="enumerate" id="x7-189023x2">Between the time that record processing begins and the asynchronous completion routine completes, no attempt
+     will be made to again process the record. This is because <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">PACT</span></span></span> is <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">TRUE</span></span></span>. The routine <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbProcess</span></span></span> checks
+     <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">PACT</span></span></span> and does not call the record processing routine if it is <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">TRUE</span></span></span>. <a 
+ id="dx7-189024"></a>Note, however, that if <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbProcess</span></span></span> finds
+     the record active 10 times in succession, it raises a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">SCAN_ALARM</span></span></span>.
+     </li>
+     <li 
+  class="enumerate" id="x7-189026x3">Forward  and  output  links  are  triggered  only  when  the  asynchronous  completion  routine  completes  record
+     processing.
+     </li></ol>
+<!--l. 460--><p class="noindent" >With these rules the following works just fine:
+</p>
+<div class="center" 
+>
+<!--l. 462--><p class="noindent" >
+</p><!--l. 463--><p class="noindent" ><img 
+src="lockScanProcess_34.svg" alt="lockScanProcess&#x02D9;34.svg"  
+ /></p></div>
+<!--l. 466--><p class="noindent" >When <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbProcess</span></span></span> is called for record ASYN, processing will be started but <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbScanPassive</span></span></span> will not be called. Until the
+asynchronous completion routine executes any additional attempts to process ASYN are ignored. When the asynchronous
+callback is invoked the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbScanPassive</span></span></span> is performed.
+</p><!--l. 470--><p class="noindent" >Problems still remain. A few examples are:
+</p><!--l. 472--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">5.9.1    </span> <a 
+ id="x7-1900005.9.1"></a>Infinite Loop</h4>
+<a 
+ id="dx7-190001"></a>
+<!--l. 475--><p class="noindent" >Infinite processing loops are possible.
+</p>
+<div class="center" 
+>
+                                                                                         
+                                                                                         
+<!--l. 477--><p class="noindent" >
+</p><!--l. 478--><p class="noindent" ><img 
+src="lockScanProcess_1.svg" alt="lockScanProcess&#x02D9;1.svg"  
+ /></p></div>
+<!--l. 481--><p class="noindent" >Assume both A and B are asynchronous passive records and a request is made to process A. The following sequence of events
+occur.
+</p><!--l. 484--><p class="noindent" >
+     </p><ol  class="enumerate1" >
+     <li 
+  class="enumerate" id="x7-190003x1">A starts record processing and returns leaving <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">PACT</span></span></span><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">TRUE</span></span></span>.
+     </li>
+     <li 
+  class="enumerate" id="x7-190005x2">Sometime later the record completion for A occurs. During record completion a request is made to process B.
+     B starts processing and control returns to A which completes leaving its <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">PACT</span></span></span> field <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">FALSE</span></span></span>.
+     </li>
+     <li 
+  class="enumerate" id="x7-190007x3">Sometime later the record completion for B occurs. During record completion a request is made to process A.
+     A starts processing and control returns to B which completes leaving its <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">PACT</span></span></span> field <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">FALSE</span></span></span>.
+     </li></ol>
+<!--l. 497--><p class="noindent" >Thus an infinite loop of record processing has been set up. It is up to the application developer to prevent such
+loops.
+</p><!--l. 500--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">5.9.2    </span> <a 
+ id="x7-1910005.9.2"></a>Obtain Old Data</h4>
+<!--l. 502--><p class="noindent" >A <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbGetLink</span></span></span> to a passive asynchronous record can get old data.
+</p>
+<div class="center" 
+>
+<!--l. 504--><p class="noindent" >
+</p><!--l. 505--><p class="noindent" ><img 
+src="lockScanProcess_37.svg" alt="lockScanProcess&#x02D9;37.svg"  
+ /></p></div>
+<!--l. 508--><p class="noindent" >If A is a passive asynchronous record then record B&#8217;s <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbGetLink</span></span></span> request forces <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbProcess</span></span></span> to be called
+for record A. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbProcess</span></span></span> starts the processing but returns immediately, before the operation has finished.
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbGetLink</span></span></span> then reads the field value which is still old because processing will only be completed at a later
+time.
+</p><!--l. 512--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">5.9.3    </span> <a 
+ id="x7-1920005.9.3"></a>Delays</h4>
+<!--l. 514--><p class="noindent" >Consider the following:
+</p>
+                                                                                         
+                                                                                         
+<div class="center" 
+>
+<!--l. 516--><p class="noindent" >
+</p><!--l. 517--><p class="noindent" ><img 
+src="lockScanProcess_40.svg" alt="lockScanProcess&#x02D9;40.svg"  
+ /></p></div>
+<!--l. 520--><p class="noindent" >The second ASYN record will not begin processing until the first completes, etc. This is not really a problem except that the
+application developer must be aware of delays caused by asynchronous records. Again, note that scanners are not delayed, only
+records downstream of asynchronous records.
+</p><!--l. 524--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">5.10    </span> <a 
+ id="x7-1930005.10"></a>Cached Puts</h3>
+<a 
+ id="dx7-193001"></a>
+<!--l. 527--><p class="noindent" >The rules followed by <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbPutLink</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbPutField</span></span></span> provide for &#8220;cached&#8221; puts. This is necessary because of asynchronous
+records. Two cases arise.
+</p><!--l. 531--><p class="noindent" >The first results from a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbPutField</span></span></span>, which is a put coming from outside the database, i.e. Channel Access puts. If this is
+directed to a record that already has <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">PACT</span></span></span><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">TRUE</span></span></span> because the record started processing but asynchronous completion has not
+yet occurred, then a value is written to the record but nothing will be done with the value until the record is again processed. In
+order to make this happen <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbPutField</span></span></span> arranges to have the record reprocessed when the record finally completes
+processing.
+</p><!--l. 536--><p class="noindent" >The second case results from <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbPutLink</span></span></span> finding a record already active because of a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbPutField</span></span></span> directed to the record. In
+this case <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbPutLink</span></span></span> arranges to have the record reprocessed when the record finally completes processing. If the record is
+already active because it appears twice in a chain of record processing, it is not reprocessed because the chain of record
+processing would constitute an infinite loop.
+</p><!--l. 540--><p class="noindent" >Note that the term caching not queuing is used. If multiple requests are directed to a record while it is active, each new value is
+placed in the record but it will still only be processed once, i.e. last value wins.
+</p><!--l. 543--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">5.11    </span> <a 
+ id="x7-1940005.11"></a>processNotify</h3>
+<a 
+ id="dx7-194001"></a>
+<a 
+ id="dx7-194002"></a>
+<a 
+ id="dx7-194003"></a>
+<!--l. 548--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbProcessNotify</span></span></span> is used when a Channel Access client calls <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ca_put_callback</span></span></span> and makes a request to notify the
+caller when all records processed as a result of this put are complete. Because of asynchronous records and conditional use of
+database links between records this can be complicated and the set of records that are processed because of a put cannot
+be determined in advance. The processNotify system is described in section <a 
+href="AppDevGuidech15.html#x17-62700015.4.3.3">15.4.3.3<!--tex4ht:ref: Process Notify Subsystem --></a> on page <a 
+href="AppDevGuidech15.html#x17-62700015.4.3.3">508<!--tex4ht:ref: Process Notify Subsystem --></a>. The result
+of a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbProcessNotify</span></span></span> with type <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">putProcessRequest</span></span></span> is the same as a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbPutField</span></span></span> except for the
+following:
+</p>
+                                                                                         
+                                                                                         
+     <ul class="itemize1">
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbProcessNotify</span></span></span> requests are queued rather than cached. Thus when additional requests are directed to a
+     record that already has an active <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbProcessNotify</span></span></span>, they are queued. As each one finishes it releases the
+     next one in the queue.
+     </li>
+     <li class="itemize">If a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbProcessNotify</span></span></span> links to a record that is not active but has a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbProcessNotify</span></span></span> attached to it, no
+     attempt is made to process the record.
+     </li></ul>
+<!--l. 563--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">5.12    </span> <a 
+ id="x7-1950005.12"></a>Channel Access Links</h3>
+<!--l. 565--><p class="noindent" >A channel access link is:
+</p><!--l. 567--><p class="noindent" >
+     </p><ol  class="enumerate1" >
+     <li 
+  class="enumerate" id="x7-195002x1">A record link that references a record in a different IOC.
+     </li>
+     <li 
+  class="enumerate" id="x7-195004x2">A link that the application developer forces to be a channel access link.
+     </li></ol>
+<!--l. 574--><p class="noindent" >A channel access client task (dbCa) handles all I/O for channel access links. It does the following:
+</p>
+     <ul class="itemize1">
+     <li class="itemize">At IOC initialization, dbCa issues channel access search requests for each channel access link.
+     </li>
+     <li class="itemize">For each input link it establishes a channel access monitor, using the channel&#8217;s native field type and element
+     count. It also monitors the alarm status. Whenever the monitor callback gets invoked the new data is stored in a
+     buffer belonging to dbCa. When iocCore or the record support module asks for data from the link, the contents
+     of the buffer are converted to the requested type.
+     </li>
+     <li class="itemize">For each output link, a buffer is allocated the first time iocCore/record support issues a put after the channel
+     access connection has been made. This buffer is allocated large enough to store the channel&#8217;s native field type
+     and element count Each time iocCore/record support issues a put, the data is converted and placed in the buffer
+     and a request is made to dbCa to issue a new <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ca_put</span></span></span>.
+     </li></ul>
+<!--l. 591--><p class="noindent" >Even if a link references a record in the same IOC it can be useful to force it to act like a channel access link. In particular
+the records will not be forced to be in the same lock set. As an example consider a scan record that links to a
+set of unrelated records, each of which can cause a lot of records to be processed. It is often NOT desirable to
+force all these records into the same lock set. Forcing the links to be handled as channel access links solves the
+problem.
+</p><!--l. 597--><p class="noindent" >CA links which connect between IOCs incur the extra overhead associated with message passing protocols, operating system
+calls, and network activity. In contrast, CA links which connect records in the same IOC are executed more efficiently by
+directly calling database access functions such as <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbPutField</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbGetField</span></span></span>, or by receiving callbacks directly from a
+                                                                                         
+                                                                                         
+database monitor subscription event queue.
+</p><!--l. 600--><p class="noindent" >Because channel access links interact with the database only via <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbPutField</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbGetField</span></span></span> and use a database monitor
+subscription event queue, their interaction with the database is fundamentally different from database links
+which are tightly integrated within the code that executes database records. For this reason and because channel
+access does not support the passing of a process passive flag, the semantics of channel access links are not the
+same as database links. Let&#8217;s discuss the channel access semantics of INLINK, OUTLINK, and FWDLINK
+separately.
+</p><!--l. 604--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">5.12.1    </span> <a 
+ id="x7-1960005.12.1"></a>INLINK</h4>
+<!--l. 606--><p class="noindent" >The options for process passive are:
+</p>
+     <ul class="itemize1">
+     <li class="itemize">Input links always act like NPP.
+     </li>
+     <li class="itemize">CA - Forces the link to be a channel access link.
+     </li>
+     <li class="itemize">CP - Forces the link to be a channel access link and also requests that the record containing the link be processed
+     whenever a monitor occurs.
+     </li>
+     <li class="itemize">CPP - Force the link to be a channel access link and also requests that the record containing the link, if it is
+     passive, be processed whenever a monitor occurs.
+     </li></ul>
+<!--l. 619--><p class="noindent" >Maximize Severity is honored.
+</p><!--l. 621--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">5.12.2    </span> <a 
+ id="x7-1970005.12.2"></a>OUTLINK</h4>
+<!--l. 623--><p class="noindent" >The options for process passive are:
+</p>
+     <ul class="itemize1">
+     <li class="itemize">It  is  not  possible  to  honor  PP  or  NPP  options;  the  put  operation  completes  immediately  but  whether  the
+     destination record will process depends on the process passive attribute of the destination field.
+     </li>
+     <li class="itemize">CA - Force the link to be a channel access link.
+     </li></ul>
+                                                                                         
+                                                                                         
+<!--l. 632--><p class="noindent" >Maximize Severity is not honored.
+</p><!--l. 634--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">5.12.3    </span> <a 
+ id="x7-1980005.12.3"></a>FWDLINK</h4>
+<!--l. 636--><p class="noindent" >A channel access forward link is honored only if it references the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">PROC</span></span></span> field of a record. In that case a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ca_put</span></span></span> with a value of
+1 is performed each time a forward link request is issued. Because of this implementation, the requirement that a forward link
+can only point to a passive record does not apply to channel access forward links; the target record will be processed
+irrespective of the value of its <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">SSCAN</span></span></span> field.
+</p><!--l. 641--><p class="noindent" >The available options are:
+</p>
+     <ul class="itemize1">
+     <li class="itemize">CA - Force the link to be a channel access link.
+     </li></ul>
+<!--l. 649--><p class="noindent" >Maximize Severity is not honored.
+                                                                                         
+                                                                                         
+</p>
+<!--l. 1--><div class="crosslinks"><p class="noindent">[<a 
+href="AppDevGuidech6.html" >next</a>] [<a 
+href="AppDevGuidech4.html" >prev</a>] [<a 
+href="AppDevGuidech4.html#tailAppDevGuidech4.html" >prev-tail</a>] [<a 
+href="AppDevGuidech5.html" >front</a>] [<a 
+href="AppDevGuide.html#AppDevGuidech5.html" >up</a>] </p></div>
+<!--l. 1--><p class="noindent" ><a 
+ id="tailAppDevGuidech5.html"></a> </p> 
+</body></html> 

@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="iso-8859-1" ?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">  
+<!--http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd-->  
+<html xmlns="http://www.w3.org/1999/xhtml"  
+> 
+<head><title>13 Driver Support</title> 
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" /> 
+<meta name="generator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
+<meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
+<!-- xhtml,2,html --> 
+<meta name="src" content="AppDevGuide.tex" /> 
+<meta name="date" content="2015-11-06 12:47:00" /> 
+<link rel="stylesheet" type="text/css" href="AppDevGuide.css" /> 
+</head><body 
+>
+<!--l. 1--><div class="crosslinks"><p class="noindent">[<a 
+href="AppDevGuidech14.html" >next</a>] [<a 
+href="AppDevGuidech12.html" >prev</a>] [<a 
+href="AppDevGuidech12.html#tailAppDevGuidech12.html" >prev-tail</a>] [<a 
+href="#tailAppDevGuidech13.html">tail</a>] [<a 
+href="AppDevGuide.html#AppDevGuidech13.html" >up</a>] </p></div>
+<h2 class="chapterHead"><span class="titlemark">Chapter&#x00A0;13</span><br /><a 
+ id="x15-53500013"></a>Driver Support</h2><a 
+ id="dx15-535001"></a>
+<h3 class="sectionHead"><span class="titlemark">13.1    </span> <a 
+ id="x15-53600013.1"></a>Overview</h3>
+<!--l. 5--><p class="noindent" >It is not necessary to create a driver support module in order to interface EPICS to hardware. For simple hardware device
+support is sufficient. At the present time most hardware support has both. The reason for this is historical. Before EPICS there
+was GTACS. During the change from GTACS to EPICS, record support was changed drastically. In order to preserve all
+existing hardware support the GTACS drivers were used without change. The device support layer was created just to shield the
+existing drivers form the record support changes.
+</p><!--l. 11--><p class="noindent" >Since EPICS now has both device and driver support the question arises: When do I need driver support and when don&#8217;t I? Lets
+give a few reasons why drivers should be created.
+</p>
+     <ul class="itemize1">
+     <li class="itemize">The hardware is actually a subnet, e.g. GPIB. In this case a driver should be provided for accessing the subnet.
+     There is no reason to make the driver aware of EPICS except possibly for issuing error messages.
+     </li>
+     <li class="itemize">The hardware is complicated. In this case supplying driver support helps modularized the software. The Allen
+     Bradley driver, which is also an example of supporting a subnet, is a good example.
+     </li>
+     <li class="itemize">An existing driver, maintained by others, is available. I don&#8217;t know of any examples.
+     </li>
+     <li class="itemize">The driver should be general purpose, i.e. not tied to EPICS. The CAMAC driver is a good example. It is used
+     by other systems, such as CODA. This is perhaps the most important reason for driver support.
+     </li>
+     <li class="itemize">For common devices, e.g. GPIB, CAN, CAMAC, etc. a generic driver layer should be created. This generic layer
+     should be independent of EPICS and independent of low level interfaces. It should also define an inteface for
+     low level drivers. This allows low level interfaces to be replaced without impacting IOC records, record support,
+     or device support.
+     </li></ul>
+<!--l. 33--><p class="noindent" >The only thing needed to interface a driver to EPICS is to provide a driver support module, which can be layered on top of an
+existing driver, and provide a database definition for the driver. The driver support module is described in the next section. The
+database definition is described in chapter &#8220;Database Definition&#8221;.
+</p><!--l. 37--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">13.2    </span> <a 
+ id="x15-53700013.2"></a>Device Drivers</h3>
+<!--l. 39--><p class="noindent" >Device drivers are modules that interface directly with the hardware. They are provided to isolate device support routines from
+details of how to interface to the hardware. Device drivers have no knowledge of the internals of database records. Thus there is
+no necessary correspondence between record types and device drivers. For example the Allen Bradley driver provides
+support for many different types of signals including analog inputs, analog outputs, binary inputs, and binary
+outputs.
+                                                                                         
+                                                                                         
+</p><!--l. 45--><p class="noindent" >In general only device support routines know how to call device drivers. Since device support varies widely from device to
+device, the set of routines provided by a device driver is almost completely driver dependent. The only requirement is that
+routines <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">report</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">init</span></span></span> must be provided. Device support routines must, of course, know what routines are provided by a
+driver.
+</p><!--l. 50--><p class="noindent" >File <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">drvSup.h</span></span></span> describes the format of a driver support entry table. The driver support module must supply a driver entry
+table. An example definition is:
+</p>
+<!--l. 53-->
+     <div class="lstlisting" id="listing-173"><span class="label"><a 
+ id="x15-537001r1"></a></span><span 
+class="pcrb7t-">static</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">report</span><span 
+class="pcrr7t-">();</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x15-537002r2"></a></span><span 
+class="pcrb7t-">static</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">init</span><span 
+class="pcrr7t-">();</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x15-537003r3"></a></span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x15-537004r4"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">number</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x15-537005r5"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">DRVSUPFUN</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">report</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x15-537006r6"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">DRVSUPFUN</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">init</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x15-537007r7"></a></span><span 
+class="pcrr7t-">}</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">drvAb</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">=</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x15-537008r8"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">2,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x15-537009r9"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">report</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x15-537010r10"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">init</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x15-537011r11"></a></span><span 
+class="pcrr7t-">};</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x15-537012r12"></a></span><span 
+class="pcrr7t-">epicsExportAddress</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">drvet</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">drvGpib</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx15-537013"></a>
+<!--l. 68--><p class="noindent" >The above example is for the Allen Bradley driver. It has an associated database definition of:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-211">
+<div class="fancyvrb" id="fancyvrb211"><a 
+ id="x15-537015r1"></a>&#x00A0;&#x00A0;driver(drvGpib)</div></div>
+<!--l. 72--><p class="nopar" >
+</p><!--l. 74--><p class="noindent" >Thus it is seen that the driver support module should supply two EPICS callable routines: <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">int</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">report</span></span></span>.
+</p><!--l. 76--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">13.2.0.1    </span> <a 
+ id="x15-53800013.2.0.1"></a>init</h5>
+<!--l. 78--><p class="noindent" >This routine, which has no arguments, is called by <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocInit</span></span></span>. The driver is expected to look for and initialize the hardware it
+supports. As an example the init routine for Allen Bradley is:
+</p>
+<!--l. 81-->
+     <div class="lstlisting" id="listing-174"><span class="label"><a 
+ id="x15-538001r1"></a></span><span 
+class="pcrb7t-">static</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">init</span><span 
+class="pcrr7t-">()</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x15-538002r2"></a></span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x15-538003r3"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">return</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">ab_driver_init</span><span 
+class="pcrr7t-">());</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x15-538004r4"></a></span><span 
+class="pcrr7t-">}</span>
+     
+</div>
+<!--l. 88--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">13.2.0.2    </span> <a 
+ id="x15-53900013.2.0.2"></a>report</h5>
+<!--l. 90--><p class="noindent" >The report routine is called by the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbior</span></span></span> IOC test routine. It is responsible for producing a report describing the hardware it
+found at init time. It is passed one argument, level, which is a hint about how much information to display. An example, taken
+from Allen Bradley, is:
+</p>
+<!--l. 94-->
+     <div class="lstlisting" id="listing-175"><span class="label"><a 
+ id="x15-539001r1"></a></span><span 
+class="pcrb7t-">static</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">report</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">level</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x15-539002r2"></a></span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x15-539003r3"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">return</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">ab_io_report</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">level</span><span 
+class="pcrr7t-">));</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x15-539004r4"></a></span><span 
+class="pcrr7t-">}</span>
+     
+</div>
+<!--l. 101--><p class="noindent" >Guidelines for level are as follows:
+     </p><dl class="description"><dt class="description">
+ </dt><dd 
+class="description">Level=0 Display a one line summary for each device
+     </dd><dt class="description">
+ </dt><dd 
+class="description">Level=1 Display more information
+     </dd><dt class="description">
+ </dt><dd 
+class="description">Level=2 Display a lot of information. It is even permissible to prompt for what is wanted.
+     </dd></dl>
+                                                                                         
+                                                                                         
+<!--l. 112--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">13.2.0.3    </span> <a 
+ id="x15-54000013.2.0.3"></a>Hardware Configuration</h5>
+<!--l. 114--><p class="noindent" >Hardware configuration includes the following:
+</p>
+     <ul class="itemize1">
+     <li class="itemize">VME/VXI address space
+     </li>
+     <li class="itemize">VME Interrupt Vectors and levels
+     </li>
+     <li class="itemize">Device Specific Information
+     </li></ul>
+<!--l. 125--><p class="noindent" >The information contained in hardware links supplies some but not all configuration information. In particular it does not define
+the VME/VXI addresses and interrupt vectors. This additional information is what is meant by hardware configuration in this
+chapter.
+</p><!--l. 129--><p class="noindent" >The problem of defining hardware configuration information is an unsolved problem for EPICS. At one time configuration
+information was defined in <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">module_types.h</span></span></span> Many existing device/driver support modules still uses this method. It should
+NOT be used for any new support for the following reasons:
+</p>
+     <ul class="itemize1">
+     <li class="itemize">There is no way to manage this file for the entire EPICS community.
+     </li>
+     <li class="itemize">It does not allow arbitrary configuration information.
+     </li>
+     <li class="itemize">It is hard for users to determine what the configuration information is.
+     </li></ul>
+<!--l. 142--><p class="noindent" >The fact that it is now easy to include ASCII definitions for only the device/driver support used in each IOC makes the
+configuration problem much more manageable than previously. Previously if you wanted to support a new VME modules it was
+necessary to pick addresses that nothing in <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">module_types.h</span></span></span> was using. Now you only have to check modules you are
+actually using.
+</p><!--l. 147--><p class="noindent" >Since there are no EPICS defined rules for hardware configuration, the following minimal guidelines should be
+used:
+</p>
+     <ul class="itemize1">
+     <li class="itemize">Never use <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">#define</span></span></span> to specify things like VME addresses. Instead use variables and assign default values.
+     Allow the default values to be changed before iocInit is executed. The best way is to supply a global routine
+     that can be invoked from the IOC startup file. Note that all arguments to such routines should usually be <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">int</span></span></span> or
+     <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">char</span><span 
+class="pcrr7t-">&#x00A0;&#x22C6;</span></span></span> and not <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">double</span></span></span> as the VxWorks shell does not support double arguments.
+     </li>
+     <li class="itemize">Call the routines described in chapter &#8220;Device Support Library&#8221; whenever possible instead of their OS-specific
+     equivalents.
+                                                                                         
+                                                                                         
+     </li></ul>
+                                                                                         
+                                                                                         
+<!--l. 1--><div class="crosslinks"><p class="noindent">[<a 
+href="AppDevGuidech14.html" >next</a>] [<a 
+href="AppDevGuidech12.html" >prev</a>] [<a 
+href="AppDevGuidech12.html#tailAppDevGuidech12.html" >prev-tail</a>] [<a 
+href="AppDevGuidech13.html" >front</a>] [<a 
+href="AppDevGuide.html#AppDevGuidech13.html" >up</a>] </p></div>
+<!--l. 1--><p class="noindent" ><a 
+ id="tailAppDevGuidech13.html"></a> </p> 
+</body></html> 

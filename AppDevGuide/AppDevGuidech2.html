@@ -1,0 +1,1337 @@
+<?xml version="1.0" encoding="iso-8859-1" ?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">  
+<!--http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd-->  
+<html xmlns="http://www.w3.org/1999/xhtml"  
+> 
+<head><title>2 Getting Started</title> 
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" /> 
+<meta name="generator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
+<meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
+<!-- xhtml,2,html --> 
+<meta name="src" content="AppDevGuide.tex" /> 
+<meta name="date" content="2015-11-06 12:47:00" /> 
+<link rel="stylesheet" type="text/css" href="AppDevGuide.css" /> 
+</head><body 
+>
+<!--l. 1--><div class="crosslinks"><p class="noindent">[<a 
+href="AppDevGuidech3.html" >next</a>] [<a 
+href="AppDevGuidech1.html" >prev</a>] [<a 
+href="AppDevGuidech1.html#tailAppDevGuidech1.html" >prev-tail</a>] [<a 
+href="#tailAppDevGuidech2.html">tail</a>] [<a 
+href="AppDevGuide.html#AppDevGuidech2.html" >up</a>] </p></div>
+<h2 class="chapterHead"><span class="titlemark">Chapter&#x00A0;2</span><br /><a 
+ id="x4-50002"></a>Getting Started</h2>
+<h3 class="sectionHead"><span class="titlemark">2.1    </span> <a 
+ id="x4-60002.1"></a>Introduction</h3>
+<!--l. 5--><p class="noindent" >This chapter provides a brief introduction to creating EPICS IOC applications. It contains:
+</p>
+     <ul class="itemize1">
+     <li class="itemize">Instructions for creating, building, and running an example IOC application.
+     </li>
+     <li class="itemize">Instructions for creating, building, and executing example Channel Access clients.
+     </li>
+     <li class="itemize">Briefly describes iocsh, which is a base supplied command shell.
+     </li>
+     <li class="itemize">Describes rules for building IOC components.
+     </li>
+     <li class="itemize">Describes makeBaseApp.pl, which is a perl script that generates files for building applications.
+     </li>
+     <li class="itemize">Briefly discusses vxWorks boot parameters</li></ul>
+<!--l. 21--><p class="noindent" >This chapter will be hard to understand unless you have some familarity with IOC concepts such as record types, device and
+driver support and have had some experience with creating ioc databases. Once you have this experience, this chapter provides
+most of the information needed to build applications. The example that follows assumes that EPICS base has already been
+built.
+</p><!--l. 25--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">2.2    </span> <a 
+ id="x4-70002.2"></a>Example IOC Application</h3>
+<a 
+ id="dx4-7001"></a>
+<!--l. 29--><p class="noindent" >This section explains how to create an example IOC application in a directory <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;top&#x003E;</span></span></span>, naming the application
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">myexampleApp</span></span></span> and the ioc directory <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocmyexample</span></span></span>.
+</p><!--l. 32--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">2.2.1    </span> <a 
+ id="x4-80002.2.1"></a>Check that <span 
+class="pcrr7t-">EPICS</span><span 
+class="pcrr7t-">_HOST</span><span 
+class="pcrr7t-">_ARCH </span>is defined</h4>
+<!--l. 34--><p class="noindent" >Execute the command:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-1">
+<div class="fancyvrb" id="fancyvrb1"><a 
+ id="x4-8002r1"></a>&#x00A0;&#x00A0;echo&#x00A0;$EPICS_HOST_ARCH&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;(Unix/Linux)</div></div>
+<!--l. 38--><p class="nopar" >or
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-2">
+<div class="fancyvrb" id="fancyvrb2"><a 
+ id="x4-8004r1"></a>&#x00A0;&#x00A0;set&#x00A0;EPICS_HOST_ARCH&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;(Windows)</div></div>
+<!--l. 42--><p class="nopar" >
+</p><!--l. 44--><p class="noindent" >This should display your workstation architecture, for example <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">linux-x86</span></span></span> or <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">win32-x86</span></span></span>. If you get an &#8220;Undefined
+variable&#8221; error, you should set <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">EPICS_HOST_ARCH</span></span></span> to your host operating system followed by a dash and then your host
+architecture, e.g. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">solaris-sparc</span></span></span>. The perl script <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">EpicsHostArch.pl</span></span></span> in the base/startup directory has been provided to
+help set <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">EPICS_HOST_ARCH</span></span></span>.
+</p><!--l. 49--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">2.2.2    </span> <a 
+ id="x4-90002.2.2"></a>Create the example application</h4>
+<!--l. 51--><p class="noindent" >The following commands create an example application.
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-3">
+<div class="fancyvrb" id="fancyvrb3"><a 
+ id="x4-9002r1"></a>&#x00A0;&#x00A0;mkdir&#x00A0;&#x003C;top&#x003E;<br class="fancyvrb" /><a 
+ id="x4-9004r2"></a>&#x00A0;&#x00A0;cd&#x00A0;&#x003C;top&#x003E;<br class="fancyvrb" /><a 
+ id="x4-9006r3"></a>&#x00A0;&#x00A0;&#x003C;base&#x003E;/bin/&#x003C;arch&#x003E;/makeBaseApp.pl&#x00A0;-t&#x00A0;example&#x00A0;myexample
+<br class="fancyvrb" /><a 
+ id="x4-9008r4"></a>&#x00A0;&#x00A0;&#x003C;base&#x003E;/bin/&#x003C;arch&#x003E;/makeBaseApp.pl&#x00A0;-i&#x00A0;-t&#x00A0;example&#x00A0;myexample</div></div>
+<!--l. 58--><p class="nopar" >
+</p><!--l. 60--><p class="noindent" >Here, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;arch&#x003E;</span></span></span> indicates the operating system architecture of your computer. For example, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">solaris-sparc</span></span></span>. The last
+command will ask you to enter an architecture for the IOC. It provides a list of architectures for which base has been
+built.
+</p><!--l. 63--><p class="noindent" >The full path name to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;base&#x003E;</span></span></span> (an already built copy of EPICS base) must be given. Check with your EPICS system
+administrator to see what the path to your <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;base&#x003E;</span></span></span> is. For example:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-4">
+<div class="fancyvrb" id="fancyvrb4"><a 
+ id="x4-9010r1"></a>&#x00A0;&#x00A0;/home/phoebus/MRK/epics/base/bin/linux-x86/makeBaseApp.pl&#x00A0;...</div></div>
+<!--l. 68--><p class="nopar" >
+</p><!--l. 70--><p class="noindent" >Windows Users Note: Perl scripts must be invoked with the command <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">perl</span><span 
+class="pcrr7t-">&#x00A0;&#x003C;scriptname&#x003E;</span></span></span> on Windows. Perl script names
+are case sensitive. For example to create an application on Windows:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-5">
+<div class="fancyvrb" id="fancyvrb5"><a 
+ id="x4-9012r1"></a>&#x00A0;&#x00A0;perl&#x00A0;C:\epics\base\bin\win32-x86\makeBaseApp.pl&#x00A0;-t&#x00A0;example&#x00A0;myexample</div></div>
+<!--l. 75--><p class="nopar" >
+</p><!--l. 77--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">2.2.3    </span> <a 
+ id="x4-100002.2.3"></a>Inspect files</h4>
+<!--l. 79--><p class="noindent" >Spend some time looking at the files that appear under <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;top&#x003E;</span></span></span>. Do this <span 
+class="ptmri7t-">before </span>building. This allows you to see typical files
+which are needed to build an application without seeing the files generated by make.
+</p><!--l. 82--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">2.2.4    </span> <a 
+ id="x4-110002.2.4"></a>Sequencer Example</h4>
+<!--l. 84--><p class="noindent" >The sequencer is now supported as an unbundled product. The example includes an example state notation program,
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">sncExample.stt</span></span></span>. As created by makeBaseApp the example is not built or executed.
+</p><!--l. 87--><p class="noindent" >Before <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">sncExample.stt</span></span></span> can be compiled, the sequencer module must have been built using the same version of base that
+the example uses.
+</p><!--l. 89--><p class="noindent" >To build sncExample edit the following files:
+</p>
+     <ul class="itemize1">
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">configure/RELEASE</span></span></span> &#8211; Set SNCSEQ to the location of the sequencer.
+     </li>
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocBoot/iocmyexample/st.cmd</span></span></span> &#8211; Remove the comment character # from this line:
+     <!--l. 95--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">#seq</span><span 
+class="pcrr7t-">&#x00A0;sncExample,</span><span 
+class="pcrr7t-">&#x00A0;"user=&#x003C;user&#x003E;"</span></span></span></p></li></ul>
+<!--l. 98--><p class="noindent" >The Makefile contains commands for building the sncExample code both as a component of the example IOC application and
+as a standalone program called <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">sncProgram</span></span></span>, an executable that connects through Channel Access to a separate IOC
+database.
+</p><!--l. 101--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">2.2.5    </span> <a 
+ id="x4-120002.2.5"></a>Build</h4>
+<!--l. 103--><p class="noindent" >In directory <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;top&#x003E;</span></span></span> execute the command
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-6">
+<div class="fancyvrb" id="fancyvrb6"><a 
+ id="x4-12002r1"></a>&#x00A0;&#x00A0;make</div></div>
+<!--l. 107--><p class="nopar" >
+</p><!--l. 109--><p class="noindent" >NOTE: On systems where GNU make is not the default another command is required, e.g. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">gnumake</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">gmake</span></span></span>, etc. See you
+EPICS system administrator.
+</p><!--l. 112--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">2.2.6    </span> <a 
+ id="x4-130002.2.6"></a>Inspect files</h4>
+<!--l. 114--><p class="noindent" >This time you will see the files generated by make as well as the original files.
+</p><!--l. 116--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">2.2.7    </span> <a 
+ id="x4-140002.2.7"></a>Run the ioc example</h4>
+<!--l. 118--><p class="noindent" >The example can be run on vxWorks, RTEMS, or on a supported host.
+</p>
+     <ul class="itemize1">
+     <li class="itemize">On a host, e.g. Linux or Solaris
+                                                                                         
+                                                                                         
+     <div class="verbatim" id="verbatim-7">
+     <div class="fancyvrb" id="fancyvrb7"><a 
+ id="x4-14002r1"></a>&#x00A0;&#x00A0;cd&#x00A0;&#x003C;top&#x003E;/iocBoot/iocmyexample<br class="fancyvrb" /><a 
+ id="x4-14004r2"></a>&#x00A0;&#x00A0;../../bin/linux-x86/myexample&#x00A0;st.cmd</div></div>
+     <!--l. 126--><p class="nopar" >
+     </p></li>
+     <li class="itemize">vxWorks/RTERMS &#8211; Set your boot parameters as described at the end of this chapter and then boot the
+     ioc.</li></ul>
+<!--l. 131--><p class="noindent" >After the ioc is started try some of the shell commands (e.g. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbl</span></span></span> or <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbpr</span><span 
+class="pcrr7t-">&#x00A0;&#x003C;recordname&#x003E;</span></span></span>) described in the chapter &#8220;IOC
+Test Facilities&#8221;. In particular run <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbl</span></span></span> to get a list of the records.
+</p><!--l. 134--><p class="noindent" >The iocsh command interpreter used on non-vxWorks IOCs provides a help facility. Just type:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-8">
+<div class="fancyvrb" id="fancyvrb8"><a 
+ id="x4-14006r1"></a>&#x00A0;&#x00A0;help</div></div>
+<!--l. 138--><p class="nopar" >or
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-9">
+<div class="fancyvrb" id="fancyvrb9"><a 
+ id="x4-14008r1"></a>&#x00A0;&#x00A0;help&#x00A0;&#x003C;cmd&#x003E;</div></div>
+<!--l. 142--><p class="nopar" >where <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;cmd&#x003E;</span></span></span> is one of the commands displayed by help. The help command accepts wildcards, so
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-10">
+<div class="fancyvrb" id="fancyvrb10"><a 
+ id="x4-14010r1"></a>&#x00A0;&#x00A0;help&#x00A0;db&#x22C6;</div></div>
+<!--l. 146--><p class="nopar" >will provide information on all commands beginning with the characters db. On vxWorks the help facility is available by first
+typing:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-11">
+<div class="fancyvrb" id="fancyvrb11"><a 
+ id="x4-14012r1"></a>&#x00A0;&#x00A0;iocsh</div></div>
+<!--l. 152--><p class="nopar" >
+</p><!--l. 154--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">2.3    </span> <a 
+ id="x4-150002.3"></a>Channel Access Host Example</h3>
+<!--l. 156--><p class="noindent" >An example host example can be generated by:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-12">
+<div class="fancyvrb" id="fancyvrb12"><a 
+ id="x4-15002r1"></a>&#x00A0;&#x00A0;cd&#x00A0;&#x003C;mytop&#x003E;<br class="fancyvrb" /><a 
+ id="x4-15004r2"></a>&#x00A0;&#x00A0;&#x003C;base&#x003E;/bin/&#x003C;arch&#x003E;/makeBaseApp.pl&#x00A0;-t&#x00A0;caClient&#x00A0;caClient<br class="fancyvrb" /><a 
+ id="x4-15006r3"></a>&#x00A0;&#x00A0;make</div></div>
+<!--l. 162--><p class="nopar" >(or gnumake, as required by your operating system)
+</p><!--l. 165--><p class="noindent" >Two channel access examples are provided:
+     </p><dl class="description"><dt class="description">
+ </dt><dd 
+class="description"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">caExample</span></span></span><br 
+class="newline" />This example program expects a pvname argument, connects and reads the current value for the pv, displays the
+     result and terminates. To run this example just type.
+     <!--l. 172--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;mytop&#x003E;/bin/&#x003C;hostarch&#x003E;/caExample</span><span 
+class="pcrr7t-">&#x00A0;&#x003C;pvname&#x003E;</span></span></span> where
+</p>
+         <ul class="itemize1">
+         <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;mytop&#x003E;</span></span></span> is the full path name to your application top directory.
+         </li>
+         <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;hostarch&#x003E;</span></span></span> is your host architecture.
+         </li>
+         <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;pvname&#x003E;</span></span></span> is one of the record names displayed by the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbl</span></span></span> ioc shell command.</li></ul>
+     </dd><dt class="description">
+ </dt><dd 
+class="description"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">caMonitor</span></span></span><br 
+class="newline" />This example program expects a filename argument which contains a list of pvnames, each appearing on a separate line.
+     It connects to each pv and issues monitor requests. It displays messages for all channel access events, connection events,
+     etc.</dd></dl>
+<!--l. 188--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">2.4    </span> <a 
+ id="x4-160002.4"></a>iocsh</h3>
+<!--l. 190--><p class="noindent" >Because the vxWorks shell is only available on vxWorks, EPICS base provides iocsh. In the main program it can be invoked as
+follows:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-13">
+<div class="fancyvrb" id="fancyvrb13"><a 
+ id="x4-16002r1"></a>&#x00A0;&#x00A0;iocsh("filename")</div></div>
+<!--l. 195--><p class="nopar" >or
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-14">
+<div class="fancyvrb" id="fancyvrb14"><a 
+ id="x4-16004r1"></a>&#x00A0;&#x00A0;iocsh(0)</div></div>
+<!--l. 199--><p class="nopar" >If the argument is a filename, the commands in the file are executed and iocsh returns. If the argument is 0 then iocsh goes into
+interactive mode, i.e. it prompts for and executes commands until an exit command is issued.
+</p><!--l. 203--><p class="noindent" >This shell is described in more detail in Chapter <a 
+href="AppDevGuidech18.html#x20-73100018">18<!--tex4ht:ref: chap:IOC Shell --></a>, &#8220;IOC Shell&#8221;.
+</p><!--l. 205--><p class="noindent" >On vxWorks iocsh is not automatically started. It can be started by just giving the following command to the vxWorks
+shell.
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-15">
+<div class="fancyvrb" id="fancyvrb15"><a 
+ id="x4-16006r1"></a>&#x00A0;&#x00A0;iocsh</div></div>
+<!--l. 210--><p class="nopar" >To get back to the vxWorks shell just say
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-16">
+<div class="fancyvrb" id="fancyvrb16"><a 
+ id="x4-16008r1"></a>&#x00A0;&#x00A0;exit</div></div>
+<!--l. 215--><p class="nopar" >
+</p><!--l. 217--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">2.5    </span> <a 
+ id="x4-170002.5"></a>Building IOC components</h3>
+<!--l. 219--><p class="noindent" >Detailed build rules are given in chapter <a 
+href="AppDevGuidech4.html#x6-590004">4<!--tex4ht:ref: chap:Build Facility --></a> &#8220;Build Facility&#8221;. This section describes methods for building most components
+needed for IOC applications. It uses excerpts from the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">myexampleApp/src/Makefile</span></span></span> that is generated by
+makeBaseApp.
+</p><!--l. 224--><p class="noindent" >The following two types of applications can be built:
+</p>
+     <ul class="itemize1">
+     <li class="itemize">Support applications
+     <!--l. 229--><p class="noindent" >These are applications meant for use by ioc applications. The rules described here install things into one of the
+     following directories that are created just below <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;top&#x003E;</span></span></span>:
+         </p><dl class="description"><dt class="description">
+      </dt><dd 
+class="description"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">include</span></span></span><br 
+class="newline" />C include files are installed here. Either header files supplied by the application or header files generated
+         from <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">xxxRecord.dbd</span></span></span> or <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">xxxMenu.dbd</span></span></span> files.
+         </dd><dt class="description">
+      </dt><dd 
+class="description"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbd</span></span></span><br 
+class="newline" />Each file contains some combination of <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">include</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">recordtype</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">device</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">driver</span></span></span>, and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">registrar</span></span></span>
+         database definition commands. The following are installed:
+             <ul class="itemize2">
+             <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">xxxRecord.dbd</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">xxxMenu.dbd</span></span></span> files
+             </li>
+             <li class="itemize">An arbitrary <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">xxx.dbd</span></span></span> file
+             </li>
+             <li class="itemize">ioc applications install a file <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">yyy.dbd</span></span></span> generated from file <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">yyyInclude.dbd</span></span></span>.</li></ul>
+         </dd><dt class="description">
+      </dt><dd 
+class="description"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">db</span></span></span><br 
+class="newline" />Files containing record instance definitions.
+         </dd><dt class="description">
+      </dt><dd 
+class="description"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">lib/&#x003C;arch&#x003E;</span></span></span><br 
+class="newline" />All source modules are compiled and placed in shared or static library (win32 dll)
+         </dd></dl>
+                                                                                         
+                                                                                         
+     </li>
+     <li class="itemize">IOC applications
+     <!--l. 257--><p class="noindent" >These are applications loaded into actual IOCs.
+</p>
+     </li></ul>
+<!--l. 261--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">2.5.1    </span> <a 
+ id="x4-180002.5.1"></a>Binding to IOC components</h4>
+<!--l. 263--><p class="noindent" >Because many IOC components are bound only during ioc initialization, some method of linking to the appropriate shared
+and/or static libraries must be provided. The method used for IOCs is to generate, from an <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">xxxInclude.dbd</span></span></span> file, a C++
+program that contains references to the appropriate library modules. The following database definitions keywords are used for
+this purpose:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-17">
+<div class="fancyvrb" id="fancyvrb17"><a 
+ id="x4-18002r1"></a>&#x00A0;&#x00A0;recordtype<br class="fancyvrb" /><a 
+ id="x4-18004r2"></a>&#x00A0;&#x00A0;device<br class="fancyvrb" /><a 
+ id="x4-18006r3"></a>&#x00A0;&#x00A0;driver<br class="fancyvrb" /><a 
+ id="x4-18008r4"></a>&#x00A0;&#x00A0;function<br class="fancyvrb" /><a 
+ id="x4-18010r5"></a>&#x00A0;&#x00A0;variable<br class="fancyvrb" /><a 
+ id="x4-18012r6"></a>&#x00A0;&#x00A0;registrar</div></div>
+<!--l. 274--><p class="nopar" >
+<a 
+ id="dx4-18013"></a>
+</p><!--l. 277--><p class="noindent" >The method also requires that IOC components contain an appropriate epicsExport statement. All components must contain the
+statement:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-18">
+<div class="fancyvrb" id="fancyvrb18"><a 
+ id="x4-18015r1"></a>&#x00A0;&#x00A0;#include&#x00A0;&#x003C;epicsExport.h&#x003E;</div></div>
+<!--l. 282--><p class="nopar" >
+</p><!--l. 284--><p class="noindent" >Any component that defines any exported functions must also contain:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-19">
+<div class="fancyvrb" id="fancyvrb19"><a 
+ id="x4-18017r1"></a>&#x00A0;&#x00A0;#include&#x00A0;&#x003C;registryFunction.h&#x003E;</div></div>
+<!--l. 288--><p class="nopar" >
+</p><!--l. 290--><p class="noindent" >Each record support module must contain a statement like:
+<a 
+ id="dx4-18018"></a>
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-20">
+<div class="fancyvrb" id="fancyvrb20"><a 
+ id="x4-18020r1"></a>&#x00A0;&#x00A0;epicsExportAddress(rset,xxxRSET);</div></div>
+<!--l. 295--><p class="nopar" >
+</p><!--l. 297--><p class="noindent" >Each device support module must contain a statement like:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-21">
+<div class="fancyvrb" id="fancyvrb21"><a 
+ id="x4-18022r1"></a>&#x00A0;&#x00A0;epicsExportAddress(dset,devXxxSoft);</div></div>
+<!--l. 301--><p class="nopar" >
+</p><!--l. 303--><p class="noindent" >Each driver support module must contain a statement like:
+<a 
+ id="dx4-18023"></a>
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-22">
+<div class="fancyvrb" id="fancyvrb22"><a 
+ id="x4-18025r1"></a>&#x00A0;&#x00A0;epicsExportAddress(drvet,drvXxx);</div></div>
+<!--l. 308--><p class="nopar" >
+</p><!--l. 310--><p class="noindent" >Functions are registered using an <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">epicsRegisterFunction</span></span></span> macro in the C source file containing the function, along with
+a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">function</span></span></span> statement in the application database description file. The makeBaseApp example thus contains the following
+statements to register a pair of functions for use with a subroutine record:
+<a 
+ id="dx4-18026"></a>
+<a 
+ id="dx4-18027"></a>
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-23">
+<div class="fancyvrb" id="fancyvrb23"><a 
+ id="x4-18029r1"></a>&#x00A0;&#x00A0;epicsRegisterFunction(mySubInit);<br class="fancyvrb" /><a 
+ id="x4-18031r2"></a>&#x00A0;&#x00A0;epicsRegisterFunction(mySubProcess);</div></div>
+<!--l. 318--><p class="nopar" >
+</p><!--l. 320--><p class="noindent" >The database definition keyword <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">variable</span></span></span> forces a reference to an integer or double variable, e.g. debugging variables. The
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">xxxInclude.dbd</span></span></span> file can contain definitions like:
+<a 
+ id="dx4-18032"></a>
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-24">
+<div class="fancyvrb" id="fancyvrb24"><a 
+ id="x4-18034r1"></a>&#x00A0;&#x00A0;variable(asCaDebug,int)<br class="fancyvrb" /><a 
+ id="x4-18036r2"></a>&#x00A0;&#x00A0;variable(myDefaultTimeout,double)</div></div>
+<!--l. 327--><p class="nopar" >
+</p><!--l. 329--><p class="noindent" >The code that defines the variables must include code like:
+<a 
+ id="dx4-18037"></a>
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-25">
+<div class="fancyvrb" id="fancyvrb25"><a 
+ id="x4-18039r1"></a>&#x00A0;&#x00A0;int&#x00A0;asCaDebug&#x00A0;=&#x00A0;0;<br class="fancyvrb" /><a 
+ id="x4-18041r2"></a>&#x00A0;&#x00A0;epicsExportAddress(int,asCaDebug);</div></div>
+<!--l. 335--><p class="nopar" >
+<a 
+ id="dx4-18042"></a>
+</p><!--l. 338--><p class="noindent" >The keyword <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">registrar</span></span></span> signifies that the epics component supplies a named registrar function that has the
+prototype:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-26">
+<div class="fancyvrb" id="fancyvrb26"><a 
+ id="x4-18044r1"></a>&#x00A0;&#x00A0;typedef&#x00A0;void&#x00A0;(&#x22C6;REGISTRAR)(void);</div></div>
+<!--l. 342--><p class="nopar" >
+</p><!--l. 344--><p class="noindent" >This function normally registers things, as described in Chapter <a 
+href="AppDevGuidech21.html#x23-90000021">21<!--tex4ht:ref: Registry --></a>, &#8220;Registry&#8221; on page <a 
+href="AppDevGuidech21.html#x23-90000021">683<!--tex4ht:ref: Registry --></a>. The makeBaseApp example
+provides a sample iocsh command which is registered with the following registrar function:
+<a 
+ id="dx4-18045"></a>
+<a 
+ id="dx4-18046"></a>
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-27">
+<div class="fancyvrb" id="fancyvrb27"><a 
+ id="x4-18048r1"></a>&#x00A0;&#x00A0;static&#x00A0;void&#x00A0;helloRegister(void)&#x00A0;{<br class="fancyvrb" /><a 
+ id="x4-18050r2"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;iocshRegister(&amp;helloFuncDef,&#x00A0;helloCallFunc);
+<br class="fancyvrb" /><a 
+ id="x4-18052r3"></a>&#x00A0;&#x00A0;}<br class="fancyvrb" /><a 
+ id="x4-18054r4"></a>&#x00A0;&#x00A0;epicsExportRegistrar(helloRegister);</div></div>
+<!--l. 354--><p class="nopar" >
+</p><!--l. 356--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">2.5.2    </span> <a 
+ id="x4-190002.5.2"></a>Makefile rules</h4>
+<!--l. 358--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">2.5.2.1    </span> <a 
+ id="x4-200002.5.2.1"></a>Building a support application.</h5>
+                                                                                         
+                                                                                         
+<div class="verbatim" id="verbatim-28">
+<div class="fancyvrb" id="fancyvrb28"><a 
+ id="x4-20002r1"></a>&#x00A0;&#x00A0;#&#x00A0;xxxRecord.h&#x00A0;will&#x00A0;be&#x00A0;created&#x00A0;from&#x00A0;xxxRecord.dbd<br class="fancyvrb" /><a 
+ id="x4-20004r2"></a>&#x00A0;&#x00A0;DBDINC&#x00A0;+=&#x00A0;xxxRecord
+<br class="fancyvrb" /><a 
+ id="x4-20006r3"></a>&#x00A0;&#x00A0;DBD&#x00A0;+=&#x00A0;myexampleSupport.dbd<br class="fancyvrb" /><a 
+ id="x4-20008r4"></a>&#x00A0;&#x00A0;<br class="fancyvrb" /><a 
+ id="x4-20010r5"></a>&#x00A0;&#x00A0;LIBRARY_IOC&#x00A0;+=&#x00A0;myexampleSupport<br class="fancyvrb" /><a 
+ id="x4-20012r6"></a>&#x00A0;&#x00A0;
+<br class="fancyvrb" /><a 
+ id="x4-20014r7"></a>&#x00A0;&#x00A0;myexampleSupport_SRCS&#x00A0;+=&#x00A0;xxxRecord.c<br class="fancyvrb" /><a 
+ id="x4-20016r8"></a>&#x00A0;&#x00A0;myexampleSupport_SRCS&#x00A0;+=&#x00A0;devXxxSoft.c
+<br class="fancyvrb" /><a 
+ id="x4-20018r9"></a>&#x00A0;&#x00A0;myexampleSupport_SRCS&#x00A0;+=&#x00A0;dbSubExample.c<br class="fancyvrb" /><a 
+ id="x4-20020r10"></a>&#x00A0;&#x00A0;<br class="fancyvrb" /><a 
+ id="x4-20022r11"></a>&#x00A0;&#x00A0;myexampleSupport_LIBS&#x00A0;+=&#x00A0;$(EPICS_BASE_IOC_LIBS)</div></div>
+<!--l. 372--><p class="nopar" >
+</p><!--l. 374--><p class="noindent" >The <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DBDINC</span></span></span> rule looks for a file <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">xxxRecord.dbd</span></span></span>. From this file a file <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">xxxRecord.h</span></span></span> is created and installed into
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;top&#x003E;/include</span></span></span>
+</p><!--l. 377--><p class="noindent" >The <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DBD</span></span></span> rule finds <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">myexampleSupport.dbd</span></span></span> in the source directory and installs it into <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;top&#x003E;/dbd</span></span></span>
+</p><!--l. 379--><p class="noindent" >The <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">LIBRARY_IOC</span></span></span> variable requests that a library be created and installed into <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;top&#x003E;/lib/&#x003C;arch&#x003E;</span></span></span>
+</p><!--l. 381--><p class="noindent" >The <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">myexampleSupport_SRCS</span></span></span> statements name all the source files that are compiled and put into the library.
+</p><!--l. 383--><p class="noindent" >The above statements are all that is needed for building many support applications.
+</p><!--l. 385--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">2.5.2.2    </span> <a 
+ id="x4-210002.5.2.2"></a>Building the IOC application</h5>
+<!--l. 387--><p class="noindent" >The following statements build the IOC application:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-29">
+<div class="fancyvrb" id="fancyvrb29"><a 
+ id="x4-21002r1"></a>&#x00A0;&#x00A0;PROD_IOC&#x00A0;=&#x00A0;myexample<br class="fancyvrb" /><a 
+ id="x4-21004r2"></a>&#x00A0;&#x00A0;<br class="fancyvrb" /><a 
+ id="x4-21006r3"></a>&#x00A0;&#x00A0;DBD&#x00A0;+=&#x00A0;myexample.dbd<br class="fancyvrb" /><a 
+ id="x4-21008r4"></a>&#x00A0;&#x00A0;<br class="fancyvrb" /><a 
+ id="x4-21010r5"></a>&#x00A0;&#x00A0;#&#x00A0;myexample.dbd&#x00A0;will&#x00A0;be&#x00A0;made&#x00A0;up&#x00A0;from&#x00A0;these&#x00A0;files:
+<br class="fancyvrb" /><a 
+ id="x4-21012r6"></a>&#x00A0;&#x00A0;myexample_DBD&#x00A0;+=&#x00A0;base.dbd<br class="fancyvrb" /><a 
+ id="x4-21014r7"></a>&#x00A0;&#x00A0;myexample_DBD&#x00A0;+=&#x00A0;xxxSupport.dbd<br class="fancyvrb" /><a 
+ id="x4-21016r8"></a>&#x00A0;&#x00A0;myexample_DBD&#x00A0;+=&#x00A0;dbSubExample.dbd
+<br class="fancyvrb" /><a 
+ id="x4-21018r9"></a>&#x00A0;&#x00A0;<br class="fancyvrb" /><a 
+ id="x4-21020r10"></a>&#x00A0;&#x00A0;#&#x00A0;&#x003C;name&#x003E;_registerRecordDeviceDriver.cpp&#x00A0;will&#x00A0;be&#x00A0;created&#x00A0;from&#x00A0;&#x003C;name&#x003E;.dbd
+<br class="fancyvrb" /><a 
+ id="x4-21022r11"></a>&#x00A0;&#x00A0;myexample_SRCS&#x00A0;+=&#x00A0;myexample_registerRecordDeviceDriver.cpp<br class="fancyvrb" /><a 
+ id="x4-21024r12"></a>&#x00A0;&#x00A0;myexample_SRCS_DEFAULT&#x00A0;+=&#x00A0;myexampleMain.cpp
+<br class="fancyvrb" /><a 
+ id="x4-21026r13"></a>&#x00A0;&#x00A0;myexample_SRCS_vxWorks&#x00A0;+=&#x00A0;-nil-<br class="fancyvrb" /><a 
+ id="x4-21028r14"></a>&#x00A0;&#x00A0;<br class="fancyvrb" /><a 
+ id="x4-21030r15"></a>&#x00A0;&#x00A0;#&#x00A0;Add&#x00A0;locally&#x00A0;compiled&#x00A0;object&#x00A0;code<br class="fancyvrb" /><a 
+ id="x4-21032r16"></a>&#x00A0;&#x00A0;myexample_SRCS&#x00A0;+=&#x00A0;dbSubExample.c<br class="fancyvrb" /><a 
+ id="x4-21034r17"></a>&#x00A0;&#x00A0;
+<br class="fancyvrb" /><a 
+ id="x4-21036r18"></a>&#x00A0;&#x00A0;#&#x00A0;Add&#x00A0;support&#x00A0;from&#x00A0;base/src/vxWorks&#x00A0;if&#x00A0;needed<br class="fancyvrb" /><a 
+ id="x4-21038r19"></a>&#x00A0;&#x00A0;myexample_OBJS_vxWorks&#x00A0;+=&#x00A0;$(EPICS_BASE_BIN)/vxComLibrary
+<br class="fancyvrb" /><a 
+ id="x4-21040r20"></a>&#x00A0;&#x00A0;<br class="fancyvrb" /><a 
+ id="x4-21042r21"></a>&#x00A0;&#x00A0;myexample_LIBS&#x00A0;+=&#x00A0;myexampleSupport<br class="fancyvrb" /><a 
+ id="x4-21044r22"></a>&#x00A0;&#x00A0;myexample_LIBS&#x00A0;+=&#x00A0;$(EPICS_BASE_IOC_LIBS)</div></div>
+<!--l. 412--><p class="nopar" >
+</p><!--l. 414--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">PROD_IOC</span></span></span> sets the name of the ioc application, here called <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">myexample</span></span></span>.
+</p><!--l. 416--><p class="noindent" >The DBD definition <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">myexample.dbd</span></span></span> will cause build rules to create the database definition include file <br 
+class="newline" /><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">myexampleInclude.dbd</span></span></span> from files in the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">myexample_DBD</span></span></span> definition. For each filename in that definition, the
+created <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">myexampleInclude.dbd</span></span></span> will contain an include statement for that filename. In this case the created
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">myexampleInclude.dbd</span></span></span> file will contain the following lines.
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-30">
+<div class="fancyvrb" id="fancyvrb30"><a 
+ id="x4-21046r1"></a>&#x00A0;&#x00A0;include&#x00A0;"base.dbd"<br class="fancyvrb" /><a 
+ id="x4-21048r2"></a>&#x00A0;&#x00A0;include&#x00A0;"xxxSupport.dbd"<br class="fancyvrb" /><a 
+ id="x4-21050r3"></a>&#x00A0;&#x00A0;include&#x00A0;"dbSubExample.dbd"</div></div>
+<!--l. 425--><p class="nopar" >
+</p><!--l. 427--><p class="noindent" >When the DBD build rules find the created file <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">myexampleInclude.dbd</span></span></span>, the rules then call dbExpand which reads
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">myexampleInclude.dbd</span></span></span> to generate file <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">myexample.dbd</span></span></span>, and install it into <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;top&#x003E;/dbd</span></span></span>.
+</p><!--l. 430--><p class="noindent" >An arbitrary number of <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">myexample_SRCS</span></span></span> statements can be given. Names of the form <br 
+class="newline" /><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;name&#x003E;_registerRecordDeviceDriver.cpp,</span></span></span> are special; when they are seen the perl script <br 
+class="newline" /><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">registerRecordDeviceDriver.pl</span></span></span> is executed and given <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;name&#x003E;.dbd</span></span></span> as input. This script generates the
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;name&#x003E;_registerRecordDeviceDriver.cpp</span></span></span> file automatically.
+<a 
+ id="dx4-21051"></a>
+</p><!--l. 436--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">2.6    </span> <a 
+ id="x4-220002.6"></a>makeBaseApp.pl</h3>
+<!--l. 438--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">makeBaseApp.pl</span></span></span> is a perl script that creates application areas. It can create the following:
+</p>
+     <ul class="itemize1">
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;top&#x003E;/Makefile</span></span></span>
+     </li>
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;top&#x003E;/configure</span></span></span> &#8211; This directory contains the files needed by the EPICS build system.
+     </li>
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;top&#x003E;/xxxApp</span></span></span> &#8211; A set of directories and associated files for a major sub-module.
+     </li>
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;top&#x003E;/iocBoot</span></span></span> &#8211; A subdirectory and associated files.
+     </li>
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;top&#x003E;/iocBoot/iocxxx</span></span></span> &#8211; A subdirectory and files for a single ioc.</li></ul>
+<!--l. 448--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">makeBaseApp.pl</span></span></span> creates directories and then copies template files into the newly created directories while expanding
+macros in the template files. EPICS base provides two sets of template files: simple and example. These are meant for simple
+applications. Each site, however, can create its own set of template files which may provide additional functionality. This
+section describes the functionality of makeBaseApp itself, the next section provides details about the simple and example
+templates.
+</p><!--l. 454--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">2.6.1    </span> <a 
+ id="x4-230002.6.1"></a>Usage</h4>
+<!--l. 456--><p class="noindent" >makeBaseApp has four possible forms of command line:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-31">
+<div class="fancyvrb" id="fancyvrb31"><a 
+ id="x4-23002r1"></a>&#x00A0;&#x00A0;&#x003C;base&#x003E;/bin/&#x003C;arch&#x003E;/makeBaseApp.pl&#x00A0;-h</div></div>
+<!--l. 460--><p class="nopar" >Provides help.
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-32">
+<div class="fancyvrb" id="fancyvrb32"><a 
+ id="x4-23004r1"></a>&#x00A0;&#x00A0;&#x003C;base&#x003E;/bin/&#x003C;arch&#x003E;/makeBaseApp.pl&#x00A0;-l&#x00A0;[options]</div></div>
+<!--l. 465--><p class="nopar" >List the application templates available. This invocation does not alter the current directory.
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-33">
+<div class="fancyvrb" id="fancyvrb33"><a 
+ id="x4-23006r1"></a>&#x00A0;&#x00A0;&#x003C;base&#x003E;/bin/&#x003C;arch&#x003E;/makeBaseApp.pl&#x00A0;[-t&#x00A0;type]&#x00A0;[options]&#x00A0;app&#x00A0;...</div></div>
+<!--l. 470--><p class="nopar" >Create application directories.
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-34">
+<div class="fancyvrb" id="fancyvrb34"><a 
+ id="x4-23008r1"></a>&#x00A0;&#x00A0;&#x003C;base&#x003E;/bin/&#x003C;arch&#x003E;/makeBaseApp.pl&#x00A0;-i&#x00A0;-t&#x00A0;type&#x00A0;[options]&#x00A0;ioc&#x00A0;...</div></div>
+<!--l. 475--><p class="nopar" >Create ioc boot directories.
+</p><!--l. 478--><p class="noindent" >Options for all command forms:
+     </p><dl class="description"><dt class="description">
+ </dt><dd 
+class="description"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">-b</span><span 
+class="pcrr7t-">&#x00A0;base</span></span></span><br 
+class="newline" />Provides  the  full  path  to  EPICS  base.  If  not  specified,  the  value  is  taken  from  the  EPICS_BASE  entry  in
+     config/RELEASE. If the config directory does not exist, the path is taken from the command-line that was used
+     to invoke makeBaseApp
+     </dd><dt class="description">
+ </dt><dd 
+class="description"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">-T</span><span 
+class="pcrr7t-">&#x00A0;template</span></span></span><br 
+class="newline" />Set the template top directory (where the application templates are). If not specified, the template path is taken
+     from the TEMPLATE_TOP entry in config/RELEASE. If the config directory does not exist the path is taken
+     from the environment variable EPICS_MBA_TEMPLATE_TOP, or if this is not set the templates from EPICS
+     base are used.
+     </dd><dt class="description">
+ </dt><dd 
+class="description"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">-d</span></span></span><br 
+class="newline" />Verbose output (useful for debugging)</dd></dl>
+<!--l. 495--><p class="noindent" >Arguments unique to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">makeBaseApp.pl</span><span 
+class="pcrr7t-">&#x00A0;[-t</span><span 
+class="pcrr7t-">&#x00A0;type]</span><span 
+class="pcrr7t-">&#x00A0;[options]</span><span 
+class="pcrr7t-">&#x00A0;app</span><span 
+class="pcrr7t-">&#x00A0;...</span></span></span>:
+     </p><dl class="description"><dt class="description">
+ </dt><dd 
+class="description"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">app</span></span></span><br 
+class="newline" />One or more application names (the created directories will have &#8220;App&#8221; appended to this name)
+     </dd><dt class="description">
+ </dt><dd 
+class="description"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">-t</span><span 
+class="pcrr7t-">&#x00A0;type</span></span></span><br 
+class="newline" />Set the template type (use the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">-l</span></span></span> invocation to get a list of valid types). If this option is not used, type is taken
+     from the environment variable EPICS_MBA_DEF_APP_TYPE, or if that is not set the values &#8220;default&#8221; and
+     then &#8220;example&#8221; are tried.</dd></dl>
+<!--l. 506--><p class="noindent" >Arguments unique to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">makeBaseApp.pl</span><span 
+class="pcrr7t-">&#x00A0;-i</span><span 
+class="pcrr7t-">&#x00A0;[options]</span><span 
+class="pcrr7t-">&#x00A0;ioc</span><span 
+class="pcrr7t-">&#x00A0;...</span></span></span>:
+     </p><dl class="description"><dt class="description">
+ </dt><dd 
+class="description"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ioc</span></span></span><br 
+class="newline" />One or more IOC names (the created directories will have &#8220;ioc&#8221; prepended to this name).
+     </dd><dt class="description">
+ </dt><dd 
+class="description"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">-a</span><span 
+class="pcrr7t-">&#x00A0;arch</span></span></span><br 
+class="newline" />Set the IOC architecture (e.g. vxWorks-68040). If <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">-a</span><span 
+class="pcrr7t-">&#x00A0;arch</span></span></span> is not specified, you will be prompted.</dd></dl>
+<!--l. 517--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">2.6.2    </span> <a 
+ id="x4-240002.6.2"></a>Environment Variables:</h4>
+                                                                                         
+                                                                                         
+     <dl class="description"><dt class="description">
+ </dt><dd 
+class="description"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">EPICS_MBA_DEF_APP_TYPE</span></span></span><br 
+class="newline" />Application type you want to use as default
+     </dd><dt class="description">
+ </dt><dd 
+class="description"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">EPICS_MBA_TEMPLATE_TOP</span></span></span><br 
+class="newline" />Template top directory</dd></dl>
+<!--l. 527--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">2.6.3    </span> <a 
+ id="x4-250002.6.3"></a>Description</h4>
+<!--l. 529--><p class="noindent" >To create a new <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;top&#x003E;</span></span></span> issue the commands:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-35">
+<div class="fancyvrb" id="fancyvrb35"><a 
+ id="x4-25002r1"></a>&#x00A0;&#x00A0;mkdir&#x00A0;&#x003C;top&#x003E;<br class="fancyvrb" /><a 
+ id="x4-25004r2"></a>&#x00A0;&#x00A0;cd&#x00A0;&#x003C;top&#x003E;<br class="fancyvrb" /><a 
+ id="x4-25006r3"></a>&#x00A0;&#x00A0;&#x003C;base&#x003E;/bin/&#x003C;arch&#x003E;/makeBaseApp.pl&#x00A0;-t&#x00A0;&#x003C;type&#x003E;&#x00A0;&#x003C;app&#x003E;&#x00A0;...
+<br class="fancyvrb" /><a 
+ id="x4-25008r4"></a>&#x00A0;&#x00A0;&#x003C;base&#x003E;/bin/&#x003C;arch&#x003E;/makeBaseApp.pl&#x00A0;-i&#x00A0;-t&#x00A0;&#x003C;type&#x003E;&#x00A0;&#x003C;ioc&#x003E;&#x00A0;...</div></div>
+<!--l. 536--><p class="nopar" >
+</p><!--l. 538--><p class="noindent" >makeBaseApp does the following:
+</p>
+     <ul class="itemize1">
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">EPICS_BASE</span></span></span> is located by checking the following in order:
+         <ul class="itemize2">
+         <li class="itemize">If the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">-b</span></span></span> option is specified its value is used.
+         </li>
+         <li class="itemize">If a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;top&#x003E;/configure/RELEASE</span></span></span> file exists and defines a value for <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">EPICS_BASE</span></span></span> it is used.
+         </li>
+         <li class="itemize">It is obtained from the invocation of the makeBaseApp program. For this to work, the full path name to the
+         <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">makeBaseApp.pl</span></span></span> script in the EPICS base release you are using must be given.</li></ul>
+     </li>
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">TEMPLATE_TOP</span></span></span> is located in a similar fashion:
+         <ul class="itemize2">
+         <li class="itemize">If the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">-T</span></span></span> option is specified its value is used.
+         </li>
+         <li class="itemize">If a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;top&#x003E;/configure/RELEASE</span></span></span> file exists and defines a value for <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">TEMPLATE_TOP</span></span></span> it is used.
+         </li>
+         <li class="itemize">If <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">EPICS_MBA_TEMPLATE_TOP</span></span></span> is defined its value is used.
+         </li>
+         <li class="itemize">It is set equal to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;epics_base&#x003E;/templates/makeBaseApp/top</span></span></span></li></ul>
+     </li>
+     <li class="itemize">If <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">-l</span></span></span> is specified the list of application types is listed and makeBaseApp terminates.
+     </li>
+     <li class="itemize">If <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">-i</span></span></span> is specified and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">-a</span></span></span> is not then the user is prompted for the IOC architecture.
+     </li>
+     <li class="itemize">The application type is determined by checking the following in order:
+         <ul class="itemize2">
+         <li class="itemize">If <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">-t</span></span></span> is specified it is used.
+         </li>
+         <li class="itemize">If <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">EPICS_MBA_DEF_APP_TYPE</span></span></span> is defined its value is used.
+         </li>
+         <li class="itemize">If a template <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">defaultApp</span></span></span> exists, the application type is set equal to default.
+                                                                                         
+                                                                                         
+         </li>
+         <li class="itemize">If a template <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">exampleApp</span></span></span> exists, the application type is set equal to example.</li></ul>
+     </li>
+     <li class="itemize">If the application type is not found in <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">TEMPLATE_TOP</span></span></span>, makeBaseApp issues an error and terminates.
+     </li>
+     <li class="itemize">If <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">Makefile</span></span></span> does not exist, it is created.
+     </li>
+     <li class="itemize">If directory <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">configure</span></span></span> does not exist, it is created and populated with all the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">configure</span></span></span> files.
+     </li>
+     <li class="itemize">If <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">-i</span></span></span> is specified:
+         <ul class="itemize2">
+         <li class="itemize">If directory <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocBoot</span></span></span> does not exist, it is created and the files from the template boot directory are copied
+         into it.
+         </li>
+         <li class="itemize">For  each  <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;ioc&#x003E;</span></span></span> specified  on  the  command  line  a  directory  <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocBoot/ioc&#x003C;ioc&#x003E;</span></span></span> is  created  and
+         populated with the files from the template (with <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ReplaceLine()</span></span></span> tag replacement, see below).</li></ul>
+     </li>
+     <li class="itemize">If <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">-i</span></span></span> is NOT specified:
+         <ul class="itemize2">
+         <li class="itemize">For each <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;app&#x003E;</span></span></span> specified on the command line a directory <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;app&#x003E;App</span></span></span> is created and populated with the
+         directory tree from the template (with <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ReplaceLine()</span></span></span> tag replacement, see below).</li></ul>
+     </li></ul>
+<!--l. 602--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">2.6.4    </span> <a 
+ id="x4-260002.6.4"></a>Tag Replacement within a Template</h4>
+<!--l. 604--><p class="noindent" >When copying certain files from the template to the new application structure, makeBaseApp replaces some predefined tags in
+the name or text of the files concerned with values that are known at the time. An application template can extend this
+functionality as follows:
+</p>
+     <ul class="itemize1">
+     <li class="itemize">Two perl subroutines are defined within makeBaseApp:
+         <dl class="description"><dt class="description">
+      </dt><dd 
+class="description"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ReplaceFilename</span></span></span><br 
+class="newline" />This substitutes for the following in names of any file taken from the templates.
+                                                                                         
+                                                                                         
+         <div class="verbatim" id="verbatim-36">
+         <div class="fancyvrb" id="fancyvrb36"><a 
+ id="x4-26002r1"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;_APPNAME_<br class="fancyvrb" /><a 
+ id="x4-26004r2"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;_APPTYPE_</div></div>
+         <!--l. 617--><p class="nopar" >
+         </p></dd><dt class="description">
+      </dt><dd 
+class="description"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ReplaceLine</span></span></span><br 
+class="newline" />This substitutes for the following in each line of each file taken from the templates:
+                                                                                         
+                                                                                         
+         <div class="verbatim" id="verbatim-37">
+         <div class="fancyvrb" id="fancyvrb37"><a 
+ id="x4-26006r1"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;_USER_<br class="fancyvrb" /><a 
+ id="x4-26008r2"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;_EPICS_BASE_<br class="fancyvrb" /><a 
+ id="x4-26010r3"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;_ARCH_<br class="fancyvrb" /><a 
+ id="x4-26012r4"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;_APPNAME_<br class="fancyvrb" /><a 
+ id="x4-26014r5"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;_APPTYPE_
+         <br class="fancyvrb" /><a 
+ id="x4-26016r6"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;_TEMPLATE_TOP_<br class="fancyvrb" /><a 
+ id="x4-26018r7"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;_IOC_</div></div>
+         <!--l. 630--><p class="nopar" ></p></dd></dl>
+     </li>
+     <li class="itemize">If the application type directory has a file named <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">Replace.pl</span></span></span>, this file may:
+         <ul class="itemize2">
+         <li class="itemize">Replace one or both of the above subroutines with its own versions.
+         </li>
+         <li class="itemize">Provide  a  subroutine  <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ReplaceFilenameHook($file)</span></span></span> which  will  be  called  at  the  end  of  the
+         subroutine <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ReplaceFilename</span></span></span> described above.
+         </li>
+         <li class="itemize">Provide a subroutine <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ReplaceLineHook($line)</span></span></span> which is called at the end of <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ReplaceLine</span></span></span>.
+         </li>
+         <li class="itemize">Include other code which is run after the command line options have been interpreted.</li></ul>
+     </li></ul>
+<!--l. 647--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">2.6.5    </span> <a 
+ id="x4-270002.6.5"></a>makeBaseApp templetes provided with base</h4>
+<!--l. 649--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">2.6.5.1    </span> <a 
+ id="x4-280002.6.5.1"></a>support</h5>
+<!--l. 651--><p class="noindent" >This creates files appropriate for building a support application.
+</p><!--l. 653--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">2.6.5.2    </span> <a 
+ id="x4-290002.6.5.2"></a>ioc</h5>
+<!--l. 655--><p class="noindent" >Without the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">-i</span></span></span> option, this creates files appropriate for building an ioc application. With the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">-i</span></span></span> option it creates an ioc boot
+directory.
+                                                                                         
+                                                                                         
+</p><!--l. 658--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">2.6.5.3    </span> <a 
+ id="x4-300002.6.5.3"></a>example</h5>
+<!--l. 660--><p class="noindent" >Without the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">-i</span></span></span> option it creates files for running an example. Both a support and an ioc application are built. With the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">-i</span></span></span>
+option it creates an ioc boot directory that can be used to run the example.
+</p><!--l. 664--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">2.6.5.4    </span> <a 
+ id="x4-310002.6.5.4"></a>caClient</h5>
+<!--l. 666--><p class="noindent" >This builds two Channel Access clients.
+</p><!--l. 668--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">2.6.5.5    </span> <a 
+ id="x4-320002.6.5.5"></a>caServer</h5>
+<!--l. 670--><p class="noindent" >This builds an example Portable Access Server.
+</p><!--l. 672--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">2.7    </span> <a 
+ id="x4-330002.7"></a>vxWorks boot parameters</h3>
+<!--l. 674--><p class="noindent" >The vxWorks boot parameters are set via the console serial port on your IOC. Life is much easier if you can connect the console
+to a terminal window on your workstation. On Linux the &#8216;screen&#8217; program lets you communicate through a local serial port; run
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">screen</span><span 
+class="pcrr7t-">&#x00A0;/dev/ttyS0</span></span></span> if the IOC is connected to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ttyS0</span></span></span>.
+</p><!--l. 678--><p class="noindent" >The vxWorks boot parameters look something like the following:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-38">
+<div class="fancyvrb" id="fancyvrb38"><a 
+ id="x4-33002r1"></a>&#x00A0;&#x00A0;boot&#x00A0;device&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;:&#x00A0;xxx<br class="fancyvrb" /><a 
+ id="x4-33004r2"></a>&#x00A0;&#x00A0;processor&#x00A0;number&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;:&#x00A0;0<br class="fancyvrb" /><a 
+ id="x4-33006r3"></a>&#x00A0;&#x00A0;host&#x00A0;name&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;:&#x00A0;xxx
+<br class="fancyvrb" /><a 
+ id="x4-33008r4"></a>&#x00A0;&#x00A0;file&#x00A0;name&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;:&#x00A0;&#x003C;full&#x00A0;path&#x00A0;to&#x00A0;board&#x00A0;support&#x003E;/vxWorks
+<br class="fancyvrb" /><a 
+ id="x4-33010r5"></a>&#x00A0;&#x00A0;inet&#x00A0;on&#x00A0;ethernet&#x00A0;(e)&#x00A0;&#x00A0;&#x00A0;:&#x00A0;xxx.xxx.xxx.xxx:&#x003C;netmask&#x003E;<br class="fancyvrb" /><a 
+ id="x4-33012r6"></a>&#x00A0;&#x00A0;host&#x00A0;inet&#x00A0;(h)&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;:&#x00A0;xxx.xxx.xxx.xxx
+<br class="fancyvrb" /><a 
+ id="x4-33014r7"></a>&#x00A0;&#x00A0;user&#x00A0;(u)&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;:&#x00A0;xxx<br class="fancyvrb" /><a 
+ id="x4-33016r8"></a>&#x00A0;&#x00A0;ftp&#x00A0;password&#x00A0;(pw)&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;:&#x00A0;xxx
+<br class="fancyvrb" /><a 
+ id="x4-33018r9"></a>&#x00A0;&#x00A0;flags&#x00A0;(f)&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;:&#x00A0;0x0<br class="fancyvrb" /><a 
+ id="x4-33020r10"></a>&#x00A0;&#x00A0;target&#x00A0;name&#x00A0;(tn)&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;:&#x00A0;&#x003C;hostname&#x00A0;for&#x00A0;this&#x00A0;inet&#x00A0;address&#x003E;
+<br class="fancyvrb" /><a 
+ id="x4-33022r11"></a>&#x00A0;&#x00A0;startup&#x00A0;script&#x00A0;(s)&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;:&#x00A0;&#x003C;top&#x003E;/iocBoot/iocmyexample/st.cmd</div></div>
+<!--l. 692--><p class="nopar" >The actual values for each field are site and IOC dependent. Two fields that you can change at will are the vxWorks boot image
+and the location of the startup script.
+</p><!--l. 696--><p class="noindent" >Note that the full path name for the correct board support boot image must be specified. If bootp is used the same information
+will need to be placed in the bootp host&#8217;s configuration database instead.
+</p><!--l. 699--><p class="noindent" >When your boot parameters are set properly, just press the reset button on your IOC, or use the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">@</span></span></span> command to commence
+booting. You will find it VERY convenient to have the console port of the IOC attached to a scrolling window on your
+workstation.
+</p><!--l. 702--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">2.8    </span> <a 
+ id="x4-340002.8"></a>RTEMS boot procedure</h3>
+<!--l. 704--><p class="noindent" >RTEMS uses the vendor-supplied bootstrap mechanism so the method for booting an IOC depends upon the hardware in
+use.
+</p><!--l. 706--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">2.8.1    </span> <a 
+ id="x4-350002.8.1"></a>Booting from a BOOTP/DHCP/TFTP server</h4>
+<!--l. 708--><p class="noindent" >Many boards can use BOOTP/DHCP to read their network configuration and then use TFTP to read the applicaion program.
+RTEMS can then use TFTP or NFS to read startup scripts and configuration files. If you are using TFTP to read
+the startup scripts and configuration files you must install the EPICS application files on your TFTP server as
+follows:
+</p>
+     <ul class="itemize1">
+     <li class="itemize">Copy all <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">db/xxx</span></span></span> files to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;tftpbase&#x003E;/epics/&#x003C;target_hostname\&#x003E;/db/xxx</span></span></span>.
+     </li>
+     <li class="itemize">Copy all <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbd/xxx</span></span></span> files to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;tftpbase&#x003E;/epics/&#x003C;target_hostname&#x003E;/dbd/xxx</span></span></span>.
+     </li>
+     <li class="itemize">Copy the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">st.cmd</span></span></span> script to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x003C;tftpbase&#x003E;/epics/&#x003C;target_hostname&#x003E;/st.cmd</span></span></span>.</li></ul>
+<!--l. 720--><p class="noindent" >Use DHCP site-specific option 129 to specify the path to the IOC startup script.
+                                                                                         
+                                                                                         
+</p><!--l. 722--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">2.8.2    </span> <a 
+ id="x4-360002.8.2"></a>Motorola PPCBUG boot parameters</h4>
+<a 
+ id="dx4-36001"></a>
+<!--l. 725--><p class="noindent" >Motorola single-board computers which employ PPCBUG should have their &#8216;NIOT&#8217; parameters set up like:
+</p><!--l. 727--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">Controller</span><span 
+class="pcrr7t-">&#x00A0;LUN</span><span 
+class="pcrr7t-">&#x00A0;=00</span></span></span><br 
+class="newline" /><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">Device</span><span 
+class="pcrr7t-">&#x00A0;LUN</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;=00</span></span></span><br 
+class="newline" /><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">Node</span><span 
+class="pcrr7t-">&#x00A0;Control</span><span 
+class="pcrr7t-">&#x00A0;Memory</span><span 
+class="pcrr7t-">&#x00A0;Address</span><span 
+class="pcrr7t-">&#x00A0;=FFE10000</span></span></span><br 
+class="newline" /><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">Client</span><span 
+class="pcrr7t-">&#x00A0;IP</span><span 
+class="pcrr7t-">&#x00A0;Address</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;=</span></span></span>&#8216;Dotted-decimal&#8217; IP address of IOC<br 
+class="newline" /><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">Server</span><span 
+class="pcrr7t-">&#x00A0;IP</span><span 
+class="pcrr7t-">&#x00A0;Address</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;=</span></span></span>&#8216;Dotted-decimal&#8217; IP address of TFTP/NFS server<br 
+class="newline" /><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">Subnet</span><span 
+class="pcrr7t-">&#x00A0;IP</span><span 
+class="pcrr7t-">&#x00A0;Address</span><span 
+class="pcrr7t-">&#x00A0;Mask</span><span 
+class="pcrr7t-">&#x00A0;=</span></span></span>&#8216;Dotted-decimal&#8217; IP address of subnet mask (255.255.255.0 for class C
+subnet)<br 
+class="newline" /><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">Broadcast</span><span 
+class="pcrr7t-">&#x00A0;IP</span><span 
+class="pcrr7t-">&#x00A0;Address</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;=</span></span></span>&#8216;Dotted-decimal&#8217; IP address of subnet broadcast address<br 
+class="newline" /><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">Gateway</span><span 
+class="pcrr7t-">&#x00A0;IP</span><span 
+class="pcrr7t-">&#x00A0;Address</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;=</span></span></span>&#8216;Dotted-decimal&#8217; IP address of network gateway (0.0.0.0 if none)<br 
+class="newline" /><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">Boot</span><span 
+class="pcrr7t-">&#x00A0;File</span><span 
+class="pcrr7t-">&#x00A0;Name</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;=</span></span></span>Path to application bootable image (..../bin/RTEMS-mvme2100/test.boot)<br 
+class="newline" /><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">Argument</span><span 
+class="pcrr7t-">&#x00A0;File</span><span 
+class="pcrr7t-">&#x00A0;Name</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;=</span></span></span>Path to application startup script (..../iocBoot/ioctest/st.cmd)<br 
+class="newline" /><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">Boot</span><span 
+class="pcrr7t-">&#x00A0;File</span><span 
+class="pcrr7t-">&#x00A0;Load</span><span 
+class="pcrr7t-">&#x00A0;Address</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;=001F0000</span></span></span> (actual value depends on BSP)<br 
+class="newline" /><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">Boot</span><span 
+class="pcrr7t-">&#x00A0;File</span><span 
+class="pcrr7t-">&#x00A0;Execution</span><span 
+class="pcrr7t-">&#x00A0;Address</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;=001F0000</span></span></span> (actual value depends on BSP)<br 
+class="newline" /><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">Boot</span><span 
+class="pcrr7t-">&#x00A0;File</span><span 
+class="pcrr7t-">&#x00A0;Execution</span><span 
+class="pcrr7t-">&#x00A0;Delay</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;=00000000</span></span></span><br 
+class="newline" /><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">Boot</span><span 
+class="pcrr7t-">&#x00A0;File</span><span 
+class="pcrr7t-">&#x00A0;Length</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;=00000000</span></span></span><br 
+class="newline" /><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">Boot</span><span 
+class="pcrr7t-">&#x00A0;File</span><span 
+class="pcrr7t-">&#x00A0;Byte</span><span 
+class="pcrr7t-">&#x00A0;Offset</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;=00000000</span></span></span><br 
+class="newline" /><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">BOOTP/RARP</span><span 
+class="pcrr7t-">&#x00A0;Request</span><span 
+class="pcrr7t-">&#x00A0;Retry</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;=00</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span></span></span><br 
+class="newline" /><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">TFTP/ARP</span><span 
+class="pcrr7t-">&#x00A0;Request</span><span 
+class="pcrr7t-">&#x00A0;Retry</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;=00</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span></span></span><br 
+class="newline" /><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">Trace</span><span 
+class="pcrr7t-">&#x00A0;Character</span><span 
+class="pcrr7t-">&#x00A0;Buffer</span><span 
+class="pcrr7t-">&#x00A0;Address</span><span 
+class="pcrr7t-">&#x00A0;=00000000</span></span></span>
+</p><!--l. 747--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">2.8.3    </span> <a 
+ id="x4-370002.8.3"></a>Motorola MOTLOAD boot parameters</h4>
+<a 
+ id="dx4-37001"></a>
+<!--l. 750--><p class="noindent" >Motrola single-board computers which employ MOTLOAD should have their network &#8216;Global Environment Variable&#8217;
+parameters set up like:
+</p><!--l. 752--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">mot-/dev/enet0-cipa=</span></span></span>&#8216;Dotted-decimal&#8217; IP address of IOC<br 
+class="newline" /><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">mot-/dev/enet0-sipa=</span></span></span>&#8216;Dotted-decimal&#8217; IP address of TFTP/NFS server<br 
+class="newline" /><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">mot-/dev/enet0-snma=</span></span></span>&#8216;Dotted-decimal&#8217; IP address of subnet mask (255.255.255.0 for class C subnet)<br 
+class="newline" /><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">mot-/dev/enet0-gipa=</span></span></span>&#8216;Dotted-decimal&#8217; IP address of network gateway (omit if none)<br 
+class="newline" /><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">mot-/dev/enet0-file=</span></span></span>Path to application bootable image (..../bin/RTEMS-mvme5500/test.boot)<br 
+class="newline" /><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">rtems-client-name=</span></span></span>IOC name (mot-/dev/enet0-cipa will be used if this parameter is missing)<br 
+class="newline" /><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">rtems-dns-server=</span></span></span>&#8217;Dotted-decimal&#8217; IP address of domain name server (omit if none)<br 
+class="newline" /><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">rtems-dns-domainname=</span></span></span>Domain name (if this parameter is omitted the compiled-in value will be used)<br 
+class="newline" /><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">epics-script=</span></span></span>Path to application startup script (..../iocBoot/ioctest/st.cmd)
+</p><!--l. 763--><p class="noindent" >The <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">mot-script-boot</span></span></span> parameter should be set up like:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-39">
+<div class="fancyvrb" id="fancyvrb39"><a 
+ id="x4-37003r1"></a>&#x00A0;&#x00A0;tftpGet&#x00A0;-a4000000&#x00A0;-cxxx&#x00A0;-sxxx&#x00A0;-mxxx&#x00A0;-gxxx&#x00A0;-d/dev/enet0
+<br class="fancyvrb" /><a 
+ id="x4-37005r2"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;-f..../bin/RTEMS-mvme5500/test.boot<br class="fancyvrb" /><a 
+ id="x4-37007r3"></a>&#x00A0;&#x00A0;netShut<br class="fancyvrb" /><a 
+ id="x4-37009r4"></a>&#x00A0;&#x00A0;go&#x00A0;-a4000000</div></div>
+<!--l. 770--><p class="nopar" >
+</p><!--l. 772--><p class="noindent" >where the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">-c</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">-s</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">-m</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">-g</span></span></span> values should match the cipa, sipa, snma and gipa values, respectively and the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">-f</span></span></span> value should
+match the file value.
+</p><!--l. 774--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">2.8.4    </span> <a 
+ id="x4-380002.8.4"></a>RTEMS NFS access</h4>
+<!--l. 776--><p class="noindent" >For IOCs which use NFS for remote file access the EPICS initialization code uses the startup script pathname to
+determine the parameters for the initial NFS mount. If the startup script pathname begins with a &#8216;<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">/</span></span></span>&#8217; the first
+component of the pathname is used as both the server path and the local mount point. If the startup script pathname
+does not begin with a &#8216;<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">/</span></span></span>&#8217; the first component of the pathname is used as the local mount point and the server
+path is &#8220;<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">/tftpboot/</span></span></span>&#8221; followed by the first component of the pathname. This allows the NFS client used for
+EPICS file access and the TFTP client used for bootstrapping the application to have a similar view of the remote
+filesystem.
+</p><!--l. 781--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">2.8.5    </span> <a 
+ id="x4-390002.8.5"></a>RTEMS &#8216;Cexp&#8217;</h4>
+<a 
+ id="dx4-39001"></a>
+<!--l. 783--><p class="noindent" >The RTEMS &#8216;Cexp&#8217; add-on package provides the ability to load object modules at application run-time. If your
+RTEMS build includes this package you can load RTEMS IOC applications in the same fashion as vxWorks IOC
+applications.
+                                                                                         
+                                                                                         
+</p>
+<!--l. 1--><div class="crosslinks"><p class="noindent">[<a 
+href="AppDevGuidech3.html" >next</a>] [<a 
+href="AppDevGuidech1.html" >prev</a>] [<a 
+href="AppDevGuidech1.html#tailAppDevGuidech1.html" >prev-tail</a>] [<a 
+href="AppDevGuidech2.html" >front</a>] [<a 
+href="AppDevGuide.html#AppDevGuidech2.html" >up</a>] </p></div>
+<!--l. 1--><p class="noindent" ><a 
+ id="tailAppDevGuidech2.html"></a> </p> 
+</body></html> 

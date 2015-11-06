@@ -1,0 +1,2247 @@
+<?xml version="1.0" encoding="iso-8859-1" ?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">  
+<!--http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd-->  
+<html xmlns="http://www.w3.org/1999/xhtml"  
+> 
+<head><title>17 Database Scanning</title> 
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" /> 
+<meta name="generator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
+<meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
+<!-- xhtml,2,html --> 
+<meta name="src" content="AppDevGuide.tex" /> 
+<meta name="date" content="2015-11-06 12:47:00" /> 
+<link rel="stylesheet" type="text/css" href="AppDevGuide.css" /> 
+</head><body 
+>
+<!--l. 1--><div class="crosslinks"><p class="noindent">[<a 
+href="AppDevGuidech18.html" >next</a>] [<a 
+href="AppDevGuidech16.html" >prev</a>] [<a 
+href="AppDevGuidech16.html#tailAppDevGuidech16.html" >prev-tail</a>] [<a 
+href="#tailAppDevGuidech17.html">tail</a>] [<a 
+href="AppDevGuide.html#AppDevGuidech17.html" >up</a>] </p></div>
+<h2 class="chapterHead"><span class="titlemark">Chapter&#x00A0;17</span><br /><a 
+ id="x19-70200017"></a>Database Scanning</h2>
+<h3 class="sectionHead"><span class="titlemark">17.1    </span> <a 
+ id="x19-70300017.1"></a>Overview</h3>
+<!--l. 6--><p class="noindent" >Database scanning is the mechanism for deciding when to process a record. Five types of scanning are possible:
+</p>
+<a 
+ id="dx19-703001"></a>
+     <ul class="itemize1">
+     <li class="itemize">Periodic:  A  record  can  be  processed  periodically.  A  number  of  standard  time  intervals  are  supported  and
+     additional periods can be added.
+<a 
+ id="dx19-703002"></a>
+     </li>
+     <li class="itemize">Event: Event scanning is based on the posting of a named or numbered event by another component of the
+     software.
+<a 
+ id="dx19-703003"></a>
+     </li>
+     <li class="itemize">I/O Event: The original meaning of this scan type is a request for record processing as a result of a hardware
+     interrupt. The mechanism supports hardware interrupts as well as software generated events.
+<a 
+ id="dx19-703004"></a>
+     </li>
+     <li class="itemize">Passive: Passive records are processed only via requests to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbScanPassive</span></span></span>. This happens when database
+     links  (Forward,  Input,  or  Output),  which  have  been  declared  &#8220;Process  Passive&#8221;  are  accessed  during  record
+     processing. It can also happen as a result of <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbPutField</span></span></span> being called (which normally results from a Channel
+     Access put request).
+<a 
+ id="dx19-703005"></a>
+     </li>
+     <li class="itemize">Scan Once: In order to provide for caching puts, the scanning system provides a routine <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">scanOnce</span></span></span> which
+     arranges for a record to be processed one time.
+     </li></ul>
+<!--l. 31--><p class="noindent" >This chapter explains database scanning in increasing order of detail. It first explains database fields involved with scanning. It
+next discusses the interface to the scanning system. The last section gives a brief overview of how the scanners are
+implemented.
+</p><!--l. 36--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">17.2    </span> <a 
+ id="x19-70400017.2"></a>Scan Related Database Fields</h3>
+<a 
+ id="dx19-704001"></a>
+<!--l. 39--><p class="noindent" >The following fields are normally set from within a database configuration tool. It is quite permissible however to change any of
+these scan-related fields of a record dynamically. For example, a display manager screen could tie a menu control to the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">SCAN</span></span></span>
+field of a record and allow the operator to dynamically change the scan mechanism.
+                                                                                         
+                                                                                         
+</p><!--l. 43--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">17.2.1    </span> <a 
+ id="x19-70500017.2.1"></a>SCAN</h4>
+<a 
+ id="dx19-705001"></a>
+<!--l. 46--><p class="noindent" >This field, which specifies the scan mechanism, has an associated menu with the following choices:
+<a 
+ id="dx19-705002"></a>
+     </p><dl class="description"><dt class="description">
+ </dt><dd 
+class="description"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">Passive</span></span></span> - Passively scanned.
+<a 
+ id="dx19-705003"></a>
+     </dd><dt class="description">
+ </dt><dd 
+class="description"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">Event</span></span></span> - Event Scanned. The field <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">EVNT</span></span></span> specifies the event name or number.
+<a 
+ id="dx19-705004"></a>
+     </dd><dt class="description">
+ </dt><dd 
+class="description"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">I/O</span><span 
+class="pcrr7t-">&#x00A0;Intr</span></span></span> - I/O Event scanned.
+     </dd><dt class="description">
+ </dt><dd 
+class="description"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">10</span><span 
+class="pcrr7t-">&#x00A0;Second</span></span></span> - Periodically scanned every 10 seconds
+     </dd><dt class="description">
+ </dt><dd 
+class="description">...
+     </dd><dt class="description">
+ </dt><dd 
+class="description"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">.1</span><span 
+class="pcrr7t-">&#x00A0;Second</span></span></span> - Periodically scanned every .1 seconds
+     </dd></dl>
+<!--l. 66--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">17.2.2    </span> <a 
+ id="x19-70600017.2.2"></a>PHAS - Scan Phase</h4>
+<a 
+ id="dx19-706001"></a>
+<!--l. 69--><p class="noindent" >This 16-bit integer field determines relative processing order for records that are in the same scan set. For example all records
+periodically scanned at a 2 second rate belong to the same scan set. All Event scanned records with the same <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">EVNT</span></span></span> belong to
+the same scan set, etc. For records in the same scan set, all records with <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">PHAS</span></span></span>=0 are processed before records with <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">PHAS</span></span></span>=1,
+which are processed before all records with <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">PHAS</span></span></span>=2, etc.
+</p><!--l. 74--><p class="noindent" >In general it is not a good idea to rely on <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">PHAS</span></span></span> to enforce processing order. It is better to use database links.
+</p><!--l. 77--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">17.2.3    </span> <a 
+ id="x19-70700017.2.3"></a>EVNT - Named or Numbered Events</h4>
+<a 
+ id="dx19-707001"></a>
+<!--l. 80--><p class="noindent" >This field is only used when <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">SCAN</span></span></span> is set to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">Event</span></span></span>, when <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">EVNT</span></span></span> specifies the associated database event name or number. For
+named events the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">EVNT</span></span></span> field should be set to the event name. Event names are compared using <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">strcmp()</span></span></span>, so case and
+leading/trailing spaces must all match. To use the numeric event trigger routine <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">post_event()</span></span></span> the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">EVNT</span></span></span> field must hold an
+integer in the range 1...255.
+                                                                                         
+                                                                                         
+</p><!--l. 85--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">17.2.4    </span> <a 
+ id="x19-70800017.2.4"></a>PRIO - Scheduling Priority </h4>
+<a 
+ id="dx19-708001"></a>
+<!--l. 88--><p class="noindent" >This field can be used by any software component that needs to specify a scheduling priority. The Event and I/O event scan
+types use this field.
+</p><!--l. 91--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">17.3    </span> <a 
+ id="x19-70900017.3"></a>Scan Related Software Components</h3>
+<!--l. 93--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">17.3.1    </span> <a 
+ id="x19-71000017.3.1"></a>menuScan.dbd</h4>
+<a 
+ id="dx19-710001"></a>
+<!--l. 96--><p class="noindent" >This file holds the definition of the menu used by the field <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">SCAN</span></span></span>. The default definition is:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-219">
+<div class="fancyvrb" id="fancyvrb219"><a 
+ id="x19-710003r1"></a>&#x00A0;&#x00A0;menu(menuScan)&#x00A0;{<br class="fancyvrb" /><a 
+ id="x19-710005r2"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;choice(menuScanPassive,"Passive")<br class="fancyvrb" /><a 
+ id="x19-710007r3"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;choice(menuScanEvent,"Event")
+<br class="fancyvrb" /><a 
+ id="x19-710009r4"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;choice(menuScanI_O_Intr,"I/O&#x00A0;Intr")<br class="fancyvrb" /><a 
+ id="x19-710011r5"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;choice(menuScan10_second,"10&#x00A0;second")
+<br class="fancyvrb" /><a 
+ id="x19-710013r6"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;choice(menuScan5_second,"5&#x00A0;second")<br class="fancyvrb" /><a 
+ id="x19-710015r7"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;choice(menuScan2_second,"2&#x00A0;second")
+<br class="fancyvrb" /><a 
+ id="x19-710017r8"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;choice(menuScan1_second,"1&#x00A0;second")<br class="fancyvrb" /><a 
+ id="x19-710019r9"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;choice(menuScan_5_second,".5&#x00A0;second")
+<br class="fancyvrb" /><a 
+ id="x19-710021r10"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;choice(menuScan_2_second,".2&#x00A0;second")<br class="fancyvrb" /><a 
+ id="x19-710023r11"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;choice(menuScan_1_second,".1&#x00A0;second")<br class="fancyvrb" /><a 
+ id="x19-710025r12"></a>&#x00A0;&#x00A0;}</div></div>
+<!--l. 112--><p class="nopar" >
+</p><!--l. 114--><p class="noindent" >The first three choices must appear in the order and location shown. The remaining definitions are for the periodic
+scan rates, which should appear in the order slowest to fastest (the order directly controls the thread priority
+assigned to the particular scan rate, and faster scan rates should be assigned higher thread priorities). At IOC
+initialization, the menu choice strings are read while the scan system is being initialized. The number of periodic
+scan rates and the period of each rate is determined from the menu choice strings. Thus periodic scan rates
+can be changed by copying <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">menuScan.dbd</span></span></span> into the IOC&#8217;s build directory and modifying the set of choices
+defined therein. The choice names such as <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">menuScan10_second</span></span></span> are not used in this case, but must still be
+unique. Each periodic choice string must begin with a number and be followed by any of the following unit
+strings:
+     </p><dl class="description"><dt class="description">
+ </dt><dd 
+class="description"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">second</span></span></span> or <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">seconds</span></span></span>
+     </dd><dt class="description">
+ </dt><dd 
+class="description"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">minute</span></span></span> or <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">minutes</span></span></span>
+     </dd><dt class="description">
+ </dt><dd 
+class="description"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">hour</span></span></span> or <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">hours</span></span></span>
+     </dd><dt class="description">
+ </dt><dd 
+class="description"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">Hz</span></span></span> or <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">Hertz</span></span></span></dd></dl>
+<a 
+ id="dx19-710026"></a>
+<!--l. 130--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">17.3.2    </span> <a 
+ id="x19-71100017.3.2"></a>dbScan.h</h4>
+<!--l. 132--><p class="noindent" >All software components that interact with the scanning system must include this file.
+</p><!--l. 134--><p class="noindent" >The most important definitions in this file are:
+</p>
+<!--l. 136-->
+     <div class="lstlisting" id="listing-310"><span class="label"><a 
+ id="x19-711001r1"></a></span><span 
+class="pcrb7t-">#</span><span 
+class="pcrb7t-">define</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">SCAN_PASSIVE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">menuScanPassive</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-711002r2"></a></span><span 
+class="pcrb7t-">#</span><span 
+class="pcrb7t-">define</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">SCAN_EVENT</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">menuScanEvent</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-711003r3"></a></span><span 
+class="pcrb7t-">#</span><span 
+class="pcrb7t-">define</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">SCAN_IO_EVENT</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">menuScanI_O_Intr</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-711004r4"></a></span><span 
+class="pcrb7t-">#</span><span 
+class="pcrb7t-">define</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">SCAN_1ST_PERIODIC</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">menuScanI_O_Intr</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">+</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">1)</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-711005r5"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-711006r6"></a></span><span 
+class="pcrb7t-">typedef</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">ioscan_head</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">IOSCANPVT</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-711007r7"></a></span><span 
+class="pcrb7t-">typedef</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">event_list</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">EVENTPVT</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-711008r8"></a></span><span 
+class="pcrb7t-">typedef</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(&#x22C6;</span><span 
+class="pcrr7t-">io_scan_complete</span><span 
+class="pcrr7t-">)(</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">usr</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">IOSCANPVT</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">prio</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-711009r9"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-711010r10"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">scanInit</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-711011r11"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">scanRun</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-711012r12"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">scanPause</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-711013r13"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">scanShutdown</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-711014r14"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-711015r15"></a></span><span 
+class="pcrr7t-">EVENTPVT</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">eventNameToHandle</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">event</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-711016r16"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">postEvent</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">EVENTPVT</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">epvt</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">EPICS_DEPRECATED</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-711017r17"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">post_event</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">event</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-711018r18"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">scanAdd</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbCommon</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-711019r19"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">scanDelete</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbCommon</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-711020r20"></a></span><span 
+class="pcrb7t-">double</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">scanPeriod</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">scan</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-711021r21"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">scanOnce</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbCommon</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">precord</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-711022r22"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">scanOnceSetQueueSize</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">size</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-711023r23"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-711024r24"></a></span><span 
+class="pcrro7t-">/&#x22C6;</span><span 
+class="pcrro7t-">print</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">periodic</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">lists</span><span 
+class="pcrro7t-">&#x22C6;/</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-711025r25"></a></span><span 
+class="pcrr7t-">epicsShareFunc</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">scanppl</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">double</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">rate</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-711026r26"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-711027r27"></a></span><span 
+class="pcrro7t-">/&#x22C6;</span><span 
+class="pcrro7t-">print</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">event</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">lists</span><span 
+class="pcrro7t-">&#x22C6;/</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-711028r28"></a></span><span 
+class="pcrr7t-">epicsShareFunc</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">scanpel</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">event_name</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-711029r29"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-711030r30"></a></span><span 
+class="pcrro7t-">/&#x22C6;</span><span 
+class="pcrro7t-">print</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">io_event</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">list</span><span 
+class="pcrro7t-">&#x22C6;/</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-711031r31"></a></span><span 
+class="pcrr7t-">epicsShareFunc</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">scanpiol</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-711032r32"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-711033r33"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">scanIoInit</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">IOSCANPVT</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">ppios</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-711034r34"></a></span><span 
+class="pcrb7t-">unsigned</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">scanIoRequest</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">IOSCANPVT</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">pios</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-711035r35"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">scanIoSetComplete</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">IOSCANPVT</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">io_scan_complete</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">usr</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx19-711036"></a>
+<!--l. 175--><p class="noindent" >The first set of definitions defines the various scan types. The typedefs are used when interfacing with the routines
+below. The remaining definitions declare the public scan access routines. These are described in the following
+subsections.
+                                                                                         
+                                                                                         
+</p><!--l. 180--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">17.3.3    </span> <a 
+ id="x19-71200017.3.3"></a>Initializing And Controlling Database Scaning</h4>
+<!--l. 182-->
+     <div class="lstlisting" id="listing-311"><span class="label"><a 
+ id="x19-712001r1"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">scanInit</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx19-712002"></a>
+<!--l. 187--><p class="noindent" >The routine <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">scanInit</span></span></span> is called by <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocInit</span></span></span>. It initializes the scanning system.
+<a 
+ id="dx19-712003"></a>
+<a 
+ id="dx19-712004"></a>
+<a 
+ id="dx19-712005"></a>
+</p>
+<!--l. 193-->
+     <div class="lstlisting" id="listing-312"><span class="label"><a 
+ id="x19-712006r1"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">scanRun</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-712007r2"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">scanPause</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-712008r3"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">scanShutdown</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<!--l. 199--><p class="noindent" >These routines start, pause and stop all the scan tasks respectively. They are used by the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocInit</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocRun</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocPause</span></span></span> and
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocShutdown</span></span></span> commands.
+</p><!--l. 202--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">17.3.4    </span> <a 
+ id="x19-71300017.3.4"></a>Adding And Deleting Records From Scan List</h4>
+<!--l. 204--><p class="noindent" >The following routines are called each time a record is added to or deleted from a scan list.
+<a 
+ id="dx19-713001"></a>
+<a 
+ id="dx19-713002"></a>
+</p>
+<!--l. 208-->
+     <div class="lstlisting" id="listing-313"><span class="label"><a 
+ id="x19-713003r1"></a></span><span 
+class="pcrr7t-">scanAdd</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbCommon</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-713004r2"></a></span><span 
+class="pcrr7t-">scanDelete</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbCommon</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;);</span>
+     
+</div>
+<!--l. 213--><p class="noindent" >These routines are called by <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">scanInit</span></span></span> at IOC initialization time in order to enter all records into the correct scan list. The
+routine <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbPut</span></span></span> calls <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">scanDelete</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">scanAdd</span></span></span> each time a scan-related field is changed (scan-related fields are declared to
+be <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">SPC_SCAN</span></span></span> in <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbCommon.dbd</span></span></span>). <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">scanDelete</span></span></span> is called before the field is modified and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">scanAdd</span></span></span> after the field is
+modified.
+                                                                                         
+                                                                                         
+</p><!--l. 217--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">17.3.5    </span> <a 
+ id="x19-71400017.3.5"></a>Obtaining the scan period from the SCAN field</h4>
+<!--l. 219-->
+     <div class="lstlisting" id="listing-314"><span class="label"><a 
+ id="x19-714001r1"></a></span><span 
+class="pcrb7t-">double</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">scanPeriod</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">scan</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx19-714002"></a>
+<!--l. 224--><p class="noindent" >The argument is the index into the set of enum choices from menuScan.dbd. Most users will pick the value from the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">SCAN</span></span></span> field
+of a database record. The routine returns the scan period in seconds. The result will be 0.0 if scan doesn&#8217;t refer to a periodic
+scan rate.
+</p><!--l. 229--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">17.3.6    </span> <a 
+ id="x19-71500017.3.6"></a>Declaring and Triggering Database Events</h4>
+<!--l. 231--><p class="noindent" >Any software component may declare and subsequently trigger a database event. Database events used to be numbered with
+8-bit integers and did not have to be declared in advance. Since Base 3.15 though events can now be named, in which case they
+must be declared to convert the name into an event object.
+<a 
+ id="dx19-715001"></a>
+</p>
+<!--l. 236-->
+     <div class="lstlisting" id="listing-315"><span class="label"><a 
+ id="x19-715002r1"></a></span><span 
+class="pcrr7t-">EVENTPVT</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">eventNameToHandle</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">event</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<!--l. 240--><p class="noindent" >This routine must be called from task context (i.e. not from an interrupt service routine) to convert an event&#8217;s name into an
+associated <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">EVENTPVT</span></span></span> handle. The first time each name is seen a handle will be created for it; subsequent calls to
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">eventNameToHandle</span></span></span> with the same name will return the same handle.
+</p><!--l. 243--><p class="noindent" >A database event is triggered by calling one of:
+<a 
+ id="dx19-715003"></a>
+<a 
+ id="dx19-715004"></a>
+</p>
+<!--l. 247-->
+     <div class="lstlisting" id="listing-316"><span class="label"><a 
+ id="x19-715005r1"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">postEvent</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">EVENTPVT</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">eventObj</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-715006r2"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">post_event</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">eventNum</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">EPICS_DEPRECATED</span><span 
+class="pcrr7t-">;</span>
+     
+</div>
+<!--l. 252--><p class="noindent" >The original integer <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">post_event</span></span></span> routine is now deprecated in favor of the new routine <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">postEvent</span></span></span> that takes an event
+handle instead of the event number. These event-posting routines may be called by virtually any IOC software component,
+including from an interrupt service routine on VxWorks or RTEMS. For example sequence programs can call them. The record
+support module for the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">eventRecord</span></span></span> calls <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">postEvent</span></span></span>.
+                                                                                         
+                                                                                         
+</p><!--l. 257--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">17.3.7    </span> <a 
+ id="x19-71600017.3.7"></a>Interfacing to I/O Event Scanning</h4>
+<a 
+ id="dx19-716001"></a>
+<!--l. 261--><p class="noindent" >Interfacing to the I/O event scanner is done via some combination of device and driver support.
+</p><!--l. 263--><p class="noindent" >
+     </p><ol  class="enumerate1" >
+     <li 
+  class="enumerate" id="x19-716003x1">Include <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbScan.h</span></span></span>
+     </li>
+     <li 
+  class="enumerate" id="x19-716005x2">For each separate I/O event source the following must be done:
+     <!--l. 268--><p class="noindent" >
+         </p><ol  class="enumerate2" >
+         <li 
+  class="enumerate" id="x19-716007x1">Declare an <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">IOSCANPVT</span></span></span> variable, e.g.
+         <!--l. 272-->
+              <div class="lstlisting" id="listing-317"><span class="label"><a 
+ id="x19-716008r1"></a></span><span 
+class="pcrb7t-">static</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">IOSCANPVT</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">ioscanpvt</span><span 
+class="pcrr7t-">;</span>
+              
+         </div>
+         </li>
+         <li 
+  class="enumerate" id="x19-716010x2">Call <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">scanIoInit</span></span></span> during initialization, e.g.
+         <!--l. 278-->
+              <div class="lstlisting" id="listing-318"><span class="label"><a 
+ id="x19-716011r1"></a></span><span 
+class="pcrr7t-">scanIoInit</span><span 
+class="pcrr7t-">(&amp;</span><span 
+class="pcrr7t-">ioscanpvt</span><span 
+class="pcrr7t-">);</span>
+              
+         </div>
+         </li></ol>
+     </li>
+     <li 
+  class="enumerate" id="x19-716013x3">Provide the device support <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">get_ioint_info</span></span></span> routine. This routine has the prototype:
+     <!--l. 286-->
+          <div class="lstlisting" id="listing-319"><span class="label"><a 
+ id="x19-716014r1"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">get_ioint_info</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">cmd</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbCommon</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">precord</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716015r2"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">IOSCANPVT</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">ppvt</span><span 
+class="pcrr7t-">);</span>
+          
+     </div>
+     <!--l. 291--><p class="noindent" >This routine will be called each time the record pointed to by <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">precord</span></span></span> is added to or deleted from an I/O
+     Event scan list. The <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">cmd</span></span></span> argument will be zero if the record is being added to an I/O event list, 1 if it is
+     being deleted from the list. This routine must set <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x22C6;ppvt</span></span></span> to the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">IOSCANPVT</span></span></span> variable associated with this
+     record.
+     </p></li>
+     <li 
+  class="enumerate" id="x19-716017x4">Whenever an I/O event is detected, the device software must call <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">scanIoRequest</span></span></span>, e.g.
+     <!--l. 297-->
+          <div class="lstlisting" id="listing-320"><span class="label"><a 
+ id="x19-716018r1"></a></span><span 
+class="pcrr7t-">scanIoRequest</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">ioscanpvt</span><span 
+class="pcrr7t-">);</span>
+          
+                                                                                         
+                                                                                         
+     </div>
+     <!--l. 301--><p class="noindent" >This routine can be called from interrupt level. The request is queued and will be handled by one of the standard callback
+     threads. There are three sets of callback threads fed from three queues, one for each priority level (see section <a 
+href="AppDevGuidech16.html#x18-69500016.2">16.2<!--tex4ht:ref: sec:callbackThreads --></a>); the
+     <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">PRIO</span></span></span> field of a record determines which queue will be used for processing this record after <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">scanIoRequest()</span></span></span> has
+     been called.
+     </p><!--l. 305--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">scanIoRequest()</span></span></span> will return a bit pattern indicating which of the three queues the request was sent to. A
+     return value of zero means no records are currently configured to use this interrupt source for I/O Interrupt
+     scanning.
+     </p></li>
+     <li 
+  class="enumerate" id="x19-716020x5">Device or driver support that needs to implement flow control can set up a completion callback by calling
+     <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">scanIoSetComplete</span></span></span>, e.g.
+                                                                                         
+                                                                                         
+     <div class="verbatim" id="verbatim-220">
+     <div class="fancyvrb" id="fancyvrb220"><a 
+ id="x19-716022r1"></a>&#x00A0;&#x00A0;static&#x00A0;void&#x00A0;myCallback(void&#x00A0;&#x22C6;arg,&#x00A0;IOSCANPVT&#x00A0;pvt,&#x00A0;int&#x00A0;prio)&#x00A0;{<br class="fancyvrb" /><a 
+ id="x19-716024r2"></a>&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;&#x00A0;...<br class="fancyvrb" /><a 
+ id="x19-716026r3"></a>&#x00A0;&#x00A0;}<br class="fancyvrb" /><a 
+ id="x19-716028r4"></a>&#x00A0;&#x00A0;
+     <br class="fancyvrb" /><a 
+ id="x19-716030r5"></a>&#x00A0;&#x00A0;scanIoSetComplete(ioscanpvt,&#x00A0;myCallback,&#x00A0;(void&#x00A0;&#x22C6;)arg);</div></div>
+     <!--l. 316--><p class="nopar" >
+     </p><!--l. 318--><p class="noindent" >The completion callback will be run from one of the callback threads, once per priority actually used (bits set in the
+     return value of <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">scanIoRequest</span></span></span>), after the list of records with that priority level has been processed. Note that for
+     records with asynchronous device support, record processing might not have completed when the callback is
+     run.</p></li></ol>
+<!--l. 322--><p class="noindent" >The following code fragment shows an event record device support module that supports I/O event scanning:
+</p>
+<!--l. 324-->
+     <div class="lstlisting" id="listing-321"><span class="label"><a 
+ id="x19-716031r1"></a></span><span 
+class="pcrb7t-">#</span><span 
+class="pcrb7t-">include</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x003C;</span><span 
+class="pcrr7t-">vxWorks</span><span 
+class="pcrr7t-">.</span><span 
+class="pcrr7t-">h</span><span 
+class="pcrr7t-">&#x003E;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716032r2"></a></span><span 
+class="pcrb7t-">#</span><span 
+class="pcrb7t-">include</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x003C;</span><span 
+class="pcrr7t-">types</span><span 
+class="pcrr7t-">.</span><span 
+class="pcrr7t-">h</span><span 
+class="pcrr7t-">&#x003E;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716033r3"></a></span><span 
+class="pcrb7t-">#</span><span 
+class="pcrb7t-">include</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x003C;</span><span 
+class="pcrr7t-">stdioLib</span><span 
+class="pcrr7t-">.</span><span 
+class="pcrr7t-">h</span><span 
+class="pcrr7t-">&#x003E;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716034r4"></a></span><span 
+class="pcrb7t-">#</span><span 
+class="pcrb7t-">include</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x003C;</span><span 
+class="pcrr7t-">intLib</span><span 
+class="pcrr7t-">.</span><span 
+class="pcrr7t-">h</span><span 
+class="pcrr7t-">&#x003E;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716035r5"></a></span><span 
+class="pcrb7t-">#</span><span 
+class="pcrb7t-">include</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x003C;</span><span 
+class="pcrr7t-">dbDefs</span><span 
+class="pcrr7t-">.</span><span 
+class="pcrr7t-">h</span><span 
+class="pcrr7t-">&#x003E;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716036r6"></a></span><span 
+class="pcrb7t-">#</span><span 
+class="pcrb7t-">include</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x003C;</span><span 
+class="pcrr7t-">dbAccess</span><span 
+class="pcrr7t-">.</span><span 
+class="pcrr7t-">h</span><span 
+class="pcrr7t-">&#x003E;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716037r7"></a></span><span 
+class="pcrb7t-">#</span><span 
+class="pcrb7t-">include</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x003C;</span><span 
+class="pcrr7t-">dbScan</span><span 
+class="pcrr7t-">.</span><span 
+class="pcrr7t-">h</span><span 
+class="pcrr7t-">&#x003E;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716038r8"></a></span><span 
+class="pcrb7t-">#</span><span 
+class="pcrb7t-">include</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x003C;</span><span 
+class="pcrr7t-">recSup</span><span 
+class="pcrr7t-">.</span><span 
+class="pcrr7t-">h</span><span 
+class="pcrr7t-">&#x003E;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716039r9"></a></span><span 
+class="pcrb7t-">#</span><span 
+class="pcrb7t-">include</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x003C;</span><span 
+class="pcrr7t-">devSup</span><span 
+class="pcrr7t-">.</span><span 
+class="pcrr7t-">h</span><span 
+class="pcrr7t-">&#x003E;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716040r10"></a></span><span 
+class="pcrb7t-">#</span><span 
+class="pcrb7t-">include</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x003C;</span><span 
+class="pcrr7t-">eventRecord</span><span 
+class="pcrr7t-">.</span><span 
+class="pcrr7t-">h</span><span 
+class="pcrr7t-">&#x003E;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716041r11"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716042r12"></a></span><span 
+class="pcrro7t-">/&#x22C6;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">Create</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">the</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">dset</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">for</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">devEventXXX</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x22C6;/</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716043r13"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">init</span><span 
+class="pcrr7t-">();</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716044r14"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">get_ioint_info</span><span 
+class="pcrr7t-">();</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716045r15"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716046r16"></a></span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716047r17"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">number</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716048r18"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">DEVSUPFUN</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">report</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716049r19"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">DEVSUPFUN</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">init</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716050r20"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">DEVSUPFUN</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">init_record</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716051r21"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">DEVSUPFUN</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">get_ioint_info</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716052r22"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">DEVSUPFUN</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">read_event</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716053r23"></a></span><span 
+class="pcrr7t-">}</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">devEventTestIoEvent</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">=</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716054r24"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">5,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716055r25"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">NULL</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716056r26"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">init</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716057r27"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">NULL</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716058r28"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">get_ioint_info</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716059r29"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">NULL</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716060r30"></a></span><span 
+class="pcrr7t-">};</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716061r31"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716062r32"></a></span><span 
+class="pcrb7t-">static</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">IOSCANPVT</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">ioscanpvt</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716063r33"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716064r34"></a></span><span 
+class="pcrb7t-">static</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">int_service</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">IOSCANPVT</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">ioscanpvt</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716065r35"></a></span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716066r36"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">scanIoRequest</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">ioscanpvt</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716067r37"></a></span><span 
+class="pcrr7t-">}</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716068r38"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716069r39"></a></span><span 
+class="pcrb7t-">static</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">init</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716070r40"></a></span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716071r41"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">scanIoInit</span><span 
+class="pcrr7t-">(&amp;</span><span 
+class="pcrr7t-">ioscanpvt</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716072r42"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">intConnect</span><span 
+class="pcrr7t-">(&#x003C;</span><span 
+class="pcrr7t-">vector</span><span 
+class="pcrr7t-">&#x003E;,(</span><span 
+class="pcrr7t-">FUNCPTR</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">int_service</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">ioscanpvt</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716073r43"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">return</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">0;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716074r44"></a></span><span 
+class="pcrr7t-">}</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716075r45"></a></span><span 
+class="pcrb7t-">static</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">get_ioint_info</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">cmd</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716076r46"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">eventRecord</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pr</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">IOSCANPVT</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">ppvt</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716077r47"></a></span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716078r48"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">ppvt</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">=</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">ioscanpvt</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716079r49"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">return</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">0;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-716080r50"></a></span><span 
+class="pcrr7t-">}</span>
+     
+</div>
+<a 
+ id="dx19-716081"></a>
+<!--l. 378--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">17.4    </span> <a 
+ id="x19-71700017.4"></a>Implementation Overview</h3>
+<!--l. 380--><p class="noindent" >The code for the entire scanning system resides in <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbScan.c</span></span></span>. This section gives an overview of how this code is
+organized.
+</p><!--l. 383--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">17.4.1    </span> <a 
+ id="x19-71800017.4.1"></a>Definitions And Routines Common To All Scan Types</h4>
+<!--l. 385--><p class="noindent" >Everything is built around two basic structures:
+</p>
+<!--l. 387-->
+     <div class="lstlisting" id="listing-322"><span class="label"><a 
+ id="x19-718001r1"></a></span><span 
+class="pcrb7t-">typedef</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">scan_list</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-718002r2"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">epicsMutexId</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">lock</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-718003r3"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">ELLLIST</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">list</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-718004r4"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">short</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">modified</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-718005r5"></a></span><span 
+class="pcrr7t-">};</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-718006r6"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-718007r7"></a></span><span 
+class="pcrb7t-">typedef</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">scan_element</span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-718008r8"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">ELLNODE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">node</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-718009r9"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">scan_list</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pscan_list</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-718010r10"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbCommon</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">precord</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-718011r11"></a></span><span 
+class="pcrr7t-">}</span>
+     
+</div>
+<!--l. 401--><p class="noindent" >Each <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">scan_list.list</span></span></span> is the head of a list of <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">scan_element</span></span></span> nodes pointing to records that all belong to the same scan
+set. For example, all records that are periodically scanned at the 1 second rate are in the same scan set. The libCom <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ellLib</span></span></span>
+routines are used to access the list. The <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">scan_element.node</span></span></span> field contains the next and previous links. Each record that
+appears in a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">scan_list</span></span></span> has an associated <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">scan_element</span></span></span>. The <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">SPVT</span></span></span> field which appears in <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbCommon</span></span></span> points to the
+associated <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">scan_element</span></span></span>.
+</p><!--l. 408--><p class="noindent" >The <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">lock</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">modified</span></span></span>, and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">pscan_list</span></span></span> fields allow <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">scan_elements</span></span></span>, i.e. records, to be dynamically removed and
+added to scan lists. If <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">scanList</span></span></span>, the routine which actually processes a scan list, is studied it can be seen that these fields
+allow the list to be scanned very efficiently when no modifications are made to the list while it is being scanned. This is, of
+course, the normal case.
+                                                                                         
+                                                                                         
+</p><!--l. 412--><p class="noindent" >The <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbScan.c</span></span></span> module contains several private routines. The following access a single scan set:
+</p>
+     <ul class="itemize1">
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">printList</span></span></span> - Prints the names of all records in a scan set.
+     </li>
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">scanList</span></span></span> - This routine is the heart of the scanning system. For each record in a scan set it does the following:
+     <!--l. 421-->
+          <div class="lstlisting" id="listing-323"><span class="label"><a 
+ id="x19-718012r1"></a></span><span 
+class="pcrr7t-">dbScanLock</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">precord</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-718013r2"></a></span><span 
+class="pcrr7t-">dbProcess</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">precord</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-718014r3"></a></span><span 
+class="pcrr7t-">dbScanUnlock</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">precord</span><span 
+class="pcrr7t-">);</span>
+          
+     </div>
+     <!--l. 427--><p class="noindent" >It also has code to recognize when a scan list is modified while the scan set is being processed.
+     </p></li>
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">addToList</span></span></span> - This routine adds a new element to a scan list.
+     </li>
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">deleteFromList</span></span></span> - This routine deletes an element from a scan list.
+     </li></ul>
+<!--l. 435--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">17.4.2    </span> <a 
+ id="x19-71900017.4.2"></a>Database Event Scanning</h4>
+<a 
+ id="dx19-719001"></a>
+<a 
+ id="dx19-719002"></a>
+<!--l. 439--><p class="noindent" >Event scanning is built around the following definitions:
+</p>
+<!--l. 441-->
+     <div class="lstlisting" id="listing-324"><span class="label"><a 
+ id="x19-719003r1"></a></span><span 
+class="pcrb7t-">typedef</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">event_list</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-719004r2"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">CALLBACK</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">callback</span><span 
+class="pcrr7t-">[</span><span 
+class="pcrr7t-">NUM_CALLBACK_PRIORITIES</span><span 
+class="pcrr7t-">];</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-719005r3"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">scan_list</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">scan_list</span><span 
+class="pcrr7t-">[</span><span 
+class="pcrr7t-">NUM_CALLBACK_PRIORITIES</span><span 
+class="pcrr7t-">];</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-719006r4"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">event_list</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">next</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-719007r5"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">event_name</span><span 
+class="pcrr7t-">[</span><span 
+class="pcrr7t-">MAX_STRING_SIZE</span><span 
+class="pcrr7t-">];</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-719008r6"></a></span><span 
+class="pcrr7t-">}</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">event_list</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-719009r7"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-719010r8"></a></span><span 
+class="pcrb7t-">static</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">event_list</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">volatile</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">pevent_list</span><span 
+class="pcrr7t-">[256];</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-719011r9"></a></span><span 
+class="pcrb7t-">static</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">epicsMutexId</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">event_lock</span><span 
+class="pcrr7t-">;</span>
+     
+</div>
+<!--l. 453--><p class="noindent" >Event scanning uses the general purpose callback tasks to perform record processing, i.e. no extra threads are spawned for this.
+When a named event is declared by a call to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">eventNameToHandle()</span></span></span> an <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">event_list</span></span></span> will be created for that named
+event. Every <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">event_list</span></span></span> contains a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">scan_list</span></span></span> for each of the 3 priorities. The <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">next</span></span></span> member is used to keep a
+singly-linked list of all the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">event_list</span></span></span> objects, with the first item on that list pointed to by <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">pevent_list[0]</span></span></span>.
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">pevent_list</span></span></span> is an array of pointers to numbered <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">event_list</span></span></span> objects, and is used when an event name is an integer in
+the range 1..255. It provides fast access to 255 numbered events, i.e. one for each possible numeric database
+event.
+                                                                                         
+                                                                                         
+</p><!--l. 460--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">17.4.2.1    </span> <a 
+ id="x19-72000017.4.2.1"></a>postEvent</h5>
+<a 
+ id="dx19-720001"></a>
+<!--l. 463-->
+     <div class="lstlisting" id="listing-325"><span class="label"><a 
+ id="x19-720002r1"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">postEvent</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">event_list</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pel</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<!--l. 467--><p class="noindent" >This routine is called to request an event scan for a named event handle. It may be called from interrupt level. It looks at each
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">scan_list</span></span></span> in the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">event_list</span></span></span> (one for each callback priority) and if any nodes are present in the list it makes a
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">callbackRequest</span></span></span> to process that set of records. The appropriate callback task calls routine <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">eventCallback</span></span></span>, which just
+calls <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">scanList</span></span></span>.
+</p><!--l. 472--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">17.4.2.2    </span> <a 
+ id="x19-72100017.4.2.2"></a>post_event</h5>
+<a 
+ id="dx19-721001"></a>
+                                                                                         
+                                                                                         
+<div class="verbatim" id="verbatim-221">
+<div class="fancyvrb" id="fancyvrb221"><a 
+ id="x19-721003r1"></a>&#x00A0;&#x00A0;void&#x00A0;post_event(int&#x00A0;eventNum)&#x00A0;EPICS_DEPRECATED;</div></div>
+<!--l. 477--><p class="nopar" >
+</p><!--l. 479--><p class="noindent" >This routine is called to request an event scan for a numbered event. It may be called from interrupt level. It looks up the
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">event_list</span></span></span> indicated by the given event number and calls <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">postEvent</span></span></span> with that handle.
+</p><!--l. 483--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">17.4.3    </span> <a 
+ id="x19-72200017.4.3"></a>I/O Event Scanning</h4>
+<a 
+ id="dx19-722001"></a>
+<!--l. 486--><p class="noindent" >I/O event scanning is built around the following definitions:
+</p>
+<!--l. 488-->
+     <div class="lstlisting" id="listing-326"><span class="label"><a 
+ id="x19-722002r1"></a></span><span 
+class="pcrb7t-">typedef</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">io_scan_list</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-722003r2"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">CALLBACK</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">callback</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-722004r3"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">scan_list</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">scan_list</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-722005r4"></a></span><span 
+class="pcrr7t-">}</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">io_scan_list</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-722006r5"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-722007r6"></a></span><span 
+class="pcrb7t-">typedef</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">ioscan_head</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-722008r7"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">ioscan_head</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">next</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-722009r8"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">io_scan_list</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">iosl</span><span 
+class="pcrr7t-">[</span><span 
+class="pcrr7t-">NUM_CALLBACK_PRIORITIES</span><span 
+class="pcrr7t-">];</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-722010r9"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">io_scan_complete</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">cb</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-722011r10"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">arg</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-722012r11"></a></span><span 
+class="pcrr7t-">}</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">ioscan_head</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-722013r12"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-722014r13"></a></span><span 
+class="pcrb7t-">static</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">ioscan_head</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pioscan_list</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">=</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">NULL</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-722015r14"></a></span><span 
+class="pcrb7t-">static</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">epicsMutexId</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">ioscan_lock</span><span 
+class="pcrr7t-">;</span>
+     
+</div>
+<!--l. 505--><p class="noindent" >I/O event scanning uses the general purpose callback tasks to perform record processing, i.e. no extra threads are spawned for
+this. The callback field of <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">io_scan_list</span></span></span> is used to communicate with the callback tasks.
+</p><!--l. 508--><p class="noindent" >The following routines implement I/O event scanning:
+</p><!--l. 510--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">17.4.3.1    </span> <a 
+ id="x19-72300017.4.3.1"></a>scanIoInit</h5>
+<a 
+ id="dx19-723001"></a>
+<!--l. 513-->
+     <div class="lstlisting" id="listing-327"><span class="label"><a 
+ id="x19-723002r1"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">scanIoInit</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">IOSCANPVT</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">ppios</span><span 
+class="pcrr7t-">)</span>
+     
+</div>
+<!--l. 517--><p class="noindent" >This routine is called by device or driver support. It must be called once for each interrupt source. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">scanIoInit</span></span></span> allocates and
+initializes an <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ioscan_head</span></span></span> object which contains an <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">io_scan_list</span></span></span> for each callback priority. It puts the address of the
+allocated object in <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ppios</span></span></span>.
+</p><!--l. 522--><p class="noindent" >When <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">scanAdd</span></span></span> or <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">scanDelete</span></span></span> are called, they call the device support routine <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">get_ioint_info</span></span></span> which returns <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ppios</span></span></span>.
+The <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">scan_element</span></span></span> is then added to or deleted from the correct scan list.
+                                                                                         
+                                                                                         
+</p><!--l. 525--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">17.4.3.2    </span> <a 
+ id="x19-72400017.4.3.2"></a>scanIoRequest</h5>
+<a 
+ id="dx19-724001"></a>
+<!--l. 528-->
+     <div class="lstlisting" id="listing-328"><span class="label"><a 
+ id="x19-724002r1"></a></span><span 
+class="pcrb7t-">unsigned</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">scanIoRequest</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">IOSCANPVT</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">pios</span><span 
+class="pcrr7t-">)</span>
+     
+</div>
+<!--l. 532--><p class="noindent" >This routine is called by device or driver support to request a specific I/O event scan. It may be called from interrupt level.
+It looks at each <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">io_scan_list</span></span></span> referenced by <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">pios</span></span></span> (one for each callback priority) and if any elements
+are present in the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">scan_list</span></span></span> a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">callbackRequest</span></span></span> is issued. The appropriate callback task calls routine
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ioscanCallback</span></span></span>, which calls <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">scanList</span></span></span> followed by any completion callback that was registered with
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">pios</span></span></span>.
+</p><!--l. 537--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">17.4.4    </span> <a 
+ id="x19-72500017.4.4"></a>Periodic Scanning</h4>
+<a 
+ id="dx19-725001"></a>
+<!--l. 540--><p class="noindent" >Periodic scanning is built around the following definitions:
+</p>
+<!--l. 542-->
+     <div class="lstlisting" id="listing-329"><span class="label"><a 
+ id="x19-725002r1"></a></span><span 
+class="pcrb7t-">typedef</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">periodic_scan_list</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-725003r2"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">scan_list</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">scan_list</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-725004r3"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">double</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">period</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-725005r4"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">name</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-725006r5"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">unsigned</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">overruns</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-725007r6"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">volatile</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">enum</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">ctl</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">scanCtl</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-725008r7"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">epicsEventId</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">loopEvent</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-725009r8"></a></span><span 
+class="pcrr7t-">}</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">periodic_scan_list</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-725010r9"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-725011r10"></a></span><span 
+class="pcrb7t-">static</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">nPeriodic</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-725012r11"></a></span><span 
+class="pcrb7t-">static</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">periodic_scan_list</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;&#x22C6;</span><span 
+class="pcrr7t-">papPeriodic</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x19-725013r12"></a></span><span 
+class="pcrb7t-">static</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">epicsThreadId</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">periodicTaskId</span><span 
+class="pcrr7t-">;</span>
+     
+</div>
+<!--l. 557--><p class="noindent" >The <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">nPeriodic</span></span></span> variable holds the number of periodic scan rates configured. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">papPeriodic</span></span></span> points to an array of pointers to
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">periodic_scan_lists</span></span></span>. There is an array element for each scan rate. A periodic scan task is created for each scan
+rate.
+</p><!--l. 562--><p class="noindent" >The following routines implement periodic scanning:
+</p><!--l. 564--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">17.4.4.1    </span> <a 
+ id="x19-72600017.4.4.1"></a>initPeriodic</h5>
+<a 
+ id="dx19-726001"></a>
+<!--l. 567-->
+     <div class="lstlisting" id="listing-330"><span class="label"><a 
+ id="x19-726002r1"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">initPeriodic</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">)</span>
+     
+</div>
+<!--l. 571--><p class="noindent" >This routine first determines how many periodic scan rates are to be created from the definition of the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">menuScan</span></span></span> menu. The
+array of pointers referenced by <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">papPeriodic</span></span></span> is allocated. For menu choice a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">periodic_scan_list</span></span></span> is allocated and
+initialized. It parses the choice string for that choice to obtain the scan period for the scan.
+                                                                                         
+                                                                                         
+</p><!--l. 576--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">17.4.4.2    </span> <a 
+ id="x19-72700017.4.4.2"></a>periodicTask</h5>
+<a 
+ id="dx19-727001"></a>
+<!--l. 579-->
+     <div class="lstlisting" id="listing-331"><span class="label"><a 
+ id="x19-727002r1"></a></span><span 
+class="pcrr7t-">periodicTask</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">scan_list</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">psl</span><span 
+class="pcrr7t-">)</span>
+     
+</div>
+<!--l. 583--><p class="noindent" >In outline this task runs an infinite loop, calling <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">scanList</span></span></span> and then waiting until the start of the next scan interval,
+allowing for the time it took to scan the list. If a periodic scan list takes longer to process than its defined scan
+period, its next scan will be delayed by half a scan period, with a maximum of 1 second delay. This does not limit
+what scan rates can actually be implemented, as long as all the records in the list can be processed within the
+requested period. Persistent over-runs (more than 10 times in a row) will result in a warning message being
+logged. The total number of over-runs is counted by each scan thread and can be displayed using the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">scanppl</span></span></span>
+command.
+</p><!--l. 589--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">17.4.5    </span> <a 
+ id="x19-72800017.4.5"></a>Scan Once</h4>
+<!--l. 591--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">17.4.5.1    </span> <a 
+ id="x19-72900017.4.5.1"></a>scanOnce</h5>
+<a 
+ id="dx19-729001"></a>
+<!--l. 594-->
+     <div class="lstlisting" id="listing-332"><span class="label"><a 
+ id="x19-729002r1"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">scanOnce</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">dbCommon</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">precord</span><span 
+class="pcrr7t-">)</span>
+     
+</div>
+<!--l. 598--><p class="noindent" >A task <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">onceTask</span></span></span> waits for requests to issue a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbProcess</span></span></span> request. The routine <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">scanOnce</span></span></span> puts the address of the record to
+be processed in a ring buffer and wakes up <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">onceTask</span></span></span>.
+</p><!--l. 601--><p class="noindent" >This routine may be called from interrupt level.
+</p><!--l. 603--><p class="noindent" >
+</p>
+<h5 class="subsubsectionHead"><span class="titlemark">17.4.5.2    </span> <a 
+ id="x19-73000017.4.5.2"></a>SetQueueSize</h5>
+<!--l. 605--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">scanOnce</span></span></span> places its requests into a ring buffer. This is set by default to be 1000 entries long. The size can be changed by
+executing the following command in the startup script before <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocInit</span></span></span>:
+                                                                                         
+                                                                                         
+<a 
+ id="dx19-730001"></a>
+</p>
+<!--l. 610-->
+     <div class="lstlisting" id="listing-333"><span class="label"><a 
+ id="x19-730002r1"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">scanOnceSetQueueSize</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">size</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+                                                                                         
+                                                                                         
+<!--l. 1--><div class="crosslinks"><p class="noindent">[<a 
+href="AppDevGuidech18.html" >next</a>] [<a 
+href="AppDevGuidech16.html" >prev</a>] [<a 
+href="AppDevGuidech16.html#tailAppDevGuidech16.html" >prev-tail</a>] [<a 
+href="AppDevGuidech17.html" >front</a>] [<a 
+href="AppDevGuide.html#AppDevGuidech17.html" >up</a>] </p></div>
+<!--l. 1--><p class="noindent" ><a 
+ id="tailAppDevGuidech17.html"></a>  </p> 
+</body></html> 

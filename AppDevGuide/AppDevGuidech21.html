@@ -1,0 +1,497 @@
+<?xml version="1.0" encoding="iso-8859-1" ?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">  
+<!--http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd-->  
+<html xmlns="http://www.w3.org/1999/xhtml"  
+> 
+<head><title>21 Registry</title> 
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" /> 
+<meta name="generator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
+<meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
+<!-- xhtml,2,html --> 
+<meta name="src" content="AppDevGuide.tex" /> 
+<meta name="date" content="2015-11-06 12:47:00" /> 
+<link rel="stylesheet" type="text/css" href="AppDevGuide.css" /> 
+</head><body 
+>
+<!--l. 1--><div class="crosslinks"><p class="noindent">[<a 
+href="AppDevGuidech22.html" >next</a>] [<a 
+href="AppDevGuidech20.html" >prev</a>] [<a 
+href="AppDevGuidech20.html#tailAppDevGuidech20.html" >prev-tail</a>] [<a 
+href="#tailAppDevGuidech21.html">tail</a>] [<a 
+href="AppDevGuide.html#AppDevGuidech21.html" >up</a>] </p></div>
+<h2 class="chapterHead"><span class="titlemark">Chapter&#x00A0;21</span><br /><a 
+ id="x23-90000021"></a>Registry</h2> <a 
+ id="dx23-900001"></a>
+<!--l. 5--><p class="noindent" >Under vxWorks osiFindGlobalSymbol() can be used to dynamically bind to record, device, and driver support and functions for
+use with subroutine records. However on most other systems this routine is not functional, so a registry facility is provided to
+implement the binding. Any item that is looked up by name at runtime must be registered for it to be visible to other
+code.
+</p><!--l. 10--><p class="noindent" >At compile time a perl script reads the IOCs database definition file and produces a C source file containing a routine which
+registers all record/device/driver/function support defined in that file.
+</p>
+<h3 class="sectionHead"><span class="titlemark">21.1    </span> <a 
+ id="x23-90100021.1"></a>Registry.h</h3>
+<a 
+ id="dx23-901001"></a>
+<!--l. 16-->
+     <div class="lstlisting" id="listing-430"><span class="label"><a 
+ id="x23-901002r1"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">registryAdd</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">registryID</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">name</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">data</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x23-901003r2"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">registryFind</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">registryID</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">name</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x23-901004r3"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">registrySetTableSize</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">size</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x23-901005r4"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">registryFree</span><span 
+class="pcrr7t-">();</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x23-901006r5"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">registryDump</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx23-901007"></a>
+<a 
+ id="dx23-901008"></a>
+<a 
+ id="dx23-901009"></a>
+<a 
+ id="dx23-901010"></a>
+<a 
+ id="dx23-901011"></a>
+<!--l. 29--><p class="noindent" >This is the code which implements the symbol table. Each different type of symbol has its own unique ID. Everything to be
+registered is stored in the same gpHash table.
+</p><!--l. 32--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">21.2    </span> <a 
+ id="x23-90200021.2"></a>registryRecordType.h</h3>
+<!--l. 34-->
+     <div class="lstlisting" id="listing-431"><span class="label"><a 
+ id="x23-902001r1"></a></span><span 
+class="pcrb7t-">typedef</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(&#x22C6;</span><span 
+class="pcrr7t-">computeSizeOffset</span><span 
+class="pcrr7t-">)(</span><span 
+class="pcrr7t-">dbRecordType</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbRecordType</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x23-902002r2"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x23-902003r3"></a></span><span 
+class="pcrb7t-">typedef</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">recordTypeLocation</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x23-902004r4"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">rset</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">prset</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x23-902005r5"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">computeSizeOffset</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">sizeOffset</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x23-902006r6"></a></span><span 
+class="pcrr7t-">}</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">recordTypeLocation</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x23-902007r7"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x23-902008r8"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">registryRecordTypeAdd</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">name</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">recordTypeLocation</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">prtl</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x23-902009r9"></a></span><span 
+class="pcrr7t-">recordTypeLocation</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">registryRecordTypeFind</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">name</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx23-902010"></a>
+<a 
+ id="dx23-902011"></a>
+<!--l. 48--><p class="noindent" >Provides addresses for both the record support entry table and the routine which computes the size and offset of each
+field.
+                                                                                         
+                                                                                         
+</p><!--l. 51--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">21.3    </span> <a 
+ id="x23-90300021.3"></a>registryDeviceSupport.h</h3>
+<a 
+ id="dx23-903001"></a>
+<!--l. 54-->
+     <div class="lstlisting" id="listing-432"><span class="label"><a 
+ id="x23-903002r1"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">registryDeviceSupportAdd</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">name</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dset</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdset</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x23-903003r2"></a></span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dset</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">registryDeviceSupportFind</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">name</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx23-903004"></a>
+<a 
+ id="dx23-903005"></a>
+<!--l. 61--><p class="noindent" >This provides addresses for device support entry tables.
+</p><!--l. 63--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">21.4    </span> <a 
+ id="x23-90400021.4"></a>registryDriverSupport.h</h3>
+<a 
+ id="dx23-904001"></a>
+<!--l. 66-->
+     <div class="lstlisting" id="listing-433"><span class="label"><a 
+ id="x23-904002r1"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">registryDriverSupportAdd</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">name</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">drvet</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdrvet</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x23-904003r2"></a></span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">drvet</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">registryDriverSupportFind</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">name</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x23-904004r3"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x23-904005r4"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">registerRecordDeviceDriver</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx23-904006"></a>
+<a 
+ id="dx23-904007"></a>
+<a 
+ id="dx23-904008"></a>
+<!--l. 76--><p class="noindent" >This provides addresses for driver support tables.
+</p><!--l. 78--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">21.5    </span> <a 
+ id="x23-90500021.5"></a>registryFunction.h</h3>
+<a 
+ id="dx23-905001"></a>
+<!--l. 81-->
+     <div class="lstlisting" id="listing-434"><span class="label"><a 
+ id="x23-905002r1"></a></span><span 
+class="pcrb7t-">typedef</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(&#x22C6;</span><span 
+class="pcrr7t-">REGISTRYFUNCTION</span><span 
+class="pcrr7t-">)(</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x23-905003r2"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x23-905004r3"></a></span><span 
+class="pcrb7t-">typedef</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">registryFunctionRef</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x23-905005r4"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">name</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x23-905006r5"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">REGISTRYFUNCTION</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">addr</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x23-905007r6"></a></span><span 
+class="pcrr7t-">}</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">registryFunctionRef</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x23-905008r7"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x23-905009r8"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">registryFunctionAdd</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">name</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">REGISTRYFUNCTION</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">func</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x23-905010r9"></a></span><span 
+class="pcrr7t-">REGISTRYFUNCTION</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">registryFunctionFind</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">name</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x23-905011r10"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">registryFunctionRefAdd</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">registryFunctionRef</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">ref</span><span 
+class="pcrr7t-">[],</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">nfunctions</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx23-905012"></a>
+<a 
+ id="dx23-905013"></a>
+<a 
+ id="dx23-905014"></a>
+<a 
+ id="dx23-905015"></a>
+<!--l. 98--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">registryFunctionAdd</span></span></span> registers a single function. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">registryFunctionRefAdd</span></span></span> registers several functions.
+                                                                                         
+                                                                                         
+</p><!--l. 100--><p class="noindent" >If you use these routines to register functions directly instead of using a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">function()</span></span></span> statement in a database definition file,
+the registered functions will not appear in the output from the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbDumpFunction</span></span></span> command.
+</p><!--l. 103--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">21.6    </span> <a 
+ id="x23-90600021.6"></a>registerRecordDeviceDriver.c</h3>
+<a 
+ id="dx23-906001"></a>
+<!--l. 106--><p class="noindent" >A version of this is provided for vxWorks. This version makes it unnecessary to use registerRecordDeviceDriver.pl
+or register other external names. Thus for vxWorks everything can work almost exactly like it did in release
+3.13.x
+</p><!--l. 109--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">21.7    </span> <a 
+ id="x23-90700021.7"></a>registerRecordDeviceDriver.pl</h3>
+<a 
+ id="dx23-907001"></a>
+<!--l. 112--><p class="noindent" >This is the perl script which creates a C source file that registers record/device/driver/function support. The following steps are
+take as part of the standard Make rules:
+</p>
+     <ul class="itemize1">
+     <li class="itemize">Execute this script using a dbd file created by dbExpand
+     </li>
+     <li class="itemize">Compile the resulting C++ file
+     </li>
+     <li class="itemize">Include the object file in the IOC executable
+     </li></ul>
+<!--l. 1--><div class="crosslinks"><p class="noindent">[<a 
+href="AppDevGuidech22.html" >next</a>] [<a 
+href="AppDevGuidech20.html" >prev</a>] [<a 
+href="AppDevGuidech20.html#tailAppDevGuidech20.html" >prev-tail</a>] [<a 
+href="AppDevGuidech21.html" >front</a>] [<a 
+href="AppDevGuide.html#AppDevGuidech21.html" >up</a>] </p></div>
+<!--l. 1--><p class="noindent" ><a 
+ id="tailAppDevGuidech21.html"></a> </p> 
+</body></html> 

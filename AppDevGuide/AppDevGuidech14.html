@@ -1,0 +1,4137 @@
+<?xml version="1.0" encoding="iso-8859-1" ?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">  
+<!--http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd-->  
+<html xmlns="http://www.w3.org/1999/xhtml"  
+> 
+<head><title>14 Static Database Access</title> 
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" /> 
+<meta name="generator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
+<meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
+<!-- xhtml,2,html --> 
+<meta name="src" content="AppDevGuide.tex" /> 
+<meta name="date" content="2015-11-06 12:47:00" /> 
+<link rel="stylesheet" type="text/css" href="AppDevGuide.css" /> 
+</head><body 
+>
+<!--l. 1--><div class="crosslinks"><p class="noindent">[<a 
+href="AppDevGuidech15.html" >next</a>] [<a 
+href="AppDevGuidech13.html" >prev</a>] [<a 
+href="AppDevGuidech13.html#tailAppDevGuidech13.html" >prev-tail</a>] [<a 
+href="#tailAppDevGuidech14.html">tail</a>] [<a 
+href="AppDevGuide.html#AppDevGuidech14.html" >up</a>] </p></div>
+<h2 class="chapterHead"><span class="titlemark">Chapter&#x00A0;14</span><br /><a 
+ id="x16-54100014"></a>Static Database Access</h2>
+<h3 class="sectionHead"><span class="titlemark">14.1    </span> <a 
+ id="x16-54200014.1"></a>Overview</h3>
+<!--l. 5--><p class="noindent" >An IOC database is created on a Unix system via a Database Configuration Tool and stored in a Unix file. EPICS provides two
+sets of database access routines: Static Database Access and Runtime Database Access. Static database access can be used on
+Unix or IOC database files. Runtime database requires an initialized IOC databases. Static database access is described in this
+chapter, runtime database access in the next chapter.
+</p><!--l. 12--><p class="noindent" >Static database access provides a simplified interface to a database, i.e. much of the complexity is hidden. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DBF_MENU</span></span></span> and
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DBF_DEVICE</span></span></span> fields are accessed via a common type called <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_MENU</span></span></span>. A set of routines are provided to simplify access to
+link fields. All fields can be accessed as character strings. This interface is called static database access because it can be used
+to access an uninitialized as well as an initialized database.
+</p><!--l. 18--><p class="noindent" >Before accessing database records, the menus, record types, and devices used to define that IOC database must be read via
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbReadDatabase</span></span></span> or <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbReadDatabaseFP</span></span></span>. These routines, which are also used to load record instances, can be called
+multiple times.
+</p><!--l. 21--><p class="noindent" >Database Configuration Tools (DCTs) should manipulate an EPICS database only via the static database access interface. An
+IOC database is created on a host system via a database configuration tool and stored in a host file with a file extension of
+&#8220;<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">.db</span></span></span>&#8221;. Three routines (<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbReadDatabase</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbReadDatabaseFP</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbWriteRecord</span></span></span>) access the database file. These
+routines read/write a database file to/from a memory resident EPICS database. All other access routines manipulate the memory
+resident database.
+</p><!--l. 27--><p class="noindent" >An include file <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbStaticLib.h</span></span></span> contains all the definitions needed to use the static database access library.
+Two structures (<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DBBASE</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DBENTRY</span></span></span>) are used to access a database. The fields in these structures should
+not be accessed directly. They are used by the static database access library to keep state information for the
+caller.
+</p><!--l. 32--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">14.2    </span> <a 
+ id="x16-54300014.2"></a>Definitions</h3>
+<!--l. 34--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.2.1    </span> <a 
+ id="x16-54400014.2.1"></a>DBBASE</h4>
+<!--l. 36--><p class="noindent" >Multiple memory resident databases can be accessed simultaneously. The user must provide definitions in the
+form:
+</p>
+<!--l. 39-->
+     <div class="lstlisting" id="listing-176"><span class="label"><a 
+ id="x16-544001r1"></a></span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">;</span>
+     
+                                                                                         
+                                                                                         
+</div>
+<!--l. 43--><p class="noindent" >NOTE: On an IOC <a 
+ id="dx16-544002"></a>pdbbase is a global variable, which is accessable if you include dbAccess.h
+</p><!--l. 45--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.2.2    </span> <a 
+ id="x16-54500014.2.2"></a>DBENTRY</h4>
+<!--l. 47--><p class="noindent" >A typical declaration for a database entry structure is:
+</p>
+<!--l. 49-->
+     <div class="lstlisting" id="listing-177"><span class="label"><a 
+ id="x16-545001r1"></a></span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-545002r2"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-545003r3"></a></span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">=</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbAllocEntry</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<!--l. 55--><p class="noindent" >Most static access to a database is via a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DBENTRY</span></span></span> structure. As many <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DBENTRYs</span></span></span> as desired can be allocated.
+</p><!--l. 58--><p class="noindent" >The user should NEVER access the fields of <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DBENTRY</span></span></span> directly. They are meant to be used by the static database access
+library.
+</p><!--l. 61--><p class="noindent" >Most static access routines accept an argument which contains the address of a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DBENTRY</span></span></span>. Each routine uses this structure to
+locate the information it needs and gives values to as many fields in this structure as possible. All other fields are set to
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">NULL</span></span></span>.
+</p><!--l. 65--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.2.3    </span> <a 
+ id="x16-54600014.2.3"></a>Field Types</h4>
+<a 
+ id="dx16-546001"></a>
+<!--l. 69--><p class="noindent" >Each database field has a type as defined in the next chapter. For static database access a simpler set of field types are defined.
+In addition, at runtime, a database field can be an array. With static database access, however, all fields are scalars. Static
+database access field types are called DCT field types.
+</p><!--l. 75--><p class="noindent" >The DCT field types are:
+</p>
+     <ul class="itemize1">
+     <li class="itemize"><a 
+ id="dx16-546002"></a><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_STRING</span></span></span>: Character string.
+     </li>
+     <li class="itemize"><a 
+ id="dx16-546003"></a><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_INTEGER</span></span></span>: Integer value
+     </li>
+     <li class="itemize"><a 
+ id="dx16-546004"></a><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_REAL</span></span></span>: Floating point number
+     </li>
+     <li class="itemize"><a 
+ id="dx16-546005"></a><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_MENU</span></span></span>: A set of choice strings
+     </li>
+     <li class="itemize"><a 
+ id="dx16-546006"></a><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_MENUFORM</span></span></span>: A set of choice strings with associated form.
+                                                                                         
+                                                                                         
+     </li>
+     <li class="itemize"><a 
+ id="dx16-546007"></a><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_INLINK</span></span></span>: Input Link
+     </li>
+     <li class="itemize"><a 
+ id="dx16-546008"></a><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_OUTLINK</span></span></span>: Output Link
+     </li>
+     <li class="itemize"><a 
+ id="dx16-546009"></a><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_FWDLINK</span></span></span>: Forward Link
+     </li>
+     <li class="itemize"><a 
+ id="dx16-546010"></a><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_NOACCESS</span></span></span>: A private field for use by record access routines
+     </li></ul>
+<!--l. 98--><p class="noindent" >A <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_STRING</span></span></span> field contains the address of a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">NULL</span></span></span> terminated string. The field types <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_INTEGER</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_REAL</span></span></span> are
+used for numeric fields. A field that has any of these types can be accessed via the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbGetString</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbPutString</span></span></span>,
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbVerify</span></span></span>, and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbGetRange</span></span></span> routines.
+</p><!--l. 102--><p class="noindent" >The field type <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_MENU</span></span></span> has an associated set of strings defining the choices. Routines are available for accessing menu
+fields. A menu field can also be accessed via the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbGetString</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbPutString</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbVerify</span></span></span>, and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbGetRange</span></span></span>
+routines.
+</p><!--l. 107--><p class="noindent" >The field type <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_MENUFORM</span></span></span> is like <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_MENU</span></span></span> but in addition the field has an associated link field.
+</p><!--l. 109--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_INLINK</span></span></span> (input), <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_OUTLINK</span></span></span> (output), and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_FWDLINK</span></span></span> (forward) specify that the field is a link,
+which has an associated set of static access routines described in the next subsection. A field that has any of
+these types can also be accessed via the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbGetString</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbPutString</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbVerify</span></span></span>, and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbGetRange</span></span></span>
+routines.
+</p><!--l. 112--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">14.3    </span> <a 
+ id="x16-54700014.3"></a>Allocating and Freeing DBBASE</h3>
+<!--l. 114--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.3.1    </span> <a 
+ id="x16-54800014.3.1"></a>dbAllocBase</h4>
+<a 
+ id="dx16-548001"></a>
+<!--l. 117-->
+     <div class="lstlisting" id="listing-178"><span class="label"><a 
+ id="x16-548002r1"></a></span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">dbAllocBase</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<!--l. 121--><p class="noindent" >This routine allocates and initializes a DBBASE structure. It does not return if it is unable to allocate storage.
+</p><!--l. 124--><p class="noindent" >Most applications should not need to call this routine directly. The <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbReadDatabase</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbReadDatabaseFP</span></span></span> routines
+will call it automatically if <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">pdbbase</span></span></span> is null. Thus an application normally only has to contain code like the
+following:
+</p>
+<!--l. 128-->
+                                                                                         
+                                                                                         
+     <div class="lstlisting" id="listing-179"><span class="label"><a 
+ id="x16-548003r1"></a></span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">=0;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-548004r2"></a></span><span 
+class="pcrr7t-">...</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-548005r3"></a></span><span 
+class="pcrr7t-">status</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">=</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbReadDatabase</span><span 
+class="pcrr7t-">(&amp;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbdfile</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">search_path</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">macros</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<!--l. 134--><p class="noindent" >However the static database access library does allow applications to work with multiple databases simultaneously, each
+referenced via a different DBBASE pointer. Such applications may need to call <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbAllocBase</span></span></span> directly.
+</p><!--l. 137--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.3.2    </span> <a 
+ id="x16-54900014.3.2"></a>dbFreeBase</h4>
+<a 
+ id="dx16-549001"></a>
+<!--l. 140-->
+     <div class="lstlisting" id="listing-180"><span class="label"><a 
+ id="x16-549002r1"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbFreeBase</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<!--l. 144--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbFreeBase</span></span></span> frees the entire database reference by <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">pdbbase</span></span></span> including the DBBASE structure itself.
+</p><!--l. 146--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">14.4    </span> <a 
+ id="x16-55000014.4"></a>DBENTRY Routines</h3>
+<!--l. 148--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.4.1    </span> <a 
+ id="x16-55100014.4.1"></a>Alloc/Free DBENTRY</h4>
+<a 
+ id="dx16-551001"></a>
+<!--l. 151-->
+     <div class="lstlisting" id="listing-181"><span class="label"><a 
+ id="x16-551002r1"></a></span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">dbAllocEntry</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-551003r2"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbFreeEntry</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx16-551004"></a>
+<a 
+ id="dx16-551005"></a>
+<!--l. 158--><p class="noindent" >These routines allocate, initialize, and free <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DBENTRY</span></span></span> structures. The user can allocate and free <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DBENTRY</span></span></span> structures as
+necessary. Each <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DBENTRY</span></span></span> is, however, tied to a particular database.
+</p><!--l. 161--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbAllocEntry</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbFreeEntry</span></span></span> act as a pair, i.e. the user calls <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbAllocEntry</span></span></span> to create a new DBENTRY and calls
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbFreeEntry</span></span></span> when done.
+                                                                                         
+                                                                                         
+</p><!--l. 164--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.4.2    </span> <a 
+ id="x16-55200014.4.2"></a>dbInitEntry dbFinishEntry</h4>
+<a 
+ id="dx16-552001"></a>
+<a 
+ id="dx16-552002"></a>
+<!--l. 168-->
+     <div class="lstlisting" id="listing-182"><span class="label"><a 
+ id="x16-552003r1"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbInitEntry</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-552004r2"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbFinishEntry</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<!--l. 173--><p class="noindent" >The routines <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbInitEntry</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbFinishEntry</span></span></span> are provided in case the user wants to allocate a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DBENTRY</span></span></span> structure on
+the stack. Note that the caller MUST call <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbFinishEntry</span></span></span> before returning from the routine that calls <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbInitEntry</span></span></span>. An
+example of how to use these routines is:
+</p>
+<!--l. 177-->
+     <div class="lstlisting" id="listing-183"><span class="label"><a 
+ id="x16-552005r1"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">xxx</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-552006r2"></a></span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-552007r3"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbentry</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-552008r4"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">=</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&amp;</span><span 
+class="pcrr7t-">dbentry</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-552009r5"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">...</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-552010r6"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbInitEntry</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-552011r7"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">...</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-552012r8"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbFinishEntry</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-552013r9"></a></span><span 
+class="pcrr7t-">}</span>
+     
+</div>
+<!--l. 189--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.4.3    </span> <a 
+ id="x16-55300014.4.3"></a>dbCopyEntry</h4>
+<!--l. 191-->
+     <div class="lstlisting" id="listing-184"><span class="label"><a 
+ id="x16-553001r1"></a></span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">dbCopyEntry</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-553002r2"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbCopyEntryContents</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pfrom</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pto</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx16-553003"></a>
+<a 
+ id="dx16-553004"></a>
+<!--l. 198--><p class="noindent" >The routine <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbCopyEntry</span></span></span> allocates a new entry, via a call to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbAllocEntry</span></span></span>, copies the information from the
+original entry, and returns the result. The caller must free the entry, via <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbFreeEntry</span></span></span> when finished with the
+DBENTRY.
+</p><!--l. 201--><p class="noindent" >The routine <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbCopyEntryContents</span></span></span> copies the contents of pfrom to pto. Code should never perform structure
+copies.
+</p><!--l. 203--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">14.5    </span> <a 
+ id="x16-55400014.5"></a>Read and Write Database</h3>
+                                                                                         
+                                                                                         
+<!--l. 205--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.5.1    </span> <a 
+ id="x16-55500014.5.1"></a>Read Database File</h4>
+<!--l. 207-->
+     <div class="lstlisting" id="listing-185"><span class="label"><a 
+ id="x16-555001r1"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbReadDatabase</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;&#x22C6;</span><span 
+class="pcrr7t-">ppdbbase</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">filename</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-555002r2"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">path</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">substitutions</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-555003r3"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbReadDatabaseFP</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;&#x22C6;</span><span 
+class="pcrr7t-">ppdbbase</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">FILE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">fp</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-555004r4"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">path</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">substitutions</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-555005r5"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbPath</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">path</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-555006r6"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbAddPath</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">path</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx16-555007"></a>
+<!--l. 217--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbReadDatabase</span></span></span> and <a 
+ id="dx16-555008"></a><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbReadDatabaseFP</span></span></span> both read a file containing database definitions as described in chapter
+&#8221;Database Definitions&#8221;. If <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x22C6;ppdbbase</span></span></span> is NULL, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbAllocBase</span></span></span> is automatically invoked and the return address assigned to
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">&#x22C6;pdbbase</span></span></span>. The only difference between the two routines is that one accepts a file name and the other a &#8221;FILE *&#8221;. Any
+combination of these routines can be called multiple times. Each adds definitions with the rules described in chapter &#8220;Database
+Definitions&#8221;.
+</p><!--l. 223--><p class="noindent" >The routines <a 
+ id="dx16-555009"></a><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbPath</span></span></span> and <a 
+ id="dx16-555010"></a><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbAddPath</span></span></span> specify paths for use by include statements in database definition files. These are not
+normally called by user code.
+</p><!--l. 226--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.5.2    </span> <a 
+ id="x16-55600014.5.2"></a>Write Database Definitons</h4>
+<!--l. 228-->
+     <div class="lstlisting" id="listing-186"><span class="label"><a 
+ id="x16-556001r1"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbWriteMenu</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">filename</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">menuName</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-556002r2"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbWriteMenuFP</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">FILE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">fp</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">menuName</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-556003r3"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbWriteRecordType</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">filename</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">recordTypeName</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-556004r4"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbWriteRecordTypeFP</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">FILE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">fp</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">recordTypeName</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-556005r5"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbWriteDevice</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">filename</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-556006r6"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbWriteDeviceFP</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">FILE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">fp</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-556007r7"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbWriteDriver</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">filename</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-556008r8"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbWriteDriverFP</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">FILE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">fp</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-556009r9"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbWriteRegistrarFP</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">FILE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">fp</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-556010r10"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbWriteFunctionFP</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">FILE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">fp</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-556011r11"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbWriteVariableFP</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">FILE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">fp</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-556012r12"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbWriteBreaktable</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">filename</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-556013r13"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbWriteBreaktableFP</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">FILE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">fp</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<!--l. 244--><p class="noindent" >Each of these routines writes files in the same format accepted by <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbReadDatabase</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbReadDatabaseFP</span></span></span>. Two
+versions of each type are provided. The only difference is that one accepts a filename string and the other a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">FILE</span><span 
+class="pcrr7t-">&#x00A0;&#x22C6;</span></span></span> pointer.
+Thus only one of each type will be described.
+<a 
+ id="dx16-556014"></a>
+<a 
+ id="dx16-556015"></a>
+</p><!--l. 251--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbWriteMenu</span></span></span> writes the description of the specified menu or, if <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">menuName</span></span></span> is NULL, the descriptions of all
+menus.
+<a 
+ id="dx16-556016"></a>
+<a 
+ id="dx16-556017"></a>
+</p><!--l. 255--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbWriteRecordType</span></span></span> writes the description of the specified record type or, if <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">recordTypeName</span></span></span> is NULL, the
+descriptions of all record types to the named file.
+<a 
+ id="dx16-556018"></a>
+<a 
+ id="dx16-556019"></a>
+</p><!--l. 260--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbWriteDevice</span></span></span> writes the description of all devices to the named file.
+<a 
+ id="dx16-556020"></a>
+<a 
+ id="dx16-556021"></a>
+</p><!--l. 264--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbWriteDriver</span></span></span> writes the description of all drivers to the named file.
+<a 
+ id="dx16-556022"></a>
+</p><!--l. 267--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbWriteRegistrarFP</span></span></span> writes the list of all registrars to the given open file (no filename version is provided).
+<a 
+ id="dx16-556023"></a>
+                                                                                         
+                                                                                         
+</p><!--l. 270--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbWriteFunctionFP</span></span></span> writes the list of all functions to the given open file (no filename version is provided).
+<a 
+ id="dx16-556024"></a>
+</p><!--l. 273--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbWriteVariableFP</span></span></span> writes the list of all variables to the given open file (no filename version is provided).
+<a 
+ id="dx16-556025"></a>
+<a 
+ id="dx16-556026"></a>
+</p><!--l. 277--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbWriteBreaktable</span></span></span> writes the definitions of all breakpoint tables to the named file.
+</p><!--l. 279--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.5.3    </span> <a 
+ id="x16-55700014.5.3"></a>Write Record Instances</h4>
+<!--l. 281-->
+     <div class="lstlisting" id="listing-187"><span class="label"><a 
+ id="x16-557001r1"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbWriteRecord</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">file</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-557002r2"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-557003r3"></a></span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">precordTypeName</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">level</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-557004r4"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbWriteRecordFP</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">FILE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">fp</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-557005r5"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-557006r6"></a></span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">precordTypeName</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">level</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx16-557007"></a>
+<a 
+ id="dx16-557008"></a>
+<!--l. 292--><p class="noindent" >These routines write record instance data. If <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">precordTypeName</span></span></span> is NULL, then the record instances for all
+record types are written, otherwise only the records for the specified type are written. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">level</span></span></span> has the following
+meaning:
+</p>
+     <ul class="itemize1">
+     <li class="itemize">0 - Write only prompt fields that are different than the default value.
+     </li>
+     <li class="itemize">1 - Write only the fields which are prompt fields.
+     </li>
+     <li class="itemize">2 - Write the values of all fields.</li></ul>
+<!--l. 302--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">14.6    </span> <a 
+ id="x16-55800014.6"></a>Manipulating Record Types</h3>
+<!--l. 304--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.6.1    </span> <a 
+ id="x16-55900014.6.1"></a>Get Number of Record Types</h4>
+<!--l. 306-->
+     <div class="lstlisting" id="listing-188"><span class="label"><a 
+ id="x16-559001r1"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbGetNRecordTypes</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span>
+     
+                                                                                         
+                                                                                         
+</div>
+<a 
+ id="dx16-559002"></a>
+<!--l. 311--><p class="noindent" >This routine returns the number of record types in the database.
+</p><!--l. 313--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.6.2    </span> <a 
+ id="x16-56000014.6.2"></a>Locate Record Type</h4>
+<!--l. 315-->
+     <div class="lstlisting" id="listing-189"><span class="label"><a 
+ id="x16-560001r1"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbFindRecordType</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-560002r2"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">recordTypeName</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-560003r3"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbFirstRecordType</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-560004r4"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbNextRecordType</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx16-560005"></a>
+<a 
+ id="dx16-560006"></a>
+<a 
+ id="dx16-560007"></a>
+<!--l. 325--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbFindRecordType</span></span></span> locates a particular record type. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbFirstRecordType</span></span></span> locates the first, in alphabetical order, record
+type. Given that DBENTRY points to a particular record type, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbNextRecordType</span></span></span> locates the next record type. Each
+routine returns 0 for success and a non zero status value for failure. A typical code segment using these routines
+is:
+</p>
+<!--l. 329-->
+     <div class="lstlisting" id="listing-190"><span class="label"><a 
+ id="x16-560008r1"></a></span><span 
+class="pcrr7t-">status</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">=</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbFirstRecordType</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-560009r2"></a></span><span 
+class="pcrb7t-">while</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(!</span><span 
+class="pcrr7t-">status</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-560010r3"></a></span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">/&#x22C6;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">Do</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">something</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x22C6;/</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-560011r4"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">status</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">=</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbNextRecordType</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-560012r5"></a></span><span 
+class="pcrr7t-">}</span>
+     
+</div>
+<!--l. 337--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.6.3    </span> <a 
+ id="x16-56100014.6.3"></a>Get Record Type Name</h4>
+<!--l. 339-->
+     <div class="lstlisting" id="listing-191"><span class="label"><a 
+ id="x16-561001r1"></a></span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">dbGetRecordTypeName</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx16-561002"></a>
+<!--l. 344--><p class="noindent" >This routine returns the name of the record type that DBENTRY currently references. This routine should only be called after a
+successful call to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbFindRecordType</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbFirstRecordType</span></span></span>, or <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbNextRecordType</span></span></span>. It returns NULL if
+DBENTRY does not point to a record description.
+                                                                                         
+                                                                                         
+</p><!--l. 348--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">14.7    </span> <a 
+ id="x16-56200014.7"></a>Manipulating Field Descriptions</h3>
+<!--l. 350--><p class="noindent" >The routines described here all assume that DBENTRY references a record type, i.e. that <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbFindRecordType</span></span></span>,
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbFirstRecordType</span></span></span> or <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbNextRecordType</span></span></span> have returned success or that a record instance has been successfully
+located.
+</p><!--l. 352--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.7.1    </span> <a 
+ id="x16-56300014.7.1"></a>Get Number of Fields</h4>
+<!--l. 354-->
+     <div class="lstlisting" id="listing-192"><span class="label"><a 
+ id="x16-563001r1"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbGetNFields</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dctonly</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx16-563002"></a>
+<!--l. 359--><p class="noindent" >Returns the number of fields for the record instance that DBENTRY currently references.
+</p><!--l. 361--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.7.2    </span> <a 
+ id="x16-56400014.7.2"></a>Locate Field</h4>
+<!--l. 363-->
+     <div class="lstlisting" id="listing-193"><span class="label"><a 
+ id="x16-564001r1"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbFirstField</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dctonly</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-564002r2"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbNextField</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dctonly</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx16-564003"></a>
+<a 
+ id="dx16-564004"></a>
+<a 
+ id="dx16-564005"></a>
+<!--l. 371--><p class="noindent" >These routines are used to locate fields. If any of these routines returns success, then DBENTRY references that field
+description.
+</p><!--l. 374--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.7.3    </span> <a 
+ id="x16-56500014.7.3"></a>Get Field Type</h4>
+<!--l. 376-->
+     <div class="lstlisting" id="listing-194"><span class="label"><a 
+ id="x16-565001r1"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbGetFieldType</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span>
+     
+                                                                                         
+                                                                                         
+</div>
+<a 
+ id="dx16-565002"></a>
+<!--l. 381--><p class="noindent" >This routine returns the integer value for a DCT field type. See Section <a 
+href="#x16-54600014.2.3">14.2.3<!--tex4ht:ref: subsec:Field Types --></a> for a description of the field
+types.
+</p><!--l. 384--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.7.4    </span> <a 
+ id="x16-56600014.7.4"></a>Get Field Name</h4>
+<!--l. 386-->
+     <div class="lstlisting" id="listing-195"><span class="label"><a 
+ id="x16-566001r1"></a></span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">dbGetFieldName</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx16-566002"></a>
+<!--l. 391--><p class="noindent" >This routine returns the name of the field that DBENTRY currently references. It returns NULL if DBENTRY does not point to
+a field.
+</p><!--l. 394--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.7.5    </span> <a 
+ id="x16-56700014.7.5"></a>Get Default Value</h4>
+<!--l. 396-->
+     <div class="lstlisting" id="listing-196"><span class="label"><a 
+ id="x16-567001r1"></a></span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">dbGetDefault</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx16-567002"></a>
+<!--l. 401--><p class="noindent" >This routine returns the default value for the field that DBENTRY currently references. It returns NULL if DBENTRY does not
+point to a field or if the default value is NULL.
+</p><!--l. 404--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.7.6    </span> <a 
+ id="x16-56800014.7.6"></a>Get Field Prompt</h4>
+<!--l. 406-->
+     <div class="lstlisting" id="listing-197"><span class="label"><a 
+ id="x16-568001r1"></a></span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">dbGetPrompt</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-568002r2"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbGetPromptGroup</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx16-568003"></a>
+<a 
+ id="dx16-568004"></a>
+<!--l. 413--><p class="noindent" >The <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbGetPrompt</span></span></span> routine returns the character string prompt value, which provides a short description of the field.
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbGetPromptGroup</span></span></span> returns the field group as described in guigroup.h.
+                                                                                         
+                                                                                         
+</p><!--l. 416--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">14.8    </span> <a 
+ id="x16-56900014.8"></a>Manipulating Record Attributes</h3>
+<!--l. 418--><p class="noindent" >A record attribute is a psuedo-field definition attached to a record type. If a attribute value is assigned to a psuedo field name
+then all record instances of that record type appear to have that field with the defined value. All attribute fields are
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_STRING</span></span></span> fields.
+</p><!--l. 422--><p class="noindent" >Two field attributes are automatically created: RTYP and VERS. RTYP is set equal to ,the record type name. VERS is
+initialized to the value &#8220;none specified&#8221; but can be changed by record support.
+</p><!--l. 425--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.8.1    </span> <a 
+ id="x16-57000014.8.1"></a>dbPutRecordAttribute</h4>
+<!--l. 427-->
+     <div class="lstlisting" id="listing-198"><span class="label"><a 
+ id="x16-570001r1"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbPutRecordAttribute</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">name</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-570002r2"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">value</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx16-570003"></a>
+<!--l. 433--><p class="noindent" >This creates or modifies the attribute <span 
+class="ptmri7t-">name </span>of the record type referenced by <span 
+class="ptmri7t-">pdbentry </span>to <span 
+class="ptmri7t-">value</span>. Attribute names should be
+valid C identifiers, starting with a letter or underscore followed by any number of alphanumeric or underscore
+characters.
+</p><!--l. 436--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.8.2    </span> <a 
+ id="x16-57100014.8.2"></a>dbGetRecordAttribute</h4>
+<!--l. 438-->
+     <div class="lstlisting" id="listing-199"><span class="label"><a 
+ id="x16-571001r1"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbGetRecordAttribute</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">name</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx16-571002"></a>
+<!--l. 443--><p class="noindent" >Looks up the attribute <span 
+class="ptmri7t-">name </span>of the record type referenced by <span 
+class="ptmri7t-">pdbentry </span>and sets the the field pointer in <span 
+class="ptmri7t-">pdbentry </span>to refer
+to this string if it exists. The routine <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbGetString</span></span></span> can be used subsequently to read the current attribute
+value.
+                                                                                         
+                                                                                         
+</p><!--l. 446--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">14.9    </span> <a 
+ id="x16-57200014.9"></a>Manipulating Record Instances</h3>
+<!--l. 448--><p class="noindent" >With the exception of <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbFindRecord</span></span></span>, each of the routines described in this section need DBENTRY to reference a valid
+record type, i.e. that <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbFindRecordType</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbFirstRecordType</span></span></span>, or <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbNextRecordType</span></span></span> have been called and
+returned success.
+</p><!--l. 450--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.9.1    </span> <a 
+ id="x16-57300014.9.1"></a>Get Number of Records</h4>
+<!--l. 452-->
+     <div class="lstlisting" id="listing-200"><span class="label"><a 
+ id="x16-573001r1"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbGetNRecords</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx16-573002"></a>
+<!--l. 457--><p class="noindent" >Returns the total number of record instances and aliases for the record type that DBENTRY currently references.
+</p><!--l. 459--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.9.2    </span> <a 
+ id="x16-57400014.9.2"></a>Get Number of Record Aliases</h4>
+<!--l. 461-->
+     <div class="lstlisting" id="listing-201"><span class="label"><a 
+ id="x16-574001r1"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbGetNAliases</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">)</span>
+     
+</div>
+<a 
+ id="dx16-574002"></a>
+<!--l. 466--><p class="noindent" >Returns the number of record aliases for the record type that DBENTRY currently references.
+</p><!--l. 468--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.9.3    </span> <a 
+ id="x16-57500014.9.3"></a>Locate Record</h4>
+<!--l. 470-->
+     <div class="lstlisting" id="listing-202"><span class="label"><a 
+ id="x16-575001r1"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbFindRecord</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">precordName</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-575002r2"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbFirstRecord</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-575003r3"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbNextRecord</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx16-575004"></a>
+<a 
+ id="dx16-575005"></a>
+<a 
+ id="dx16-575006"></a>
+                                                                                         
+                                                                                         
+<!--l. 479--><p class="noindent" >These routines are used to locate record instances and aliases. If any of these routines returns success, then DBENTRY
+references a record or a record alias (use <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbIsAlias</span></span></span> to distinguish the two). <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbFindRecord</span></span></span> may be called
+without DBENTRY referencing a valid record type. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbFirstRecord</span></span></span> only works if DBENTRY references a
+record type. The <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbDumpRecords</span></span></span> example given at the end of this chapter shows how these routines can be
+used.
+</p><!--l. 485--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbFindRecord</span></span></span> also calls <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbFindField</span></span></span> if the record name includes a field name, i.e. it ends in &#8220;<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">.XXX</span></span></span>&#8221;. The routine
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbFoundField</span></span></span> indicates whether the field was found or not. If it was not found, then <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbFindField</span></span></span> must be called before
+individual fields can be accessed.
+</p><!--l. 489--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.9.4    </span> <a 
+ id="x16-57600014.9.4"></a>Get Record Name</h4>
+<!--l. 491-->
+     <div class="lstlisting" id="listing-203"><span class="label"><a 
+ id="x16-576001r1"></a></span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">dbGetRecordName</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx16-576002"></a>
+<!--l. 496--><p class="noindent" >This routine only works properly if called after <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbFindRecord</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbFirstRecord</span></span></span>, or <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbNextRecord</span></span></span> has
+returned success. If DBENTRY refers to an alias, the name returned is that of the alias, not of the record it refers
+to.
+</p><!--l. 499--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.9.5    </span> <a 
+ id="x16-57700014.9.5"></a>Distinguishing Record Aliases</h4>
+<!--l. 501-->
+     <div class="lstlisting" id="listing-204"><span class="label"><a 
+ id="x16-577001r1"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbIsAlias</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">)</span>
+     
+</div>
+<a 
+ id="dx16-577002"></a>
+<!--l. 506--><p class="noindent" >This routine only works properly if called after <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbFindRecord</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbFirstRecord</span></span></span>, or <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbNextRecord</span></span></span> has returned
+success. If DBENTRY refers to an alias it returns a non-zero value, otherwise it returns zero.
+</p><!--l. 509--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.9.6    </span> <a 
+ id="x16-57800014.9.6"></a>Create/Delete/Free Records and Aliases</h4>
+<!--l. 511-->
+     <div class="lstlisting" id="listing-205"><span class="label"><a 
+ id="x16-578001r1"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbCreateRecord</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">precordName</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-578002r2"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbCreateAlias</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">paliasName</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-578003r3"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbDeleteRecord</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-578004r4"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbDeleteAliases</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-578005r5"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbFreeRecords</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">);</span>
+     
+                                                                                         
+                                                                                         
+</div>
+<a 
+ id="dx16-578006"></a>
+<a 
+ id="dx16-578007"></a>
+<a 
+ id="dx16-578008"></a>
+<a 
+ id="dx16-578009"></a>
+<a 
+ id="dx16-578010"></a>
+<!--l. 524--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbCreateRecord</span></span></span>, which assumes that <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DBENTRY</span></span></span> references a valid record type, creates a new record instance and
+initializes it as specified by the record description. If it returns success, then <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DBENTRY</span></span></span> references the record just created.
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbCreateAlias</span></span></span> assumes that DBENTRY references a particular record instance and creates an alias for that record. If it
+returns success, then DBENTRY references the alias just created. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbDeleteRecord</span></span></span> deletes either a single alias, or a single
+record instance and all the aliases that refer to it. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbDeleteAliases</span></span></span> finds and deletes all aliases that refer to the current
+record. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbFreeRecords</span></span></span> deletes all record instances.
+</p><!--l. 532--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.9.7    </span> <a 
+ id="x16-57900014.9.7"></a>Copy Record</h4>
+<!--l. 534-->
+     <div class="lstlisting" id="listing-206"><span class="label"><a 
+ id="x16-579001r1"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbCopyRecord</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">newRecordName</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-579002r2"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">overWriteOK</span><span 
+class="pcrr7t-">)</span>
+     
+</div>
+<a 
+ id="dx16-579003"></a>
+<!--l. 540--><p class="noindent" >This routine copies the record instance currently referenced by <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DBENTRY</span></span></span> (it fails if DBENTRY references an alias). Thus it
+creates a new record with the name <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">newRecordName</span></span></span> that is of the same type as the original record and copies the original
+records field values to the new record. If <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">newRecordName</span></span></span> already exists and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">overWriteOK</span></span></span> is true, then the original
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">newRecordName</span></span></span> is deleted and recreated. If <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbCopyRecord</span></span></span> completes successfully, DBENTRY references the new
+record.
+</p><!--l. 545--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.9.8    </span> <a 
+ id="x16-58000014.9.8"></a>Rename Record</h4>
+<!--l. 547-->
+     <div class="lstlisting" id="listing-207"><span class="label"><a 
+ id="x16-580001r1"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbRenameRecord</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">newname</span><span 
+class="pcrr7t-">)</span>
+     
+</div>
+<a 
+ id="dx16-580002"></a>
+<!--l. 552--><p class="noindent" >This routine renames the record instance currently referenced by <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DBENTRY</span></span></span> (it fails if DBENTRY references an alias). If
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbRenameRecord</span></span></span> completes successfully, DBENTRY references the renamed record.
+                                                                                         
+                                                                                         
+</p><!--l. 555--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.9.9    </span> <a 
+ id="x16-58100014.9.9"></a>Record Visibility</h4>
+<!--l. 557--><p class="noindent" >These routines are intended for use by graphical configuration tools.
+</p>
+<!--l. 559-->
+     <div class="lstlisting" id="listing-208"><span class="label"><a 
+ id="x16-581001r1"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbVisibleRecord</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-581002r2"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbInvisibleRecord</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-581003r3"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbIsVisibleRecord</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx16-581004"></a>
+<a 
+ id="dx16-581005"></a>
+<a 
+ id="dx16-581006"></a>
+<!--l. 568--><p class="noindent" >Calling <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbVisibleRecord</span></span></span> makes the record referenced by <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DBENTRY</span></span></span> visible. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbInvisibleRecord</span></span></span> makes the record
+invisible. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbIsVisibleRecord</span></span></span> returns TRUE if the record is visible, FALSE otherwise.
+</p><!--l. 572--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.9.10    </span> <a 
+ id="x16-58200014.9.10"></a>Find Field</h4>
+<!--l. 574-->
+     <div class="lstlisting" id="listing-209"><span class="label"><a 
+ id="x16-582001r1"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbFindField</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pfieldName</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-582002r2"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbFoundField</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx16-582003"></a>
+<a 
+ id="dx16-582004"></a>
+<!--l. 581--><p class="noindent" >Given that a record instance has been located, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbFindField</span></span></span> finds the specified field. If it returns success, then <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DBENTRY</span></span></span>
+references that field. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbFoundField</span></span></span> returns <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">FALSE</span></span></span> if no field with the given name could be found, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">TRUE</span></span></span> if the field was
+located.
+</p><!--l. 585--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.9.11    </span> <a 
+ id="x16-58300014.9.11"></a>Get/Put Field Values</h4>
+<!--l. 587-->
+     <div class="lstlisting" id="listing-210"><span class="label"><a 
+ id="x16-583001r1"></a></span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">dbGetString</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-583002r2"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbPutString</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pstring</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-583003r3"></a></span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">dbVerify</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pstring</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-583004r4"></a></span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">dbGetRange</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-583005r5"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbIsDefaultValue</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx16-583006"></a>
+<a 
+ id="dx16-583007"></a>
+<a 
+ id="dx16-583008"></a>
+<a 
+ id="dx16-583009"></a>
+<a 
+ id="dx16-583010"></a>
+                                                                                         
+                                                                                         
+<!--l. 600--><p class="noindent" >These routines are used to get or change field values. They work on any database field type except <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_NOACCESS</span></span></span>.
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbVerify</span></span></span> returns <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">NULL</span></span></span> if the string contains a valid value for this field or an error message if not. Note that the strings
+returned are owned by the DBENTRY, so the next call passing that DBENTRY object that returns a string will overwrite
+the value returned by a previous call. It is the caller&#8217;s responsibility to copy the strings if the value must be
+kept.
+</p><!--l. 606--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_MENU</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_MENUFORM</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_LINK_xxx</span></span></span> fields can be manipulated via routines described in the following
+sections. If, however <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbGetString</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbPutString</span></span></span> are used, they do work correctly. For these field
+types <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbGetString</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbPutString</span></span></span> are intended to be used only for creating and restoring versions of a
+database.
+</p><!--l. 610--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">14.10    </span> <a 
+ id="x16-58400014.10"></a>Manipulating Menu Fields</h3>
+<!--l. 612--><p class="noindent" >These routines should only be used for <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_MENU</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_MENUFORM</span></span></span> fields. Thus they should only be called if
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbFindField</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbFirstField</span></span></span>, or <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbNextField</span></span></span> has returned success and the field type is <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_MENU</span></span></span> or
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_MENUFORM</span></span></span>.
+</p><!--l. 615--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.10.1    </span> <a 
+ id="x16-58500014.10.1"></a>Get Number of Menu Choices</h4>
+<!--l. 617-->
+     <div class="lstlisting" id="listing-211"><span class="label"><a 
+ id="x16-585001r1"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbGetNMenuChoices</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx16-585002"></a>
+<!--l. 622--><p class="noindent" >This routine returns the number of menu choices for menu.
+</p><!--l. 624--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.10.2    </span> <a 
+ id="x16-58600014.10.2"></a>Get Menu Choice</h4>
+<!--l. 626-->
+     <div class="lstlisting" id="listing-212"><span class="label"><a 
+ id="x16-586001r1"></a></span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;&#x22C6;</span><span 
+class="pcrr7t-">dbGetMenuChoices</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx16-586002"></a>
+<!--l. 631--><p class="noindent" >This routine returns the address of an array of pointers to strings which contain the menu choices.
+                                                                                         
+                                                                                         
+</p><!--l. 633--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.10.3    </span> <a 
+ id="x16-58700014.10.3"></a>Get/Put Menu</h4>
+<!--l. 635-->
+     <div class="lstlisting" id="listing-213"><span class="label"><a 
+ id="x16-587001r1"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbGetMenuIndex</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-587002r2"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbPutMenuIndex</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">index</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-587003r3"></a></span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">dbGetMenuStringFromIndex</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">index</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-587004r4"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbGetMenuIndexFromString</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-587005r5"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">choice</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx16-587006"></a>
+<a 
+ id="dx16-587007"></a>
+<a 
+ id="dx16-587008"></a>
+<a 
+ id="dx16-587009"></a>
+<!--l. 647--><p class="noindent" >NOTE: These routines do not work if the current field value contains a macro definition.
+</p><!--l. 649--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbGetMenuIndex</span></span></span> returns the index of the menu choice for the current field, i.e. it specifies which choice to which the field is
+currently set. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbPutMenuIndex</span></span></span> sets the field to the choice specified by the index.
+</p><!--l. 653--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbGetMenuStringFromIndex</span></span></span> returns the string value for a menu index. If the index value is invalid NULL is returned.
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbGetMenuIndexFromString</span></span></span> returns the index for the given string. If the string is not a valid choice -1 is
+returned.
+<a 
+ id="dx16-587010"></a>
+<a 
+ id="dx16-587011"></a>
+</p><!--l. 660--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.10.4    </span> <a 
+ id="x16-58800014.10.4"></a>Locate Menu</h4>
+<!--l. 662-->
+     <div class="lstlisting" id="listing-214"><span class="label"><a 
+ id="x16-588001r1"></a></span><span 
+class="pcrr7t-">dbMenu</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">dbFindMenu</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">name</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx16-588002"></a>
+<!--l. 667--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbFindMenu</span></span></span> is most useful for runtime use but is a static database access routine. This routine just finds a menu with the
+given name.
+</p><!--l. 670--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">14.11    </span> <a 
+ id="x16-58900014.11"></a>Manipulating Link Fields</h3>
+<!--l. 672--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.11.1    </span> <a 
+ id="x16-59000014.11.1"></a>Link Types</h4>
+                                                                                         
+                                                                                         
+<!--l. 674--><p class="noindent" >Links are the most complicated types of fields. A link can be a constant, reference a field in another record, or can refer to a
+hardware device. Two additional complications arise for hardware links. The first is that field <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DTYP</span></span></span>, which is a menu field,
+determines if the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">INP</span></span></span> or <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">OUT</span></span></span> field is a device link. The second is that the information that must be specified for a device link is
+bus dependent. In order to shelter database configuration tools from these complications the following is done for static
+database access.
+</p>
+     <ul class="itemize1">
+     <li class="itemize">Static database access will treat <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DTYP</span></span></span> as a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_MENUFORM</span></span></span> field.
+     </li>
+     <li class="itemize">The information for the link field related to the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_MENUFORM</span></span></span> can be entered via a set of form manipulation
+     routines associated with the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_MENUFORM</span></span></span> field. Thus the link information can be entered via the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DTYP</span></span></span> field
+     rather than the link field.
+     </li>
+     <li class="itemize">The Form routines described in the next section can also be used with any link field.
+     </li></ul>
+<!--l. 691--><p class="noindent" >Each link is one of the following types:
+</p>
+     <ul class="itemize1">
+     <li class="itemize"><a 
+ id="dx16-590001"></a><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_LINK_CONSTANT</span></span></span>: Constant value.
+     </li>
+     <li class="itemize"><a 
+ id="dx16-590002"></a><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_LINK_PV</span></span></span>: A process variable link.
+     </li>
+     <li class="itemize"><a 
+ id="dx16-590003"></a><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_LINK_FORM</span></span></span>: A link that can only be processed via the form routines described in the next section.
+     </li></ul>
+<!--l. 702--><p class="noindent" >Database configuration tools can change any link between being a constant and a process variable link. Routines are provided
+to accomplish these tasks.
+</p><!--l. 705--><p class="noindent" >The routines <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbGetString</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbPutString</span></span></span>, and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbVerify</span></span></span> can be used for link fields but the form routines can be used to
+provide a friendlier user interface.
+</p><!--l. 707--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.11.2    </span> <a 
+ id="x16-59100014.11.2"></a>All Link Fields</h4>
+<!--l. 709-->
+     <div class="lstlisting" id="listing-215"><span class="label"><a 
+ id="x16-591001r1"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbGetNLinks</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-591002r2"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbGetLinkField</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">index</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-591003r3"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbGetLinkType</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx16-591004"></a>
+<a 
+ id="dx16-591005"></a>
+<a 
+ id="dx16-591006"></a>
+                                                                                         
+                                                                                         
+<!--l. 718--><p class="noindent" >These are routines for manipulating <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_xxxLINK</span></span></span> fields. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbGetNLinks</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbGetLinkField</span></span></span> are used to walk through
+all the link fields of a record. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbGetLinkType</span></span></span> returns one of the values: <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_LINK_CONSTANT</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_LINK_PV</span></span></span>,
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_LINK_FORM</span></span></span>, or the value -1 if it is called for an illegal field.
+</p><!--l. 722--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.11.3    </span> <a 
+ id="x16-59200014.11.3"></a>Constant and Process Variable Links</h4>
+<!--l. 724-->
+     <div class="lstlisting" id="listing-216"><span class="label"><a 
+ id="x16-592001r1"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbCvtLinkToConstant</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-592002r2"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbCvtLinkToPvlink</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx16-592003"></a>
+<a 
+ id="dx16-592004"></a>
+<!--l. 731--><p class="noindent" >These routines should be used for modifying <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_LINK_CONSTANT</span></span></span> or <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_LINK_PV</span></span></span> links. They should not be used
+for <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_LINK_FORM</span></span></span> links, which should be processed via the associated <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_MENUFORM</span></span></span> field described
+above.
+</p><!--l. 734--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.11.4    </span> <a 
+ id="x16-59300014.11.4"></a>Get Related Field</h4>
+<!--l. 736-->
+     <div class="lstlisting" id="listing-217"><span class="label"><a 
+ id="x16-593001r1"></a></span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">dbGetRelatedField</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">)</span>
+     
+</div>
+<!--l. 740--><p class="noindent" >This routine returns the field name of the related field for a <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DCT_MENUFORM</span></span></span> field. If it is called for any other type of field it
+returns NULL.
+</p><!--l. 743--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">14.12    </span> <a 
+ id="x16-59400014.12"></a>Manipulating Information Items</h3>
+<!--l. 745--><p class="noindent" >Information items are stored as a list attached to each individual record instance. All routines listed in this section require that
+the DBENTRY argument refer to a valid record instance.
+                                                                                         
+                                                                                         
+</p><!--l. 748--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.12.1    </span> <a 
+ id="x16-59500014.12.1"></a>Locate Item</h4>
+<!--l. 750-->
+     <div class="lstlisting" id="listing-218"><span class="label"><a 
+ id="x16-595001r1"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbFirstInfo</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-595002r2"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbNextInfo</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-595003r3"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbFindInfo</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">name</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx16-595004"></a>
+<a 
+ id="dx16-595005"></a>
+<a 
+ id="dx16-595006"></a>
+<!--l. 759--><p class="noindent" >There are two ways to locate info items, by scanning through the list using first/next, or by asking for the item by name.
+These routines set <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">pdbentry</span></span></span> to refer to the info item and return 0, or return an error code if no info item is
+found.
+</p><!--l. 762--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.12.2    </span> <a 
+ id="x16-59600014.12.2"></a>Get Item Name</h4>
+<!--l. 764-->
+     <div class="lstlisting" id="listing-219"><span class="label"><a 
+ id="x16-596001r1"></a></span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbGetInfoName</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx16-596002"></a>
+<!--l. 769--><p class="noindent" >Returns the name of the info item referred to by <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">pdbentry</span></span></span>, or a NULL pointer if no item is referred to.
+</p><!--l. 771--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.12.3    </span> <a 
+ id="x16-59700014.12.3"></a>Get/Set Item String Value</h4>
+<!--l. 773-->
+     <div class="lstlisting" id="listing-220"><span class="label"><a 
+ id="x16-597001r1"></a></span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbGetInfoString</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-597002r2"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbPutInfoString</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">string</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx16-597003"></a>
+<a 
+ id="dx16-597004"></a>
+<!--l. 780--><p class="noindent" >These routines provide access to the currently selected item&#8217;s string value. When changing the string value using
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbPutInfoSting</span></span></span>, the character string provided will be copied, with additional memory being allocated as necessary.
+Developers are advised not to make continuously repeated calls to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbPutInfoString</span></span></span> at IOC runtime as this could
+fragment the free memory heap. The Put routine returns 0 if Ok or an error code; the Get routine returns NULL on
+error.
+                                                                                         
+                                                                                         
+</p><!--l. 786--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.12.4    </span> <a 
+ id="x16-59800014.12.4"></a>Get/Set Item Pointer Value</h4>
+<!--l. 788-->
+     <div class="lstlisting" id="listing-221"><span class="label"><a 
+ id="x16-598001r1"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbGetInfoPointer</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-598002r2"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbPutInfoPointer</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pointer</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx16-598003"></a>
+<a 
+ id="dx16-598004"></a>
+<!--l. 795--><p class="noindent" >Each info item includes space to store a single <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">void&#x22C6;</span></span></span> pointer as well as the value string. Applications using the info item may
+set this as often as they wish. The Put routine returns 0 if Ok or an error code; the Get routine returns NULL on
+error.
+</p><!--l. 799--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.12.5    </span> <a 
+ id="x16-59900014.12.5"></a>Create/Delete Item</h4>
+<!--l. 801-->
+     <div class="lstlisting" id="listing-222"><span class="label"><a 
+ id="x16-599001r1"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbPutInfo</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">name</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">string</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-599002r2"></a></span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbDeleteInfo</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx16-599003"></a>
+<a 
+ id="dx16-599004"></a>
+<!--l. 808--><p class="noindent" >A new info item can be created by calling <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbPutInfo</span></span></span>. If an item by that name already exists its value will be replaced with
+the new string, otherwise storage is allocated and the name and value strings copied into it. The function returns 0 on success,
+or an error code.
+</p><!--l. 812--><p class="noindent" >When calling <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbDeleteInfo</span></span></span>, pdbentry must refer to the item to be removed (using <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbFirstInfo</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbNextInfo</span></span></span> or
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbFindInfo</span></span></span>). The function returns 0 on success, or an error code.
+</p><!--l. 815--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.12.6    </span> <a 
+ id="x16-60000014.12.6"></a>Convenience Routine</h4>
+<!--l. 817-->
+     <div class="lstlisting" id="listing-223"><span class="label"><a 
+ id="x16-600001r1"></a></span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbGetInfo</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">name</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx16-600002"></a>
+<!--l. 822--><p class="noindent" >It is common to want to look up the value of a named info item in one call, and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbGetInfo</span></span></span> is provided for this purpose. It
+returns a NULL pointer if no info item exists with the given name.
+                                                                                         
+                                                                                         
+</p><!--l. 824--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">14.13    </span> <a 
+ id="x16-60100014.13"></a>Find Breakpoint Table</h3>
+<!--l. 826-->
+     <div class="lstlisting" id="listing-224"><span class="label"><a 
+ id="x16-601001r1"></a></span><span 
+class="pcrr7t-">brkTable</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">dbFindBrkTable</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">name</span><span 
+class="pcrr7t-">)</span>
+     
+</div>
+<a 
+ id="dx16-601002"></a>
+<!--l. 831--><p class="noindent" >This routine returns the address of the specified breakpoint table. It is normally used by the runtime breakpoint conversion
+routines so will not be discussed further.
+</p><!--l. 834--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">14.14    </span> <a 
+ id="x16-60200014.14"></a>Dump Routines</h3>
+<!--l. 836-->
+     <div class="lstlisting" id="listing-225"><span class="label"><a 
+ id="x16-602001r1"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbDumpPath</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-602002r2"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbDumpRecord</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">precordTypeName</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">level</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-602003r3"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbDumpMenu</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">menuName</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-602004r4"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbDumpRecordType</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">recordTypeName</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-602005r5"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbDumpField</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">recordTypeName</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">fname</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-602006r6"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbDumpDevice</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">recordTypeName</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-602007r7"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbDumpDriver</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-602008r8"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbDumpRegistrar</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-602009r9"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbDumpFunction</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-602010r10"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbDumpVariable</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-602011r11"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbDumpBreaktable</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">name</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-602012r12"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbPvdDump</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">verbose</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-602013r13"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbReportDeviceConfig</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">FILE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">report</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx16-602014"></a>
+<a 
+ id="dx16-602015"></a>
+<a 
+ id="dx16-602016"></a>
+<a 
+ id="dx16-602017"></a>
+<a 
+ id="dx16-602018"></a>
+<a 
+ id="dx16-602019"></a>
+<a 
+ id="dx16-602020"></a>
+<a 
+ id="dx16-602021"></a>
+<a 
+ id="dx16-602022"></a>
+<a 
+ id="dx16-602023"></a>
+<a 
+ id="dx16-602024"></a>
+<a 
+ id="dx16-602025"></a>
+<a 
+ id="dx16-602026"></a>
+<!--l. 865--><p class="noindent" >These routines are used to dump information about the database. The routines <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbDumpRecord</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbDumpMenu</span></span></span>,
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbDumpDriver</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbDumpRegistrar</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbDumpVariable</span></span></span> just call their corresponding <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbWriteXxxFP</span></span></span> routine,
+specifying stdout for the file to write to. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbDumpRecordType</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbDumpField</span></span></span>, and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbDumpDevice</span></span></span> give
+internal information useful on an ioc. These commands can be executed via iocsh, specifying pdbbase as the first
+argument.
+</p><!--l. 870--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">14.15    </span> <a 
+ id="x16-60300014.15"></a>Examples</h3>
+                                                                                         
+                                                                                         
+<!--l. 872--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.15.1    </span> <a 
+ id="x16-60400014.15.1"></a>Expand Include</h4>
+<a 
+ id="dx16-604001"></a>
+<!--l. 875--><p class="noindent" >This example is like the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbExpand</span></span></span> utility, except that it doesn&#8217;t allow path or macro substitution options. It reads a set of
+database definition files and writes all definitions to stdout. All include statements appearing in the input files are
+expanded.
+</p>
+<!--l. 879-->
+     <div class="lstlisting" id="listing-226"><span class="label"><a 
+ id="x16-604002r1"></a></span><span 
+class="pcrro7t-">/&#x22C6;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">dbExpand</span><span 
+class="pcrro7t-">.</span><span 
+class="pcrro7t-">c</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x22C6;/</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-604003r2"></a></span><span 
+class="pcrb7t-">#</span><span 
+class="pcrb7t-">include</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x003C;</span><span 
+class="pcrr7t-">stdlib</span><span 
+class="pcrr7t-">.</span><span 
+class="pcrr7t-">h</span><span 
+class="pcrr7t-">&#x003E;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-604004r3"></a></span><span 
+class="pcrb7t-">#</span><span 
+class="pcrb7t-">include</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x003C;</span><span 
+class="pcrr7t-">stddef</span><span 
+class="pcrr7t-">.</span><span 
+class="pcrr7t-">h</span><span 
+class="pcrr7t-">&#x003E;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-604005r4"></a></span><span 
+class="pcrb7t-">#</span><span 
+class="pcrb7t-">include</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x003C;</span><span 
+class="pcrr7t-">stdio</span><span 
+class="pcrr7t-">.</span><span 
+class="pcrr7t-">h</span><span 
+class="pcrr7t-">&#x003E;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-604006r5"></a></span><span 
+class="pcrb7t-">#</span><span 
+class="pcrb7t-">include</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrro7t-">epicsPrint</span><span 
+class="pcrro7t-">.</span><span 
+class="pcrro7t-">h</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-604007r6"></a></span><span 
+class="pcrb7t-">#</span><span 
+class="pcrb7t-">include</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrro7t-">dbStaticLib</span><span 
+class="pcrro7t-">.</span><span 
+class="pcrro7t-">h</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-604008r7"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-604009r8"></a></span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">=</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">NULL</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-604010r9"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-604011r10"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">main</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">argc</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;&#x22C6;</span><span 
+class="pcrr7t-">argv</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-604012r11"></a></span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-604013r12"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">status</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-604014r13"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">i</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-604015r14"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">arg</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-604016r15"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-604017r16"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">if</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">argc</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x003C;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">2)</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-604018r17"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">printf</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrro7t-">usage</span><span 
+class="pcrro7t-">:</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">expandInclude</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">file1</span><span 
+class="pcrro7t-">.</span><span 
+class="pcrro7t-">db</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">file2</span><span 
+class="pcrro7t-">.</span><span 
+class="pcrro7t-">db</span><span 
+class="pcrro7t-">...\</span><span 
+class="pcrro7t-">n</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-604019r18"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">exit</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">1;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-604020r19"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">}</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-604021r20"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-604022r21"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">for</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">i</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">=</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">1;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">i</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x003C;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">argc</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">i</span><span 
+class="pcrr7t-">++)</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-604023r22"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">status</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">=</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbReadDatabase</span><span 
+class="pcrr7t-">(&amp;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">argv</span><span 
+class="pcrr7t-">[</span><span 
+class="pcrr7t-">i</span><span 
+class="pcrr7t-">],</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">NULL</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">NULL</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-604024r23"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">if</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(!</span><span 
+class="pcrr7t-">status</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-604025r24"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">continue</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-604026r25"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">fprintf</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">stderr</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrro7t-">For</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">input</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">file</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">%</span><span 
+class="pcrro7t-">s</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">argv</span><span 
+class="pcrr7t-">[</span><span 
+class="pcrr7t-">i</span><span 
+class="pcrr7t-">]);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-604027r26"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">errMessage</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">status</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrro7t-">from</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">dbReadDatabase</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-604028r27"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">}</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-604029r28"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-604030r29"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbWriteMenuFP</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">stdout</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">0);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-604031r30"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbWriteRecordTypeFP</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">stdout</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">0);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-604032r31"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbWriteDeviceFP</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">stdout</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-604033r32"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbWriteDriverFP</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">stdout</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-604034r33"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbWriteRecordFP</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">stdout</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">0,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">0);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-604035r34"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">return</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">0;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-604036r35"></a></span><span 
+class="pcrr7t-">}</span>
+     
+</div>
+<!--l. 917--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">14.15.2    </span> <a 
+ id="x16-60500014.15.2"></a>dbDumpRecords</h4>
+<a 
+ id="dx16-605001"></a>
+<!--l. 920--><p class="noindent" >NOTE: This example is similar but not identical to the actual <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbDumpRecords</span></span></span> routine.
+</p><!--l. 922--><p class="noindent" >The following example demonstrates how to use the database access routines. The example shows how to locate each record
+and display each field.
+</p>
+<!--l. 925-->
+     <div class="lstlisting" id="listing-227"><span class="label"><a 
+ id="x16-605002r1"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbDumpRecords</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">DBBASE</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-605003r2"></a></span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-605004r3"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">DBENTRY</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-605005r4"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">status</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-605006r5"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-605007r6"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">=</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbAllocEntry</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">pdbbase</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-605008r7"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">status</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">=</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbFirstRecordType</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-605009r8"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">if</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">status</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-605010r9"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">printf</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrro7t-">No</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">record</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">descriptions</span><span 
+class="pcrro7t-">\</span><span 
+class="pcrro7t-">n</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-605011r10"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">return</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-605012r11"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">}</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-605013r12"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-605014r13"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">while</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(!</span><span 
+class="pcrr7t-">status</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-605015r14"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">printf</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrro7t-">Record</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">type</span><span 
+class="pcrro7t-">:</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">%</span><span 
+class="pcrro7t-">s</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbGetRecordTypeName</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">));</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-605016r15"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">status</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">=</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbFirstRecord</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-605017r16"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">if</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">status</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-605018r17"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">printf</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">No</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">Records</span><span 
+class="pcrro7t-">\</span><span 
+class="pcrro7t-">n</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-605019r18"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-605020r19"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">while</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(!</span><span 
+class="pcrr7t-">status</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-605021r20"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">if</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">dbIsAlias</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-605022r21"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">printf</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrro7t-">\</span><span 
+class="pcrro7t-">n</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">Alias</span><span 
+class="pcrro7t-">:%</span><span 
+class="pcrro7t-">s</span><span 
+class="pcrro7t-">\</span><span 
+class="pcrro7t-">n</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbGetRecordName</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">));</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-605023r22"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">else</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-605024r23"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">printf</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrro7t-">\</span><span 
+class="pcrro7t-">n</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">Record</span><span 
+class="pcrro7t-">:%</span><span 
+class="pcrro7t-">s</span><span 
+class="pcrro7t-">\</span><span 
+class="pcrro7t-">n</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbGetRecordName</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">));</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-605025r24"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">status</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">=</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbFirstField</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">TRUE</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-605026r25"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">if</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">status</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-605027r26"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">printf</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">No</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">Fields</span><span 
+class="pcrro7t-">\</span><span 
+class="pcrro7t-">n</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-605028r27"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">while</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(!</span><span 
+class="pcrr7t-">status</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-605029r28"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">printf</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">%</span><span 
+class="pcrro7t-">s</span><span 
+class="pcrro7t-">:</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">%</span><span 
+class="pcrro7t-">s</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbGetFieldName</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">),</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-605030r29"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbGetString</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">));</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-605031r30"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">status</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">=</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbNextField</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">TRUE</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-605032r31"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">}</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-605033r32"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">}</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-605034r33"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">status</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">=</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbNextRecord</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-605035r34"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">}</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-605036r35"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">status</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">=</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbNextRecordType</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-605037r36"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">}</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-605038r37"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">printf</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrro7t-">End</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">of</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">Record</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">types</span><span 
+class="pcrro7t-">\</span><span 
+class="pcrro7t-">n</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-605039r38"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbFreeEntry</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">pdbentry</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x16-605040r39"></a></span><span 
+class="pcrr7t-">}</span>
+     
+</div>
+                                                                                         
+                                                                                         
+<!--l. 1--><div class="crosslinks"><p class="noindent">[<a 
+href="AppDevGuidech15.html" >next</a>] [<a 
+href="AppDevGuidech13.html" >prev</a>] [<a 
+href="AppDevGuidech13.html#tailAppDevGuidech13.html" >prev-tail</a>] [<a 
+href="AppDevGuidech14.html" >front</a>] [<a 
+href="AppDevGuide.html#AppDevGuidech14.html" >up</a>] </p></div>
+<!--l. 1--><p class="noindent" ><a 
+ id="tailAppDevGuidech14.html"></a> </p> 
+</body></html> 

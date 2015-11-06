@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   width="247.5"
+   height="23.75"
+   id="svg2"
+   xml:space="preserve"><metadata
+     id="metadata8"><rdf:RDF><cc:Work
+         rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" /></cc:Work></rdf:RDF></metadata><defs
+     id="defs6" /><g
+     transform="matrix(1.25,0,0,-1.25,0,23.75)"
+     id="g10"><g
+       transform="scale(0.1,0.1)"
+       id="g12"><path
+         d="m 723.012,2.98828 720,0 0,180 -720,0 0,-180 z"
+         inkscape:connector-curvature="0"
+         id="path14"
+         style="fill:none;stroke:#000000;stroke-width:6;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3.8599999;stroke-opacity:1;stroke-dasharray:none" /><g
+         transform="scale(10,10)"
+         id="g16"><text
+           transform="matrix(1,0,0,-1,80.5898,6.43984)"
+           id="text18"><tspan
+             x="0 5.0040002 10.008 16.011 20.511 25.514999 30.509821 36.152859 41.15686 45.65686 47.654858 51.920677"
+             y="0"
+             id="tspan20"
+             style="font-size:9px;font-variant:normal;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;font-family:f-0;-inkscape-font-specification:f-0-0">dbScanPasive</tspan></text>
+</g><path
+         d="m 1803.01,2.98828 180,0 0,180 -180,0 0,-180 z"
+         inkscape:connector-curvature="0"
+         id="path22"
+         style="fill:none;stroke:#000000;stroke-width:6;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3.8599999;stroke-opacity:1;stroke-dasharray:none" /><g
+         transform="scale(10,10)"
+         id="g24"><text
+           transform="matrix(1,0,0,-1,186.63,7.15977)"
+           id="text26"><tspan
+             x="0"
+             y="0"
+             id="tspan28"
+             style="font-size:9px;font-variant:normal;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;font-family:f-0;-inkscape-font-specification:f-0-0">B</tspan></text>
+</g><path
+         d="m 3.01172,2.98828 360,0 0,180 -360,0 0,-180 z"
+         inkscape:connector-curvature="0"
+         id="path30"
+         style="fill:none;stroke:#000000;stroke-width:6;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3.8599999;stroke-opacity:1;stroke-dasharray:none" /><g
+         transform="scale(10,10)"
+         id="g32"><text
+           transform="matrix(1,0,0,-1,5.81992,6.43984)"
+           id="text34"><tspan
+             x="0 6.0029998 12.006 18.009001"
+             y="0"
+             id="tspan36"
+             style="font-size:9px;font-variant:normal;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;font-family:f-0;-inkscape-font-specification:f-0-0">ASYN</tspan></text>
+</g><path
+         d="m 1793.91,92.9883 -48.6,0 m 2.5,-13.1992 46.1,13.1992 -46.1,13.2107 m -2.5,-13.2107 -302.3,0 m -729.1,0 -48.601,0 m 2.5,-13.1992 46.101,13.1992 -46.101,13.2107 m -2.5,-13.2107 -302.297,0"
+         inkscape:connector-curvature="0"
+         id="path38"
+         style="fill:none;stroke:#000000;stroke-width:6;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3.8599999;stroke-opacity:1;stroke-dasharray:none" /></g></g></svg>

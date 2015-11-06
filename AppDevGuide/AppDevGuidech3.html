@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="iso-8859-1" ?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">  
+<!--http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd-->  
+<html xmlns="http://www.w3.org/1999/xhtml"  
+> 
+<head><title>3 EPICS Overview</title> 
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" /> 
+<meta name="generator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
+<meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
+<!-- xhtml,2,html --> 
+<meta name="src" content="AppDevGuide.tex" /> 
+<meta name="date" content="2015-11-06 12:47:00" /> 
+<link rel="stylesheet" type="text/css" href="AppDevGuide.css" /> 
+</head><body 
+>
+<!--l. 1--><div class="crosslinks"><p class="noindent">[<a 
+href="AppDevGuidech4.html" >next</a>] [<a 
+href="AppDevGuidech2.html" >prev</a>] [<a 
+href="AppDevGuidech2.html#tailAppDevGuidech2.html" >prev-tail</a>] [<a 
+href="#tailAppDevGuidech3.html">tail</a>] [<a 
+href="AppDevGuide.html#AppDevGuidech3.html" >up</a>] </p></div>
+<h2 class="chapterHead"><span class="titlemark">Chapter&#x00A0;3</span><br /><a 
+ id="x5-400003"></a>EPICS Overview</h2>
+<h3 class="sectionHead"><span class="titlemark">3.1    </span> <a 
+ id="x5-410003.1"></a>What is EPICS?</h3>
+<a 
+ id="dx5-41001"></a>
+<!--l. 6--><p class="noindent" >The Experimental Physics and Industrial Control System (EPICS) consists of a set of software components and tools that
+Application Developers can use to create control systems. The basic components are:
+<a 
+ id="dx5-41002"></a>
+     </p><dl class="description"><dt class="description">
+<span 
+class="ptmb7t-">OPI</span> </dt><dd 
+class="description">Operator Interface. This is a workstation which can run various EPICS tools.
+<a 
+ id="dx5-41003"></a>
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">IOC</span> </dt><dd 
+class="description">Input/Output  Controller.  Any  platform  that  can  support  EPICS  run  time  databases  together  with  the  other
+     software components described in the manual. One example is a workstation. Another example is a VME/VXI
+     based system using vxWorks or RTEMS as the realtime operating system.
+<a 
+ id="dx5-41004"></a>
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">LAN</span> </dt><dd 
+class="description">Local Area Network. This is the communication network which allows the IOCs and OPIs to communicate.
+     EPICS provides a software component, <a 
+ id="dx5-41005"></a>Channel Access, which provides network transparent communication
+     between a Channel Access client and an arbitrary number of Channel Access servers.</dd></dl>
+<!--l. 26--><p class="noindent" >A control system implemented via EPICS has the following physical structure.
+</p>
+<div class="center" 
+>
+<!--l. 28--><p class="noindent" >
+</p><!--l. 29--><p class="noindent" ><img 
+src="overview_1.svg" alt="overview&#x02D9;1.svg"  
+ /></p></div>
+<!--l. 32--><p class="noindent" >The rest of this chapter gives a brief description of EPICS:
+</p>
+     <ul class="itemize1">
+     <li class="itemize"><span 
+class="ptmb7t-">Basic Attributes</span>: A few basic attributes of EPICS.
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">Platforms</span>: The vendor supplied Hardware and Software platforms EPICS supports.
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">IOC Software</span>: EPICS supplied IOC software components.
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">Channel Access</span>: EPICS software that supports network independent access to IOC databases.
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">OPI Tools</span>: EPICS supplied OPI based tools.
+                                                                                         
+                                                                                         
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">EPICS Core</span>: A list of the EPICS core software, i.e. the software components without which EPICS will not
+     work.</li></ul>
+<!--l. 43--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">3.2    </span> <a 
+ id="x5-420003.2"></a>Basic Attributes</h3>
+<a 
+ id="dx5-42001"></a>
+<!--l. 46--><p class="noindent" >The basic attributes of EPICS are:
+</p>
+     <ul class="itemize1">
+     <li class="itemize"><span 
+class="ptmb7t-">Tool  Based</span>:  EPICS  provides  a  number  of  tools  for  creating  a  control  system.  This  minimizes  the  need  for
+     custom coding and helps ensure uniform operator interfaces.
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">Distributed</span>: An arbitrary number of IOCs and OPIs can be supported. As long as the network is not saturated, no
+     single bottle neck is present. A distributed system scales nicely. If a single IOC becomes saturated, its functions
+     can be spread over several IOCs. Rather than running all applications on a single host, the applications can be
+     spread over many OPIs.
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">Event Driven</span>: The EPICS software components are all designed to be event driven to the maximum extent
+     possible. For example, rather than having to poll IOCs for changes, a Channel Access client can request that
+     it be notified when a change occurs. This design leads to efficient use of resources, as well as, quick response
+     times.
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">High Performance</span>: A SPARC based workstation can handle several thousand screen updates a second with
+     each update resulting from a Channel Access event. A 68040 IOC can process more than 6,000 records per
+     second, including generation of Channel Access events.
+     </li></ul>
+<!--l. 68--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">3.3    </span> <a 
+ id="x5-430003.3"></a>IOC Software Components</h3>
+<a 
+ id="dx5-43001"></a>
+<!--l. 72--><p class="noindent" >An IOC contains the following EPICS supplied software components.
+</p>
+<div class="center" 
+>
+<!--l. 74--><p class="noindent" >
+</p><!--l. 75--><p class="noindent" ><img 
+src="overview_6.svg" alt="overview&#x02D9;6.svg"  
+ /></p></div>
+                                                                                         
+                                                                                         
+     <ul class="itemize1">
+     <li class="itemize"><span 
+class="ptmb7t-">IOC Database</span>: The memory resident database plus associated data structures.
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">Database Access</span>: Database access routines. With the exception of record and device support, all access to the
+     database is via the database access routines.
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">Scanners</span>: The mechanism for deciding when records should be processed.
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">Record Support</span>: Each record type has an associated set of record support routines.
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">Device Support</span>: Each record type can have one or more sets of device support routines.
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">Device Drivers</span>: Device drivers access external devices. A driver may have an associated driver interrupt routine.
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">Channel Access</span>: The interface between the external world and the IOC. It provides a network independent
+     interface to database access.
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">Monitors</span>: Database monitors are invoked when database field values change.
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">Sequencer</span>: A finite state machine.</li></ul>
+<!--l. 100--><p class="noindent" >Let&#8217;s briefly describe the major components of the IOC and how they interact.
+</p><!--l. 102--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">3.3.1    </span> <a 
+ id="x5-440003.3.1"></a>IOC Database</h4>
+<!--l. 104--><p class="noindent" >The heart of each IOC is a memory resident database together with various memory resident structures describing the contents
+of the database. EPICS supports a large and extensible set of record types, e.g. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ai</span></span></span> (Analog Input), <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ao</span></span></span> (Analog Output),
+etc.
+</p><!--l. 107--><p class="noindent" >Each record type has a fixed set of fields. Some fields are common to all record types and others are specific to
+particular record types. Every record has a record name and every field has a field name. The first field of every
+database record holds the record name, which must be unique across all IOCs that are attached to the same TCP/IP
+subnet.
+</p><!--l. 112--><p class="noindent" >Data structures are provided so that the database can be accessed efficiently. Most software components, because they access
+the database via database access routines, do not need to be aware of these structures.
+</p><!--l. 114--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">3.3.2    </span> <a 
+ id="x5-450003.3.2"></a>Database Access</h4>
+<!--l. 116--><p class="noindent" >With the exception of record and device support, all access to the database is via the channel or database access routines. See
+Chapter <a 
+href="AppDevGuidech15.html#x17-60600015">15<!--tex4ht:ref: chap:Runtime Database Access --></a> for details.
+                                                                                         
+                                                                                         
+</p><!--l. 119--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">3.3.3    </span> <a 
+ id="x5-460003.3.3"></a>Database Scanning</h4>
+<!--l. 121--><p class="noindent" >Database scanning is the mechanism for deciding when to process a record. Five types of scanning are possible: Periodic,
+Event, I/O Event, Passive and Scan Once.
+</p>
+     <ul class="itemize1">
+     <li class="itemize"><span 
+class="ptmb7t-">Periodic</span>: A request can be made to process a record periodically. A number of time intervals are supported.
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">Event</span>: Event scanning is based on the posting of an event by any IOC software component.
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">I/O Event</span>: The I/O event scanning system processes records based on external interrupts. An IOC device driver
+     interrupt routine must be available to accept the external interrupts.
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">Passive</span>: Passive records are processed as a result of linked records being processed or as a result of external
+     changes such as Channel Access puts.
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">Scan Once</span>: In order to provide for caching puts, the scanning system provides a routine <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">scanOnce</span></span></span> which
+     arranges for a record to be processed one time.</li></ul>
+<!--l. 143--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">3.3.4    </span> <a 
+ id="x5-470003.3.4"></a>Record Support, Device Support and Device Drivers</h4>
+<!--l. 145--><p class="noindent" >Database access needs no record-type specific knowledge, each record-type provides a set of record support routines that
+implement all record-specific behavior. Therefore, database access can support any number and type of records. Similarly,
+record support contains no device specific knowledge, giving each record type the ability to have any number of independent
+device support modules. If the method of accessing the piece of hardware is more complicated than can be handled by device
+support, then a device driver can be developed.
+</p><!--l. 149--><p class="noindent" >Record types <span 
+class="ptmri7t-">not </span>associated with hardware do not have device support or device drivers.
+</p><!--l. 151--><p class="noindent" >The IOC software is designed so that the database access layer knows nothing about the record support layer other than how to
+call it. The record support layer in turn knows nothing about its device support layer other than how to call it. Similarly the only
+thing a device support layer knows about its associated driver is how to call it. This design allows a particular installation and
+even a particular IOC within an installation to choose a unique set of record types, device types, and drivers. The remainder of
+the IOC system software is unaffected.
+</p><!--l. 157--><p class="noindent" >Because an Application Developer can develop record support, device support, and device drivers, these topics are discussed in
+greater detail in later chapters.
+</p><!--l. 160--><p class="noindent" >Every record support module must provide a record processing routine to be called by the database scanners. Record
+processing consists of some combination of the following functions (particular records types may not need all
+functions):
+</p>
+                                                                                         
+                                                                                         
+     <ul class="itemize1">
+     <li class="itemize"><span 
+class="ptmb7t-">Input</span>: Read inputs. Inputs can be obtained, via device support routines, from hardware, from other database
+     records via database links, or from other IOCs via Channel Access links.
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">Conversion</span>: Conversion of raw input to engineering units or engineering units to raw output values.
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">Output</span>:  Write  outputs.  Output  can  be  directed,  via  device  support  routines,  to  hardware,  to  other  database
+     records via database links, or to other IOCs via Channel Access links.
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">Raise Alarms</span>: Check for and raise alarms.
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">Monitor</span>: Trigger monitors related to Channel Access callbacks.
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">Link</span>: Trigger processing of linked records.</li></ul>
+<!--l. 179--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">3.3.5    </span> <a 
+ id="x5-480003.3.5"></a>Channel Access</h4>
+<!--l. 181--><p class="noindent" >Channel Access is discussed in the next section.
+</p><!--l. 183--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">3.3.6    </span> <a 
+ id="x5-490003.3.6"></a>Database Monitors</h4>
+<!--l. 185--><p class="noindent" >Database monitors provide a callback mechanism for database value changes. This allows the caller to be notified when
+database values change without constantly polling the database. A mask can be set to specify value changes, alarm changes,
+and/or archival changes.
+</p><!--l. 189--><p class="noindent" >At the present time only Channel Access uses database monitors. No other software should use the database monitors. The
+monitor routines will not be described because they are of interest only to Channel Access.
+</p><!--l. 192--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">3.4    </span> <a 
+ id="x5-500003.4"></a>Channel Access</h3>
+<!--l. 194--><p class="noindent" >Channel Access provides network transparent access to IOC databases. It is based on a client/ server model. Each IOC provides
+a Channel Access server which is willing to establish communication with an arbitrary number of clients. Channel Access
+client services are available on both OPIs and IOCs. A client can communicate with an arbitrary number of
+servers.
+                                                                                         
+                                                                                         
+</p><!--l. 199--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">3.4.1    </span> <a 
+ id="x5-510003.4.1"></a>Client Services</h4>
+<!--l. 201--><p class="noindent" >The basic Channel Access client services are:
+</p>
+     <ul class="itemize1">
+     <li class="itemize"><span 
+class="ptmb7t-">Search</span>: Locate the IOCs containing selected process variables and establish communication with each one.
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">Get</span>: Get value plus additional optional information for a selected set of process variables.
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">Put</span>: Change the values of selected process variables.
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">Add Event</span>: Add a change of state callback. This is a request to have the server send information only when
+     the associated process variable changes state. Any combination of the following state changes can be requested:
+     change of value, change of alarm status and/or severity, and change of archival value. Many record types provide
+     hysteresis factors for value changes.</li></ul>
+<!--l. 216--><p class="noindent" >In addition to requesting process variable values, any combination of the following additional information may be
+requested:
+</p>
+     <ul class="itemize1">
+     <li class="itemize"><span 
+class="ptmb7t-">Status</span>: Alarm status and severity.
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">Units</span>: Engineering units for this process variable.
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">Precision</span>: Precision with which to display floating point numbers.
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">Time</span>: Time when the record was last processed.
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">Enumerated</span>: A set of ASCII strings defining the meaning of enumerated values.
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">Graphics</span>: High and low limits for producing graphs.
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">Control</span>: High and low control limits.
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">Alarm</span>: The alarm <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">HIHI</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">HIGH</span></span></span>, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">LOW</span></span></span>, and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">LOLO</span></span></span> values for the process variable.</li></ul>
+<!--l. 237--><p class="noindent" >It should be noted that Channel Access does not provide access to database records as records. This is a deliberate design
+decision. This allows new record types to be added without impacting any software that accesses the database via Channel
+Access, and it allows a Channel Access client to communicate with multiple IOCs having differing sets of record
+types.
+                                                                                         
+                                                                                         
+</p><!--l. 241--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">3.4.2    </span> <a 
+ id="x5-520003.4.2"></a>Search Server</h4>
+<!--l. 243--><p class="noindent" >Channel Access provides an IOC resident server which waits for Channel Access search messages. These are
+generated when a Channel Access client (for example when an Operator Interface task starts) searches for the IOCs
+containing process variables the client uses. This server accepts all search messages, checks to see if any of
+the process variables are located in this IOC, and, if any are found, replies to the sender with and &#8220;I have it&#8221;
+message.
+</p><!--l. 248--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">3.4.3    </span> <a 
+ id="x5-530003.4.3"></a>Connection Request Server</h4>
+<!--l. 250--><p class="noindent" >Once the process variables have been located, the Channel Access client issues connection requests for each IOC containing
+process variables the client uses. The connection request server, in the IOC, accepts the request and establishes a connection to
+the client. Each connection is managed by two separate tasks: <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ca_get</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ca_put</span></span></span>. The <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ca_get</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ca_put</span></span></span> requests map
+to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbGetField</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbPutField</span></span></span> database access requests. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ca_add_event</span></span></span> requests result in database
+monitors being established. Database access and/or record support routines trigger the monitors via a call to
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">db_post_event</span></span></span>.
+</p><!--l. 257--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">3.4.4    </span> <a 
+ id="x5-540003.4.4"></a>Connection Management</h4>
+<!--l. 259--><p class="noindent" >Each IOC provides a connection management service. When a Channel Access server fails (e.g. its IOC crashes) the client is
+notified and when a client fails (e.g. its task crashes) the server is notified. When a client fails, the server breaks
+the connection. When a server crashes, the client automatically re-establishes communication when the server
+restarts.
+</p><!--l. 264--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">3.5    </span> <a 
+ id="x5-550003.5"></a>OPI Tools</h3>
+<!--l. 266--><p class="noindent" >EPICS provides a number of OPI based tools. These can be divided into two groups based on whether or not
+they use Channel Access. Channel Access tools are real time tools, i.e. they are used to monitor and control
+IOCs.
+</p><!--l. 269--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">3.5.1    </span> <a 
+ id="x5-560003.5.1"></a>Examples of Channel Access Tools</h4>
+<!--l. 271--><p class="noindent" >A large number of Channel Access tools have been developed. The following are some representative examples.
+</p>
+                                                                                         
+                                                                                         
+     <ul class="itemize1">
+     <li class="itemize"><span 
+class="ptmb7t-">CSS</span>: Control System Studio, an Eclipse RCP application with many available plug-ins.
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">EDM</span>: Extensible Display Manager.
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">MEDM</span>: Motif Editor and Display Manager.
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">StripTool</span>: A general-purpose stripchart program.
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">ALH</span>: Alarm Handler. General purpose alarm handler driven by an alarm configuration file.
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">Sequencer</span>: Runs in an IOC and emulates a finite state machine.
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">Probe</span>: Allows the user to monitor and/or change a single process variable specified at run time.</li></ul>
+<!--l. 289--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">3.5.2    </span> <a 
+ id="x5-570003.5.2"></a>Examples of other Tools</h4>
+     <ul class="itemize1">
+     <li class="itemize"><span 
+class="ptmb7t-">VDCT</span>:  A  Java  based  database  configuration  tool  which  is  quickly  becoming  the  recommended  database
+     configuration tool.
+     </li>
+     <li class="itemize"><span 
+class="ptmb7t-">SNC</span>: State Notation Compiler. It generates a C program that represents the states for the IOC Sequencer tool.</li></ul>
+<!--l. 298--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">3.6    </span> <a 
+ id="x5-580003.6"></a>EPICS Core Software</h3>
+<!--l. 300--><p class="noindent" >EPICS consists of a set of core software and a set of optional components. The core software, i.e. the components of EPICS
+without which EPICS would not function, are:
+</p>
+     <ul class="itemize1">
+     <li class="itemize">Channel Access - Client and Server software
+     </li>
+     <li class="itemize">IOC Database
+     </li>
+     <li class="itemize">Scanners
+                                                                                         
+                                                                                         
+     </li>
+     <li class="itemize">Monitors
+     </li>
+     <li class="itemize">Database Definition Tools
+     </li>
+     <li class="itemize">Source/Release</li></ul>
+<!--l. 317--><p class="noindent" >All other software components are optional. Of course, most applications will need equivalent functionality to MEDM (or
+EDD/DM). Likewise an application developer would not start from scratch developing record and device support. Most OPI
+tools do not, however, have to be used. Likewise any given record support module, device support module, or driver could be
+deleted from a particular IOC and EPICS will still function.
+                                                                                         
+                                                                                         
+</p>
+<!--l. 1--><div class="crosslinks"><p class="noindent">[<a 
+href="AppDevGuidech4.html" >next</a>] [<a 
+href="AppDevGuidech2.html" >prev</a>] [<a 
+href="AppDevGuidech2.html#tailAppDevGuidech2.html" >prev-tail</a>] [<a 
+href="AppDevGuidech3.html" >front</a>] [<a 
+href="AppDevGuide.html#AppDevGuidech3.html" >up</a>] </p></div>
+<!--l. 1--><p class="noindent" ><a 
+ id="tailAppDevGuidech3.html"></a> </p> 
+</body></html> 

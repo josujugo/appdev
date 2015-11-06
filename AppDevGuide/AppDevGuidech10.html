@@ -1,0 +1,1059 @@
+<?xml version="1.0" encoding="iso-8859-1" ?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">  
+<!--http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd-->  
+<html xmlns="http://www.w3.org/1999/xhtml"  
+> 
+<head><title>10 IOC Error Logging</title> 
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" /> 
+<meta name="generator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
+<meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
+<!-- xhtml,2,html --> 
+<meta name="src" content="AppDevGuide.tex" /> 
+<meta name="date" content="2015-11-06 12:47:00" /> 
+<link rel="stylesheet" type="text/css" href="AppDevGuide.css" /> 
+</head><body 
+>
+<!--l. 1--><div class="crosslinks"><p class="noindent">[<a 
+href="AppDevGuidech11.html" >next</a>] [<a 
+href="AppDevGuidech9.html" >prev</a>] [<a 
+href="AppDevGuidech9.html#tailAppDevGuidech9.html" >prev-tail</a>] [<a 
+href="#tailAppDevGuidech10.html">tail</a>] [<a 
+href="AppDevGuide.html#AppDevGuidech10.html" >up</a>] </p></div>
+<h2 class="chapterHead"><span class="titlemark">Chapter&#x00A0;10</span><br /><a 
+ id="x12-45900010"></a>IOC Error Logging</h2> <a 
+ id="dx12-459001"></a>
+<h3 class="sectionHead"><span class="titlemark">10.1    </span> <a 
+ id="x12-46000010.1"></a>Overview </h3>
+<!--l. 6--><p class="noindent" >Errors detected by an IOC can be divided into classes: Errors related to a particular client and errors not attributable to a
+particular client. An example of the first type of error is an illegal Channel Access request. For this type of error, a status value
+should be passed back to the client. An example of the second type of error is a device driver detecting a hardware error. This
+type of error should be reported to a system wide error handler.
+</p><!--l. 13--><p class="noindent" >Dividing errors into these two classes is complicated by a number of factors.
+</p>
+     <ul class="itemize1">
+     <li class="itemize">In many cases it is not possible for the routine detecting an error to decide which type of error occurred.
+     </li>
+     <li class="itemize">Normally, only the routine detecting the error knows how to generate a fully descriptive error message. Thus, if
+     a routine decides that the error belongs to a particular client and merely returns an error status value, the ability
+     to generate a fully descriptive error message is lost.
+     </li>
+     <li class="itemize">If a routine always generates fully descriptive error messages then a particular client could cause error message
+     storms.
+     </li>
+     <li class="itemize">While developing a new application the programmer normally prefers fully descriptive error messages. For a
+     production system, however, the system wide error handler should not normally receive error messages cause
+     by a particular client.
+     </li></ul>
+<!--l. 28--><p class="noindent" >If used properly, the error handling facilities described in this chapter can process both types of errors.
+</p><!--l. 30--><p class="noindent" >This chapter describes the following:
+</p>
+     <ul class="itemize1">
+     <li class="itemize">Error Message Generation Routines - Routines which pass messages to the errlog Task.
+     </li>
+     <li class="itemize">Error Log Listeners - Any code can register to recieve errlog messages.
+     </li>
+     <li class="itemize">errlogThread - A thread that passes the messages to all registered listeners.
+     </li>
+     <li class="itemize">console  output  and  message  buffer  size  -  Messages  can  also  be  written  to  the  console.  The  storage  for  the
+     message queue can be specified by the user.
+     </li>
+     <li class="itemize">status codes - EPICS status codes.
+     </li>
+     <li class="itemize">iocLog- A system wide error logger supplied with base. It writes all messages to a system wide file.
+                                                                                         
+                                                                                         
+     <!--l. 47--><p class="noindent" >NOTE: Many sites use CMLOG instead of iocLog.
+</p>
+     </li></ul>
+<!--l. 51--><p class="noindent" >NOTE: <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">recGbl</span></span></span> error routines are also provided. They in turn call one of the error message routines.
+</p><!--l. 54--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">10.2    </span> <a 
+ id="x12-46100010.2"></a>Error Message Routines</h3>
+<!--l. 56--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">10.2.1    </span> <a 
+ id="x12-46200010.2.1"></a>Basic Routines</h4>
+<!--l. 58-->
+     <div class="lstlisting" id="listing-110"><span class="label"><a 
+ id="x12-462001r1"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">errlogPrintf</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pformat</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">...);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x12-462002r2"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">errlogVprintf</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pformat</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">va_list</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">pvar</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x12-462003r3"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">errlogMessage</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">message</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x12-462004r4"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">errlogFlush</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx12-462005"></a>
+<a 
+ id="dx12-462006"></a>
+<a 
+ id="dx12-462007"></a>
+<a 
+ id="dx12-462008"></a>
+<!--l. 68--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">errlogPrintf</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">errlogVprintf</span></span></span> are like <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">printf</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">vprintf</span></span></span> provided by the standard C library, except that their
+output is sent to the errlog task; unless configured not to, the output will appear on the console as well. Consult any book that
+describes the standard C library such as &#8220;The C Programming Language ANSI C Edition&#8221; by Kernighan and
+Ritchie.
+</p><!--l. 71--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">errlogMessage</span></span></span> sends message to the errlog task.
+</p><!--l. 73--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">errlogFlush</span></span></span> wakes up the errlog task and then waits until all messages are flushed from the queue.
+</p><!--l. 75--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">10.2.2    </span> <a 
+ id="x12-46300010.2.2"></a>Log with Severity</h4>
+<!--l. 77-->
+     <div class="lstlisting" id="listing-111"><span class="label"><a 
+ id="x12-463001r1"></a></span><span 
+class="pcrb7t-">typedef</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">enum</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x12-463002r2"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">errlogInfo</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">errlogMinor</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">errlogMajor</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">errlogFatal</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x12-463003r3"></a></span><span 
+class="pcrr7t-">}</span><span 
+class="pcrr7t-">errlogSevEnum</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x12-463004r4"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x12-463005r5"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">errlogSevPrintf</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">errlogSevEnum</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">severity</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x12-463006r6"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pformat</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">...);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x12-463007r7"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">errlogSevVprintf</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">errlogSevEnum</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">severity</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x12-463008r8"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pformat</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">va_list</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">pvar</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x12-463009r9"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x12-463010r10"></a></span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">errlogGetSevEnumString</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">errlogSevEnum</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">severity</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x12-463011r11"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x12-463012r12"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">errlogSetSevToLog</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">errlogSevEnum</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">severity</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x12-463013r13"></a></span><span 
+class="pcrr7t-">errlogSevEnum</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">errlogGetSevToLog</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx12-463014"></a>
+<a 
+ id="dx12-463015"></a>
+<a 
+ id="dx12-463016"></a>
+<a 
+ id="dx12-463017"></a>
+                                                                                         
+                                                                                         
+<a 
+ id="dx12-463018"></a>
+<a 
+ id="dx12-463019"></a>
+<a 
+ id="dx12-463020"></a>
+<a 
+ id="dx12-463021"></a>
+<a 
+ id="dx12-463022"></a>
+<a 
+ id="dx12-463023"></a>
+<!--l. 103--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">errlogSevPrintf</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">errlogSevVprintf</span></span></span> are like <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">errlogPrintf</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">errlogVprintf</span></span></span> except that
+they add the severity to the beginning of the message in the form &#8220;sevr=<span 
+class="cmmi-10">&#x003C;</span>value<span 
+class="cmmi-10">&#x003E;</span>&#8221; where value is one of &#8220;info,
+minor, major, fatal&#8221;. Also the message is suppressed if severity is less than the current severity to suppress. If
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">epicsThreadIsOkToBlock</span></span></span> is true, which is true during iocInit, errlogSevVprintf does NOT send output to the errlog
+task.
+</p><!--l. 107--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">errlogGetSevEnumString</span></span></span> gets the string value of severity.
+</p><!--l. 109--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">errlogSetSevToLog</span></span></span> sets the severity to log. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">errlogGetSevToLog</span></span></span> gets the current severity to log.
+</p><!--l. 112--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">10.2.3    </span> <a 
+ id="x12-46400010.2.3"></a>Status Routines </h4>
+<!--l. 114-->
+     <div class="lstlisting" id="listing-112"><span class="label"><a 
+ id="x12-464001r1"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">errMessage</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">status</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">message</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x12-464002r2"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x12-464003r3"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">errPrintf</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">status</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pFileName</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x12-464004r4"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">lineno</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pformat</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">...);</span>
+     
+</div>
+<a 
+ id="dx12-464005"></a>
+<a 
+ id="dx12-464006"></a>
+<!--l. 123--><p class="noindent" >Routine <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">errMessage</span></span></span> (actually a macro that calls <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">errPrintf</span></span></span>) has the following format:
+<a 
+ id="dx12-464007"></a>
+</p>
+<!--l. 126-->
+     <div class="lstlisting" id="listing-113"><span class="label"><a 
+ id="x12-464008r1"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">errMessage</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">status</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">message</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<!--l. 130--><p class="noindent" >Where status is defined as:
+</p>
+     <ul class="itemize1">
+     <li class="itemize">0: Find latest vxWorks or Unix error.
+     </li>
+     <li class="itemize">-1: Don&#8217;t report status.
+     </li>
+     <li class="itemize">Other: See &#8220;Return Status Values&#8221; above.
+     </li></ul>
+                                                                                         
+                                                                                         
+<!--l. 141--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">errMessage</span></span></span>, via a call to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">errPrintf</span></span></span>, prints the message, the status symbol and string values, and the name of the task
+which invoked <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">errMessage</span></span></span>. It also prints the name of the source file and the line number from which the call was
+issued.
+</p><!--l. 144--><p class="noindent" >The calling routine is expected to pass a descriptive message to this routine. Many subsystems provide routines built on top of
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">errMessage</span></span></span> which generate descriptive messages.
+</p><!--l. 147--><p class="noindent" >An IOC global variable <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">errVerbose</span></span></span>, defined as an <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">external</span></span></span> in <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">errMdef.h</span></span></span>, specifies verbose messages. If
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">errVerbose</span></span></span> is <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">TRUE</span></span></span> then <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">errMessage</span></span></span> should be called whenever an error is detected even if it is known that the error
+belongs to a specific client. If <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">errVerbose</span></span></span> is <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">FALSE</span></span></span> then <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">errMessage</span></span></span> should be called only for errors that are not caused
+by a specific client.
+</p><!--l. 151--><p class="noindent" >Routine <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">errPrintf</span></span></span> is normally called as follows:
+<a 
+ id="dx12-464009"></a>
+</p>
+<!--l. 154-->
+     <div class="lstlisting" id="listing-114"><span class="label"><a 
+ id="x12-464010r1"></a></span><span 
+class="pcrr7t-">errPrintf</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">status</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">__FILE__</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">__LINE__</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrro7t-">&#x003C;</span><span 
+class="pcrro7t-">fmt</span><span 
+class="pcrro7t-">&#x003E;</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrr7t-">,...);</span>
+     
+</div>
+<!--l. 158--><p class="noindent" >Where status is defined as:
+</p>
+     <ul class="itemize1">
+     <li class="itemize">0: Find latest vxWorks or Unix error.
+     </li>
+     <li class="itemize">-1: Don&#8217;t report status.
+     </li>
+     <li class="itemize">Other: See &#8220;Return Status Values&#8221;, above.
+     </li></ul>
+<!--l. 169--><p class="noindent" >FILE and LINE are defined as:
+</p>
+     <ul class="itemize1">
+     <li class="itemize">__FILE__ As shown or <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">NULL</span></span></span> if the file name and line number should not be printed.
+     </li>
+     <li class="itemize">__LINE__ As shown
+     </li></ul>
+<!--l. 178--><p class="noindent" >The remaining arguments are just like the arguments to the C <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">printf</span></span></span> routine. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">errVerbose</span></span></span> determines if the filename and
+line number are shown.
+</p><!--l. 181--><p class="noindent" >An EPICS status code can also be converted to a string. If the supplied status code isn&#8217;t registered in the status code database
+then the raw status code number is converted into a string in the destination buffer.
+</p>
+<!--l. 184-->
+     <div class="lstlisting" id="listing-115"><span class="label"><a 
+ id="x12-464011r1"></a></span><span 
+class="pcrb7t-">#</span><span 
+class="pcrb7t-">include</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrro7t-">errMdef</span><span 
+class="pcrro7t-">.</span><span 
+class="pcrro7t-">h</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x12-464012r2"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x12-464013r3"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">errSymLookup</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">long</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">status</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pBuf</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">unsigned</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">bufLength</span><span 
+class="pcrr7t-">);</span>
+     
+                                                                                         
+                                                                                         
+</div>
+<!--l. 190--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">10.2.4    </span> <a 
+ id="x12-46500010.2.4"></a>Obsolete Routines </h4>
+<!--l. 192-->
+     <div class="lstlisting" id="listing-116"><span class="label"><a 
+ id="x12-465001r1"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">epicsPrintf</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pformat</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">...);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x12-465002r2"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">epicsVprintf</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pformat</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">va_list</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">pvar</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx12-465003"></a>
+<a 
+ id="dx12-465004"></a>
+<!--l. 199--><p class="noindent" >These are macros that call errlogPrintf and errlogVprintf. They are provided for compatibility.
+</p><!--l. 202--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">10.3    </span> <a 
+ id="x12-46600010.3"></a>errlog Listeners</h3>
+<a 
+ id="dx12-466001"></a>
+<!--l. 205--><p class="noindent" >Any code can receive errlog message. The following are the calls to add and remove a listener.
+</p>
+<!--l. 208-->
+     <div class="lstlisting" id="listing-117"><span class="label"><a 
+ id="x12-466002r1"></a></span><span 
+class="pcrb7t-">typedef</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">(&#x22C6;</span><span 
+class="pcrr7t-">errlogListener</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pvt</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">message</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x12-466003r2"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">errlogAddListener</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">errlogListener</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">listener</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pPrivate</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x12-466004r3"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">errlogRemoveListener</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">errlogListener</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">listener</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx12-466005"></a>
+<a 
+ id="dx12-466006"></a>
+<a 
+ id="dx12-466007"></a>
+<!--l. 217--><p class="noindent" >These routines add/remove a callback that receives each error message. These routines are the interface to the actual system
+wide error handlers.
+</p><!--l. 220--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">10.4    </span> <a 
+ id="x12-46700010.4"></a>errlogThread</h3>
+<a 
+ id="dx12-467001"></a>
+<!--l. 223--><p class="noindent" >The error message routines can be called by any non-interrupt level code. These routines pass the message to the errlog Thread.
+If any of the error message routines are called at interrupt level, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">epicsInterruptContextMessage</span></span></span> is called with the
+message &#8220;errlogPrintf called from interrupt level&#8221;.
+                                                                                         
+                                                                                         
+</p><!--l. 227--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">errlogThread</span></span></span> manages the messages. Messages are placed in a message queue, which is read by errlogThread. The
+message queue uses a fixed block of memory to hold all messages. When the message queue is full additional messages are
+rejected but a count of missed messages is kept. The next time the message queue empties an extra message about the missed
+messages is generated.
+</p><!--l. 233--><p class="noindent" >The maximum message size is by default 256 characters. If a message is longer, the message is truncated and a
+message explaining that it was truncated is appended. There is a chance that long messages corrupt memory. This
+only happens if client code is defective. Long messages most likely result from &#8220;%s&#8221; formats with a bad string
+argument.
+</p><!--l. 239--><p class="noindent" >errlogThread passes each message to any registered listener.
+</p><!--l. 241--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">10.5    </span> <a 
+ id="x12-46800010.5"></a>console output and message queue size</h3>
+<!--l. 243--><p class="noindent" >The errlog system can also display messages on the ioc console. It calls <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">epicsThreadIsOkToBlock</span></span></span> to decide when to
+display the message. If it is OK to block, the message is displayed by the same thread that calls one of the errlog print routines.
+If it is not OK to block, errlogThread displays the messages.
+</p><!--l. 248--><p class="noindent" >Normally the errlog system displays all messages on the console. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">eltc</span></span></span> can be used to suppress these messages.
+</p>
+<!--l. 251-->
+     <div class="lstlisting" id="listing-118"><span class="label"><a 
+ id="x12-468001r1"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">eltc</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">yesno</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrro7t-">/&#x22C6;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">error</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">log</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">to</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">console</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">(0</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">or</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">1)</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x22C6;/</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x12-468002r2"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">errlogInit</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">bufsize</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x12-468003r3"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">errlogInit2</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">bufsize</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">maxMsgSize</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx12-468004"></a>
+<a 
+ id="dx12-468005"></a>
+<a 
+ id="dx12-468006"></a>
+<!--l. 260--><p class="noindent" >eltc determines if errlog task writes message to the console. During error message storms this command can be used to
+suppress console messages. A argument of 0 suppresses the messages, any other value lets messages go to the
+console.
+</p><!--l. 264--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">errlogInit</span></span></span> or <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">errlogInit2</span></span></span> can be used to initialize the error logging system with a larger buffer and maximum
+message size. The default buffer size is 1280 bytes, and the default maximum message size is 256.
+</p><!--l. 267--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">10.6    </span> <a 
+ id="x12-46900010.6"></a>Status Codes</h3>
+<a 
+ id="dx12-469001"></a>
+<!--l. 270--><p class="noindent" >EPICS defined status values provide the following features:
+</p>
+     <ul class="itemize1">
+     <li class="itemize">Whenever possible, IOC routines return a status value: 0 means OK, non-0 means an error.
+                                                                                         
+                                                                                         
+     </li>
+     <li class="itemize">The header files for most IOC subsystems contain macros defining error status symbols and strings.
+     </li>
+     <li class="itemize">Routines are provided for run time access of the error status symbols and strings.
+<a 
+ id="dx12-469002"></a>
+     </li>
+     <li class="itemize">A global variable <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">errVerbose</span></span></span> helps code decide if error messages should be generated.
+     </li></ul>
+<!--l. 285--><p class="noindent" >IOC routines often return a long integer status value, encoded similar to the vxWorks error status encoding. On some modern
+architectures a long integer is more than 32 bits wide, but in order to keep the API compatible the status values are still passed
+as long integers, even though only 32 bits are ever used. The most significant 16 bits indicate the subsystem or
+module where the error occurred. The least significant 16 bits contain a subsystem-specific status value. In order
+that status values do not conflict with the vxWorks error status values, all subsystem numbers are greater than
+500.
+<a 
+ id="dx12-469003"></a>
+</p><!--l. 292--><p class="noindent" >A header file <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">errMdef.h</span></span></span> defines macros for all the subsystem numbers. For example the database access routines use this
+module number:
+</p>
+<!--l. 295-->
+     <div class="lstlisting" id="listing-119"><span class="label"><a 
+ id="x12-469004r1"></a></span><span 
+class="pcrb7t-">#</span><span 
+class="pcrb7t-">define</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">M_dbAccess</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(501</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x003C;&#x003C;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">16)</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">/&#x22C6;</span><span 
+class="pcrro7t-">Database</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">Access</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">Routines</span><span 
+class="pcrro7t-">&#x22C6;/</span>
+     
+</div>
+<!--l. 299--><p class="noindent" >There are header files for every IOC subsystem that returns standard status values. The status values are encoded with lines of
+the following format:
+</p>
+<!--l. 302-->
+     <div class="lstlisting" id="listing-120"><span class="label"><a 
+ id="x12-469005r1"></a></span><span 
+class="pcrb7t-">#</span><span 
+class="pcrb7t-">define</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">S_xxxxxxx</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">value</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrro7t-">/&#x22C6;</span><span 
+class="pcrro7t-">string</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">value</span><span 
+class="pcrro7t-">&#x22C6;/</span>
+     
+</div>
+<!--l. 306--><p class="noindent" >For example:
+</p>
+<!--l. 308-->
+     <div class="lstlisting" id="listing-121"><span class="label"><a 
+ id="x12-469006r1"></a></span><span 
+class="pcrb7t-">#</span><span 
+class="pcrb7t-">define</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">S_dbAccessBadDBR</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">M_dbAccess</span><span 
+class="pcrr7t-">|3)</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrro7t-">/&#x22C6;</span><span 
+class="pcrro7t-">Invalid</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">Database</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">Request</span><span 
+class="pcrro7t-">&#x22C6;/</span>
+     
+</div>
+<!--l. 312--><p class="noindent" >For example, when <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbGetField</span></span></span> detects a bad database request type, it executes the statement:
+</p>
+<!--l. 314-->
+     <div class="lstlisting" id="listing-122"><span class="label"><a 
+ id="x12-469007r1"></a></span><span 
+class="pcrb7t-">return</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">S_dbAccessBadDBR</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<!--l. 318--><p class="noindent" >The calling routine checks the return status as follows:
+                                                                                         
+                                                                                         
+</p>
+<!--l. 320-->
+     <div class="lstlisting" id="listing-123"><span class="label"><a 
+ id="x12-469008r1"></a></span><span 
+class="pcrr7t-">status</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">=</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">dbGetField</span><span 
+class="pcrr7t-">(...);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x12-469009r2"></a></span><span 
+class="pcrb7t-">if</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">status</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">{</span><span 
+class="pcrro7t-">/&#x22C6;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">Call</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">was</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">not</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">successful</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x22C6;/</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">}</span>
+     
+</div>
+<!--l. 325--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">10.7    </span> <a 
+ id="x12-47000010.7"></a>iocLog</h3>
+<a 
+ id="dx12-470001"></a>
+<!--l. 329--><p class="noindent" >NOTE: Many sites use CMLOG instead of iocLog. See the CMLOG documentation for details.
+</p><!--l. 332--><p class="noindent" >This consists of two modules: iocLogServer and iocLogClient. The client code runs on each ioc and listens for
+the messages generated locally by the errlog system. It also reports the messages from the vxWorks logMsg
+facility.
+</p><!--l. 337--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">10.7.1    </span> <a 
+ id="x12-47100010.7.1"></a>iocLogServer</h4>
+<a 
+ id="dx12-471001"></a>
+<!--l. 340--><p class="noindent" >This runs on a host. It receives messages for all enabled iocLogClients in the local area network. The messages are written to a
+file. Epics base provides a startup file &#8220;base/src/libCom/log/rc2.logServer&#8221;, which is a SystemV init script to start the server.
+Consult this script for details.
+</p><!--l. 346--><p class="noindent" >To start a log server on a UNIX or PC workstation you must first set the following environment variables and then run the
+executable &#8220;iocLogServer&#8221; on your PC or UNIX workstation.
+     </p><dl class="description"><dt class="description">
+ </dt><dd 
+class="description"><a 
+ id="dx12-471002"></a><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">EPICS_IOC_LOG_FILE_NAME</span></span></span>
+     <!--l. 352--><p class="noindent" >The name and path to the log file.
+     </p></dd><dt class="description">
+ </dt><dd 
+class="description"><a 
+ id="dx12-471003"></a><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">EPICS_IOC_LOG_FILE_LIMIT</span></span></span>
+     <!--l. 356--><p class="noindent" >The maximum size in characters for the log file. If the file grows larger than this limit the server will seek back
+     to the beginning of the file and write new messages over the old messages starting from the beginning. If the
+     value is zero then there is no limit on the size of the log file.
+     </p></dd><dt class="description">
+ </dt><dd 
+class="description"><a 
+ id="dx12-471004"></a><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">EPICS_IOC_LOG_FILE_COMMAND</span></span></span>
+     <!--l. 362--><p class="noindent" >A shell command string used to obtain the log file path name during initialization and in response to SIGHUP.
+     The new path name will replace any path name supplied in <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">EPICS_IOC_LOG_FILE_NAME</span></span></span>.
+     </p><!--l. 365--><p class="noindent" >Thus,  if  <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">EPICS_IOC_LOG_FILE_NAME</span></span></span> is  &#8220;a/b/c.log&#8221;  and  <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">EPICS_IOC_LOG_FILE_COMMAND</span></span></span> returns
+     &#8220;A/B&#8221; or &#8220;A/B/&#8221; the log server will be stored at &#8220;A/B/c.log&#8221;
+                                                                                         
+                                                                                         
+     </p><!--l. 367--><p class="noindent" >If <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">EPICS_IOC_LOG_FILE_COMMAND</span></span></span> is empty then this behavior is disabled. This feature is used at some
+     sites for switching the server to a new directory at a fixed time each day. This variable is currently used only by
+     the UNIX version of the log server.
+     </p></dd><dt class="description">
+ </dt><dd 
+class="description"><a 
+ id="dx12-471005"></a><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">EPICS_IOC_LOG_PORT</span></span></span>
+     <!--l. 373--><p class="noindent" >THE TCP/IP port used by the log server.
+</p>
+     </dd></dl>
+<!--l. 377--><p class="noindent" >To configure an IOC to log its messages it must have an environment variable <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">EPICS_IOC_LOG_INET</span></span></span> set to the IP address
+of the host that is running the log server, and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">EPICS_IOC_LOG_PORT</span></span></span> to the TCP/IP port used by the log
+server.
+</p><!--l. 379--><p class="noindent" >Defaults for all of the above parameters are specified in the files $(EPICS_BASE)/config/CONFIG_SITE_ENV and
+$(EPICS_BASE)/config/CONFIG_ENV.
+</p><!--l. 381--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">10.7.2    </span> <a 
+ id="x12-47200010.7.2"></a>iocLogClient</h4>
+<a 
+ id="dx12-472001"></a>
+<!--l. 385--><p class="noindent" >This runs on each ioc. It is started by calling:
+</p>
+<!--l. 388-->
+     <div class="lstlisting" id="listing-124"><span class="label"><a 
+ id="x12-472002r1"></a></span><span 
+class="pcrr7t-">iocLogInit</span><span 
+class="pcrr7t-">();</span>
+     
+</div>
+<!--l. 392--><p class="noindent" >The global variable <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocLogDisable</span></span></span> can be used to enable/disable the messages from being sent to the server. Setting this
+variable to (0,1) (enables, disables) the messages generation. If <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocLogDisable</span></span></span> is set to 1 before calling <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocLogInit</span></span></span>
+then <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocLogClient</span></span></span> will not even initialize itself. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocLogDisable</span></span></span> can also be changed to turn logging on or
+off.
+</p><!--l. 397--><p class="noindent" ><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocLogClient</span></span></span> calls <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">errlogAddListener</span></span></span> and sends each message to the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocLogServer</span></span></span>.
+</p><!--l. 399--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">10.7.3    </span> <a 
+ id="x12-47300010.7.3"></a>Configuring a Private Log Server</h4>
+<!--l. 401--><p class="noindent" >In a testing environment it is desirable to use a private log server. This can be done as follows:
+</p>
+     <ul class="itemize1">
+     <li class="itemize">Add a epicsEnvSet command to your IOC startup file. For example
+                                                                                         
+                                                                                         
+     <div class="verbatim" id="verbatim-206">
+     <div class="fancyvrb" id="fancyvrb206"><a 
+ id="x12-473002r1"></a>&#x00A0;&#x00A0;ld&#x00A0;&#x003C;&#x00A0;iocCore<br class="fancyvrb" /><a 
+ id="x12-473004r2"></a>&#x00A0;&#x00A0;epicsEnvSet("EPICS_IOC_LOG_INET=xxx.xxx.xxx.xxx")</div></div>
+     <!--l. 412--><p class="nopar" >
+     </p></li>
+     <li class="itemize">The inet address is that of your host workstation.
+     </li>
+     <li class="itemize">On your host workstation, start the log server.
+     </li></ul>
+<!--l. 420--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">10.7.4    </span> <a 
+ id="x12-47400010.7.4"></a>iocLogPrefix</h4>
+<a 
+ id="dx12-474001"></a>
+<!--l. 424--><p class="noindent" >Many sites run multiple soft IOCs on the same machine. With some log viewers like cmlogviewer it is not possible to
+distinguish between the log messages from these IOCs since their hostnames are all the same. One solution to this is to add a
+unique prefix to every log message.
+</p><!--l. 428--><p class="noindent" >The <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocLogPrefix</span></span></span> command can be run from the startup file during IOC initialization to establish such a prefix that will be
+prepended to every log message when it is sent to the iocLogServer.
+</p><!--l. 430--><p class="noindent" >For example, adding the following lines to your <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">st.cmd</span></span></span> file
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-207">
+<div class="fancyvrb" id="fancyvrb207"><a 
+ id="x12-474003r1"></a>&#x00A0;&#x00A0;epicsEnvSet("IOC","sioc-b34-mc10");<br class="fancyvrb" /><a 
+ id="x12-474005r2"></a>&#x00A0;&#x00A0;iocLogPrefix("fac=LI21&#x00A0;proc=${IOC}&#x00A0;");</div></div>
+<!--l. 435--><p class="nopar" >
+</p><!--l. 437--><p class="noindent" >will categorize all log messages from this IOC as belonging to the facility <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">LI21</span></span></span> and to the process <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">sioc-b34-mc10</span></span></span>.
+</p><!--l. 439--><p class="noindent" >Note that log messages echoed to the IOC&#8217;s standard output will not show the prefix, it only appears in the version sent to the
+log server. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocLogPrefix</span></span></span> should appear fairly early in the startup script so the IOC doesn&#8217;t try to send any log messages
+without the prefix. Once the prefix has been set, it cannot be changed without rebooting the IOC. One can determine if a log
+prefix has been set using <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocLogShow</span></span></span>.
+                                                                                         
+                                                                                         
+</p>
+<!--l. 1--><div class="crosslinks"><p class="noindent">[<a 
+href="AppDevGuidech11.html" >next</a>] [<a 
+href="AppDevGuidech9.html" >prev</a>] [<a 
+href="AppDevGuidech9.html#tailAppDevGuidech9.html" >prev-tail</a>] [<a 
+href="AppDevGuidech10.html" >front</a>] [<a 
+href="AppDevGuide.html#AppDevGuidech10.html" >up</a>] </p></div>
+<!--l. 1--><p class="noindent" ><a 
+ id="tailAppDevGuidech10.html"></a> </p> 
+</body></html> 

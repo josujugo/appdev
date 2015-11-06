@@ -1,0 +1,1483 @@
+<?xml version="1.0" encoding="iso-8859-1" ?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">  
+<!--http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd-->  
+<html xmlns="http://www.w3.org/1999/xhtml"  
+> 
+<head><title>Contents</title> 
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" /> 
+<meta name="generator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
+<meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
+<!-- xhtml,2,html --> 
+<meta name="src" content="AppDevGuide.tex" /> 
+<meta name="date" content="2015-11-06 12:47:00" /> 
+<link rel="stylesheet" type="text/css" href="AppDevGuide.css" /> 
+</head><body 
+>
+<!--l. 82--><div class="crosslinks"><p class="noindent">[<a 
+href="AppDevGuidech1.html" >next</a>] [<a 
+href="#tailAppDevGuideli1.html">tail</a>] [<a 
+href="AppDevGuide.html#AppDevGuideli1.html" >up</a>] </p></div>
+<h2 class="likechapterHead"><a 
+ id="x2-1000"></a>Contents</h2> <div class="tableofcontents">
+<span class="chapterToc" > <a 
+href="AppDevGuide.html#Q1-1-1">EPICS Applications Developer&#8217;s Guide</a></span>
+<br /><span class="chapterToc" > <a 
+href="#Q1-2-3">Table of Contents</a></span>
+<br /><span class="chapterToc" >1 <a 
+href="AppDevGuidech1.html#x3-20001">Introduction</a></span>
+<br />&#x00A0;<span class="sectionToc" >1.1 <a 
+href="AppDevGuidech1.html#x3-30001.1">Overview</a></span>
+<br />&#x00A0;<span class="sectionToc" >1.2 <a 
+href="AppDevGuidech1.html#x3-40001.2">Acknowledgments</a></span>
+<br /><span class="chapterToc" >2 <a 
+href="AppDevGuidech2.html#x4-50002">Getting Started</a></span>
+<br />&#x00A0;<span class="sectionToc" >2.1 <a 
+href="AppDevGuidech2.html#x4-60002.1">Introduction</a></span>
+<br />&#x00A0;<span class="sectionToc" >2.2 <a 
+href="AppDevGuidech2.html#x4-70002.2">Example IOC Application</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >2.2.1 <a 
+href="AppDevGuidech2.html#x4-80002.2.1" id="QQ2-4-10">Check that <span 
+class="pcrr7t-">EPICS</span><span 
+class="pcrr7t-">_HOST</span><span 
+class="pcrr7t-">_ARCH </span>is defined</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >2.2.2 <a 
+href="AppDevGuidech2.html#x4-90002.2.2" id="QQ2-4-11">Create the example application</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >2.2.3 <a 
+href="AppDevGuidech2.html#x4-100002.2.3" id="QQ2-4-12">Inspect files</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >2.2.4 <a 
+href="AppDevGuidech2.html#x4-110002.2.4" id="QQ2-4-13">Sequencer Example</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >2.2.5 <a 
+href="AppDevGuidech2.html#x4-120002.2.5" id="QQ2-4-14">Build</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >2.2.6 <a 
+href="AppDevGuidech2.html#x4-130002.2.6" id="QQ2-4-15">Inspect files</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >2.2.7 <a 
+href="AppDevGuidech2.html#x4-140002.2.7" id="QQ2-4-16">Run the ioc example</a></span>
+<br />&#x00A0;<span class="sectionToc" >2.3 <a 
+href="AppDevGuidech2.html#x4-150002.3">Channel Access Host Example</a></span>
+<br />&#x00A0;<span class="sectionToc" >2.4 <a 
+href="AppDevGuidech2.html#x4-160002.4">iocsh</a></span>
+<br />&#x00A0;<span class="sectionToc" >2.5 <a 
+href="AppDevGuidech2.html#x4-170002.5">Building IOC components</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >2.5.1 <a 
+href="AppDevGuidech2.html#x4-180002.5.1" id="QQ2-4-20">Binding to IOC components</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >2.5.2 <a 
+href="AppDevGuidech2.html#x4-190002.5.2" id="QQ2-4-21">Makefile rules</a></span>
+<br />&#x00A0;<span class="sectionToc" >2.6 <a 
+href="AppDevGuidech2.html#x4-220002.6">makeBaseApp.pl</a></span>
+                                                                                         
+                                                                                         
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >2.6.1 <a 
+href="AppDevGuidech2.html#x4-230002.6.1" id="QQ2-4-25">Usage</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >2.6.2 <a 
+href="AppDevGuidech2.html#x4-240002.6.2" id="QQ2-4-26">Environment Variables:</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >2.6.3 <a 
+href="AppDevGuidech2.html#x4-250002.6.3" id="QQ2-4-27">Description</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >2.6.4 <a 
+href="AppDevGuidech2.html#x4-260002.6.4" id="QQ2-4-28">Tag Replacement within a Template</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >2.6.5 <a 
+href="AppDevGuidech2.html#x4-270002.6.5" id="QQ2-4-29">makeBaseApp templetes provided with base</a></span>
+<br />&#x00A0;<span class="sectionToc" >2.7 <a 
+href="AppDevGuidech2.html#x4-330002.7">vxWorks boot parameters</a></span>
+<br />&#x00A0;<span class="sectionToc" >2.8 <a 
+href="AppDevGuidech2.html#x4-340002.8">RTEMS boot procedure</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >2.8.1 <a 
+href="AppDevGuidech2.html#x4-350002.8.1" id="QQ2-4-37">Booting from a BOOTP/DHCP/TFTP server</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >2.8.2 <a 
+href="AppDevGuidech2.html#x4-360002.8.2" id="QQ2-4-38">Motorola PPCBUG boot parameters</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >2.8.3 <a 
+href="AppDevGuidech2.html#x4-370002.8.3" id="QQ2-4-39">Motorola MOTLOAD boot parameters</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >2.8.4 <a 
+href="AppDevGuidech2.html#x4-380002.8.4" id="QQ2-4-40">RTEMS NFS access</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >2.8.5 <a 
+href="AppDevGuidech2.html#x4-390002.8.5" id="QQ2-4-41">RTEMS &#8216;Cexp&#8217;</a></span>
+<br /><span class="chapterToc" >3 <a 
+href="AppDevGuidech3.html#x5-400003">EPICS Overview</a></span>
+<br />&#x00A0;<span class="sectionToc" >3.1 <a 
+href="AppDevGuidech3.html#x5-410003.1">What is EPICS?</a></span>
+<br />&#x00A0;<span class="sectionToc" >3.2 <a 
+href="AppDevGuidech3.html#x5-420003.2">Basic Attributes</a></span>
+<br />&#x00A0;<span class="sectionToc" >3.3 <a 
+href="AppDevGuidech3.html#x5-430003.3">IOC Software Components</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >3.3.1 <a 
+href="AppDevGuidech3.html#x5-440003.3.1" id="QQ2-5-46">IOC Database</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >3.3.2 <a 
+href="AppDevGuidech3.html#x5-450003.3.2" id="QQ2-5-47">Database Access</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >3.3.3 <a 
+href="AppDevGuidech3.html#x5-460003.3.3" id="QQ2-5-48">Database Scanning</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >3.3.4 <a 
+href="AppDevGuidech3.html#x5-470003.3.4" id="QQ2-5-49">Record Support, Device Support and Device Drivers</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >3.3.5 <a 
+href="AppDevGuidech3.html#x5-480003.3.5" id="QQ2-5-50">Channel Access</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >3.3.6 <a 
+href="AppDevGuidech3.html#x5-490003.3.6" id="QQ2-5-51">Database Monitors</a></span>
+<br />&#x00A0;<span class="sectionToc" >3.4 <a 
+href="AppDevGuidech3.html#x5-500003.4">Channel Access</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >3.4.1 <a 
+href="AppDevGuidech3.html#x5-510003.4.1" id="QQ2-5-53">Client Services</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >3.4.2 <a 
+href="AppDevGuidech3.html#x5-520003.4.2" id="QQ2-5-54">Search Server</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >3.4.3 <a 
+href="AppDevGuidech3.html#x5-530003.4.3" id="QQ2-5-55">Connection Request Server</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >3.4.4 <a 
+href="AppDevGuidech3.html#x5-540003.4.4" id="QQ2-5-56">Connection Management</a></span>
+<br />&#x00A0;<span class="sectionToc" >3.5 <a 
+href="AppDevGuidech3.html#x5-550003.5">OPI Tools</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >3.5.1 <a 
+href="AppDevGuidech3.html#x5-560003.5.1" id="QQ2-5-58">Examples of Channel Access Tools</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >3.5.2 <a 
+href="AppDevGuidech3.html#x5-570003.5.2" id="QQ2-5-59">Examples of other Tools</a></span>
+<br />&#x00A0;<span class="sectionToc" >3.6 <a 
+href="AppDevGuidech3.html#x5-580003.6">EPICS Core Software</a></span>
+<br /><span class="chapterToc" >4 <a 
+href="AppDevGuidech4.html#x6-590004">Build Facility</a></span>
+<br />&#x00A0;<span class="sectionToc" >4.1 <a 
+href="AppDevGuidech4.html#x6-600004.1">Overview</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.1.1 <a 
+href="AppDevGuidech4.html#x6-610004.1.1" id="QQ2-6-63"><span 
+class="cmmi-10">&#x003C;</span>top<span 
+class="cmmi-10">&#x003E; </span>Directory structure</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.1.2 <a 
+href="AppDevGuidech4.html#x6-620004.1.2" id="QQ2-6-64">Install Directories</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.1.3 <a 
+href="AppDevGuidech4.html#x6-630004.1.3" id="QQ2-6-65">Elements of build system</a></span>
+                                                                                         
+                                                                                         
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.1.4 <a 
+href="AppDevGuidech4.html#x6-640004.1.4" id="QQ2-6-66">Features</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.1.5 <a 
+href="AppDevGuidech4.html#x6-650004.1.5" id="QQ2-6-67">Multiple host and target systems</a></span>
+<br />&#x00A0;<span class="sectionToc" >4.2 <a 
+href="AppDevGuidech4.html#x6-660004.2">Build Requirements</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.2.1 <a 
+href="AppDevGuidech4.html#x6-670004.2.1" id="QQ2-6-69">Host Environment Variable</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.2.2 <a 
+href="AppDevGuidech4.html#x6-680004.2.2" id="QQ2-6-70">Software Prerequisites</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.2.3 <a 
+href="AppDevGuidech4.html#x6-690004.2.3" id="QQ2-6-71">Path requirements</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.2.4 <a 
+href="AppDevGuidech4.html#x6-720004.2.4" id="QQ2-6-74">Directory names</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.2.5 <a 
+href="AppDevGuidech4.html#x6-730004.2.5" id="QQ2-6-75">EPICS_HOST_ARCH environment variable</a></span>
+<br />&#x00A0;<span class="sectionToc" >4.3 <a 
+href="AppDevGuidech4.html#x6-740004.3">Configuration Definitions</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.3.1 <a 
+href="AppDevGuidech4.html#x6-750004.3.1" id="QQ2-6-77">Site-specific EPICS Base Configuration</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.3.2 <a 
+href="AppDevGuidech4.html#x6-800004.3.2" id="QQ2-6-82">Directory definitions</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.3.3 <a 
+href="AppDevGuidech4.html#x6-810004.3.3" id="QQ2-6-83">Extension and Application Specific Configuration</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.3.4 <a 
+href="AppDevGuidech4.html#x6-820004.3.4" id="QQ2-6-84">RELEASE file</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.3.5 <a 
+href="AppDevGuidech4.html#x6-830004.3.5" id="QQ2-6-85">Modifying configure/RELEASE* files</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.3.6 <a 
+href="AppDevGuidech4.html#x6-840004.3.6" id="QQ2-6-86">OS Class specific definitions</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.3.7 <a 
+href="AppDevGuidech4.html#x6-850004.3.7" id="QQ2-6-87">Specifying T_A specific definitions</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.3.8 <a 
+href="AppDevGuidech4.html#x6-860004.3.8" id="QQ2-6-88">Host and Ioc targets</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.3.9 <a 
+href="AppDevGuidech4.html#x6-870004.3.9" id="QQ2-6-89">User specific override definitions</a></span>
+<br />&#x00A0;<span class="sectionToc" >4.4 <a 
+href="AppDevGuidech4.html#x6-880004.4">Makefiles</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.4.1 <a 
+href="AppDevGuidech4.html#x6-890004.4.1" id="QQ2-6-91">Name</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.4.2 <a 
+href="AppDevGuidech4.html#x6-900004.4.2" id="QQ2-6-92">Included Files</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.4.3 <a 
+href="AppDevGuidech4.html#x6-910004.4.3" id="QQ2-6-93">Contents of Makefiles</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.4.4 <a 
+href="AppDevGuidech4.html#x6-940004.4.4" id="QQ2-6-96">Simple Makefile examples</a></span>
+<br />&#x00A0;<span class="sectionToc" >4.5 <a 
+href="AppDevGuidech4.html#x6-950004.5">Make</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.5.1 <a 
+href="AppDevGuidech4.html#x6-960004.5.1" id="QQ2-6-98">Make vs. gnumake</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.5.2 <a 
+href="AppDevGuidech4.html#x6-970004.5.2" id="QQ2-6-99">Frequently used Make commands </a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.5.3 <a 
+href="AppDevGuidech4.html#x6-980004.5.3" id="QQ2-6-100">Make targets</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.5.4 <a 
+href="AppDevGuidech4.html#x6-990004.5.4" id="QQ2-6-101">Header file dependencies</a></span>
+<br />&#x00A0;<span class="sectionToc" >4.6 <a 
+href="AppDevGuidech4.html#x6-1000004.6">Makefile definitions</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.6.1 <a 
+href="AppDevGuidech4.html#x6-1010004.6.1" id="QQ2-6-103">Source file directories</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.6.2 <a 
+href="AppDevGuidech4.html#x6-1020004.6.2" id="QQ2-6-104">Posix C source code</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.6.3 <a 
+href="AppDevGuidech4.html#x6-1030004.6.3" id="QQ2-6-105">Breakpoint Tables</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.6.4 <a 
+href="AppDevGuidech4.html#x6-1040004.6.4" id="QQ2-6-106">Record Type Definitions</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.6.5 <a 
+href="AppDevGuidech4.html#x6-1050004.6.5" id="QQ2-6-107">Menus</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.6.6 <a 
+href="AppDevGuidech4.html#x6-1060004.6.6" id="QQ2-6-108">Expanded Database Definition Files</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.6.7 <a 
+href="AppDevGuidech4.html#x6-1070004.6.7" id="QQ2-6-109">Registering Support Routines for Expanded Database Definition Files</a></span>
+                                                                                         
+                                                                                         
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.6.8 <a 
+href="AppDevGuidech4.html#x6-1080004.6.8" id="QQ2-6-110">Database Definition Files</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.6.9 <a 
+href="AppDevGuidech4.html#x6-1090004.6.9" id="QQ2-6-111">DBD install files</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.6.10 <a 
+href="AppDevGuidech4.html#x6-1100004.6.10" id="QQ2-6-112">Database Files</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.6.11 <a 
+href="AppDevGuidech4.html#x6-1110004.6.11" id="QQ2-6-113">DB install files</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.6.12 <a 
+href="AppDevGuidech4.html#x6-1120004.6.12" id="QQ2-6-114">Compile and link command options</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.6.13 <a 
+href="AppDevGuidech4.html#x6-1150004.6.13" id="QQ2-6-117">Libraries</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.6.14 <a 
+href="AppDevGuidech4.html#x6-1250004.6.14" id="QQ2-6-127">Loadable libraries</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.6.15 <a 
+href="AppDevGuidech4.html#x6-1260004.6.15" id="QQ2-6-128"> Combined object libraries (VxWorks only)</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.6.16 <a 
+href="AppDevGuidech4.html#x6-1270004.6.16" id="QQ2-6-129">Object Files</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.6.17 <a 
+href="AppDevGuidech4.html#x6-1280004.6.17" id="QQ2-6-130">State Notation Programs</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.6.18 <a 
+href="AppDevGuidech4.html#x6-1290004.6.18" id="QQ2-6-131">Scripts, etc.</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.6.19 <a 
+href="AppDevGuidech4.html#x6-1300004.6.19" id="QQ2-6-132">Include files</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.6.20 <a 
+href="AppDevGuidech4.html#x6-1310004.6.20" id="QQ2-6-133">Html and Doc files</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.6.21 <a 
+href="AppDevGuidech4.html#x6-1320004.6.21" id="QQ2-6-134">Templates</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.6.22 <a 
+href="AppDevGuidech4.html#x6-1330004.6.22" id="QQ2-6-135">Lex and yac</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.6.23 <a 
+href="AppDevGuidech4.html#x6-1340004.6.23" id="QQ2-6-136">Products</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.6.24 <a 
+href="AppDevGuidech4.html#x6-1420004.6.24" id="QQ2-6-144">Test Products</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.6.25 <a 
+href="AppDevGuidech4.html#x6-1430004.6.25" id="QQ2-6-145">Test Scripts</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.6.26 <a 
+href="AppDevGuidech4.html#x6-1440004.6.26" id="QQ2-6-146">Miscellaneous Targets</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.6.27 <a 
+href="AppDevGuidech4.html#x6-1450004.6.27" id="QQ2-6-147">Installing Other Binaries</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.6.28 <a 
+href="AppDevGuidech4.html#x6-1460004.6.28" id="QQ2-6-148">Installing Other Libraries</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.6.29 <a 
+href="AppDevGuidech4.html#x6-1470004.6.29" id="QQ2-6-149">Win32 resource files</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.6.30 <a 
+href="AppDevGuidech4.html#x6-1480004.6.30" id="QQ2-6-150">TCL libraries</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.6.31 <a 
+href="AppDevGuidech4.html#x6-1490004.6.31" id="QQ2-6-151">Java class files</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.6.32 <a 
+href="AppDevGuidech4.html#x6-1520004.6.32" id="QQ2-6-154">Java jar file</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.6.33 <a 
+href="AppDevGuidech4.html#x6-1550004.6.33" id="QQ2-6-157">Java native method C header files</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.6.34 <a 
+href="AppDevGuidech4.html#x6-1570004.6.34" id="QQ2-6-159">User Created CONFIG* and RULES* files</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.6.35 <a 
+href="AppDevGuidech4.html#x6-1580004.6.35" id="QQ2-6-160">User Created File Types</a></span>
+<br />&#x00A0;<span class="sectionToc" >4.7 <a 
+href="AppDevGuidech4.html#x6-1590004.7">Table of Makefile definitions</a></span>
+<br />&#x00A0;<span class="sectionToc" >4.8 <a 
+href="AppDevGuidech4.html#x6-1600004.8">Configuration Files</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.8.1 <a 
+href="AppDevGuidech4.html#x6-1610004.8.1" id="QQ2-6-163">Base Configure Directory</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.8.2 <a 
+href="AppDevGuidech4.html#x6-1620004.8.2" id="QQ2-6-164">Base Configure File Descriptions</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.8.3 <a 
+href="AppDevGuidech4.html#x6-1630004.8.3" id="QQ2-6-165">Base configure/os File Descriptions</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.8.4 <a 
+href="AppDevGuidech4.html#x6-1640004.8.4" id="QQ2-6-166">Base src/tools File Descriptions</a></span>
+<br />&#x00A0;<span class="sectionToc" >4.9 <a 
+href="AppDevGuidech4.html#x6-1650004.9">Build Documentation Files</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.9.1 <a 
+href="AppDevGuidech4.html#x6-1660004.9.1" id="QQ2-6-168">Base Documentation Directory</a></span>
+                                                                                         
+                                                                                         
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.9.2 <a 
+href="AppDevGuidech4.html#x6-1670004.9.2" id="QQ2-6-169">Base Documentation File Descriptions</a></span>
+<br />&#x00A0;<span class="sectionToc" >4.10 <a 
+href="AppDevGuidech4.html#x6-1680004.10">Startup Files</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.10.1 <a 
+href="AppDevGuidech4.html#x6-1690004.10.1" id="QQ2-6-171">Base Startup Directory</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >4.10.2 <a 
+href="AppDevGuidech4.html#x6-1700004.10.2" id="QQ2-6-172">Base Startup File Descriptions</a></span>
+<br /><span class="chapterToc" >5 <a 
+href="AppDevGuidech5.html#x7-1710005">Database Locking, Scanning, And Processing</a></span>
+<br />&#x00A0;<span class="sectionToc" >5.1 <a 
+href="AppDevGuidech5.html#x7-1720005.1">Overview</a></span>
+<br />&#x00A0;<span class="sectionToc" >5.2 <a 
+href="AppDevGuidech5.html#x7-1730005.2">Record Links</a></span>
+<br />&#x00A0;<span class="sectionToc" >5.3 <a 
+href="AppDevGuidech5.html#x7-1740005.3">Database Links</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >5.3.1 <a 
+href="AppDevGuidech5.html#x7-1750005.3.1" id="QQ2-7-177">Process Passive</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >5.3.2 <a 
+href="AppDevGuidech5.html#x7-1760005.3.2" id="QQ2-7-178">Maximize Severity</a></span>
+<br />&#x00A0;<span class="sectionToc" >5.4 <a 
+href="AppDevGuidech5.html#x7-1770005.4">Database Locking</a></span>
+<br />&#x00A0;<span class="sectionToc" >5.5 <a 
+href="AppDevGuidech5.html#x7-1780005.5">Database Scanning</a></span>
+<br />&#x00A0;<span class="sectionToc" >5.6 <a 
+href="AppDevGuidech5.html#x7-1790005.6">Record Processing</a></span>
+<br />&#x00A0;<span class="sectionToc" >5.7 <a 
+href="AppDevGuidech5.html#x7-1800005.7">Guidelines for Creating Database Links</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >5.7.1 <a 
+href="AppDevGuidech5.html#x7-1810005.7.1" id="QQ2-7-183">Rules Relating to Database Links</a></span>
+<br />&#x00A0;<span class="sectionToc" >5.8 <a 
+href="AppDevGuidech5.html#x7-1880005.8">Guidelines for Synchronous Records</a></span>
+<br />&#x00A0;<span class="sectionToc" >5.9 <a 
+href="AppDevGuidech5.html#x7-1890005.9">Guidelines for Asynchronous Records</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >5.9.1 <a 
+href="AppDevGuidech5.html#x7-1900005.9.1" id="QQ2-7-192">Infinite Loop</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >5.9.2 <a 
+href="AppDevGuidech5.html#x7-1910005.9.2" id="QQ2-7-193">Obtain Old Data</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >5.9.3 <a 
+href="AppDevGuidech5.html#x7-1920005.9.3" id="QQ2-7-194">Delays</a></span>
+<br />&#x00A0;<span class="sectionToc" >5.10 <a 
+href="AppDevGuidech5.html#x7-1930005.10">Cached Puts</a></span>
+<br />&#x00A0;<span class="sectionToc" >5.11 <a 
+href="AppDevGuidech5.html#x7-1940005.11">processNotify</a></span>
+<br />&#x00A0;<span class="sectionToc" >5.12 <a 
+href="AppDevGuidech5.html#x7-1950005.12">Channel Access Links</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >5.12.1 <a 
+href="AppDevGuidech5.html#x7-1960005.12.1" id="QQ2-7-198">INLINK</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >5.12.2 <a 
+href="AppDevGuidech5.html#x7-1970005.12.2" id="QQ2-7-199">OUTLINK</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >5.12.3 <a 
+href="AppDevGuidech5.html#x7-1980005.12.3" id="QQ2-7-200">FWDLINK</a></span>
+<br /><span class="chapterToc" >6 <a 
+href="AppDevGuidech6.html#x8-1990006">Database Definition</a></span>
+<br />&#x00A0;<span class="sectionToc" >6.1 <a 
+href="AppDevGuidech6.html#x8-2000006.1">Overview</a></span>
+<br />&#x00A0;<span class="sectionToc" >6.2 <a 
+href="AppDevGuidech6.html#x8-2010006.2">Summary of Database Syntax</a></span>
+<br />&#x00A0;<span class="sectionToc" >6.3 <a 
+href="AppDevGuidech6.html#x8-2020006.3">General Rules for Database Definition</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >6.3.1 <a 
+href="AppDevGuidech6.html#x8-2030006.3.1" id="QQ2-8-205">Keywords</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >6.3.2 <a 
+href="AppDevGuidech6.html#x8-2040006.3.2" id="QQ2-8-206">Unquoted Strings</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >6.3.3 <a 
+href="AppDevGuidech6.html#x8-2050006.3.3" id="QQ2-8-207">Quoted Strings</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >6.3.4 <a 
+href="AppDevGuidech6.html#x8-2060006.3.4" id="QQ2-8-208">Macro Substitution</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >6.3.5 <a 
+href="AppDevGuidech6.html#x8-2070006.3.5" id="QQ2-8-209">Escape Sequences</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >6.3.6 <a 
+href="AppDevGuidech6.html#x8-2080006.3.6" id="QQ2-8-210">Comments</a></span>
+                                                                                         
+                                                                                         
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >6.3.7 <a 
+href="AppDevGuidech6.html#x8-2090006.3.7" id="QQ2-8-211">Define before referencing</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >6.3.8 <a 
+href="AppDevGuidech6.html#x8-2100006.3.8" id="QQ2-8-212">Multiple Definitions</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >6.3.9 <a 
+href="AppDevGuidech6.html#x8-2110006.3.9" id="QQ2-8-213">Filename Extensions</a></span>
+<br />&#x00A0;<span class="sectionToc" >6.4 <a 
+href="AppDevGuidech6.html#x8-2120006.4">Database Definition Statements</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >6.4.1 <a 
+href="AppDevGuidech6.html#x8-2130006.4.1" id="QQ2-8-215"><span 
+class="pcrr7t-">path addpath </span>&#8211; Path Definition</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >6.4.2 <a 
+href="AppDevGuidech6.html#x8-2150006.4.2" id="QQ2-8-217"><span 
+class="pcrr7t-">include </span>&#8211; Include Statement</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >6.4.3 <a 
+href="AppDevGuidech6.html#x8-2170006.4.3" id="QQ2-8-219"><span 
+class="pcrr7t-">menu </span>&#8211; Menu Definition</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >6.4.4 <a 
+href="AppDevGuidech6.html#x8-2210006.4.4" id="QQ2-8-223"><span 
+class="pcrr7t-">recordtype </span>&#8211; Record Type Definition</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >6.4.5 <a 
+href="AppDevGuidech6.html#x8-2260006.4.5" id="QQ2-8-228"><span 
+class="pcrr7t-">device </span>&#8211; Device Support Declaration</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >6.4.6 <a 
+href="AppDevGuidech6.html#x8-2300006.4.6" id="QQ2-8-232"><span 
+class="pcrr7t-">driver </span>&#8211; Driver Declaration</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >6.4.7 <a 
+href="AppDevGuidech6.html#x8-2340006.4.7" id="QQ2-8-236"><span 
+class="pcrr7t-">registrar </span>&#8211; Registrar Declaration</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >6.4.8 <a 
+href="AppDevGuidech6.html#x8-2380006.4.8" id="QQ2-8-240"><span 
+class="pcrr7t-">variable </span>&#8211; Variable Declaration</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >6.4.9 <a 
+href="AppDevGuidech6.html#x8-2420006.4.9" id="QQ2-8-244"><span 
+class="pcrr7t-">function </span>&#8211; Function Declaration</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >6.4.10 <a 
+href="AppDevGuidech6.html#x8-2460006.4.10" id="QQ2-8-248"><span 
+class="pcrr7t-">breaktable </span>&#8211; Breakpoint Table</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >6.4.11 <a 
+href="AppDevGuidech6.html#x8-2500006.4.11" id="QQ2-8-252"><span 
+class="pcrr7t-">record </span>&#8211; Record Instance</a></span>
+<br />&#x00A0;<span class="sectionToc" >6.5 <a 
+href="AppDevGuidech6.html#x8-2540006.5">Record Information Item</a></span>
+<br />&#x00A0;<span class="sectionToc" >6.6 <a 
+href="AppDevGuidech6.html#x8-2550006.6">Record Attributes</a></span>
+<br />&#x00A0;<span class="sectionToc" >6.7 <a 
+href="AppDevGuidech6.html#x8-2560006.7">Breakpoint Tables &#8211; Discussion</a></span>
+<br />&#x00A0;<span class="sectionToc" >6.8 <a 
+href="AppDevGuidech6.html#x8-2570006.8">Menu and Record Type Include File Generation.</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >6.8.1 <a 
+href="AppDevGuidech6.html#x8-2580006.8.1" id="QQ2-8-260">Introduction</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >6.8.2 <a 
+href="AppDevGuidech6.html#x8-2590006.8.2" id="QQ2-8-261">dbdToMenuH.pl</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >6.8.3 <a 
+href="AppDevGuidech6.html#x8-2600006.8.3" id="QQ2-8-262">dbdToRecordtypeH.pl</a></span>
+<br />&#x00A0;<span class="sectionToc" >6.9 <a 
+href="AppDevGuidech6.html#x8-2610006.9">dbdExpand.pl</a></span>
+<br />&#x00A0;<span class="sectionToc" >6.10 <a 
+href="AppDevGuidech6.html#x8-2620006.10">dbLoadDatabase</a></span>
+<br />&#x00A0;<span class="sectionToc" >6.11 <a 
+href="AppDevGuidech6.html#x8-2630006.11">dbLoadRecords</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >6.11.1 <a 
+href="AppDevGuidech6.html#x8-2640006.11.1" id="QQ2-8-266">Example</a></span>
+<br />&#x00A0;<span class="sectionToc" >6.12 <a 
+href="AppDevGuidech6.html#x8-2650006.12">dbLoadTemplate</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >6.12.1 <a 
+href="AppDevGuidech6.html#x8-2660006.12.1" id="QQ2-8-268">Template File Syntax</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >6.12.2 <a 
+href="AppDevGuidech6.html#x8-2670006.12.2" id="QQ2-8-269">Template File Formats</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >6.12.3 <a 
+href="AppDevGuidech6.html#x8-2680006.12.3" id="QQ2-8-270">Example</a></span>
+<br /><span class="chapterToc" >7 <a 
+href="AppDevGuidech7.html#x9-2690007">IOC Initialization</a></span>
+<br />&#x00A0;<span class="sectionToc" >7.1 <a 
+href="AppDevGuidech7.html#x9-2700007.1">Overview - Environments requiring a main program</a></span>
+<br />&#x00A0;<span class="sectionToc" >7.2 <a 
+href="AppDevGuidech7.html#x9-2710007.2">Overview - vxWorks</a></span>
+<br />&#x00A0;<span class="sectionToc" >7.3 <a 
+href="AppDevGuidech7.html#x9-2720007.3">Overview - RTEMS</a></span>
+<br />&#x00A0;<span class="sectionToc" >7.4 <a 
+href="AppDevGuidech7.html#x9-2730007.4">IOC Initialization</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >7.4.1 <a 
+href="AppDevGuidech7.html#x9-2740007.4.1" id="QQ2-9-276">Configure Main Thread</a></span>
+                                                                                         
+                                                                                         
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >7.4.2 <a 
+href="AppDevGuidech7.html#x9-2750007.4.2" id="QQ2-9-277">General Purpose Modules</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >7.4.3 <a 
+href="AppDevGuidech7.html#x9-2760007.4.3" id="QQ2-9-278">Channel Access Links</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >7.4.4 <a 
+href="AppDevGuidech7.html#x9-2770007.4.4" id="QQ2-9-279">Driver Support</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >7.4.5 <a 
+href="AppDevGuidech7.html#x9-2780007.4.5" id="QQ2-9-280">Record Support</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >7.4.6 <a 
+href="AppDevGuidech7.html#x9-2790007.4.6" id="QQ2-9-281">Device Support</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >7.4.7 <a 
+href="AppDevGuidech7.html#x9-2800007.4.7" id="QQ2-9-282">Database Records</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >7.4.8 <a 
+href="AppDevGuidech7.html#x9-2810007.4.8" id="QQ2-9-283">Device Support again</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >7.4.9 <a 
+href="AppDevGuidech7.html#x9-2820007.4.9" id="QQ2-9-284">Scanning and Access Security</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >7.4.10 <a 
+href="AppDevGuidech7.html#x9-2830007.4.10" id="QQ2-9-285">Initial Processing</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >7.4.11 <a 
+href="AppDevGuidech7.html#x9-2840007.4.11" id="QQ2-9-286">Channel Access Server</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >7.4.12 <a 
+href="AppDevGuidech7.html#x9-2850007.4.12" id="QQ2-9-287">Enable Record Processing</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >7.4.13 <a 
+href="AppDevGuidech7.html#x9-2860007.4.13" id="QQ2-9-288">Enable CA Server</a></span>
+<br />&#x00A0;<span class="sectionToc" >7.5 <a 
+href="AppDevGuidech7.html#x9-2870007.5">Pausing an IOC</a></span>
+<br />&#x00A0;<span class="sectionToc" >7.6 <a 
+href="AppDevGuidech7.html#x9-2880007.6">Changing iocCore fixed limits</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >7.6.1 <a 
+href="AppDevGuidech7.html#x9-2890007.6.1" id="QQ2-9-291">callbackSetQueueSize</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >7.6.2 <a 
+href="AppDevGuidech7.html#x9-2900007.6.2" id="QQ2-9-292">dbPvdTableSize</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >7.6.3 <a 
+href="AppDevGuidech7.html#x9-2910007.6.3" id="QQ2-9-293">scanOnceSetQueueSize</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >7.6.4 <a 
+href="AppDevGuidech7.html#x9-2920007.6.4" id="QQ2-9-294">errlogInit or errlogInit2</a></span>
+<br />&#x00A0;<span class="sectionToc" >7.7 <a 
+href="AppDevGuidech7.html#x9-2930007.7">initHooks</a></span>
+<br />&#x00A0;<span class="sectionToc" >7.8 <a 
+href="AppDevGuidech7.html#x9-2940007.8">Environment Variables</a></span>
+<br />&#x00A0;<span class="sectionToc" >7.9 <a 
+href="AppDevGuidech7.html#x9-2950007.9">Initialize Logging</a></span>
+<br /><span class="chapterToc" >8 <a 
+href="AppDevGuidech8.html#x10-2960008">Access Security</a></span>
+<br />&#x00A0;<span class="sectionToc" >8.1 <a 
+href="AppDevGuidech8.html#x10-2970008.1">Overview</a></span>
+<br />&#x00A0;<span class="sectionToc" >8.2 <a 
+href="AppDevGuidech8.html#x10-2980008.2">Quick Start</a></span>
+<br />&#x00A0;<span class="sectionToc" >8.3 <a 
+href="AppDevGuidech8.html#x10-2990008.3">User&#8217;s Guide</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >8.3.1 <a 
+href="AppDevGuidech8.html#x10-3000008.3.1" id="QQ2-10-302">Features</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >8.3.2 <a 
+href="AppDevGuidech8.html#x10-3010008.3.2" id="QQ2-10-303">Limitations</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >8.3.3 <a 
+href="AppDevGuidech8.html#x10-3020008.3.3" id="QQ2-10-304">Definitions</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >8.3.4 <a 
+href="AppDevGuidech8.html#x10-3030008.3.4" id="QQ2-10-305">Access Security Configuration File</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >8.3.5 <a 
+href="AppDevGuidech8.html#x10-3070008.3.5" id="QQ2-10-309">ascheck - Check Syntax of Access Configuration File</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >8.3.6 <a 
+href="AppDevGuidech8.html#x10-3080008.3.6" id="QQ2-10-310">IOC Access Security Initialization</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >8.3.7 <a 
+href="AppDevGuidech8.html#x10-3090008.3.7" id="QQ2-10-311">Database Configuration</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >8.3.8 <a 
+href="AppDevGuidech8.html#x10-3130008.3.8" id="QQ2-10-315">Example:</a></span>
+<br />&#x00A0;<span class="sectionToc" >8.4 <a 
+href="AppDevGuidech8.html#x10-3140008.4">Design Summary</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >8.4.1 <a 
+href="AppDevGuidech8.html#x10-3150008.4.1" id="QQ2-10-317">Summary of Functional Requirements</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >8.4.2 <a 
+href="AppDevGuidech8.html#x10-3160008.4.2" id="QQ2-10-318">Additional Requirements</a></span>
+                                                                                         
+                                                                                         
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >8.4.3 <a 
+href="AppDevGuidech8.html#x10-3220008.4.3" id="QQ2-10-324">Design Overview</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >8.4.4 <a 
+href="AppDevGuidech8.html#x10-3270008.4.4" id="QQ2-10-329">Comments</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >8.4.5 <a 
+href="AppDevGuidech8.html#x10-3280008.4.5" id="QQ2-10-330">Performance and Memory Requirements</a></span>
+<br />&#x00A0;<span class="sectionToc" >8.5 <a 
+href="AppDevGuidech8.html#x10-3290008.5">Access Security Application Programmer&#8217;s Interface</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >8.5.1 <a 
+href="AppDevGuidech8.html#x10-3300008.5.1" id="QQ2-10-332">Introduction</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >8.5.2 <a 
+href="AppDevGuidech8.html#x10-3310008.5.2" id="QQ2-10-333">Definitions</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >8.5.3 <a 
+href="AppDevGuidech8.html#x10-3320008.5.3" id="QQ2-10-334">Initialization</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >8.5.4 <a 
+href="AppDevGuidech8.html#x10-3330008.5.4" id="QQ2-10-335">Group manipulation</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >8.5.5 <a 
+href="AppDevGuidech8.html#x10-3390008.5.5" id="QQ2-10-341"> Client Manipulation</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >8.5.6 <a 
+href="AppDevGuidech8.html#x10-3490008.5.6" id="QQ2-10-351">Access Computation</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >8.5.7 <a 
+href="AppDevGuidech8.html#x10-3530008.5.7" id="QQ2-10-355">Diagnostics</a></span>
+<br />&#x00A0;<span class="sectionToc" >8.6 <a 
+href="AppDevGuidech8.html#x10-3600008.6">Database Access Security</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >8.6.1 <a 
+href="AppDevGuidech8.html#x10-3610008.6.1" id="QQ2-10-363">Access Level definition</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >8.6.2 <a 
+href="AppDevGuidech8.html#x10-3620008.6.2" id="QQ2-10-364">Access Security Group definition</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >8.6.3 <a 
+href="AppDevGuidech8.html#x10-3630008.6.3" id="QQ2-10-365">Database Access Library</a></span>
+<br />&#x00A0;<span class="sectionToc" >8.7 <a 
+href="AppDevGuidech8.html#x10-3690008.7">Channel Access Security</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >8.7.1 <a 
+href="AppDevGuidech8.html#x10-3700008.7.1" id="QQ2-10-372">CA Server Interfaces to the Access Security System</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >8.7.2 <a 
+href="AppDevGuidech8.html#x10-3710008.7.2" id="QQ2-10-373">Client Interfaces</a></span>
+<br />&#x00A0;<span class="sectionToc" >8.8 <a 
+href="AppDevGuidech8.html#x10-3720008.8">Trapping Channel Access Writes</a></span>
+<br />&#x00A0;<span class="sectionToc" >8.9 <a 
+href="AppDevGuidech8.html#x10-3730008.9">Access Control: Implementation Overview</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >8.9.1 <a 
+href="AppDevGuidech8.html#x10-3740008.9.1" id="QQ2-10-376">Implementation Overview</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >8.9.2 <a 
+href="AppDevGuidech8.html#x10-3750008.9.2" id="QQ2-10-377">Locking</a></span>
+<br />&#x00A0;<span class="sectionToc" >8.10 <a 
+href="AppDevGuidech8.html#x10-3760008.10">Structures</a></span>
+<br /><span class="chapterToc" >9 <a 
+href="AppDevGuidech9.html#x11-3770009">IOC Test Facilities</a></span>
+<br />&#x00A0;<span class="sectionToc" >9.1 <a 
+href="AppDevGuidech9.html#x11-3780009.1">Overview</a></span>
+<br />&#x00A0;<span class="sectionToc" >9.2 <a 
+href="AppDevGuidech9.html#x11-3790009.2">Database List, Get, Put</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.2.1 <a 
+href="AppDevGuidech9.html#x11-3800009.2.1" id="QQ2-11-382">dbl</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.2.2 <a 
+href="AppDevGuidech9.html#x11-3810009.2.2" id="QQ2-11-383">dbgrep</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.2.3 <a 
+href="AppDevGuidech9.html#x11-3820009.2.3" id="QQ2-11-384">dbla</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.2.4 <a 
+href="AppDevGuidech9.html#x11-3830009.2.4" id="QQ2-11-385">dba</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.2.5 <a 
+href="AppDevGuidech9.html#x11-3840009.2.5" id="QQ2-11-386">dbgf</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.2.6 <a 
+href="AppDevGuidech9.html#x11-3850009.2.6" id="QQ2-11-387">dbpf</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.2.7 <a 
+href="AppDevGuidech9.html#x11-3860009.2.7" id="QQ2-11-388">dbpr</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.2.8 <a 
+href="AppDevGuidech9.html#x11-3870009.2.8" id="QQ2-11-389"> dbtr</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.2.9 <a 
+href="AppDevGuidech9.html#x11-3880009.2.9" id="QQ2-11-390">dbnr</a></span>
+<br />&#x00A0;<span class="sectionToc" >9.3 <a 
+href="AppDevGuidech9.html#x11-3890009.3">Breakpoints</a></span>
+                                                                                         
+                                                                                         
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.3.1 <a 
+href="AppDevGuidech9.html#x11-3900009.3.1" id="QQ2-11-392">dbb</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.3.2 <a 
+href="AppDevGuidech9.html#x11-3910009.3.2" id="QQ2-11-393">dbd</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.3.3 <a 
+href="AppDevGuidech9.html#x11-3920009.3.3" id="QQ2-11-394">dbs</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.3.4 <a 
+href="AppDevGuidech9.html#x11-3930009.3.4" id="QQ2-11-395">dbc</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.3.5 <a 
+href="AppDevGuidech9.html#x11-3940009.3.5" id="QQ2-11-396">dbp </a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.3.6 <a 
+href="AppDevGuidech9.html#x11-3950009.3.6" id="QQ2-11-397">dbap</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.3.7 <a 
+href="AppDevGuidech9.html#x11-3960009.3.7" id="QQ2-11-398">dbstat</a></span>
+<br />&#x00A0;<span class="sectionToc" >9.4 <a 
+href="AppDevGuidech9.html#x11-3970009.4">Trace Processing</a></span>
+<br />&#x00A0;<span class="sectionToc" >9.5 <a 
+href="AppDevGuidech9.html#x11-3980009.5">Error Logging</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.5.1 <a 
+href="AppDevGuidech9.html#x11-3990009.5.1" id="QQ2-11-401">eltc</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.5.2 <a 
+href="AppDevGuidech9.html#x11-4000009.5.2" id="QQ2-11-402">errlogInit, errlogInit2</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.5.3 <a 
+href="AppDevGuidech9.html#x11-4010009.5.3" id="QQ2-11-403">errlog</a></span>
+<br />&#x00A0;<span class="sectionToc" >9.6 <a 
+href="AppDevGuidech9.html#x11-4020009.6">Hardware Reports</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.6.1 <a 
+href="AppDevGuidech9.html#x11-4030009.6.1" id="QQ2-11-405">dbior</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.6.2 <a 
+href="AppDevGuidech9.html#x11-4040009.6.2" id="QQ2-11-406">dbhcr</a></span>
+<br />&#x00A0;<span class="sectionToc" >9.7 <a 
+href="AppDevGuidech9.html#x11-4050009.7">Scan Reports</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.7.1 <a 
+href="AppDevGuidech9.html#x11-4060009.7.1" id="QQ2-11-408">scanppl</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.7.2 <a 
+href="AppDevGuidech9.html#x11-4070009.7.2" id="QQ2-11-409">scanpel</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.7.3 <a 
+href="AppDevGuidech9.html#x11-4080009.7.3" id="QQ2-11-410">scanpiol</a></span>
+<br />&#x00A0;<span class="sectionToc" >9.8 <a 
+href="AppDevGuidech9.html#x11-4090009.8">General Time</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.8.1 <a 
+href="AppDevGuidech9.html#x11-4100009.8.1" id="QQ2-11-412">generalTimeReport</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.8.2 <a 
+href="AppDevGuidech9.html#x11-4110009.8.2" id="QQ2-11-413">installLastResortEventProvider</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.8.3 <a 
+href="AppDevGuidech9.html#x11-4120009.8.3" id="QQ2-11-414">NTPTime_Report</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.8.4 <a 
+href="AppDevGuidech9.html#x11-4130009.8.4" id="QQ2-11-415">NTPTime_Shutdown</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.8.5 <a 
+href="AppDevGuidech9.html#x11-4140009.8.5" id="QQ2-11-416">ClockTime_Report</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.8.6 <a 
+href="AppDevGuidech9.html#x11-4150009.8.6" id="QQ2-11-417">ClockTime_Shutdown</a></span>
+<br />&#x00A0;<span class="sectionToc" >9.9 <a 
+href="AppDevGuidech9.html#x11-4160009.9">Access Security Commands</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.9.1 <a 
+href="AppDevGuidech9.html#x11-4170009.9.1" id="QQ2-11-419">asSetSubstitutions</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.9.2 <a 
+href="AppDevGuidech9.html#x11-4180009.9.2" id="QQ2-11-420">asSetFilename</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.9.3 <a 
+href="AppDevGuidech9.html#x11-4190009.9.3" id="QQ2-11-421">asInit</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.9.4 <a 
+href="AppDevGuidech9.html#x11-4200009.9.4" id="QQ2-11-422">asdbdump</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.9.5 <a 
+href="AppDevGuidech9.html#x11-4210009.9.5" id="QQ2-11-423">aspuag</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.9.6 <a 
+href="AppDevGuidech9.html#x11-4220009.9.6" id="QQ2-11-424">asphag</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.9.7 <a 
+href="AppDevGuidech9.html#x11-4230009.9.7" id="QQ2-11-425">asprules</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.9.8 <a 
+href="AppDevGuidech9.html#x11-4240009.9.8" id="QQ2-11-426">aspmem</a></span>
+<br />&#x00A0;<span class="sectionToc" >9.10 <a 
+href="AppDevGuidech9.html#x11-4250009.10">Channel Access Reports</a></span>
+                                                                                         
+                                                                                         
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.10.1 <a 
+href="AppDevGuidech9.html#x11-4260009.10.1" id="QQ2-11-428">casr</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.10.2 <a 
+href="AppDevGuidech9.html#x11-4270009.10.2" id="QQ2-11-429">dbel</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.10.3 <a 
+href="AppDevGuidech9.html#x11-4280009.10.3" id="QQ2-11-430">dbcar</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.10.4 <a 
+href="AppDevGuidech9.html#x11-4290009.10.4" id="QQ2-11-431">ascar</a></span>
+<br />&#x00A0;<span class="sectionToc" >9.11 <a 
+href="AppDevGuidech9.html#x11-4300009.11">Interrupt Vectors</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.11.1 <a 
+href="AppDevGuidech9.html#x11-4310009.11.1" id="QQ2-11-433">veclist</a></span>
+<br />&#x00A0;<span class="sectionToc" >9.12 <a 
+href="AppDevGuidech9.html#x11-4320009.12">Miscellaneous</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.12.1 <a 
+href="AppDevGuidech9.html#x11-4330009.12.1" id="QQ2-11-435">epicsParamShow</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.12.2 <a 
+href="AppDevGuidech9.html#x11-4340009.12.2" id="QQ2-11-436">epicsEnvShow</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.12.3 <a 
+href="AppDevGuidech9.html#x11-4350009.12.3" id="QQ2-11-437">coreRelease</a></span>
+<br />&#x00A0;<span class="sectionToc" >9.13 <a 
+href="AppDevGuidech9.html#x11-4360009.13">Database System Test Routines</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.13.1 <a 
+href="AppDevGuidech9.html#x11-4370009.13.1" id="QQ2-11-439">dbtgf</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.13.2 <a 
+href="AppDevGuidech9.html#x11-4380009.13.2" id="QQ2-11-440">dbtpf</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.13.3 <a 
+href="AppDevGuidech9.html#x11-4390009.13.3" id="QQ2-11-441">dbtpn</a></span>
+<br />&#x00A0;<span class="sectionToc" >9.14 <a 
+href="AppDevGuidech9.html#x11-4400009.14">Record Link Reports</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.14.1 <a 
+href="AppDevGuidech9.html#x11-4410009.14.1" id="QQ2-11-443">dblsr</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.14.2 <a 
+href="AppDevGuidech9.html#x11-4420009.14.2" id="QQ2-11-444">dbLockShowLocked</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.14.3 <a 
+href="AppDevGuidech9.html#x11-4430009.14.3" id="QQ2-11-445">dbcar</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.14.4 <a 
+href="AppDevGuidech9.html#x11-4440009.14.4" id="QQ2-11-446">dbhcr</a></span>
+<br />&#x00A0;<span class="sectionToc" >9.15 <a 
+href="AppDevGuidech9.html#x11-4450009.15">Old Database Access Testing</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.15.1 <a 
+href="AppDevGuidech9.html#x11-4460009.15.1" id="QQ2-11-448">gft</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.15.2 <a 
+href="AppDevGuidech9.html#x11-4470009.15.2" id="QQ2-11-449">pft</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.15.3 <a 
+href="AppDevGuidech9.html#x11-4480009.15.3" id="QQ2-11-450">tpn</a></span>
+<br />&#x00A0;<span class="sectionToc" >9.16 <a 
+href="AppDevGuidech9.html#x11-4490009.16">Routines to dump database information</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.16.1 <a 
+href="AppDevGuidech9.html#x11-4500009.16.1" id="QQ2-11-452">dbDumpPath</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.16.2 <a 
+href="AppDevGuidech9.html#x11-4510009.16.2" id="QQ2-11-453">dbDumpMenu</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.16.3 <a 
+href="AppDevGuidech9.html#x11-4520009.16.3" id="QQ2-11-454">dbDumpRecordType</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.16.4 <a 
+href="AppDevGuidech9.html#x11-4530009.16.4" id="QQ2-11-455">dbDumpField</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.16.5 <a 
+href="AppDevGuidech9.html#x11-4540009.16.5" id="QQ2-11-456">dbDumpDevice</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.16.6 <a 
+href="AppDevGuidech9.html#x11-4550009.16.6" id="QQ2-11-457">dbDumpDriver</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.16.7 <a 
+href="AppDevGuidech9.html#x11-4560009.16.7" id="QQ2-11-458">dbDumpRecord</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.16.8 <a 
+href="AppDevGuidech9.html#x11-4570009.16.8" id="QQ2-11-459">dbDumpBreaktable</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >9.16.9 <a 
+href="AppDevGuidech9.html#x11-4580009.16.9" id="QQ2-11-460">dbPvdDump</a></span>
+<br /><span class="chapterToc" >10 <a 
+href="AppDevGuidech10.html#x12-45900010">IOC Error Logging</a></span>
+<br />&#x00A0;<span class="sectionToc" >10.1 <a 
+href="AppDevGuidech10.html#x12-46000010.1">Overview </a></span>
+<br />&#x00A0;<span class="sectionToc" >10.2 <a 
+href="AppDevGuidech10.html#x12-46100010.2">Error Message Routines</a></span>
+                                                                                         
+                                                                                         
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >10.2.1 <a 
+href="AppDevGuidech10.html#x12-46200010.2.1" id="QQ2-12-464">Basic Routines</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >10.2.2 <a 
+href="AppDevGuidech10.html#x12-46300010.2.2" id="QQ2-12-465">Log with Severity</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >10.2.3 <a 
+href="AppDevGuidech10.html#x12-46400010.2.3" id="QQ2-12-466">Status Routines </a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >10.2.4 <a 
+href="AppDevGuidech10.html#x12-46500010.2.4" id="QQ2-12-467">Obsolete Routines </a></span>
+<br />&#x00A0;<span class="sectionToc" >10.3 <a 
+href="AppDevGuidech10.html#x12-46600010.3">errlog Listeners</a></span>
+<br />&#x00A0;<span class="sectionToc" >10.4 <a 
+href="AppDevGuidech10.html#x12-46700010.4">errlogThread</a></span>
+<br />&#x00A0;<span class="sectionToc" >10.5 <a 
+href="AppDevGuidech10.html#x12-46800010.5">console output and message queue size</a></span>
+<br />&#x00A0;<span class="sectionToc" >10.6 <a 
+href="AppDevGuidech10.html#x12-46900010.6">Status Codes</a></span>
+<br />&#x00A0;<span class="sectionToc" >10.7 <a 
+href="AppDevGuidech10.html#x12-47000010.7">iocLog</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >10.7.1 <a 
+href="AppDevGuidech10.html#x12-47100010.7.1" id="QQ2-12-473">iocLogServer</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >10.7.2 <a 
+href="AppDevGuidech10.html#x12-47200010.7.2" id="QQ2-12-474">iocLogClient</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >10.7.3 <a 
+href="AppDevGuidech10.html#x12-47300010.7.3" id="QQ2-12-475">Configuring a Private Log Server</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >10.7.4 <a 
+href="AppDevGuidech10.html#x12-47400010.7.4" id="QQ2-12-476">iocLogPrefix</a></span>
+<br /><span class="chapterToc" >11 <a 
+href="AppDevGuidech11.html#x13-47500011">Record Support</a></span>
+<br />&#x00A0;<span class="sectionToc" >11.1 <a 
+href="AppDevGuidech11.html#x13-47600011.1">Overview</a></span>
+<br />&#x00A0;<span class="sectionToc" >11.2 <a 
+href="AppDevGuidech11.html#x13-47700011.2">Overview of Record Processing</a></span>
+<br />&#x00A0;<span class="sectionToc" >11.3 <a 
+href="AppDevGuidech11.html#x13-47800011.3">Record Support and Device Support Entry Tables</a></span>
+<br />&#x00A0;<span class="sectionToc" >11.4 <a 
+href="AppDevGuidech11.html#x13-47900011.4">Example Record Support Module</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >11.4.1 <a 
+href="AppDevGuidech11.html#x13-48000011.4.1" id="QQ2-13-482">Declarations</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >11.4.2 <a 
+href="AppDevGuidech11.html#x13-48100011.4.2" id="QQ2-13-483">init_record</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >11.4.3 <a 
+href="AppDevGuidech11.html#x13-48200011.4.3" id="QQ2-13-484">process</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >11.4.4 <a 
+href="AppDevGuidech11.html#x13-48300011.4.4" id="QQ2-13-485">Miscellaneous Utility Routines</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >11.4.5 <a 
+href="AppDevGuidech11.html#x13-48400011.4.5" id="QQ2-13-486">Alarm Processing</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >11.4.6 <a 
+href="AppDevGuidech11.html#x13-48500011.4.6" id="QQ2-13-487">Raising Monitors</a></span>
+<br />&#x00A0;<span class="sectionToc" >11.5 <a 
+href="AppDevGuidech11.html#x13-48600011.5">Record Support Routines</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >11.5.1 <a 
+href="AppDevGuidech11.html#x13-48700011.5.1" id="QQ2-13-489">Generate Report of Each Field in Record</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >11.5.2 <a 
+href="AppDevGuidech11.html#x13-48800011.5.2" id="QQ2-13-490">Initialize Record Processing</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >11.5.3 <a 
+href="AppDevGuidech11.html#x13-48900011.5.3" id="QQ2-13-491">Initialize Specific Record</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >11.5.4 <a 
+href="AppDevGuidech11.html#x13-49000011.5.4" id="QQ2-13-492">Process Record</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >11.5.5 <a 
+href="AppDevGuidech11.html#x13-49100011.5.5" id="QQ2-13-493">Special Processing</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >11.5.6 <a 
+href="AppDevGuidech11.html#x13-49200011.5.6" id="QQ2-13-494">Get Value</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >11.5.7 <a 
+href="AppDevGuidech11.html#x13-49300011.5.7" id="QQ2-13-495">Convert dbAddr Definitions</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >11.5.8 <a 
+href="AppDevGuidech11.html#x13-49400011.5.8" id="QQ2-13-496">Get Array Information</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >11.5.9 <a 
+href="AppDevGuidech11.html#x13-49500011.5.9" id="QQ2-13-497">Put Array Information</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >11.5.10 <a 
+href="AppDevGuidech11.html#x13-49600011.5.10" id="QQ2-13-498">Get Units</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >11.5.11 <a 
+href="AppDevGuidech11.html#x13-49700011.5.11" id="QQ2-13-499">Get Precision</a></span>
+                                                                                         
+                                                                                         
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >11.5.12 <a 
+href="AppDevGuidech11.html#x13-49800011.5.12" id="QQ2-13-500">Get Enumerated String</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >11.5.13 <a 
+href="AppDevGuidech11.html#x13-49900011.5.13" id="QQ2-13-501">Get Strings for Enumerated Field</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >11.5.14 <a 
+href="AppDevGuidech11.html#x13-50000011.5.14" id="QQ2-13-502">Put Enumerated String</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >11.5.15 <a 
+href="AppDevGuidech11.html#x13-50100011.5.15" id="QQ2-13-503">Get Graphic Double Information</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >11.5.16 <a 
+href="AppDevGuidech11.html#x13-50200011.5.16" id="QQ2-13-504">Get Control Double Information</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >11.5.17 <a 
+href="AppDevGuidech11.html#x13-50300011.5.17" id="QQ2-13-505">Get Alarm Double Information</a></span>
+<br />&#x00A0;<span class="sectionToc" >11.6 <a 
+href="AppDevGuidech11.html#x13-50400011.6">Global Record Support Routines</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >11.6.1 <a 
+href="AppDevGuidech11.html#x13-50500011.6.1" id="QQ2-13-507">Alarm Status and Severity</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >11.6.2 <a 
+href="AppDevGuidech11.html#x13-50600011.6.2" id="QQ2-13-508">Alarm Acknowledgment</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >11.6.3 <a 
+href="AppDevGuidech11.html#x13-50700011.6.3" id="QQ2-13-509">Generate Error: Process Variable Name, Caller, Message</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >11.6.4 <a 
+href="AppDevGuidech11.html#x13-50800011.6.4" id="QQ2-13-510">Generate Error: Status String, Record Name, Caller</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >11.6.5 <a 
+href="AppDevGuidech11.html#x13-50900011.6.5" id="QQ2-13-511">Generate Error: Record Name, Caller, Record Support Message</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >11.6.6 <a 
+href="AppDevGuidech11.html#x13-51000011.6.6" id="QQ2-13-512">Get Graphics Double</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >11.6.7 <a 
+href="AppDevGuidech11.html#x13-51100011.6.7" id="QQ2-13-513">Get Control Double</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >11.6.8 <a 
+href="AppDevGuidech11.html#x13-51200011.6.8" id="QQ2-13-514">Get Alarm Double</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >11.6.9 <a 
+href="AppDevGuidech11.html#x13-51300011.6.9" id="QQ2-13-515">Get Precision</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >11.6.10 <a 
+href="AppDevGuidech11.html#x13-51400011.6.10" id="QQ2-13-516">Get Time Stamp</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >11.6.11 <a 
+href="AppDevGuidech11.html#x13-51500011.6.11" id="QQ2-13-517">Forward link</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >11.6.12 <a 
+href="AppDevGuidech11.html#x13-51600011.6.12" id="QQ2-13-518">Initialize Constant Link</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >11.6.13 <a 
+href="AppDevGuidech11.html#x13-51700011.6.13" id="QQ2-13-519">Analog Value Deadband Check</a></span>
+<br /><span class="chapterToc" >12 <a 
+href="AppDevGuidech12.html#x14-51800012">Device Support</a></span>
+<br />&#x00A0;<span class="sectionToc" >12.1 <a 
+href="AppDevGuidech12.html#x14-51900012.1">Overview</a></span>
+<br />&#x00A0;<span class="sectionToc" >12.2 <a 
+href="AppDevGuidech12.html#x14-52000012.2">Example Synchronous Device Support Module</a></span>
+<br />&#x00A0;<span class="sectionToc" >12.3 <a 
+href="AppDevGuidech12.html#x14-52100012.3">Example Asynchronous Device Support Module</a></span>
+<br />&#x00A0;<span class="sectionToc" >12.4 <a 
+href="AppDevGuidech12.html#x14-52200012.4">Device Support Routines</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >12.4.1 <a 
+href="AppDevGuidech12.html#x14-52300012.4.1" id="QQ2-14-525">Generate Device Report</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >12.4.2 <a 
+href="AppDevGuidech12.html#x14-52400012.4.2" id="QQ2-14-526">Initialize Device Processing</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >12.4.3 <a 
+href="AppDevGuidech12.html#x14-52500012.4.3" id="QQ2-14-527">Initialize Specific Record</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >12.4.4 <a 
+href="AppDevGuidech12.html#x14-52600012.4.4" id="QQ2-14-528">Get I/O Interrupt Information</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >12.4.5 <a 
+href="AppDevGuidech12.html#x14-52700012.4.5" id="QQ2-14-529">Other Device Support Routines</a></span>
+<br />&#x00A0;<span class="sectionToc" >12.5 <a 
+href="AppDevGuidech12.html#x14-52800012.5">Extended Device Support</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >12.5.1 <a 
+href="AppDevGuidech12.html#x14-52900012.5.1" id="QQ2-14-531">Rationale</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >12.5.2 <a 
+href="AppDevGuidech12.html#x14-53000012.5.2" id="QQ2-14-532">Initialization/Registration</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >12.5.3 <a 
+href="AppDevGuidech12.html#x14-53100012.5.3" id="QQ2-14-533">Device Support eXtension Table</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >12.5.4 <a 
+href="AppDevGuidech12.html#x14-53200012.5.4" id="QQ2-14-534">Add Record Routine</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >12.5.5 <a 
+href="AppDevGuidech12.html#x14-53300012.5.5" id="QQ2-14-535">Delete Record Routine</a></span>
+                                                                                         
+                                                                                         
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >12.5.6 <a 
+href="AppDevGuidech12.html#x14-53400012.5.6" id="QQ2-14-536">Init Record Routine</a></span>
+<br /><span class="chapterToc" >13 <a 
+href="AppDevGuidech13.html#x15-53500013">Driver Support</a></span>
+<br />&#x00A0;<span class="sectionToc" >13.1 <a 
+href="AppDevGuidech13.html#x15-53600013.1">Overview</a></span>
+<br />&#x00A0;<span class="sectionToc" >13.2 <a 
+href="AppDevGuidech13.html#x15-53700013.2">Device Drivers</a></span>
+<br /><span class="chapterToc" >14 <a 
+href="AppDevGuidech14.html#x16-54100014">Static Database Access</a></span>
+<br />&#x00A0;<span class="sectionToc" >14.1 <a 
+href="AppDevGuidech14.html#x16-54200014.1">Overview</a></span>
+<br />&#x00A0;<span class="sectionToc" >14.2 <a 
+href="AppDevGuidech14.html#x16-54300014.2">Definitions</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.2.1 <a 
+href="AppDevGuidech14.html#x16-54400014.2.1" id="QQ2-16-546">DBBASE</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.2.2 <a 
+href="AppDevGuidech14.html#x16-54500014.2.2" id="QQ2-16-547">DBENTRY</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.2.3 <a 
+href="AppDevGuidech14.html#x16-54600014.2.3" id="QQ2-16-548">Field Types</a></span>
+<br />&#x00A0;<span class="sectionToc" >14.3 <a 
+href="AppDevGuidech14.html#x16-54700014.3">Allocating and Freeing DBBASE</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.3.1 <a 
+href="AppDevGuidech14.html#x16-54800014.3.1" id="QQ2-16-550">dbAllocBase</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.3.2 <a 
+href="AppDevGuidech14.html#x16-54900014.3.2" id="QQ2-16-551">dbFreeBase</a></span>
+<br />&#x00A0;<span class="sectionToc" >14.4 <a 
+href="AppDevGuidech14.html#x16-55000014.4">DBENTRY Routines</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.4.1 <a 
+href="AppDevGuidech14.html#x16-55100014.4.1" id="QQ2-16-553">Alloc/Free DBENTRY</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.4.2 <a 
+href="AppDevGuidech14.html#x16-55200014.4.2" id="QQ2-16-554">dbInitEntry dbFinishEntry</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.4.3 <a 
+href="AppDevGuidech14.html#x16-55300014.4.3" id="QQ2-16-555">dbCopyEntry</a></span>
+<br />&#x00A0;<span class="sectionToc" >14.5 <a 
+href="AppDevGuidech14.html#x16-55400014.5">Read and Write Database</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.5.1 <a 
+href="AppDevGuidech14.html#x16-55500014.5.1" id="QQ2-16-557">Read Database File</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.5.2 <a 
+href="AppDevGuidech14.html#x16-55600014.5.2" id="QQ2-16-558">Write Database Definitons</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.5.3 <a 
+href="AppDevGuidech14.html#x16-55700014.5.3" id="QQ2-16-559">Write Record Instances</a></span>
+<br />&#x00A0;<span class="sectionToc" >14.6 <a 
+href="AppDevGuidech14.html#x16-55800014.6">Manipulating Record Types</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.6.1 <a 
+href="AppDevGuidech14.html#x16-55900014.6.1" id="QQ2-16-561">Get Number of Record Types</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.6.2 <a 
+href="AppDevGuidech14.html#x16-56000014.6.2" id="QQ2-16-562">Locate Record Type</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.6.3 <a 
+href="AppDevGuidech14.html#x16-56100014.6.3" id="QQ2-16-563">Get Record Type Name</a></span>
+<br />&#x00A0;<span class="sectionToc" >14.7 <a 
+href="AppDevGuidech14.html#x16-56200014.7">Manipulating Field Descriptions</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.7.1 <a 
+href="AppDevGuidech14.html#x16-56300014.7.1" id="QQ2-16-565">Get Number of Fields</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.7.2 <a 
+href="AppDevGuidech14.html#x16-56400014.7.2" id="QQ2-16-566">Locate Field</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.7.3 <a 
+href="AppDevGuidech14.html#x16-56500014.7.3" id="QQ2-16-567">Get Field Type</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.7.4 <a 
+href="AppDevGuidech14.html#x16-56600014.7.4" id="QQ2-16-568">Get Field Name</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.7.5 <a 
+href="AppDevGuidech14.html#x16-56700014.7.5" id="QQ2-16-569">Get Default Value</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.7.6 <a 
+href="AppDevGuidech14.html#x16-56800014.7.6" id="QQ2-16-570">Get Field Prompt</a></span>
+<br />&#x00A0;<span class="sectionToc" >14.8 <a 
+href="AppDevGuidech14.html#x16-56900014.8">Manipulating Record Attributes</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.8.1 <a 
+href="AppDevGuidech14.html#x16-57000014.8.1" id="QQ2-16-572">dbPutRecordAttribute</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.8.2 <a 
+href="AppDevGuidech14.html#x16-57100014.8.2" id="QQ2-16-573">dbGetRecordAttribute</a></span>
+<br />&#x00A0;<span class="sectionToc" >14.9 <a 
+href="AppDevGuidech14.html#x16-57200014.9">Manipulating Record Instances</a></span>
+                                                                                         
+                                                                                         
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.9.1 <a 
+href="AppDevGuidech14.html#x16-57300014.9.1" id="QQ2-16-575">Get Number of Records</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.9.2 <a 
+href="AppDevGuidech14.html#x16-57400014.9.2" id="QQ2-16-576">Get Number of Record Aliases</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.9.3 <a 
+href="AppDevGuidech14.html#x16-57500014.9.3" id="QQ2-16-577">Locate Record</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.9.4 <a 
+href="AppDevGuidech14.html#x16-57600014.9.4" id="QQ2-16-578">Get Record Name</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.9.5 <a 
+href="AppDevGuidech14.html#x16-57700014.9.5" id="QQ2-16-579">Distinguishing Record Aliases</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.9.6 <a 
+href="AppDevGuidech14.html#x16-57800014.9.6" id="QQ2-16-580">Create/Delete/Free Records and Aliases</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.9.7 <a 
+href="AppDevGuidech14.html#x16-57900014.9.7" id="QQ2-16-581">Copy Record</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.9.8 <a 
+href="AppDevGuidech14.html#x16-58000014.9.8" id="QQ2-16-582">Rename Record</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.9.9 <a 
+href="AppDevGuidech14.html#x16-58100014.9.9" id="QQ2-16-583">Record Visibility</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.9.10 <a 
+href="AppDevGuidech14.html#x16-58200014.9.10" id="QQ2-16-584">Find Field</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.9.11 <a 
+href="AppDevGuidech14.html#x16-58300014.9.11" id="QQ2-16-585">Get/Put Field Values</a></span>
+<br />&#x00A0;<span class="sectionToc" >14.10 <a 
+href="AppDevGuidech14.html#x16-58400014.10">Manipulating Menu Fields</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.10.1 <a 
+href="AppDevGuidech14.html#x16-58500014.10.1" id="QQ2-16-587">Get Number of Menu Choices</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.10.2 <a 
+href="AppDevGuidech14.html#x16-58600014.10.2" id="QQ2-16-588">Get Menu Choice</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.10.3 <a 
+href="AppDevGuidech14.html#x16-58700014.10.3" id="QQ2-16-589">Get/Put Menu</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.10.4 <a 
+href="AppDevGuidech14.html#x16-58800014.10.4" id="QQ2-16-590">Locate Menu</a></span>
+<br />&#x00A0;<span class="sectionToc" >14.11 <a 
+href="AppDevGuidech14.html#x16-58900014.11">Manipulating Link Fields</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.11.1 <a 
+href="AppDevGuidech14.html#x16-59000014.11.1" id="QQ2-16-592">Link Types</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.11.2 <a 
+href="AppDevGuidech14.html#x16-59100014.11.2" id="QQ2-16-593">All Link Fields</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.11.3 <a 
+href="AppDevGuidech14.html#x16-59200014.11.3" id="QQ2-16-594">Constant and Process Variable Links</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.11.4 <a 
+href="AppDevGuidech14.html#x16-59300014.11.4" id="QQ2-16-595">Get Related Field</a></span>
+<br />&#x00A0;<span class="sectionToc" >14.12 <a 
+href="AppDevGuidech14.html#x16-59400014.12">Manipulating Information Items</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.12.1 <a 
+href="AppDevGuidech14.html#x16-59500014.12.1" id="QQ2-16-597">Locate Item</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.12.2 <a 
+href="AppDevGuidech14.html#x16-59600014.12.2" id="QQ2-16-598">Get Item Name</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.12.3 <a 
+href="AppDevGuidech14.html#x16-59700014.12.3" id="QQ2-16-599">Get/Set Item String Value</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.12.4 <a 
+href="AppDevGuidech14.html#x16-59800014.12.4" id="QQ2-16-600">Get/Set Item Pointer Value</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.12.5 <a 
+href="AppDevGuidech14.html#x16-59900014.12.5" id="QQ2-16-601">Create/Delete Item</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.12.6 <a 
+href="AppDevGuidech14.html#x16-60000014.12.6" id="QQ2-16-602">Convenience Routine</a></span>
+<br />&#x00A0;<span class="sectionToc" >14.13 <a 
+href="AppDevGuidech14.html#x16-60100014.13">Find Breakpoint Table</a></span>
+<br />&#x00A0;<span class="sectionToc" >14.14 <a 
+href="AppDevGuidech14.html#x16-60200014.14">Dump Routines</a></span>
+<br />&#x00A0;<span class="sectionToc" >14.15 <a 
+href="AppDevGuidech14.html#x16-60300014.15">Examples</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.15.1 <a 
+href="AppDevGuidech14.html#x16-60400014.15.1" id="QQ2-16-606">Expand Include</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >14.15.2 <a 
+href="AppDevGuidech14.html#x16-60500014.15.2" id="QQ2-16-607">dbDumpRecords</a></span>
+<br /><span class="chapterToc" >15 <a 
+href="AppDevGuidech15.html#x17-60600015">Runtime Database Access</a></span>
+<br />&#x00A0;<span class="sectionToc" >15.1 <a 
+href="AppDevGuidech15.html#x17-60700015.1">Overview</a></span>
+<br />&#x00A0;<span class="sectionToc" >15.2 <a 
+href="AppDevGuidech15.html#x17-60800015.2">Database Include Files</a></span>
+                                                                                         
+                                                                                         
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >15.2.1 <a 
+href="AppDevGuidech15.html#x17-60900015.2.1" id="QQ2-17-611">dbDefs.h</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >15.2.2 <a 
+href="AppDevGuidech15.html#x17-61000015.2.2" id="QQ2-17-612">dbFldTypes.h</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >15.2.3 <a 
+href="AppDevGuidech15.html#x17-61100015.2.3" id="QQ2-17-613">dbAccess.h</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >15.2.4 <a 
+href="AppDevGuidech15.html#x17-61200015.2.4" id="QQ2-17-614">dbServer.h</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >15.2.5 <a 
+href="AppDevGuidech15.html#x17-61300015.2.5" id="QQ2-17-615">link.h</a></span>
+<br />&#x00A0;<span class="sectionToc" >15.3 <a 
+href="AppDevGuidech15.html#x17-61400015.3">Runtime Database Access Overview</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >15.3.1 <a 
+href="AppDevGuidech15.html#x17-61500015.3.1" id="QQ2-17-617">Database Request Types and Options</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >15.3.2 <a 
+href="AppDevGuidech15.html#x17-61600015.3.2" id="QQ2-17-618">Options</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >15.3.3 <a 
+href="AppDevGuidech15.html#x17-61700015.3.3" id="QQ2-17-619">ACKT and ACKS</a></span>
+<br />&#x00A0;<span class="sectionToc" >15.4 <a 
+href="AppDevGuidech15.html#x17-61800015.4">Database Access Routines</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >15.4.1 <a 
+href="AppDevGuidech15.html#x17-61900015.4.1" id="QQ2-17-621">dbNameToAddr</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >15.4.2 <a 
+href="AppDevGuidech15.html#x17-62000015.4.2" id="QQ2-17-622">Get Routines</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >15.4.3 <a 
+href="AppDevGuidech15.html#x17-62400015.4.3" id="QQ2-17-626">Put Routines</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >15.4.4 <a 
+href="AppDevGuidech15.html#x17-62800015.4.4" id="QQ2-17-630">Process Notify Subsystem</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >15.4.5 <a 
+href="AppDevGuidech15.html#x17-63300015.4.5" id="QQ2-17-635">Utility Routines</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >15.4.6 <a 
+href="AppDevGuidech15.html#x17-65000015.4.6" id="QQ2-17-652">Attribute Routine</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >15.4.7 <a 
+href="AppDevGuidech15.html#x17-65200015.4.7" id="QQ2-17-654">Process Routines</a></span>
+<br />&#x00A0;<span class="sectionToc" >15.5 <a 
+href="AppDevGuidech15.html#x17-65500015.5">Runtime Link Modification</a></span>
+<br />&#x00A0;<span class="sectionToc" >15.6 <a 
+href="AppDevGuidech15.html#x17-65600015.6">Channel Access Monitors</a></span>
+<br />&#x00A0;<span class="sectionToc" >15.7 <a 
+href="AppDevGuidech15.html#x17-65700015.7">Lock Set Routines</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >15.7.1 <a 
+href="AppDevGuidech15.html#x17-65800015.7.1" id="QQ2-17-660">dbScanLock</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >15.7.2 <a 
+href="AppDevGuidech15.html#x17-65900015.7.2" id="QQ2-17-661">dbScanUnlock</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >15.7.3 <a 
+href="AppDevGuidech15.html#x17-66000015.7.3" id="QQ2-17-662">dbLockGetLockId</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >15.7.4 <a 
+href="AppDevGuidech15.html#x17-66100015.7.4" id="QQ2-17-663">dbLockInitRecords</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >15.7.5 <a 
+href="AppDevGuidech15.html#x17-66200015.7.5" id="QQ2-17-664">dbLockSetMerge</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >15.7.6 <a 
+href="AppDevGuidech15.html#x17-66300015.7.6" id="QQ2-17-665">dbLockSetSplit</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >15.7.7 <a 
+href="AppDevGuidech15.html#x17-66400015.7.7" id="QQ2-17-666">dbLockSetGblLock</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >15.7.8 <a 
+href="AppDevGuidech15.html#x17-66500015.7.8" id="QQ2-17-667">dbLockSetGblUnlock</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >15.7.9 <a 
+href="AppDevGuidech15.html#x17-66600015.7.9" id="QQ2-17-668">dbLockSetRecordLock</a></span>
+<br />&#x00A0;<span class="sectionToc" >15.8 <a 
+href="AppDevGuidech15.html#x17-66700015.8">Channel Access Database Links</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >15.8.1 <a 
+href="AppDevGuidech15.html#x17-66800015.8.1" id="QQ2-17-670">Basic Routines</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >15.8.2 <a 
+href="AppDevGuidech15.html#x17-67600015.8.2" id="QQ2-17-678">Attributes of Link</a></span>
+<br />&#x00A0;<span class="sectionToc" >15.9 <a 
+href="AppDevGuidech15.html#x17-68800015.9">dbServer API</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >15.9.1 <a 
+href="AppDevGuidech15.html#x17-68900015.9.1" id="QQ2-17-691">Registering a server layer</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >15.9.2 <a 
+href="AppDevGuidech15.html#x17-69000015.9.2" id="QQ2-17-692">Interacting with Server layers</a></span>
+<br /><span class="chapterToc" >16 <a 
+href="AppDevGuidech16.html#x18-69300016">EPICS General Purpose Tasks</a></span>
+                                                                                         
+                                                                                         
+<br />&#x00A0;<span class="sectionToc" >16.1 <a 
+href="AppDevGuidech16.html#x18-69400016.1">Overview</a></span>
+<br />&#x00A0;<span class="sectionToc" >16.2 <a 
+href="AppDevGuidech16.html#x18-69500016.2">General Purpose Callback Tasks</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >16.2.1 <a 
+href="AppDevGuidech16.html#x18-69600016.2.1" id="QQ2-18-698">Overview</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >16.2.2 <a 
+href="AppDevGuidech16.html#x18-69700016.2.2" id="QQ2-18-699">Syntax</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >16.2.3 <a 
+href="AppDevGuidech16.html#x18-69800016.2.3" id="QQ2-18-700">Example</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >16.2.4 <a 
+href="AppDevGuidech16.html#x18-69900016.2.4" id="QQ2-18-701">Callback Queue</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >16.2.5 <a 
+href="AppDevGuidech16.html#x18-70000016.2.5" id="QQ2-18-702">Parallel Callback Tasks</a></span>
+<br />&#x00A0;<span class="sectionToc" >16.3 <a 
+href="AppDevGuidech16.html#x18-70100016.3">Task Watchdog</a></span>
+<br /><span class="chapterToc" >17 <a 
+href="AppDevGuidech17.html#x19-70200017">Database Scanning</a></span>
+<br />&#x00A0;<span class="sectionToc" >17.1 <a 
+href="AppDevGuidech17.html#x19-70300017.1">Overview</a></span>
+<br />&#x00A0;<span class="sectionToc" >17.2 <a 
+href="AppDevGuidech17.html#x19-70400017.2">Scan Related Database Fields</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >17.2.1 <a 
+href="AppDevGuidech17.html#x19-70500017.2.1" id="QQ2-19-707">SCAN</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >17.2.2 <a 
+href="AppDevGuidech17.html#x19-70600017.2.2" id="QQ2-19-708">PHAS - Scan Phase</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >17.2.3 <a 
+href="AppDevGuidech17.html#x19-70700017.2.3" id="QQ2-19-709">EVNT - Named or Numbered Events</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >17.2.4 <a 
+href="AppDevGuidech17.html#x19-70800017.2.4" id="QQ2-19-710">PRIO - Scheduling Priority </a></span>
+<br />&#x00A0;<span class="sectionToc" >17.3 <a 
+href="AppDevGuidech17.html#x19-70900017.3">Scan Related Software Components</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >17.3.1 <a 
+href="AppDevGuidech17.html#x19-71000017.3.1" id="QQ2-19-712">menuScan.dbd</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >17.3.2 <a 
+href="AppDevGuidech17.html#x19-71100017.3.2" id="QQ2-19-713">dbScan.h</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >17.3.3 <a 
+href="AppDevGuidech17.html#x19-71200017.3.3" id="QQ2-19-714">Initializing And Controlling Database Scaning</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >17.3.4 <a 
+href="AppDevGuidech17.html#x19-71300017.3.4" id="QQ2-19-715">Adding And Deleting Records From Scan List</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >17.3.5 <a 
+href="AppDevGuidech17.html#x19-71400017.3.5" id="QQ2-19-716">Obtaining the scan period from the SCAN field</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >17.3.6 <a 
+href="AppDevGuidech17.html#x19-71500017.3.6" id="QQ2-19-717">Declaring and Triggering Database Events</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >17.3.7 <a 
+href="AppDevGuidech17.html#x19-71600017.3.7" id="QQ2-19-718">Interfacing to I/O Event Scanning</a></span>
+<br />&#x00A0;<span class="sectionToc" >17.4 <a 
+href="AppDevGuidech17.html#x19-71700017.4">Implementation Overview</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >17.4.1 <a 
+href="AppDevGuidech17.html#x19-71800017.4.1" id="QQ2-19-720">Definitions And Routines Common To All Scan Types</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >17.4.2 <a 
+href="AppDevGuidech17.html#x19-71900017.4.2" id="QQ2-19-721">Database Event Scanning</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >17.4.3 <a 
+href="AppDevGuidech17.html#x19-72200017.4.3" id="QQ2-19-724">I/O Event Scanning</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >17.4.4 <a 
+href="AppDevGuidech17.html#x19-72500017.4.4" id="QQ2-19-727">Periodic Scanning</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >17.4.5 <a 
+href="AppDevGuidech17.html#x19-72800017.4.5" id="QQ2-19-730">Scan Once</a></span>
+<br /><span class="chapterToc" >18 <a 
+href="AppDevGuidech18.html#x20-73100018">IOC Shell</a></span>
+<br />&#x00A0;<span class="sectionToc" >18.1 <a 
+href="AppDevGuidech18.html#x20-73200018.1">Introduction</a></span>
+<br />&#x00A0;<span class="sectionToc" >18.2 <a 
+href="AppDevGuidech18.html#x20-73300018.2">IOC Shell Operation</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >18.2.1 <a 
+href="AppDevGuidech18.html#x20-73400018.2.1" id="QQ2-20-736">Environment variable expansion</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >18.2.2 <a 
+href="AppDevGuidech18.html#x20-73500018.2.2" id="QQ2-20-737">Quoting</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >18.2.3 <a 
+href="AppDevGuidech18.html#x20-73600018.2.3" id="QQ2-20-738">Command-line editing and history</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >18.2.4 <a 
+href="AppDevGuidech18.html#x20-73700018.2.4" id="QQ2-20-739">Redirection</a></span>
+                                                                                         
+                                                                                         
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >18.2.5 <a 
+href="AppDevGuidech18.html#x20-73800018.2.5" id="QQ2-20-740">Utility Commands</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >18.2.6 <a 
+href="AppDevGuidech18.html#x20-73900018.2.6" id="QQ2-20-741">Environment Variables</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >18.2.7 <a 
+href="AppDevGuidech18.html#x20-74000018.2.7" id="QQ2-20-742">Conditionals</a></span>
+<br />&#x00A0;<span class="sectionToc" >18.3 <a 
+href="AppDevGuidech18.html#x20-74100018.3">IOC Shell Programming</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >18.3.1 <a 
+href="AppDevGuidech18.html#x20-74200018.3.1" id="QQ2-20-744">Invoking the IOC shell</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >18.3.2 <a 
+href="AppDevGuidech18.html#x20-74300018.3.2" id="QQ2-20-745">Registering Commands</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >18.3.3 <a 
+href="AppDevGuidech18.html#x20-74400018.3.3" id="QQ2-20-746">Registrar Command Registration</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >18.3.4 <a 
+href="AppDevGuidech18.html#x20-74500018.3.4" id="QQ2-20-747">Automatic Command Registration</a></span>
+<br /><span class="chapterToc" >19 <a 
+href="AppDevGuidech19.html#x21-74600019">libCom</a></span>
+<br />&#x00A0;<span class="sectionToc" >19.1 <a 
+href="AppDevGuidech19.html#x21-74700019.1">bucketLib</a></span>
+<br />&#x00A0;<span class="sectionToc" >19.2 <a 
+href="AppDevGuidech19.html#x21-74800019.2">calc</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >19.2.1 <a 
+href="AppDevGuidech19.html#x21-74900019.2.1" id="QQ2-21-751">Infix Expression Syntax</a></span>
+<br />&#x00A0;<span class="sectionToc" >19.3 <a 
+href="AppDevGuidech19.html#x21-76400019.3">cppStd</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >19.3.1 <a 
+href="AppDevGuidech19.html#x21-76500019.3.1" id="QQ2-21-767">epicsAlgorithm</a></span>
+<br />&#x00A0;<span class="sectionToc" >19.4 <a 
+href="AppDevGuidech19.html#x21-76600019.4">epicsExit</a></span>
+<br />&#x00A0;<span class="sectionToc" >19.5 <a 
+href="AppDevGuidech19.html#x21-76700019.5">cvtFast</a></span>
+<br />&#x00A0;<span class="sectionToc" >19.6 <a 
+href="AppDevGuidech19.html#x21-76800019.6">cxxTemplates</a></span>
+<br />&#x00A0;<span class="sectionToc" >19.7 <a 
+href="AppDevGuidech19.html#x21-76900019.7">dbmf</a></span>
+<br />&#x00A0;<span class="sectionToc" >19.8 <a 
+href="AppDevGuidech19.html#x21-77000019.8">ellLib</a></span>
+<br />&#x00A0;<span class="sectionToc" >19.9 <a 
+href="AppDevGuidech19.html#x21-77100019.9">epicsRingBytes</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >19.9.1 <a 
+href="AppDevGuidech19.html#x21-77200019.9.1" id="QQ2-21-774">C interface</a></span>
+<br />&#x00A0;<span class="sectionToc" >19.10 <a 
+href="AppDevGuidech19.html#x21-77300019.10">epicsRingPointer</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >19.10.1 <a 
+href="AppDevGuidech19.html#x21-77400019.10.1" id="QQ2-21-776">C++ Interface</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >19.10.2 <a 
+href="AppDevGuidech19.html#x21-77500019.10.2" id="QQ2-21-777">C interface</a></span>
+<br />&#x00A0;<span class="sectionToc" >19.11 <a 
+href="AppDevGuidech19.html#x21-77600019.11">epicsTimer</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >19.11.1 <a 
+href="AppDevGuidech19.html#x21-77700019.11.1" id="QQ2-21-779">C++ Interface</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >19.11.2 <a 
+href="AppDevGuidech19.html#x21-78200019.11.2" id="QQ2-21-784">C Interface</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >19.11.3 <a 
+href="AppDevGuidech19.html#x21-78300019.11.3" id="QQ2-21-785">Example</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >19.11.4 <a 
+href="AppDevGuidech19.html#x21-78400019.11.4" id="QQ2-21-786">C Example</a></span>
+<br />&#x00A0;<span class="sectionToc" >19.12 <a 
+href="AppDevGuidech19.html#x21-78500019.12"> fdmgr</a></span>
+<br />&#x00A0;<span class="sectionToc" >19.13 <a 
+href="AppDevGuidech19.html#x21-78600019.13">freeList</a></span>
+<br />&#x00A0;<span class="sectionToc" >19.14 <a 
+href="AppDevGuidech19.html#x21-78700019.14">gpHash</a></span>
+<br />&#x00A0;<span class="sectionToc" >19.15 <a 
+href="AppDevGuidech19.html#x21-78800019.15">logClient</a></span>
+<br />&#x00A0;<span class="sectionToc" >19.16 <a 
+href="AppDevGuidech19.html#x21-78900019.16">macLib</a></span>
+<br />&#x00A0;<span class="sectionToc" >19.17 <a 
+href="AppDevGuidech19.html#x21-79000019.17">epicsThreadPool</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >19.17.1 <a 
+href="AppDevGuidech19.html#x21-79100019.17.1" id="QQ2-21-793">Configure a pool</a></span>
+                                                                                         
+                                                                                         
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >19.17.2 <a 
+href="AppDevGuidech19.html#x21-79200019.17.2" id="QQ2-21-794">Create a shared pool</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >19.17.3 <a 
+href="AppDevGuidech19.html#x21-79300019.17.3" id="QQ2-21-795">Creating an exclusive pool</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >19.17.4 <a 
+href="AppDevGuidech19.html#x21-79400019.17.4" id="QQ2-21-796">Basic job operations</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >19.17.5 <a 
+href="AppDevGuidech19.html#x21-79500019.17.5" id="QQ2-21-797">Writing job functions</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >19.17.6 <a 
+href="AppDevGuidech19.html#x21-79600019.17.6" id="QQ2-21-798">Moving jobs between pools</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >19.17.7 <a 
+href="AppDevGuidech19.html#x21-79700019.17.7" id="QQ2-21-799">Pool control</a></span>
+<br />&#x00A0;<span class="sectionToc" >19.18 <a 
+href="AppDevGuidech19.html#x21-79800019.18">misc</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >19.18.1 <a 
+href="AppDevGuidech19.html#x21-79900019.18.1" id="QQ2-21-801">aToIPAddr</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >19.18.2 <a 
+href="AppDevGuidech19.html#x21-80000019.18.2" id="QQ2-21-802">adjustment</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >19.18.3 <a 
+href="AppDevGuidech19.html#x21-80100019.18.3" id="QQ2-21-803">cantProceed</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >19.18.4 <a 
+href="AppDevGuidech19.html#x21-80200019.18.4" id="QQ2-21-804">dbDefs</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >19.18.5 <a 
+href="AppDevGuidech19.html#x21-80300019.18.5" id="QQ2-21-805">epicsConvert</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >19.18.6 <a 
+href="AppDevGuidech19.html#x21-80400019.18.6" id="QQ2-21-806">epicsString</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >19.18.7 <a 
+href="AppDevGuidech19.html#x21-80500019.18.7" id="QQ2-21-807">epicsTypes</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >19.18.8 <a 
+href="AppDevGuidech19.html#x21-80600019.18.8" id="QQ2-21-808">locationException</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >19.18.9 <a 
+href="AppDevGuidech19.html#x21-80700019.18.9" id="QQ2-21-809">shareLib.h</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >19.18.10 <a 
+href="AppDevGuidech19.html#x21-80800019.18.10" id="QQ2-21-810">truncateFile.h</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >19.18.11 <a 
+href="AppDevGuidech19.html#x21-80900019.18.11" id="QQ2-21-811">unixFileName.h</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >19.18.12 <a 
+href="AppDevGuidech19.html#x21-81000019.18.12" id="QQ2-21-812">epicsUnitTest.h</a></span>
+<br /><span class="chapterToc" >20 <a 
+href="AppDevGuidech20.html#x22-81100020">libCom OSI libraries</a></span>
+<br />&#x00A0;<span class="sectionToc" >20.1 <a 
+href="AppDevGuidech20.html#x22-81200020.1">Overview</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.1.1 <a 
+href="AppDevGuidech20.html#x22-81300020.1.1" id="QQ2-22-815">OSI source directory</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.1.2 <a 
+href="AppDevGuidech20.html#x22-81400020.1.2" id="QQ2-22-816">Rules for building OSI code</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.1.3 <a 
+href="AppDevGuidech20.html#x22-81500020.1.3" id="QQ2-22-817">Locating OSI header files.</a></span>
+<br />&#x00A0;<span class="sectionToc" >20.2 <a 
+href="AppDevGuidech20.html#x22-81600020.2">epicsAssert</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.2.1 <a 
+href="AppDevGuidech20.html#x22-81700020.2.1" id="QQ2-22-819">Runtime Assertion Checks</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.2.2 <a 
+href="AppDevGuidech20.html#x22-81800020.2.2" id="QQ2-22-820">Compile-time Assertion Checks</a></span>
+<br />&#x00A0;<span class="sectionToc" >20.3 <a 
+href="AppDevGuidech20.html#x22-81900020.3">epicsAtomic</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.3.1 <a 
+href="AppDevGuidech20.html#x22-82000020.3.1" id="QQ2-22-822">C Callable Interface</a></span>
+<br />&#x00A0;<span class="sectionToc" >20.4 <a 
+href="AppDevGuidech20.html#x22-82100020.4">epicsEndian</a></span>
+<br />&#x00A0;<span class="sectionToc" >20.5 <a 
+href="AppDevGuidech20.html#x22-82200020.5">epicsEvent</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.5.1 <a 
+href="AppDevGuidech20.html#x22-82300020.5.1" id="QQ2-22-825">C++ Interface</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.5.2 <a 
+href="AppDevGuidech20.html#x22-82400020.5.2" id="QQ2-22-826">C Interface</a></span>
+<br />&#x00A0;<span class="sectionToc" >20.6 <a 
+href="AppDevGuidech20.html#x22-82500020.6">epicsFindSymbol</a></span>
+<br />&#x00A0;<span class="sectionToc" >20.7 <a 
+href="AppDevGuidech20.html#x22-82600020.7">epicsGeneralTime</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.7.1 <a 
+href="AppDevGuidech20.html#x22-82700020.7.1" id="QQ2-22-829">Consumer interface</a></span>
+                                                                                         
+                                                                                         
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.7.2 <a 
+href="AppDevGuidech20.html#x22-82800020.7.2" id="QQ2-22-830">Time Provider Interface</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.7.3 <a 
+href="AppDevGuidech20.html#x22-82900020.7.3" id="QQ2-22-831">Internal Interface</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.7.4 <a 
+href="AppDevGuidech20.html#x22-83000020.7.4" id="QQ2-22-832">Example</a></span>
+<br />&#x00A0;<span class="sectionToc" >20.8 <a 
+href="AppDevGuidech20.html#x22-83100020.8">epicsInterrupt</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.8.1 <a 
+href="AppDevGuidech20.html#x22-83200020.8.1" id="QQ2-22-834">C Interface</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.8.2 <a 
+href="AppDevGuidech20.html#x22-83300020.8.2" id="QQ2-22-835">Implementation notes</a></span>
+<br />&#x00A0;<span class="sectionToc" >20.9 <a 
+href="AppDevGuidech20.html#x22-83400020.9">epicsMath</a></span>
+<br />&#x00A0;<span class="sectionToc" >20.10 <a 
+href="AppDevGuidech20.html#x22-83500020.10">epicsMessageQueue</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.10.1 <a 
+href="AppDevGuidech20.html#x22-83600020.10.1" id="QQ2-22-838">C++ Interface</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.10.2 <a 
+href="AppDevGuidech20.html#x22-83700020.10.2" id="QQ2-22-839">C interface</a></span>
+<br />&#x00A0;<span class="sectionToc" >20.11 <a 
+href="AppDevGuidech20.html#x22-83800020.11">epicsMutex</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.11.1 <a 
+href="AppDevGuidech20.html#x22-83900020.11.1" id="QQ2-22-841">C++ Interface</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.11.2 <a 
+href="AppDevGuidech20.html#x22-84000020.11.2" id="QQ2-22-842">C Interface</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.11.3 <a 
+href="AppDevGuidech20.html#x22-84100020.11.3" id="QQ2-22-843">Implementation Notes</a></span>
+<br />&#x00A0;<span class="sectionToc" >20.12 <a 
+href="AppDevGuidech20.html#x22-84200020.12">epicsSpin</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.12.1 <a 
+href="AppDevGuidech20.html#x22-84300020.12.1" id="QQ2-22-845">C Interface</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.12.2 <a 
+href="AppDevGuidech20.html#x22-84400020.12.2" id="QQ2-22-846">Implementation Notes</a></span>
+<br />&#x00A0;<span class="sectionToc" >20.13 <a 
+href="AppDevGuidech20.html#x22-84500020.13">epicsStdlib</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.13.1 <a 
+href="AppDevGuidech20.html#x22-84600020.13.1" id="QQ2-22-848">Integer Parsing</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.13.2 <a 
+href="AppDevGuidech20.html#x22-84700020.13.2" id="QQ2-22-849">Floating-point Parsing</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.13.3 <a 
+href="AppDevGuidech20.html#x22-84800020.13.3" id="QQ2-22-850">Replacements for scanf()</a></span>
+<br />&#x00A0;<span class="sectionToc" >20.14 <a 
+href="AppDevGuidech20.html#x22-84900020.14">epicsStdio</a></span>
+<br />&#x00A0;<span class="sectionToc" >20.15 <a 
+href="AppDevGuidech20.html#x22-85000020.15">epicsTempFile</a></span>
+<br />&#x00A0;<span class="sectionToc" >20.16 <a 
+href="AppDevGuidech20.html#x22-85100020.16">epicsThread</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.16.1 <a 
+href="AppDevGuidech20.html#x22-85200020.16.1" id="QQ2-22-854">C Interface</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.16.2 <a 
+href="AppDevGuidech20.html#x22-85300020.16.2" id="QQ2-22-855">C++ Interface</a></span>
+<br />&#x00A0;<span class="sectionToc" >20.17 <a 
+href="AppDevGuidech20.html#x22-85400020.17">epicsTime</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.17.1 <a 
+href="AppDevGuidech20.html#x22-85500020.17.1" id="QQ2-22-857">Time Related Structures</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.17.2 <a 
+href="AppDevGuidech20.html#x22-85600020.17.2" id="QQ2-22-858">C++ Interface</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.17.3 <a 
+href="AppDevGuidech20.html#x22-85700020.17.3" id="QQ2-22-859">class epicsTimeEvent</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.17.4 <a 
+href="AppDevGuidech20.html#x22-85800020.17.4" id="QQ2-22-860">class epicsTime</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.17.5 <a 
+href="AppDevGuidech20.html#x22-85900020.17.5" id="QQ2-22-861">C Interface</a></span>
+<br />&#x00A0;<span class="sectionToc" >20.18 <a 
+href="AppDevGuidech20.html#x22-86000020.18">osiPoolStatus</a></span>
+<br />&#x00A0;<span class="sectionToc" >20.19 <a 
+href="AppDevGuidech20.html#x22-86100020.19">osiProcess</a></span>
+<br />&#x00A0;<span class="sectionToc" >20.20 <a 
+href="AppDevGuidech20.html#x22-86200020.20">Ignoring Posix Signals</a></span>
+<br />&#x00A0;<span class="sectionToc" >20.21 <a 
+href="AppDevGuidech20.html#x22-86300020.21">OS-Independent Socket API</a></span>
+                                                                                         
+                                                                                         
+<br />&#x00A0;<span class="sectionToc" >20.22 <a 
+href="AppDevGuidech20.html#x22-86400020.22">epicsMMIO</a></span>
+<br />&#x00A0;<span class="sectionToc" >20.23 <a 
+href="AppDevGuidech20.html#x22-86500020.23"> Device Support Library</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.23.1 <a 
+href="AppDevGuidech20.html#x22-86600020.23.1" id="QQ2-22-868">Overview</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.23.2 <a 
+href="AppDevGuidech20.html#x22-86700020.23.2" id="QQ2-22-869">Location Probing</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.23.3 <a 
+href="AppDevGuidech20.html#x22-87100020.23.3" id="QQ2-22-873">Registering VME Addresses</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.23.4 <a 
+href="AppDevGuidech20.html#x22-87700020.23.4" id="QQ2-22-879">Interrupt Connection Routines</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.23.5 <a 
+href="AppDevGuidech20.html#x22-88300020.23.5" id="QQ2-22-885">Macros for Normalized Analog Values</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.23.6 <a 
+href="AppDevGuidech20.html#x22-88600020.23.6" id="QQ2-22-888">Deprecated Interrupt Routines</a></span>
+<br />&#x00A0;<span class="sectionToc" >20.24 <a 
+href="AppDevGuidech20.html#x22-89200020.24">vxWorks Specific routines and Headers</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.24.1 <a 
+href="AppDevGuidech20.html#x22-89300020.24.1" id="QQ2-22-895">veclist</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.24.2 <a 
+href="AppDevGuidech20.html#x22-89400020.24.2" id="QQ2-22-896">logMsgToErrlog</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.24.3 <a 
+href="AppDevGuidech20.html#x22-89500020.24.3" id="QQ2-22-897">camacLib.h</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.24.4 <a 
+href="AppDevGuidech20.html#x22-89600020.24.4" id="QQ2-22-898">epicsDynLink</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.24.5 <a 
+href="AppDevGuidech20.html#x22-89700020.24.5" id="QQ2-22-899">module_types.h</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.24.6 <a 
+href="AppDevGuidech20.html#x22-89800020.24.6" id="QQ2-22-900">task_params.h</a></span>
+<br />&#x00A0;&#x00A0;<span class="subsectionToc" >20.24.7 <a 
+href="AppDevGuidech20.html#x22-89900020.24.7" id="QQ2-22-901">vxComLibrary</a></span>
+<br /><span class="chapterToc" >21 <a 
+href="AppDevGuidech21.html#x23-90000021">Registry</a></span>
+<br />&#x00A0;<span class="sectionToc" >21.1 <a 
+href="AppDevGuidech21.html#x23-90100021.1">Registry.h</a></span>
+<br />&#x00A0;<span class="sectionToc" >21.2 <a 
+href="AppDevGuidech21.html#x23-90200021.2">registryRecordType.h</a></span>
+<br />&#x00A0;<span class="sectionToc" >21.3 <a 
+href="AppDevGuidech21.html#x23-90300021.3">registryDeviceSupport.h</a></span>
+<br />&#x00A0;<span class="sectionToc" >21.4 <a 
+href="AppDevGuidech21.html#x23-90400021.4">registryDriverSupport.h</a></span>
+<br />&#x00A0;<span class="sectionToc" >21.5 <a 
+href="AppDevGuidech21.html#x23-90500021.5">registryFunction.h</a></span>
+<br />&#x00A0;<span class="sectionToc" >21.6 <a 
+href="AppDevGuidech21.html#x23-90600021.6">registerRecordDeviceDriver.c</a></span>
+<br />&#x00A0;<span class="sectionToc" >21.7 <a 
+href="AppDevGuidech21.html#x23-90700021.7">registerRecordDeviceDriver.pl</a></span>
+<br /><span class="chapterToc" >22 <a 
+href="AppDevGuidech22.html#x24-90800022">Database Structures</a></span>
+<br />&#x00A0;<span class="sectionToc" >22.1 <a 
+href="AppDevGuidech22.html#x24-90900022.1">Overview</a></span>
+<br />&#x00A0;<span class="sectionToc" >22.2 <a 
+href="AppDevGuidech22.html#x24-91000022.2">Include Files</a></span>
+<br />&#x00A0;<span class="sectionToc" >22.3 <a 
+href="AppDevGuidech22.html#x24-91100022.3">Structures</a></span>
+<br /><span class="chapterToc" > <a 
+href="AppDevGuidech22.html#Q1-24-914">Index</a></span>
+</div><a 
+ id="Q1-2-3"></a>
+                                                                                         
+                                                                                         
+<!--l. 1--><div class="crosslinks"><p class="noindent">[<a 
+href="AppDevGuidech1.html" >next</a>] [<a 
+href="AppDevGuideli1.html" >front</a>] [<a 
+href="AppDevGuide.html#AppDevGuideli1.html" >up</a>] </p></div>
+<!--l. 1--><p class="noindent" ><a 
+ id="tailAppDevGuideli1.html"></a> </p> 
+</body></html> 

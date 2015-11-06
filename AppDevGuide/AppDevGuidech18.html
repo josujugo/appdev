@@ -1,0 +1,1233 @@
+<?xml version="1.0" encoding="iso-8859-1" ?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">  
+<!--http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd-->  
+<html xmlns="http://www.w3.org/1999/xhtml"  
+> 
+<head><title>18 IOC Shell</title> 
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" /> 
+<meta name="generator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
+<meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
+<!-- xhtml,2,html --> 
+<meta name="src" content="AppDevGuide.tex" /> 
+<meta name="date" content="2015-11-06 12:47:00" /> 
+<link rel="stylesheet" type="text/css" href="AppDevGuide.css" /> 
+</head><body 
+>
+<!--l. 1--><div class="crosslinks"><p class="noindent">[<a 
+href="AppDevGuidech19.html" >next</a>] [<a 
+href="AppDevGuidech17.html" >prev</a>] [<a 
+href="AppDevGuidech17.html#tailAppDevGuidech17.html" >prev-tail</a>] [<a 
+href="#tailAppDevGuidech18.html">tail</a>] [<a 
+href="AppDevGuide.html#AppDevGuidech18.html" >up</a>] </p></div>
+<h2 class="chapterHead"><span class="titlemark">Chapter&#x00A0;18</span><br /><a 
+ id="x20-73100018"></a>IOC Shell</h2> <a 
+ id="dx20-731001"></a>
+<h3 class="sectionHead"><span class="titlemark">18.1    </span> <a 
+ id="x20-73200018.1"></a>Introduction</h3>
+<!--l. 7--><p class="noindent" >The EPICS IOC shell is a simple command interpreter which provides a subset of the capabilities of the vxWorks
+shell. It is used to interpret startup scripts (st.cmd) and to execute commands entered at the console terminal. In
+most cases vxWorks startup scripts can be interpreted by the IOC shell without modification. The following
+sections of this chapter describe the operation of the IOC shell from the user&#8217;s and programmer&#8217;s points of
+view.
+</p><!--l. 12--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">18.2    </span> <a 
+ id="x20-73300018.2"></a>IOC Shell Operation</h3>
+<!--l. 14--><p class="noindent" >The IOC shell reads lines of input, expands environment variable parameters, breaks the line into commands and arguments
+then calls functions corresponding to the decoded command. Commands and arguments are separated by one or more &#8216;space&#8217;
+characters. Characters interpreted as spaces include the actual space character and the tab character as well as commas and open
+and close parentheses. Thus, the command line
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-222">
+<div class="fancyvrb" id="fancyvrb222"><a 
+ id="x20-733002r1"></a>&#x00A0;&#x00A0;dbLoadRecords("db/dbExample1.db","user=mrk")</div></div>
+<!--l. 21--><p class="nopar" >
+</p><!--l. 23--><p class="noindent" >would be interpreted by the IOC shell as the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">dbLoadRecords</span></span></span> command with arguments <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">db/dbExample1.db</span></span></span> and
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">user=mrk</span></span></span>.
+</p><!--l. 25--><p class="noindent" >Unrecognized commands result in a diagnostic message but are otherwise ignored. Missing arguments are given a default value
+(0 for numeric arguments, NULL for string arguments). Extra arguments are ignored.
+</p><!--l. 29--><p class="noindent" >Unlike the vxWorks shell, string arguments do not have to be enclosed in quotes unless they contain one or more of
+the space characters, in which case one of the quoting mechanisms described in the following section must be
+used.
+</p><!--l. 31--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">18.2.1    </span> <a 
+ id="x20-73400018.2.1"></a>Environment variable expansion</h4>
+<!--l. 33--><p class="noindent" >Lines of input not beginning with a comment character (<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">#</span></span></span>) are searched for macro references in the form $<span 
+class="cmsy-10">{</span>name<span 
+class="cmsy-10">} </span>or $(name).
+The documentation for the macLib facility (chapter 19) describes some possible syntax variations for macro references. Such
+references are replaced with the value of the environment variable they name before any other processing takes place. Macro
+expansion is recursive so, for example,
+<a 
+ id="dx20-734001"></a>
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-223">
+<div class="fancyvrb" id="fancyvrb223"><a 
+ id="x20-734003r1"></a>&#x00A0;&#x00A0;epics&#x003E;&#x00A0;epicsEnvSet&#x00A0;v1&#x00A0;\${v2}<br class="fancyvrb" /><a 
+ id="x20-734005r2"></a>&#x00A0;&#x00A0;epics&#x003E;&#x00A0;epicsEnvSet&#x00A0;v2&#x00A0;\${v3}<br class="fancyvrb" /><a 
+ id="x20-734007r3"></a>&#x00A0;&#x00A0;epics&#x003E;&#x00A0;epicsEnvSet&#x00A0;v3&#x00A0;somePV<br class="fancyvrb" /><a 
+ id="x20-734009r4"></a>&#x00A0;&#x00A0;epics&#x003E;&#x00A0;dbpr&#x00A0;${v1}</div></div>
+<!--l. 44--><p class="nopar" >
+</p><!--l. 46--><p class="noindent" >will print information about the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">somePV</span></span></span> process variable - the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">${v1}</span></span></span> argument to the dbpr command expands to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">${v2}</span></span></span>
+which expands to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">${v3}</span></span></span> which expands to <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">somePV</span></span></span>. The backslashes in the definitions are needed to postpone the substitution
+of the following variables, which would otherwise be performed before the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">epicsEnvSet</span></span></span> command was
+run.
+</p><!--l. 49--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">18.2.2    </span> <a 
+ id="x20-73500018.2.2"></a>Quoting</h4>
+<!--l. 51--><p class="noindent" >Quoting is used to remove the special meaning normally assigned to certain characters and can be used to include
+space or quote characters in arguments. Quoting can not be used to extend a command over more than one input
+line.
+</p><!--l. 54--><p class="noindent" >There are three quoting mechanisms: the backslash character, single quotes, and double quotes. A backslash (<span 
+class="cmsy-10">\</span>) preserves the
+literal value of the following character. Enclosing characters in single or double quotes preserves the literal value
+of each character (except a backslash) within the quotes, except that parameter expansion still occurs within
+double quotes. A single quote may occur between double quotes and a double quote may occur between single
+quotes.
+</p><!--l. 59--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">18.2.3    </span> <a 
+ id="x20-73600018.2.3"></a>Command-line editing and history</h4>
+<!--l. 61--><p class="noindent" >The IOC shell can use the readline or tecla library to obtain input from the console terminal. This provides full command-line
+editing as well as easy access to previous commands through the command-line history capabilties provided by these libraries.
+For full details, refer to the readline or tecla library documentation. Command and argument completion is not
+supported.
+</p><!--l. 65--><p class="noindent" >If neither the readline nor tecla library is used the only command-line editing and history capabilities will be those supplied
+by the underlying operating system. The console keyboard driver in Windows, for example, provides its own
+command-line editing and history commands. On vxWorks the ledLib command-line input library routines are
+used.
+</p><!--l. 69--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">18.2.4    </span> <a 
+ id="x20-73700018.2.4"></a>Redirection</h4>
+<!--l. 71--><p class="noindent" >The IOC shell recognizes a subset of UNIX shell I/O redirection operators. The redirection operators may precede, or appear
+anywhere within, or follow a command. Redirections are processed in the order they appear, from left to right. Failure to open
+or create a file causes the redirection to fail and the command to be ignored.
+                                                                                         
+                                                                                         
+</p><!--l. 76--><p class="noindent" >Redirection of input causes the file whose name results from the expansion of <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">filename</span></span></span> to be opened for reading on file
+descriptor <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">n</span></span></span>, or the standard input (file descriptor 0) if <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">n</span></span></span> is not specified. The general format for redirecting input
+is:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-224">
+<div class="fancyvrb" id="fancyvrb224"><a 
+ id="x20-737002r1"></a>&#x00A0;&#x00A0;[n]&#x003C;filename</div></div>
+<!--l. 81--><p class="nopar" >
+</p><!--l. 83--><p class="noindent" >As a special case, the IOC shell recognizes a standard input redirection appearing by itself (i.e. with no command) as a
+request to read commands from <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">filename</span></span></span> until an exit command or EOF is encountered. The IOC shell then
+resumes reading commands from the current source. Commands read from <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">filename</span></span></span> are not added to the
+readline command history. The level of nesting is limited only by the maximum number of files that can be open
+simultaneously.
+</p><!--l. 88--><p class="noindent" >Redirection of output causes the file whose name results from the expansion of <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">filename</span></span></span> to be opened for writing on file
+descriptor <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">n</span></span></span>, or the standard output (file descriptor 1) if <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">n</span></span></span> is not specified. If the file does not exist it is created; if it does exist it
+is truncated to zero size. The general format for redirecting output is:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-225">
+<div class="fancyvrb" id="fancyvrb225"><a 
+ id="x20-737004r1"></a>&#x00A0;&#x00A0;[n]&#x003E;filename</div></div>
+<!--l. 94--><p class="nopar" >
+</p><!--l. 96--><p class="noindent" >The general format for appending output is:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-226">
+<div class="fancyvrb" id="fancyvrb226"><a 
+ id="x20-737006r1"></a>&#x00A0;&#x00A0;[n]&#x003E;&#x003E;filename</div></div>
+<!--l. 100--><p class="nopar" >
+</p><!--l. 102--><p class="noindent" >Redirection of output in this fashion causes the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">filename</span></span></span> to be opened for appending on file descriptor <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">n</span></span></span>, or the standard
+output (file descriptor 1) if <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">n</span></span></span> is not specified. If the file does not exist it is created.
+</p><!--l. 105--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">18.2.5    </span> <a 
+ id="x20-73800018.2.5"></a>Utility Commands</h4>
+<a 
+ id="dx20-738001"></a>
+<!--l. 109--><p class="noindent" >The IOC shell recognizes the following commands as well as the commands described in chapter 6 (Database Definition) and
+chapter 9 (IOC Test Facilities) among others. The commands described in the sequencer documentation will also be recognized
+if the sequencer is included.
+<a 
+ id="dx20-738002"></a>
+<a 
+ id="dx20-738003"></a>
+<a 
+ id="dx20-738004"></a>
+<a 
+ id="dx20-738005"></a>
+<a 
+ id="dx20-738006"></a>
+</p>
+<div class="center" 
+>
+<!--l. 117--><p class="noindent" >
+<a 
+ id="x20-738007r1"></a></p>
+<!--l. 119--><div class="longtable"> <table id="TBL-3" class="longtable" 
+cellspacing="0" cellpadding="0"  
+><colgroup id="TBL-3-1g"><col 
+id="TBL-3-1" /><col 
+id="TBL-3-2" /></colgroup>
+<tr  
+ style="vertical-align:baseline;" id="TBL-3-1-"><td  style="white-space:wrap; text-align:left;" id="TBL-3-1-1"  
+class="td11">
+<!--l. 119--><p class="noindent" >Command                           </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-1-2"  
+class="td11">
+<!--l. 119--><p class="noindent" >Description                                                                                                               </p></td>
+</tr><tr 
+class="hline"><td><hr /></td><td><hr /></td></tr><tr  
+ style="vertical-align:baseline;" id="TBL-3-2-"><td  style="white-space:wrap; text-align:left;" id="TBL-3-2-1"  
+class="td11">
+<!--l. 121--><p class="noindent" >help [command ...]             </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-2-2"  
+class="td11">
+<!--l. 121--><p class="noindent" >Display synopsis of specified commands. Wild-card matching is applied so &#8216;help
+db*&#8217; displays a synopsis of all commands beginning with the letters &#8216;db&#8217;. With no
+arguments this displays a list of all commands.                                                       </p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-3-3-"><td  style="white-space:wrap; text-align:left;" id="TBL-3-3-1"  
+class="td11">
+<!--l. 122--><p class="noindent" >#                                         </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-3-2"  
+class="td11">
+<!--l. 122--><p class="noindent" >A &#8216;#&#8217; as the first non-whitespace character on a line marks the beginning of a
+comment, which continues to the end of the line (however some versions of Base
+may require a space after the &#8216;#&#8217; character to properly recognize it as a comment)</p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-3-4-"><td  style="white-space:wrap; text-align:left;" id="TBL-3-4-1"  
+class="td11">
+<!--l. 123--><p class="noindent" >exit                                     </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-4-2"  
+class="td11">
+<!--l. 123--><p class="noindent" >Stop reading commands. When the top-level command interpreter encounters an
+exit command or end-of-file (EOF) it returns to its caller.                                       </p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-3-5-"><td  style="white-space:wrap; text-align:left;" id="TBL-3-5-1"  
+class="td11">
+<!--l. 124--><p class="noindent" >cd directory                        </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-5-2"  
+class="td11">
+<!--l. 124--><p class="noindent" >Change working directory to directory.                                                                    </p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-3-6-"><td  style="white-space:wrap; text-align:left;" id="TBL-3-6-1"  
+class="td11">
+<!--l. 125--><p class="noindent" >pwd                                    </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-6-2"  
+class="td11">
+<!--l. 125--><p class="noindent" >Print the name of the working directory.                                                                  </p></td>
+                                                                                         
+                                                                                         
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-3-7-"><td  style="white-space:wrap; text-align:left;" id="TBL-3-7-1"  
+class="td11">
+<!--l. 126--><p class="noindent" >var [name [value]]              </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-7-2"  
+class="td11">
+<!--l. 126--><p class="noindent" >If  both  arguments  are  present,  assign  the  value  to  the  named  variable.If  only
+the name argument is present, print the current value of that variable.If neither
+argument  is  present,  print  the  value  of  all  variables  registered  with  the  shell.
+Variables  are  registered  in  application  database  definitions  using  the  variable
+keyword as described in Section6.9 on page104.                                                     </p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-3-8-"><td  style="white-space:wrap; text-align:left;" id="TBL-3-8-1"  
+class="td11">
+<!--l. 127--><p class="noindent" >show [-level] [task ...]        </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-8-2"  
+class="td11">
+<!--l. 127--><p class="noindent" >Show information about specified tasks. If no task arguments are present, show
+information on all tasks. The level argument controls the amount of information
+printed. The default level is 0. The task arguments can be task names or task i.d.
+numbers.                                                                                                                   </p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-3-9-"><td  style="white-space:wrap; text-align:left;" id="TBL-3-9-1"  
+class="td11">
+<!--l. 128--><p class="noindent" >system command_string    </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-9-2"  
+class="td11">
+<!--l. 128--><p class="noindent" >Send  command_string  to  the  system  command  interpreter  for  execution.  This
+command  is  present  only  if  some  application  database  definition  file  contains
+registrar(iocshSystemCommand) and if the system provides a suitable command
+interpreter (vxWorks does not).                                                                                </p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-3-10-"><td  style="white-space:wrap; text-align:left;" id="TBL-3-10-1"  
+class="td11">
+<!--l. 129--><p class="noindent" >epicsEnvSet name value     </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-10-2"  
+class="td11">
+<!--l. 129--><p class="noindent" >Set environment variable name to the specified value.                                             </p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-3-11-"><td  style="white-space:wrap; text-align:left;" id="TBL-3-11-1"  
+class="td11">
+<!--l. 130--><p class="noindent" >epicsEnvShow [name]        </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-11-2"  
+class="td11">
+<!--l. 130--><p class="noindent" >If no name is specified the names and values of all environment variables will be
+shown. If a name is specified the value of that environment variable will be shown.</p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-3-12-"><td  style="white-space:wrap; text-align:left;" id="TBL-3-12-1"  
+class="td11">
+<!--l. 131--><p class="noindent" >epicsParamShow                </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-12-2"  
+class="td11">
+<!--l. 131--><p class="noindent" >Show names and values of all EPICS configuration parameters.                             </p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-3-13-"><td  style="white-space:wrap; text-align:left;" id="TBL-3-13-1"  
+class="td11">
+<!--l. 132--><p class="noindent" >iocLogInit                          </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-13-2"  
+class="td11">
+<!--l. 132--><p class="noindent" >Initialize IOC logging.                                                                                              </p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-3-14-"><td  style="white-space:wrap; text-align:left;" id="TBL-3-14-1"  
+class="td11">
+<!--l. 133--><p class="noindent" >epicsThreadSleep sec         </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-3-14-2"  
+class="td11">
+<!--l. 133--><p class="noindent" >Pause execution of IOC shell for sec seconds.                                                         </p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-3-15-"><td  style="white-space:wrap; text-align:left;" id="TBL-3-15-1"  
+class="td11">                  </td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-3-16-"><td  style="white-space:wrap; text-align:left;" id="TBL-3-16-1"  
+class="td11">
+<!--l. 134--><p class="noindent" >                  </p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-3-17-"><td  style="white-space:wrap; text-align:left;" id="TBL-3-17-1"  
+class="td11">
+<!--l. 134--><p class="noindent" >                  </p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-3-18-"><td  style="white-space:wrap; text-align:left;" id="TBL-3-18-1"  
+class="td11">                     </td><td  style="white-space:wrap; text-align:left;" id="TBL-3-18-2"  
+class="td11">
+</td></tr>
+</table></div>
+</div>
+<!--l. 138--><p class="noindent" >The <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">var</span></span></span> command is intended for simple applications such as setting the value of debugging flags. Applications which require
+more complex expression handling should use the cexp package.
+</p><!--l. 141--><p class="noindent" >A <a 
+ id="dx20-738008"></a><span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">spy</span></span></span> command to show periodic activity reports is available on RTEMS as part of the RTEMS_UTILS support module. The
+following changes must be made to add this command to an application.
+</p>
+     <ul class="itemize1">
+     <li class="itemize">Add an RTEMS_UTILS entry to the application configure/RELEASE file.
+     </li>
+     <li class="itemize">Add <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">spy.dbd</span></span></span> to the list of application dbd files and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">rtemsutils</span></span></span> to the list of application libraries in the
+     application Makefile.
+     </li></ul>
+<!--l. 151--><p class="noindent" >
+                                                                                         
+                                                                                         
+</p>
+<h4 class="subsectionHead"><span class="titlemark">18.2.6    </span> <a 
+ id="x20-73900018.2.6"></a>Environment Variables</h4>
+<a 
+ id="dx20-739001"></a>
+<!--l. 154--><p class="noindent" >The IOC shell uses the following environment variables to control its operation. </p>
+<div class="center" 
+>
+<!--l. 155--><p class="noindent" >
+<a 
+ id="x20-739002r2"></a></p>
+<!--l. 157--><div class="longtable"> <table id="TBL-4" class="longtable" 
+cellspacing="0" cellpadding="0"  
+><colgroup id="TBL-4-1g"><col 
+id="TBL-4-1" /><col 
+id="TBL-4-2" /></colgroup>
+<tr  
+ style="vertical-align:baseline;" id="TBL-4-1-"><td  style="white-space:wrap; text-align:left;" id="TBL-4-1-1"  
+class="td11">
+<!--l. 157--><p class="noindent" >Variable                          </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-4-1-2"  
+class="td11">
+<!--l. 157--><p class="noindent" >Description                                                                                                                       </p></td>
+</tr><tr 
+class="hline"><td><hr /></td><td><hr /></td></tr><tr  
+ style="vertical-align:baseline;" id="TBL-4-2-"><td  style="white-space:wrap; text-align:left;" id="TBL-4-2-1"  
+class="td11">
+<!--l. 159--><p class="noindent" >IOCSH_PS1                   </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-4-2-2"  
+class="td11">
+<!--l. 159--><p class="noindent" >Prompt string. Default is &#8220;epics<span 
+class="cmmi-10">&#x003E; </span>&#8221;.                                                                                </p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-4-3-"><td  style="white-space:wrap; text-align:left;" id="TBL-4-3-1"  
+class="td11">
+<!--l. 160--><p class="noindent" >IOCSH_HISTSIZE        </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-4-3-2"  
+class="td11">
+<!--l. 160--><p class="noindent" >Number   of   previous   command   lines   to   remember.   If   the   IOCSH_HISTSIZE
+environment variable is not present the value of the HISTSIZE environment variable
+is  used.  In  the  absence  of  both  environment  variables,  10  command  lines  will  be
+remembered.                                                                                                                    </p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-4-4-"><td  style="white-space:wrap; text-align:left;" id="TBL-4-4-1"  
+class="td11">
+<!--l. 163--><p class="noindent" >TERM, INPUTRC         </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-4-4-2"  
+class="td11">
+<!--l. 163--><p class="noindent" >These and other environment variables are used by the readline and termcap libraries
+and are described in the documentation for those libraries.                                            </p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-4-5-"><td  style="white-space:wrap; text-align:left;" id="TBL-4-5-1"  
+class="td11">                </td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-4-6-"><td  style="white-space:wrap; text-align:left;" id="TBL-4-6-1"  
+class="td11">
+<!--l. 164--><p class="noindent" >                </p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-4-7-"><td  style="white-space:wrap; text-align:left;" id="TBL-4-7-1"  
+class="td11">
+<!--l. 164--><p class="noindent" >                </p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-4-8-"><td  style="white-space:wrap; text-align:left;" id="TBL-4-8-1"  
+class="td11">                   </td><td  style="white-space:wrap; text-align:left;" id="TBL-4-8-2"  
+class="td11">
+</td></tr>
+</table></div>
+</div>
+<!--l. 168--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">18.2.7    </span> <a 
+ id="x20-74000018.2.7"></a>Conditionals</h4>
+<a 
+ id="dx20-740001"></a>
+<a 
+ id="dx20-740002"></a>
+<!--l. 172--><p class="noindent" >The IOC shell does not provide operaters for conditionally executing commands but the effect can be simulated using macro
+expansion. The simplest technique is to preceed a command with a macro that expands to either &#8216;<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">#</span></span></span>&#8217; or &#8216;&#8217; (or&#x00A0;&#8216;&#x00A0;&#8217;). The
+following startup script line shows how this can be done:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-227">
+<div class="fancyvrb" id="fancyvrb227"><a 
+ id="x20-740004r1"></a>&#x00A0;&#x00A0;...<br class="fancyvrb" /><a 
+ id="x20-740006r2"></a>&#x00A0;&#x00A0;$(LOAD_DEBUG=#)&#x00A0;$(DEBUG)&#x00A0;dbLoadRecords("db/debugRec.db",&#x00A0;"P=$(P),R=debug")<br class="fancyvrb" /><a 
+ id="x20-740008r3"></a>&#x00A0;&#x00A0;...</div></div>
+<!--l. 180--><p class="nopar" >Starting the IOC in the normal fashion will result in the above line being commented out and the debugRec.db file being
+omitted:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-228">
+<div class="fancyvrb" id="fancyvrb228"><a 
+ id="x20-740010r1"></a>&#x00A0;&#x00A0;./st.cmd</div></div>
+<!--l. 185--><p class="nopar" >Setting the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">LOAD_DEBUG</span></span></span> environment variable to an empty string before starting the IOC will result in the debugRec.db file
+being loaded:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-229">
+<div class="fancyvrb" id="fancyvrb229"><a 
+ id="x20-740012r1"></a>&#x00A0;&#x00A0;LOAD_DEBUG=""&#x00A0;./st.cmd</div></div>
+<!--l. 190--><p class="nopar" >
+</p><!--l. 192--><p class="noindent" >A similar technique can be used to execute external scripts conditionally. The startup command file contains code
+like:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-230">
+<div class="fancyvrb" id="fancyvrb230"><a 
+ id="x20-740014r1"></a>&#x00A0;&#x00A0;epicsEnvSet&#x00A0;PILATUS_ENABLED&#x00A0;"$(PILATUS_ENABLED=NO)"<br class="fancyvrb" /><a 
+ id="x20-740016r2"></a>&#x00A0;&#x00A0;...<br class="fancyvrb" /><a 
+ id="x20-740018r3"></a>&#x00A0;&#x00A0;&#x003C;&#x00A0;pilatus-$(PILATUS_ENABLED).cmd</div></div>
+<!--l. 198--><p class="nopar" >with one set of conditional code in a file named pilatus-YES.cmd and the other set of conditional code in a file named
+pilatus-NO.cmd This technique can be expanded to a form similar to a C &#8216;switch&#8217; statement for the example above by providing
+additional pilatus-<span 
+class="ptmri7t-">XXX</span>.cmd scripts.
+</p><!--l. 205--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">18.3    </span> <a 
+ id="x20-74100018.3"></a>IOC Shell Programming</h3>
+<!--l. 207--><p class="noindent" >The declarations described in this section are included in the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocsh.h</span></span></span> header file. <a 
+ id="dx20-741001"></a>
+</p><!--l. 210--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">18.3.1    </span> <a 
+ id="x20-74200018.3.1"></a>Invoking the IOC shell</h4>
+<a 
+ id="dx20-742001"></a>
+<!--l. 213--><p class="noindent" >The prototypes for calling the IOC shell command interpreter are:
+</p>
+<!--l. 215-->
+     <div class="lstlisting" id="listing-334"><span class="label"><a 
+ id="x20-742002r1"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">iocsh</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pathname</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x20-742003r2"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">iocshLoad</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">pathname</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">macros</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x20-742004r3"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">iocshCmd</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">cmd</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x20-742005r4"></a></span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">iocshRun</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">cmd</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">macros</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx20-742006"></a>
+<a 
+ id="dx20-742007"></a>
+<a 
+ id="dx20-742008"></a>
+<a 
+ id="dx20-742009"></a>
+<!--l. 227--><p class="noindent" >The pathname argument to the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocsh</span></span></span> function is the name of the file from which commands are to be read. If the pathname
+argument is NULL, commands are read from the standard input and prompts are issued to the standard output. Commands are
+read until an <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">exit</span></span></span> command is encountered or until end-of-file is reached, at which point iocsh returns a value of 0. If the
+specified file can not be opened iocsh returns -1.
+</p><!--l. 232--><p class="noindent" >The IOC shell can be invoked from the vxWorks shell, either from within a vxWorks startup script or from vxWorks
+command-line interpreter, using
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-231">
+<div class="fancyvrb" id="fancyvrb231"><a 
+ id="x20-742011r1"></a>&#x00A0;&#x00A0;iocsh&#x00A0;"script"</div></div>
+<!--l. 236--><p class="nopar" >
+</p><!--l. 238--><p class="noindent" >to read from an IOC shell script. It can also be invoked from the vxWorks command-line interpreter with no argument, in which
+case the IOC shell takes over the duties of command-line interaction. The <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocshLoad</span></span></span> function is an extension of the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocsh</span></span></span>
+command that takes an additional string consisting of a set of macro definitions. This invokation of the IOC shell will
+then treat these macros as additional environment variables during execution, but will not persist after the shell
+exits.
+</p><!--l. 243--><p class="noindent" >The <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocshCmd</span></span></span> function takes a single IOC shell command and executes it. The <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocshRun</span></span></span> function executes the command
+with additional macro replacement defined by the user in the second parameter. These functions may be called from any thread,
+but many of the commands are not necessarily thread-safe so this should only be used with care. These functions
+are most useful to execute a single IOC shell command from a vxWorks startup script or command line, like
+this:
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-232">
+<div class="fancyvrb" id="fancyvrb232"><a 
+ id="x20-742013r1"></a>&#x00A0;&#x00A0;iocshCmd&#x00A0;"iocsh&#x00A0;command&#x00A0;string"<br class="fancyvrb" /><a 
+ id="x20-742015r2"></a>&#x00A0;&#x00A0;iocshRun&#x00A0;"iocsh&#x00A0;command&#x00A0;string"&#x00A0;"VAR=VAL"</div></div>
+<!--l. 251--><p class="nopar" >
+</p><!--l. 253--><p class="noindent" >The stdio stream redirection and environment variable expansion processes described above are performed on the string as part
+of the execution process.
+</p><!--l. 255--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">18.3.2    </span> <a 
+ id="x20-74300018.3.2"></a>Registering Commands</h4>
+<a 
+ id="dx20-743001"></a>
+<!--l. 258--><p class="noindent" >Commands must be registered before they can be recognized by the IOC shell. Registration is achieved by calling the
+registration function:
+</p>
+<!--l. 261-->
+     <div class="lstlisting" id="listing-335"><span class="label"><a 
+ id="x20-743002r1"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">iocshRegister</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">iocshFuncDef</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">piocshFuncDef</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">iocshCallFunc</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">func</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<a 
+ id="dx20-743003"></a>
+<!--l. 266--><p class="noindent" >The first argument is a pointer to a data structure which describes the command and any arguments it may take. The
+second argument is a pointer to a function which will be called by iocsh when the corresponding command is
+encountered.
+</p><!--l. 269--><p class="noindent" >The command is described by the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocshFuncDef</span><span 
+class="pcrr7t-">&#x00A0;</span></span></span>structure:
+</p>
+<!--l. 271-->
+     <div class="lstlisting" id="listing-336"><span class="label"><a 
+ id="x20-743004r1"></a></span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">iocshFuncDef</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x20-743005r2"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">name</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x20-743006r3"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">nargs</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x20-743007r4"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">iocshArg</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">arg</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x20-743008r5"></a></span><span 
+class="pcrr7t-">};</span>
+     
+</div>
+<a 
+ id="dx20-743009"></a>
+<!--l. 280--><p class="noindent" >The name element is the name of the command. The arg element is a pointer to an array of pointers to structures each of
+which defines a single argument. The nargs element declares the number of entries in the array of pointers to the
+argument descriptions. If nargs is zero, arg can be NULL. The structures which define each of the arguments
+is:
+</p>
+<!--l. 286-->
+     <div class="lstlisting" id="listing-337"><span class="label"><a 
+ id="x20-743010r1"></a></span><span 
+class="pcrb7t-">struct</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">iocshArg</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x20-743011r2"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">char</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">name</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x20-743012r3"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">iocshArgType</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">type</span><span 
+class="pcrr7t-">;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x20-743013r4"></a></span><span 
+class="pcrr7t-">}</span><span 
+class="pcrr7t-">iocshArg</span><span 
+class="pcrr7t-">;</span>
+     
+</div>
+<a 
+ id="dx20-743014"></a>
+                                                                                         
+                                                                                         
+<!--l. 294--><p class="noindent" >The name element is used by the help command to print a synopsis for the command. The type element describes the type of
+the argument and takes one of the following values:
+</p>
+<div class="center" 
+>
+<!--l. 297--><p class="noindent" >
+<a 
+ id="x20-743015r3"></a></p>
+<!--l. 300--><div class="longtable"> <table id="TBL-5" class="longtable" 
+cellspacing="0" cellpadding="0"  
+><colgroup id="TBL-5-1g"><col 
+id="TBL-5-1" /><col 
+id="TBL-5-2" /></colgroup>
+<tr  
+ style="vertical-align:baseline;" id="TBL-5-1-"><td  style="white-space:wrap; text-align:left;" id="TBL-5-1-1"  
+class="td11">
+<!--l. 300--><p class="noindent" >Type Specifier                    </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-5-1-2"  
+class="td11">
+<!--l. 300--><p class="noindent" >Description                                                                                          </p></td>
+</tr><tr 
+class="hline"><td><hr /></td><td><hr /></td></tr><tr  
+ style="vertical-align:baseline;" id="TBL-5-2-"><td  style="white-space:wrap; text-align:left;" id="TBL-5-2-1"  
+class="td11">
+<!--l. 302--><p class="noindent" >iocshArgInt                        </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-5-2-2"  
+class="td11">
+<!--l. 302--><p class="noindent" >The argument will be converted to an integer value.                          </p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-5-3-"><td  style="white-space:wrap; text-align:left;" id="TBL-5-3-1"  
+class="td11">
+<!--l. 303--><p class="noindent" >iocshArgDouble                 </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-5-3-2"  
+class="td11">
+<!--l. 303--><p class="noindent" >The argument will be converted to a double-precision floating point
+value.                                                                                                   </p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-5-4-"><td  style="white-space:wrap; text-align:left;" id="TBL-5-4-1"  
+class="td11">
+<!--l. 304--><p class="noindent" >iocshArgString                   </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-5-4-2"  
+class="td11">
+<!--l. 304--><p class="noindent" >The  argument  will  be  left  as  a  string.  The  memory  used  to  hold
+the string is &#8216;owned&#8217; by iocsh and will be reused once the handler
+function returns.                                                                                  </p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-5-5-"><td  style="white-space:wrap; text-align:left;" id="TBL-5-5-1"  
+class="td11">
+<!--l. 305--><p class="noindent" >iocshArgPersistentString   </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-5-5-2"  
+class="td11">
+<!--l. 305--><p class="noindent" >A copy of the argument will be made and a pointer to the copy will
+be passed to the handler. The called function can release this copy
+by using the pointer as an argument to free().                                     </p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-5-6-"><td  style="white-space:wrap; text-align:left;" id="TBL-5-6-1"  
+class="td11">
+<!--l. 306--><p class="noindent" >iocshArgPdbbase               </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-5-6-2"  
+class="td11">
+<!--l. 306--><p class="noindent" >The argument must be pdbbase.                                                          </p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-5-7-"><td  style="white-space:wrap; text-align:left;" id="TBL-5-7-1"  
+class="td11">
+<!--l. 307--><p class="noindent" >iocshArgArgv                     </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-5-7-2"  
+class="td11">
+<!--l. 307--><p class="noindent" >An arbitrary number of arguments is expected. Subsequent iocshArg
+structures will be ignored.                                                                   </p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-5-8-"><td  style="white-space:wrap; text-align:left;" id="TBL-5-8-1"  
+class="td11">                  </td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-5-9-"><td  style="white-space:wrap; text-align:left;" id="TBL-5-9-1"  
+class="td11">
+<!--l. 308--><p class="noindent" >                  </p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-5-10-"><td  style="white-space:wrap; text-align:left;" id="TBL-5-10-1"  
+class="td11">
+<!--l. 308--><p class="noindent" >                  </p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-5-11-"><td  style="white-space:wrap; text-align:left;" id="TBL-5-11-1"  
+class="td11">                     </td><td  style="white-space:wrap; text-align:left;" id="TBL-5-11-2"  
+class="td11">
+</td></tr>
+</table></div>
+</div>
+<!--l. 312--><p class="noindent" >The &#8216;handler&#8217; function which is called when its corresponding command is recognized should be of the form:
+</p>
+<!--l. 314-->
+     <div class="lstlisting" id="listing-338"><span class="label"><a 
+ id="x20-743016r1"></a></span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">showCallFunc</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">iocshArgBuf</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">args</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<!--l. 318--><p class="noindent" >The argument to the handler function is a pointer to an array of unions. The number of elements in this array is
+equal to the number of arguments specified in the structure describing the command. The type and name of the
+union element which contains the argument value depends on the &#8216;type&#8217; element of the corresponding argument
+descriptor:
+</p>
+                                                                                         
+                                                                                         
+<div class="center" 
+>
+<!--l. 322--><p class="noindent" >
+<a 
+ id="x20-743017r4"></a></p>
+<!--l. 325--><div class="longtable"> <table id="TBL-6" class="longtable" 
+cellspacing="0" cellpadding="0"  
+><colgroup id="TBL-6-1g"><col 
+id="TBL-6-1" /><col 
+id="TBL-6-2" /><col 
+id="TBL-6-3" /></colgroup>
+<tr  
+ style="vertical-align:baseline;" id="TBL-6-1-"><td  style="white-space:wrap; text-align:left;" id="TBL-6-1-1"  
+class="td11">
+<!--l. 325--><p class="noindent" >Type Specifier                   </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-6-1-2"  
+class="td11">
+<!--l. 325--><p class="noindent" >Type        </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-6-1-3"  
+class="td11">
+<!--l. 325--><p class="noindent" >Union element           </p></td>
+</tr><tr 
+class="hline"><td><hr /></td><td><hr /></td><td><hr /></td></tr><tr  
+ style="vertical-align:baseline;" id="TBL-6-2-"><td  style="white-space:wrap; text-align:left;" id="TBL-6-2-1"  
+class="td11">
+<!--l. 327--><p class="noindent" >iocshArgInt                       </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-6-2-2"  
+class="td11">
+<!--l. 327--><p class="noindent" >int            </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-6-2-3"  
+class="td11">
+<!--l. 327--><p class="noindent" >args[i].ival                 </p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-6-3-"><td  style="white-space:wrap; text-align:left;" id="TBL-6-3-1"  
+class="td11">
+<!--l. 328--><p class="noindent" >iocshArgDouble                </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-6-3-2"  
+class="td11">
+<!--l. 328--><p class="noindent" >double     </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-6-3-3"  
+class="td11">
+<!--l. 328--><p class="noindent" >args[i].dval                </p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-6-4-"><td  style="white-space:wrap; text-align:left;" id="TBL-6-4-1"  
+class="td11">
+<!--l. 329--><p class="noindent" >iocshArgString                  </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-6-4-2"  
+class="td11">
+<!--l. 329--><p class="noindent" >char *      </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-6-4-3"  
+class="td11">
+<!--l. 329--><p class="noindent" >args[i].sval                 </p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-6-5-"><td  style="white-space:wrap; text-align:left;" id="TBL-6-5-1"  
+class="td11">
+<!--l. 330--><p class="noindent" >iocshArgPersistentString  </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-6-5-2"  
+class="td11">
+<!--l. 330--><p class="noindent" >char *      </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-6-5-3"  
+class="td11">
+<!--l. 330--><p class="noindent" >args[i].sval                 </p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-6-6-"><td  style="white-space:wrap; text-align:left;" id="TBL-6-6-1"  
+class="td11">
+<!--l. 331--><p class="noindent" >iocshArgPdbbase              </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-6-6-2"  
+class="td11">
+<!--l. 331--><p class="noindent" >void *      </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-6-6-3"  
+class="td11">
+<!--l. 331--><p class="noindent" >args[i].vval                </p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-6-7-"><td  style="white-space:wrap; text-align:left;" id="TBL-6-7-1"  
+class="td11">
+<!--l. 332--><p class="noindent" >iocshArgArgv                   </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-6-7-2"  
+class="td11">
+<!--l. 332--><p class="noindent" >int            </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-6-7-3"  
+class="td11">
+<!--l. 332--><p class="noindent" >args[i].aval.ac            </p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-6-8-"><td  style="white-space:wrap; text-align:left;" id="TBL-6-8-1"  
+class="td11">
+<!--l. 333--><p class="noindent" >                  </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-6-8-2"  
+class="td11">
+<!--l. 333--><p class="noindent" >char **    </p></td><td  style="white-space:wrap; text-align:left;" id="TBL-6-8-3"  
+class="td11">
+<!--l. 333--><p class="noindent" >args[i].aval.av            </p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-6-9-"><td  style="white-space:wrap; text-align:left;" id="TBL-6-9-1"  
+class="td11">                  </td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-6-10-"><td  style="white-space:wrap; text-align:left;" id="TBL-6-10-1"  
+class="td11">
+<!--l. 334--><p class="noindent" >                  </p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-6-11-"><td  style="white-space:wrap; text-align:left;" id="TBL-6-11-1"  
+class="td11">
+<!--l. 334--><p class="noindent" >                  </p></td>
+</tr><tr  
+ style="vertical-align:baseline;" id="TBL-6-12-"><td  style="white-space:wrap; text-align:left;" id="TBL-6-12-1"  
+class="td11">                    </td><td  style="white-space:wrap; text-align:left;" id="TBL-6-12-2"  
+class="td11">        </td><td  style="white-space:wrap; text-align:left;" id="TBL-6-12-3"  
+class="td11">
+</td></tr>
+</table></div>
+</div>
+<!--l. 337--><p class="noindent" >If an <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocshArgArgv</span><span 
+class="pcrr7t-">&#x00A0;</span></span></span>argument type is present it is often the first and only argument specified for the command. In this case,
+<span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">args[0].aval.av[0]</span></span></span> will be the name of the command, <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">args[0].aval.av[1]</span></span></span> will be the first argument, and so
+on.
+</p><!--l. 340--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">18.3.3    </span> <a 
+ id="x20-74400018.3.3"></a>Registrar Command Registration</h4>
+<a 
+ id="dx20-744001"></a>
+<!--l. 343--><p class="noindent" >Commands are normally registered with the IOC shell in a registrar function. The application&#8217;s database description file uses
+the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">registrar</span></span></span> keyword to specify a function which will be called from the EPICS initialization code during
+the application startup process. This function then calls <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">iocshRegister</span></span></span> to register its commands with the
+iocsh.
+<a 
+ id="dx20-744002"></a>
+</p><!--l. 348--><p class="noindent" >The following code fragments shows how this can be performed for an example driver.
+</p>
+<!--l. 350-->
+                                                                                         
+                                                                                         
+     <div class="lstlisting" id="listing-339"><span class="label"><a 
+ id="x20-744003r1"></a></span><span 
+class="pcrb7t-">#</span><span 
+class="pcrb7t-">include</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x003C;</span><span 
+class="pcrr7t-">iocsh</span><span 
+class="pcrr7t-">.</span><span 
+class="pcrr7t-">h</span><span 
+class="pcrr7t-">&#x003E;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x20-744004r2"></a></span><span 
+class="pcrb7t-">#</span><span 
+class="pcrb7t-">include</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x003C;</span><span 
+class="pcrr7t-">epicsExport</span><span 
+class="pcrr7t-">.</span><span 
+class="pcrr7t-">h</span><span 
+class="pcrr7t-">&#x003E;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x20-744005r3"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x20-744006r4"></a></span><span 
+class="pcrro7t-">/&#x22C6;</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">drvXxx</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">code</span><span 
+class="pcrro7t-">,</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">FuncDef</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">and</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">CallFunc</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">definitions</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">...</span><span 
+class="pcrro7t-">&#x00A0;</span><span 
+class="pcrro7t-">&#x22C6;/</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x20-744007r5"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x20-744008r6"></a></span><span 
+class="pcrb7t-">static</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">drvXxxRegistrar</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x20-744009r7"></a></span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x20-744010r8"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">iocshRegister</span><span 
+class="pcrr7t-">(&amp;</span><span 
+class="pcrr7t-">drvXxxConfigureFuncDef</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">drvXxxConfigureCallFunc</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x20-744011r9"></a></span><span 
+class="pcrr7t-">}</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x20-744012r10"></a></span><span 
+class="pcrr7t-">epicsExportRegistrar</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">drvXxxRegistrar</span><span 
+class="pcrr7t-">);</span>
+     
+</div>
+<!--l. 363--><p class="noindent" >To include this driver in an application a developer would then add
+                                                                                         
+                                                                                         
+</p>
+<div class="verbatim" id="verbatim-233">
+<div class="fancyvrb" id="fancyvrb233"><a 
+ id="x20-744014r1"></a>&#x00A0;&#x00A0;registrar(drvXxxRegistrar)</div></div>
+<!--l. 367--><p class="nopar" >
+</p><!--l. 369--><p class="noindent" >to an application database description file.
+</p><!--l. 371--><p class="noindent" >
+</p>
+<h4 class="subsectionHead"><span class="titlemark">18.3.4    </span> <a 
+ id="x20-74500018.3.4"></a>Automatic Command Registration</h4>
+<!--l. 373--><p class="noindent" >A C++ static constructor can also be used to register IOC shell commands before the EPICS application begins. The following
+example shows how the <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">epicsThreadSleep</span></span></span> command could be described and registered.
+</p>
+<!--l. 376-->
+     <div class="lstlisting" id="listing-340"><span class="label"><a 
+ id="x20-745001r1"></a></span><span 
+class="pcrb7t-">#</span><span 
+class="pcrb7t-">include</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x003C;</span><span 
+class="pcrr7t-">iocsh</span><span 
+class="pcrr7t-">.</span><span 
+class="pcrr7t-">h</span><span 
+class="pcrr7t-">&#x003E;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x20-745002r2"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x20-745003r3"></a></span><span 
+class="pcrb7t-">static</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">iocshArg</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">epicsThreadSleepArg0</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">=</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrro7t-">seconds</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">iocshArgDouble</span><span 
+class="pcrr7t-">};</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x20-745004r4"></a></span><span 
+class="pcrb7t-">static</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">iocshArg</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">epicsThreadSleepArgs</span><span 
+class="pcrr7t-">[1]</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">=</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x20-745005r5"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">{&amp;</span><span 
+class="pcrr7t-">epicsThreadSleepArg0</span><span 
+class="pcrr7t-">};</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x20-745006r6"></a></span><span 
+class="pcrb7t-">static</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">iocshFuncDef</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">epicsThreadSleepFuncDef</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">=</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x20-745007r7"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">{</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrro7t-">epicsThreadSleep</span><span 
+class="pcrro7t-">"</span><span 
+class="pcrr7t-">,1,</span><span 
+class="pcrr7t-">epicsThreadSleepArgs</span><span 
+class="pcrr7t-">};</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x20-745008r8"></a></span><span 
+class="pcrb7t-">static</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">epicsThreadSleepCallFunc</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">const</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">iocshArgBuf</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x22C6;</span><span 
+class="pcrr7t-">args</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x20-745009r9"></a></span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x20-745010r10"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">epicsThreadSleep</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">args</span><span 
+class="pcrr7t-">[0].</span><span 
+class="pcrr7t-">dval</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x20-745011r11"></a></span><span 
+class="pcrr7t-">}</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x20-745012r12"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x20-745013r13"></a></span><span 
+class="pcrb7t-">static</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">doRegister</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrb7t-">void</span><span 
+class="pcrr7t-">)</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x20-745014r14"></a></span><span 
+class="pcrr7t-">{</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x20-745015r15"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">iocshRegister</span><span 
+class="pcrr7t-">(</span><span 
+class="pcrr7t-">epicsThreadSleepFuncDef</span><span 
+class="pcrr7t-">,</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">epicsThreadSleepCallFunc</span><span 
+class="pcrr7t-">);</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x20-745016r16"></a></span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">return</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">1;</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x20-745017r17"></a></span><span 
+class="pcrr7t-">}</span><span 
+class="pcrr7t-">&#x00A0;</span><br /><span class="label"><a 
+ id="x20-745018r18"></a></span><span 
+class="pcrb7t-">static</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrb7t-">int</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">done</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">=</span><span 
+class="pcrr7t-">&#x00A0;</span><span 
+class="pcrr7t-">doRegister</span><span 
+class="pcrr7t-">();</span>
+     
+</div>
+                                                                                         
+                                                                                         
+<!--l. 1--><div class="crosslinks"><p class="noindent">[<a 
+href="AppDevGuidech19.html" >next</a>] [<a 
+href="AppDevGuidech17.html" >prev</a>] [<a 
+href="AppDevGuidech17.html#tailAppDevGuidech17.html" >prev-tail</a>] [<a 
+href="AppDevGuidech18.html" >front</a>] [<a 
+href="AppDevGuide.html#AppDevGuidech18.html" >up</a>] </p></div>
+<!--l. 1--><p class="noindent" ><a 
+ id="tailAppDevGuidech18.html"></a> </p> 
+</body></html> 

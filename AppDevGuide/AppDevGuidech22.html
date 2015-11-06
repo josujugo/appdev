@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="iso-8859-1" ?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">  
+<!--http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd-->  
+<html xmlns="http://www.w3.org/1999/xhtml"  
+> 
+<head><title>22 Database Structures</title> 
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" /> 
+<meta name="generator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
+<meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)" /> 
+<!-- xhtml,2,html --> 
+<meta name="src" content="AppDevGuide.tex" /> 
+<meta name="date" content="2015-11-06 12:47:00" /> 
+<link rel="stylesheet" type="text/css" href="AppDevGuide.css" /> 
+</head><body 
+>
+<!--l. 1--><div class="crosslinks"><p class="noindent">[<a 
+href="AppDevGuideli2.html" >next</a>] [<a 
+href="AppDevGuidech21.html" >prev</a>] [<a 
+href="AppDevGuidech21.html#tailAppDevGuidech21.html" >prev-tail</a>] [<a 
+href="#tailAppDevGuidech22.html">tail</a>] [<a 
+href="AppDevGuide.html#AppDevGuidech22.html" >up</a>] </p></div>
+<h2 class="chapterHead"><span class="titlemark">Chapter&#x00A0;22</span><br /><a 
+ id="x24-90800022"></a>Database Structures</h2> <a 
+ id="dx24-908001"></a>
+<h3 class="sectionHead"><span class="titlemark">22.1    </span> <a 
+ id="x24-90900022.1"></a>Overview</h3>
+<!--l. 6--><p class="noindent" >This chapter describes the internal structures describing an IOC database. It is of interest to EPICS system developers but
+serious application developers may also find it useful. This chapter is intended to make it easier to understand the IOC source
+listings. It also gives a list of the header files used by IOC Code.
+</p><!--l. 10--><p class="noindent" >
+</p>
+<h3 class="sectionHead"><span class="titlemark">22.2    </span> <a 
+ id="x24-91000022.2"></a>Include Files</h3>
+<!--l. 12--><p class="noindent" >This section lists the files in base/include that are of most interest to IOC Application Developers:
+     </p><dl class="description"><dt class="description">
+<span 
+class="ptmb7t-">alarm.h alarmString.h</span> </dt><dd 
+class="description">- These files contain definitions for all alarm status and severity values.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">cadef.h caerr.h caeventmask.h</span> </dt><dd 
+class="description">- These files are of interest to anyone writing channel access clients.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">callback.h</span> </dt><dd 
+class="description">- The definitions for the General Purpose callback system.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">dbAccess.h</span> </dt><dd 
+class="description">- Definitions for the runtime database access routines.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">dbBase.h</span> </dt><dd 
+class="description">- Definitions for the structures used to store an EPICS database.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">dbDefs.h</span> </dt><dd 
+class="description">- A catchall file for definitions that have no other reasonable place to appear.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">dbFldTypes.h</span> </dt><dd 
+class="description">- Definitions for <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DBF_xxx</span></span></span> and <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">DBR_xxx</span></span></span> types.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">dbScan.h</span> </dt><dd 
+class="description">- Definitions for the scanning system.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">dbStaticLib.h</span> </dt><dd 
+class="description">- The static databases access system.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">db</span><span 
+class="ptmb7t-">_access.h db</span><span 
+class="ptmb7t-">_addr.h</span> </dt><dd 
+class="description">- Old database access.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">devLib.h</span> </dt><dd 
+class="description">- The device support library
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">devSup.h</span> </dt><dd 
+class="description">- Device Support Modules
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">drvSup.h</span> </dt><dd 
+class="description">- Driver Support Modules
+                                                                                         
+                                                                                         
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">ellLib.h</span> </dt><dd 
+class="description">- A library that is provides the same functions as the vxWorks <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">lstLib</span></span></span>. All routines start with <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ell</span></span></span> instead
+     of <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">lst</span></span></span>. The <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">ellLib</span></span></span> routines work on all architectures.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">epicsPrint.h errMdef.h</span> </dt><dd 
+class="description">- EPICS error handling system
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">fast</span><span 
+class="ptmb7t-">_lock.h</span> </dt><dd 
+class="description">- The FASTLOCK routines.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">freeList.h</span> </dt><dd 
+class="description">- A general purpose free list facility
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">gpHash.h</span> </dt><dd 
+class="description">- A general purpose hash library.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">guigroup.h</span> </dt><dd 
+class="description">- The guigroup definitions.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">initHooks.h</span> </dt><dd 
+class="description">- Definitions used by <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">initHooks.c</span></span></span> routines.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">link.h</span> </dt><dd 
+class="description">- Link definitions
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">module</span><span 
+class="ptmb7t-">_types.h</span> </dt><dd 
+class="description">- VME hardware configuration. SHOULD NOT BE USED BY NEW SUPPORT.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">recSup.h</span> </dt><dd 
+class="description">- The record global routines.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">special.h</span> </dt><dd 
+class="description">- Definitions for special fields, i.e. <span class="obeylines-h"><span class="verb"><span 
+class="pcrr7t-">SPC_xxx</span></span></span>.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">task</span><span 
+class="ptmb7t-">_params.h</span> </dt><dd 
+class="description">- Definitions for task priorities, stack space, etc.
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">taskwd.h</span> </dt><dd 
+class="description">- Task Watchdog System
+     </dd><dt class="description">
+<span 
+class="ptmb7t-">epicsTime.h</span> </dt><dd 
+class="description">- Time stamp routines.
+     </dd></dl>
+<!--l. 73--><p class="noindent" >
+                                                                                         
+                                                                                         
+</p>
+<h3 class="sectionHead"><span class="titlemark">22.3    </span> <a 
+ id="x24-91100022.3"></a>Structures</h3>
+<div class="center" 
+>
+<!--l. 77--><p class="noindent" >
+</p><!--l. 79--><p class="noindent" ><img 
+src="databaseStructures_1.svg" alt="databaseStructures&#x02D9;1.svg"  
+ />
+</p>
+</div>
+                                                                                         
+                                                                                         
+<!--l. 109--><p class="noindent" >
+                                                                                         
+                                                                                         
+</p><!--l. 110--><p class="noindent" ><a 
+ id="likesection.1"></a>
+<a 
+ id="Q1-24-914"></a>
+                                                                                         
+                                                                                         
+</p>
+<!--l. 1--><div class="crosslinks"><p class="noindent">[<a 
+href="AppDevGuideli2.html" >next</a>] [<a 
+href="AppDevGuidech21.html" >prev</a>] [<a 
+href="AppDevGuidech21.html#tailAppDevGuidech21.html" >prev-tail</a>] [<a 
+href="AppDevGuidech22.html" >front</a>] [<a 
+href="AppDevGuide.html#AppDevGuidech22.html" >up</a>] </p></div>
+<!--l. 1--><p class="noindent" ><a 
+ id="tailAppDevGuidech22.html"></a> </p> 
+</body></html> 
