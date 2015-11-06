@@ -137,10 +137,10 @@ In addition, it prevents ``outside" tasks from changing any field while the reco
 
 The following routines are provided for database locking.
 
-\begin{verbatim}
-dbScanLock(precord);
-dbScanUnlock(precord);
-\end{verbatim}
+\begin{lstlisting}[language=C]
+void dbScanLock(struct dbCommon *precord);
+void dbScanUnlock(struct dbCommon *precord);
+\end{lstlisting}
 
 \index{dbScanLock}
 \index{dbScanUnlock}

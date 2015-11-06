@@ -758,12 +758,12 @@ provides an example of how to register a debug variable for a subroutine record.
 
 In an application C source file:
 
-\begin{verbatim}
+\begin{lstlisting}[language=C]
 #include <epicsExport.h>
 
 static double myParameter;
 epicsExportAddress(double, myParameter);
-\end{verbatim}
+\end{lstlisting}
 
 In an application database definition file:
 
@@ -794,7 +794,7 @@ The example application described in Section \ref{Example IOC Application} on pa
 
 In an application C source file:
 
-\begin{verbatim}
+\begin{lstlisting}[language=C]
 #include <registryFunction.h>
 #include <epicsExport.h>
 
@@ -802,7 +802,7 @@ static long myFunction(void *argp) {
     /* my code ... */
 }
 epicsRegisterFunction(myFunction);
-\end{verbatim}
+\end{lstlisting}
 
 In an application database definition file:
 
@@ -1117,9 +1117,9 @@ The default value for \verb|VERS| is ``none specified'', which can be changed by
 Record support can call the following routine to create new attributes or change existing attributes:
 
 \index{dbPutAttribute}
-\begin{verbatim}
+\begin{lstlisting}[language=C]
 long dbPutAttribute(char *rtype, char *name, char *value)
-\end{verbatim}
+\end{lstlisting}
 
 The arguments are:
 
@@ -1277,7 +1277,7 @@ menu(menuPriority) {
 
 The include file \verb|menuPriority.h| that is generated contains:
 
-\begin{verbatim}
+\begin{lstlisting}[language=C]
 /* menuPriority.h generated from menuPriority.dbd */
 
 #ifndef INC_menuPriority_H
@@ -1291,7 +1291,7 @@ typedef enum {
 } menuPriority;
 
 #endif /* INC_menuPriority_H */
-\end{verbatim}
+\end{lstlisting}
 
 Any code that needs the priority menu values should include this file and make use of these definitions.
 
@@ -1330,13 +1330,13 @@ recordtype(ao) {
     field(OVAL,DBF_DOUBLE) {
         prompt("Output Value")
     }
-    ... many more field definitions
+    ... /* many more field definitions */
 }
 \end{verbatim}
 
 The include file \verb|aoRecord.h| that is generated contains:
 
-\begin{verbatim}
+\begin{lstlisting}[language=C]
 /* aoRecord.h generated from aoRecord.dbd */
 
 #ifndef INC_aoRecord_H
@@ -1356,19 +1356,19 @@ typedef enum {
 
 typedef struct aoRecord {
     char                name[61];   /* Record Name */
-    ... define remaining fields from database common
+    ... /* define remaining fields from database common */
     epicsFloat64        val;        /* Desired Output */
     epicsFloat64        oval;       /* Output Value */
-    ... define remaining record specific fields
+    ... /* define remaining record specific fields */
 } aoRecord;
 
 typedef enum {
     aoRecordNAME = 0,
     aoRecordDESC = 1,
-    ... indices for remaining fields in database common
+    ... /* indices for remaining fields in database common */
     aoRecordVAL = 43,
     aoRecordOVAL = 44,
-    ... indices for remaining record specific fields
+    ... /* indices for remaining record specific fields */
 } aoFieldIndex;
 
 #ifdef GEN_SIZE_OFFSET
@@ -1381,9 +1381,9 @@ static int aoRecordSizeOffset(dbRecordType *prt)
 {
     aoRecord *prec = 0;
     prt->papFldDes[aoRecordNAME]->size = sizeof(prec->name);
-    ... code to compute size for remaining fields
+    ... /* code to compute size for remaining fields */
     prt->papFldDes[aoRecordNAME]->offset = (char *)&prec->name - (char *)prec;
-    ... code to compute offset for remaining fields
+    ... /* code to compute offset for remaining fields */
     prt->rec_size = sizeof(*prec);
     return 0;
 }
@@ -1395,7 +1395,7 @@ epicsExportRegistrar(aoRecordSizeOffset);
 #endif /* GEN_SIZE_OFFSET */
 
 #endif /* INC_aoRecord_H */
-\end{verbatim}
+\end{lstlisting}
 
 The analog output record support module and all associated device support modules should include this file.
 No other code should use it.
@@ -1413,7 +1413,7 @@ They can have code like the following:
 
 \end{itemize}
 
-\begin{verbatim}
+\begin{lstlisting}[language=C]
 switch (dbGetFieldIndex(pdbAddr)) {
     case aoRecordVAL :
         ...
@@ -1424,17 +1424,17 @@ switch (dbGetFieldIndex(pdbAddr)) {
     default:
         ...
 }
-\end{verbatim}
+\end{lstlisting}
 
 The generated routine \verb|aoRecordSizeOffset| is executed when the record type gets registered with an IOC.
 The routine is compiled with the record type code, and is marked static so it will not be visible outside of that file.
 The associate record support source code MUST include the generated header file only after defining the \verb|GEN_SIZE_OFFSET| macro like this:
 
-\begin{verbatim}
+\begin{lstlisting}[language=C]
 #define GEN_SIZE_OFFSET
 #include "aoRecord.h"
 #undef GEN_SIZE_OFFSET
-\end{verbatim}
+\end{lstlisting}
 
 This convention ensures that the routine is defined exactly once.
 The \verb|epicsExportRegistrar| statement ensures that the record registration code can find and call the routine.
@@ -1460,9 +1460,9 @@ The \verb|-D| option causes the program to output Makefile dependency informatio
 \section{dbLoadDatabase}
 
 \index{dbLoadDatabase}
-\begin{verbatim}
-dbLoadDatabase(char *dbdfile, char *path, char *substitutions)
-\end{verbatim}
+\begin{lstlisting}[language=C]
+int dbLoadDatabase(char *dbdfile, char *path, char *substitutions);
+\end{lstlisting}
 
 This IOC command loads a database file which may contain any of the Database Definitions described in this chapter.
 The \verb|dbdfile| string may contain environment variable macros of the form \verb|${MOTOR}| which will be expanded before the file is opened.
@@ -1487,9 +1487,9 @@ were used, any variables \verb|$(a)|, \verb|$(b)|, \verb|$(c)| in the database f
 \section{dbLoadRecords}
 
 \index{dbLoadRecords}
-\begin{verbatim}
+\begin{lstlisting}[language=C]
 dbLoadRecords(char* dbfile, char* substitutions)
-\end{verbatim}
+\end{lstlisting}
 
 This IOC command loads a file containing record instances, record aliases and/or breakpoint tables.
 The \verb|dbfile| string may contain environment variable macros of the form \verb|${MOTOR}| which will be expanded before the file is opened.
@@ -1529,9 +1529,9 @@ record(stringout, "TESTtestrec3") {
 \section{dbLoadTemplate}
 
 \index{dbLoadTemplate}
-\begin{verbatim}
+\begin{lstlisting}[language=C]
 dbLoadTemplate(char *subfile, char *substitutions)
-\end{verbatim}
+\end{lstlisting}
 
 This IOC command reads a template substitutions file which provides instructions for loading database instance files and gives values for the \verb|$(xxx)| macros they may contain.
 This command performs those substitutions while loading the database instances requested.
