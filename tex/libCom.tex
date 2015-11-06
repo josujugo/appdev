@@ -698,19 +698,22 @@ isFull() & Returns true if the ring is full, else false.
 \index{ringPointerIsFull}
 \begin{lstlisting}[language=C]
 typedef void *epicsRingPointerId;
-    epicsRingPointerId epicsRingPointerCreate(int size);
+
+epicsRingPointerId epicsRingPointerCreate(int size);
     epicsRingPointerId epicsRingPointerLockedCreate(int size);
-    void epicsRingPointerDelete(epicsRingPointerId id);
-    /*epicsRingPointerPop returns 0 if the ring was empty */
-    void * epicsRingPointerPop(epicsRingPointerId id) ;
-    /*epicsRingPointerPush returns (0,1) if p (was not, was) put on ring*/
-    int epicsRingPointerPush(epicsRingPointerId id,void *p);
-    void epicsRingPointerFlush(epicsRingPointerId id);
-    int epicsRingPointerGetFree(epicsRingPointerId id);
-    int epicsRingPointerGetUsed(epicsRingPointerId id);
-    int epicsRingPointerGetSize(epicsRingPointerId id);
-    int epicsRingPointerIsEmpty(epicsRingPointerId id);
-    int epicsRingPointerIsFull(epicsRingPointerId id);
+void epicsRingPointerDelete(epicsRingPointerId id);
+/*epicsRingPointerPop returns 0 if the ring was empty */
+
+void * epicsRingPointerPop(epicsRingPointerId id) ;
+/*epicsRingPointerPush returns (0,1) if p (was not, was) put on ring*/
+
+int epicsRingPointerPush(epicsRingPointerId id,void *p);
+void epicsRingPointerFlush(epicsRingPointerId id);
+int epicsRingPointerGetFree(epicsRingPointerId id);
+int epicsRingPointerGetUsed(epicsRingPointerId id);
+int epicsRingPointerGetSize(epicsRingPointerId id);
+int epicsRingPointerIsEmpty(epicsRingPointerId id);
+int epicsRingPointerIsFull(epicsRingPointerId id);
 \end{lstlisting}
 
 Each C function corresponds to one of the C++ methods.
@@ -1008,7 +1011,7 @@ void epicsTimerExample()
     {
         something first("first",queue);
         something second("second",queue);
-
+        
         first.start(1.0);
         second.start(1.5);
         epicsThreadSleep(2.0);
@@ -1023,62 +1026,49 @@ This example shows how C programs can use EPICS timers.
 
 \begin{lstlisting}[language=C]
 #include <stdio.h>
-#include <epicsTimer.h>
-#include <epicsThread.h>
+#include "epicsTimer.h"
+#include "epicsThread.h"
 
-static void
-handler (void *arg)
+static void handler (void *arg)
 {
     printf ("%s timer tripped.\n", (char *)arg);
 }
 
-int
-main(int argc, char **argv)
+int main(int argc, char **argv)
 {
     epicsTimerQueueId timerQueue;
     epicsTimerId first, second;
-
-    /*
-     * Create the queue of timer requests
-     */
+    
+    /* Create the queue of timer requests */
     timerQueue = epicsTimerQueueAllocate(1,epicsThreadPriorityScanHigh);
-
-    /*
-     * Create the timers
-     */
+    
+    /* Create the timers */
     first = epicsTimerQueueCreateTimer(timerQueue, handler, "First");
     second = epicsTimerQueueCreateTimer(timerQueue, handler, "Second");
-
-    /*
-     * Start a timer
-     */
+    
+    /* Start a timer */
     printf("First timer should trip in 3 seconds.\n");
     epicsTimerStartDelay(first, 3.0);
     epicsThreadSleep(5.0);
     printf("First timer should have tripped by now.\n");
-
-    /*
-     * Try starting and then cancelling a request
-     */
+    
+    /* Try starting and then cancelling a request */
     printf("Second timer should trip in 3 seconds.\n");
     epicsTimerStartDelay(first, 3.0);
     epicsTimerStartDelay(second, 3.0);
     epicsThreadSleep(1.0);
     epicsTimerCancel(first);
     epicsThreadSleep(5.0);
-    printf("Second timer should have tripped, first timer should not have 
-tripped.\n");
-
-    /*
-     * Clean up a single timer
-     */
+    printf("Second timer should have tripped, "
+        "first timer should not have tripped.\n");
+    
+    /* Clean up a single timer */
     epicsTimerQueueDestroyTimer(timerQueue, first);
-
-    /*
-     *  Clean up an entire queue of timers
-     */
+    
+    /* Clean up an entire queue of timers */
     epicsTimerQueueRelease(timerQueue);
     return 0;
+}
 \end{lstlisting}
 
 \section{  fdmgr}
@@ -1824,7 +1814,7 @@ typedef double          epicsFloat64;
 typedef epicsInt32      epicsStatus;
 \end{lstlisting}
 
-So far the definitions provided in this header file have worked on all architectures.
+So far the definitions provided in this header file have worked on all architectures. Note that because it is defined as a \verb|char| the \verb|epicsInt8| type is signed on some CPU architectures and unsigned on others.
 In addition to the above definitions \verb|epicsTypes.h| has a number of definitions for displaying the types and other useful definitions.
 See the header file for details.
 
@@ -2003,5 +1993,4 @@ ok  3 - M_PI == 4.0*atan(1.0)
     =======
        Tests: 3
       Passed:  3 = 100%
-
 \end{verbatim}

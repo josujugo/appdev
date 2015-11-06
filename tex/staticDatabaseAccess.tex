@@ -881,37 +881,38 @@ All include statements appearing in the input files are expanded.
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdio.h>
-#include <epicsPrint.h>
-#include <dbStaticLib.h>
+#include "epicsPrint.h"
+#include "dbStaticLib.h"
 
 DBBASE *pdbbase = NULL;
 
-
-int main(int argc,char **argv)
+int main(int argc, char **argv)
 {
-    longstatus;
-    inti;
-    intarg;
- 
-    if(argc<2) {
+    long status;
+    int i;
+    int arg;
+    
+    if (argc < 2) {
         printf("usage: expandInclude file1.db file2.db...\n");
-        exit(0);
+        exit 1;
     }
-    for(i=1; i<argc; i++) {
-        status = dbReadDatabase(&pdbbase,argv[i],NULL,NULL);
-        if(!status) continue;
-        fprintf(stderr,"For input file %s",argv[i]);
-        errMessage(status,"from dbReadDatabase");
+    
+    for(i = 1; i < argc; i++) {
+        status = dbReadDatabase(&pdbbase, argv[i], NULL, NULL);
+        if (!status)
+            continue;
+        fprintf(stderr, "For input file %s", argv[i]);
+        errMessage(status, "from dbReadDatabase");
     }
-    dbWriteMenuFP(pdbbase,stdout,0);
-    dbWriteRecordTypeFP(pdbbase,stdout,0);
-    dbWriteDeviceFP(pdbbase.stdout);
-    dbWriteDriverFP(pdbbase.stdout);
-    dbWriteRecordFP(pdbbase,stdout,0,0);
-    return(0);
+    
+    dbWriteMenuFP(pdbbase, stdout, 0);
+    dbWriteRecordTypeFP(pdbbase, stdout, 0);
+    dbWriteDeviceFP(pdbbase, stdout);
+    dbWriteDriverFP(pdbbase, stdout);
+    dbWriteRecordFP(pdbbase, stdout, 0, 0);
+    return 0;
 }
 \end{lstlisting}
-
 
 \subsection{dbDumpRecords}
 
@@ -926,32 +927,39 @@ void dbDumpRecords(DBBASE *pdbbase)
 {
     DBENTRY  *pdbentry;
     long  status;
-
+    
     pdbentry = dbAllocEntry(pdbbase);
     status = dbFirstRecordType(pdbentry);
-    if(status) {printf("No record descriptions\n");return;}
-    while(!status) {
-        printf("record type: %s",dbGetRecordTypeName(pdbentry));
+    if (status) {
+        printf("No record descriptions\n");
+        return;
+    }
+    
+    while (!status) {
+        printf("Record type: %s", dbGetRecordTypeName(pdbentry));
         status = dbFirstRecord(pdbentry);
-        if(status) printf("  No Records\n"); 
-        while(!status) {
+        if (status)
+            printf("  No Records\n");
+        
+        while (!status) {
             if (dbIsAlias(pdbentry)
-                printf("\n  Alias:%s\n",dbGetRecordName(pdbentry));
+                printf("\n  Alias:%s\n", dbGetRecordName(pdbentry));
             else {
-                printf("\n  Record:%s\n",dbGetRecordName(pdbentry));
-                status = dbFirstField(pdbentry,TRUE);
-                    if(status) printf("    No Fields\n");
-                while(!status) {
-                    printf("    %s: %s",dbGetFieldName(pdbentry),
+                printf("\n  Record:%s\n", dbGetRecordName(pdbentry));
+                status = dbFirstField(pdbentry, TRUE);
+                if (status)
+                    printf("    No Fields\n");
+                while (!status) {
+                    printf("    %s: %s", dbGetFieldName(pdbentry),
                         dbGetString(pdbentry));
-                    status=dbNextField(pdbentry,TRUE);
+                    status = dbNextField(pdbentry, TRUE);
                 }
             }
             status = dbNextRecord(pdbentry);
         }
         status = dbNextRecordType(pdbentry);
     }
-    printf("End of all Records\n");
+    printf("End of Record types\n");
     dbFreeEntry(pdbentry);
 }
 \end{lstlisting}

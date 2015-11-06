@@ -1415,24 +1415,27 @@ const void *pbuffer,long nRequest,dbCaPutCallback callback);
 It contains:
 
 \begin{lstlisting}[language=C]
-static long write_ao(aoRecord *pao)
+static long write_ao(aoRecord *prec)
 {
-    struct link *plink = &pao->out;
+    struct link *plink = &prec->out;
     long status;
-
-    if(pao->pact) return(0);
-    if(plink->type!=CA_LINK) {
-        status = dbPutLink(&pao->out,DBR_DOUBLE,&pao->oval,1);
-        return(status);
+    
+    if (prec->pact)
+        return 0;
+    if (plink->type != CA_LINK) {
+        status = dbPutLink(&prec->out, DBR_DOUBLE, &prec->oval, 1);
+        return status;
     }
-    status = dbCaPutLinkCallback(plink,DBR_DOUBLE,&pao->oval,1,
-                (dbCaCallback)dbCaCallbackProcess,plink);
-    if(status) {
-        recGblSetSevr(pao,LINK_ALARM,INVALID_ALARM);
-        return(status);
+    
+    status = dbCaPutLinkCallback(plink, DBR_DOUBLE, &prec->oval, 1,
+                (dbCaCallback)dbCaCallbackProcess, plink);
+    if (status) {
+        recGblSetSevr(prec, LINK_ALARM, INVALID_ALARM);
+        return status;
     }
-    pao->pact = TRUE;
-    return(0);
+    
+    prec->pact = TRUE;
+    return 0;
 }
 \end{lstlisting}
 

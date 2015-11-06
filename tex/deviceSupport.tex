@@ -51,6 +51,7 @@ phases, writes the new value. The EPICS Allen Bradley device/driver support is a
 /* Create the dset for devAiSoft */
 long init_record();
 long read_ai();
+
 struct {
     long   number;
     DEVSUPFUN   report;
@@ -59,7 +60,7 @@ struct {
     DEVSUPFUN   get_ioint_info;
     DEVSUPFUN   read_ai;
     DEVSUPFUN   special_linconv;
-}devAiSoft={
+} devAiSoft = {
     6,
     NULL,
     NULL,
@@ -68,20 +69,20 @@ struct {
     read_ai,
     NULL
 };
-epicsExportAddress(dset,devAiSoft);
+epicsExportAddress(dset, devAiSoft);
 
 static long init_record(void *precord)
 {
     aiRecord  *pai = (aiRecord *)precord;
     long status;
-
+    
     /* ai.inp must be a CONSTANT, PV_LINK, DB_LINK or CA_LINK*/
     switch (pai->inp.type) {
         case (CONSTANT) :
             if(recGblInitConstantLink(&pai->inp,DBF_DOUBLE,&pai->val))
                 pai->udf = FALSE;
             break;
-
+        
         case (PV_LINK) :
         case (DB_LINK) :
         case (CA_LINK) :
@@ -89,22 +90,24 @@ static long init_record(void *precord)
         default :
             recGblRecordError(S_db_badField, (void *)pai,
                 "devAiSoft (init_record) Illegal INP field");
-        return(S_db_badField);
+        return S_db_badField;
     }
+    
     /* Make sure record processing routine does not perform any conversion*/
     pai->linr=0;
-    return(0);
+    return 0;
 }
 
 static long read_ai(void *precord)
 {
     aiRecord*pai =(aiRecord *)precord;
     long status;
-
-    status=dbGetGetLink(&(pai->inp.value.db_link),
-    (void *)pai,DBR_DOUBLE,&(pai->val),0,1);
-    if (pai->inp.type!=CONSTANT && RTN_SUCCESS(status)) pai->udf = FALSE;
-    return(2); /*don't convert*/
+    
+    status = dbGetGetLink(&(pai->inp.value.db_link),
+        (void *)pai, DBR_DOUBLE, &(pai->val), 0, 1);
+    if (pai->inp.type != CONSTANT && RTN_SUCCESS(status))
+        pai->udf = FALSE;
+    return 2; /*don't convert*/
 }
 \end{lstlisting}
 
@@ -157,11 +160,11 @@ static void myCallback(CALLBACK *pcallback)
 {
     struct dbCommon *precord;
     struct rset     *prset;
-
+    
     callbackGetUser(precord,pcallback);
-    prset=(struct rset *)(precord->rset);
+    prset = (struct rset *)(precord->rset);
     dbScanLock(precord);
-    (*prset->process)(precord);
+    prset->process(precord);
     dbScanUnlock(precord);
 }
 
@@ -169,33 +172,34 @@ static long init_record(struct aiRecord *pai)
 {
     CALLBACK *pcallback;
     switch (pai->inp.type) {
-    case (CONSTANT) :
+    case CONSTANT:
         pcallback = (CALLBACK *)(calloc(1,sizeof(CALLBACK)));
         callbackSetCallback(myCallback,pcallback);
         callbackSetUser(pai,pcallback);
         pai->dpvt = (void *)pcallback;
         break;
-    default :
+    
+    default:
         recGblRecordError(S_db_badField,(void *)pai,
             "devAiTestAsyn (init_record) Illegal INP field");
-        return(S_db_badField);
+        return S_db_badField;
     }
-    return(0);
+    return 0;
 }
 
 static long read_ai(struct aiRecord *pai)
 {
     CALLBACK *pcallback = (CALLBACK *)pai->dpvt;
-    if(pai->pact) {
+    if (pai->pact) {
         pai->val += 0.1; /* Change VAL just to show we've done something. */
         pai->udf = FALSE; /* We modify VAL so we are responsible for UDF too. */
         printf("Completed asynchronous processing: %s\n",pai->name);
-        return(2); /* don't convert*/
+        return 2; /* don't convert*/
     } 
     printf("Starting asynchronous processing: %s\n",pai->name);
-    pai->pact=TRUE;
+    pai->pact = TRUE;
     callbackRequestDelayed(pcallback,pai->disv);
-    return(0);
+    return 0;
 }
 
 /* Create the dset for devAiTestAsyn */

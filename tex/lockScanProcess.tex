@@ -135,7 +135,7 @@ If multiple alarms of the same severity are present the alarm status reflects th
 The purpose of database locking is to prevent a record from being processed simultaneously by two different tasks.
 In addition, it prevents ``outside" tasks from changing any field while the record is being processed.
 
-The following routines are provided for database locking.
+The following routines are used for database locking.
 
 \begin{lstlisting}[language=C]
 void dbScanLock(struct dbCommon *precord);

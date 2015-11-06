@@ -640,9 +640,9 @@ typedef void (*ASCLIENTCALLBACK)(ASCLIENTPVT,asClientStatus);
 \subsection{Initialization}
 
 \begin{lstlisting}[language=C]
-long asInitialize(ASINPUTFUNPTR inputFunction)
-long asInitFile(const char *filename,const char *substitutions)
-long asInitFP(FILE *fp,const char *substitutions)
+long asInitialize(ASINPUTFUNPTR inputFunction);
+long asInitFile(const char *filename,const char *substitutions);
+long asInitFP(FILE *fp,const char *substitutions);
 \end{lstlisting}
 
 \index{asInitialize}
@@ -883,9 +883,9 @@ This routine returns \verb|S_asLib_asNotActive| without doing anything if access
 
 \begin{lstlisting}[language=C]
 int asDump(void (*member)(ASMEMBERPVT),
-void (*client)(ASCLIENTPVT),int verbose);
+    void (*client)(ASCLIENTPVT),int verbose);
 int asDumpFP(FILE *fp,void (*member)(ASMEMBERPVT),
-void (*client)(ASCLIENTPVT),int verbose);
+    void (*client)(ASCLIENTPVT),int verbose);
 \end{lstlisting}
 
 \index{asDump}
@@ -902,8 +902,8 @@ If client callback is specified, it is called for each access security client.
 \subsubsection{Dump UAG}
 
 \begin{lstlisting}[language=C]
-int asDumpUag(char *uagname)
-int asDumpUagFP(FILE *fp,char *uagname)
+int asDumpUag(char *uagname);
+int asDumpUagFP(FILE *fp,char *uagname);
 \end{lstlisting}
 
 \index{asDumpUag}
@@ -913,8 +913,8 @@ These routines display the specified \verb|UAG| or if \verb|uagname| is \verb|NU
 \subsubsection{Dump HAG}
 
 \begin{lstlisting}[language=C]
-int asDumpHag(char *hagname)
-int asDumpHagFP(FILE *fp,char *hagname)
+int asDumpHag(char *hagname);
+int asDumpHagFP(FILE *fp,char *hagname);
 \end{lstlisting}
 
 \index{asDumpHag}
@@ -924,8 +924,8 @@ These routines display the specified \verb|UAG| or if \verb|uagname| is \verb|NU
 \subsubsection{Dump Rules}
 
 \begin{lstlisting}[language=C]
-int asDumpRules(char *asgname)
-int asDumpRulesFP(FILE *fp,char *asgname)
+int asDumpRules(char *asgname);
+int asDumpRulesFP(FILE *fp,char *asgname);
 \end{lstlisting}
 
 \index{asDumpRules}
@@ -937,9 +937,9 @@ access security database.
 
 \begin{lstlisting}[language=C]
 int asDumpMem(char *asgname,
-        void (*memcallback)(ASMEMBERPVT),int clients)
+        void (*memcallback)(ASMEMBERPVT),int clients);
 int asDumpMemFP(FILE *fp,char *asgname,
-        void (*memcallback)(ASMEMBERPVT),int clients)
+        void (*memcallback)(ASMEMBERPVT),int clients);
 \end{lstlisting}
 
 \index{asDumpMem}
@@ -950,8 +950,8 @@ It also calls \verb|memcallback| for each member if this argument is not \verb|N
 \subsubsection{Dump hash table}
 
 \begin{lstlisting}[language=C]
-int asDumpHash(void)
-int asDumpHash(FILE *fp,void)
+int asDumpHash(void);
+int asDumpHash(FILE *fp,void);
 \end{lstlisting}
 
 \index{asDumpHash}

@@ -65,7 +65,7 @@ struct {
 epicsExportAddress(drvet,drvGpib);
 \end{lstlisting}
 
-\index{Driver Support Entry Table Example}The above example is for the Allen Bradley driver. It has an associated ascii definition of:
+\index{Driver Support Entry Table Example}The above example is for the Allen Bradley driver. It has an associated database definition of:
 
 \begin{verbatim}
 driver(drvGpib)
@@ -148,22 +148,12 @@ Since there are no EPICS defined rules for hardware configuration, the following
 
 \begin{itemize}
 
-\item Never use \verb|#define| to specify things like VME addresses. Instead use variables and assign default values. Allow 
-the default values to be changed before iocInit is executed. The best way is to supply a global routine that can be 
-invoked from the IOC startup file. Note that all arguments to such routines should be one of the following:
+\item Never use \verb|#define| to specify things like VME addresses. Instead use variables and assign default values.
+Allow the default values to be changed before iocInit is executed.
+The best way is to supply a global routine that can be invoked from the IOC startup file.
+Note that all arguments to such routines should usually be \verb|int| or \verb|char *| and not \verb|double| as the VxWorks shell does not support double arguments.
 
-\begin{description}
- 
-
-\item \verb|int|
-
-\item \verb|char *|
-
-\item \verb|double|
-
-\end{description}
-
-\item Call the routines described in chapter ``Device Support Library" whenever possible.
+\item Call the routines described in chapter ``Device Support Library" whenever possible instead of their OS-specific equivalents.
 
 \end{itemize}
 

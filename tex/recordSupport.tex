@@ -229,23 +229,26 @@ static long init_record(void *precord, int  pass)
     xxxRecord*pxxx = (xxxRecord *)precord;
     xxxdset*pdset;
     longstatus;
-
-    if(pass==0) return(0); 
-
-    if((pdset = (xxxdset *)(pxxx->dset)) == NULL) {
-        recGblRecordError(S_dev_noDSET,pxxx,"xxx: init_record");
-        return(S_dev_noDSET);
+    
+    if (pass==0)
+        return 0;
+    
+    if ((pdset = (xxxdset *)(pxxx->dset)) == NULL) {
+        recGblRecordError(S_dev_noDSET, pxxx, "xxx: init_record");
+        return S_dev_noDSET;
     }
+    
     /* must have read_xxx function defined */
-    if( (pdset->number < 5) || (pdset->read_xxx == NULL) ) {
-        recGblRecordError(S_dev_missingSup,pxxx,
-        "xxx: init_record");
-        return(S_dev_missingSup);
+    if ((pdset->number < 5) || (pdset->read_xxx == NULL)) {
+        recGblRecordError(S_dev_missingSup, pxxx,
+            "xxx: init_record");
+        return S_dev_missingSup;
     }
-    if( pdset->init_record ) {
-        if((status=(*pdset->init_record)(pxxx))) return(status);
+    if (pdset->init_record) {
+        if((status = pdset->init_record(pxxx)))
+            return status;
     }
-    return(0);
+    return 0;
 }
 \end{lstlisting}
 
@@ -266,22 +269,25 @@ This is accomplished by having the waveform record support allocate the array du
 \begin{lstlisting}[language=C]
 static long process(void *precord)
 {
-    xxxRecord*pxxx = (xxxRecord *)precord;
-        xxxdset*pdset = (xxxdset *)pxxx->dset;
-    longstatus;
+    xxxRecord *pxxx = (xxxRecord *)precord;
+    xxxdset *pdset = (xxxdset *)pxxx->dset;
+    long status;
     unsigned char pact=pxxx->pact;
 
-    if( (pdset==NULL) || (pdset->read_xxx==NULL) ) {
+    if ((pdset==NULL) || (pdset->read_xxx==NULL)) {
         /* leave pact true so that dbProcess doesnt call again*/
-        pxxx->pact=TRUE;
+        pxxx->pact = TRUE;
         recGblRecordError(S_dev_missingSup,pxxx,"read_xxx");
-        return(S_dev_missingSup);
+        return S_dev_missingSup;
     }
 
-    /* pact must not be set true until read_xxx completes*/
-    status=(*pdset->read_xxx)(pxxx); /* read the new value */
-     /* return if beginning of asynch processing*/
-    if(!pact && pxxx->pact) return(0);
+    /* pact must not be set true until read_xxx completes */
+    status = pdset->read_xxx(pxxx); /* read the new value */
+
+    /* return if beginning of asynch processing */
+    if (!pact && pxxx->pact)
+        return 0;
+
     pxxx->pact = TRUE;
     recGblGetTimeStamp(pxxx);
 
@@ -293,7 +299,7 @@ static long process(void *precord)
     recGblFwdLink(pxxx);
 
     pxxx->pact=FALSE;
-    return(status);
+    return status;
 }
 \end{lstlisting}
 
@@ -341,24 +347,28 @@ The next time \verb|process| is called everything starts all over from the begin
 \begin{lstlisting}[language=C]
 static long get_units(DBADDR *paddr, char *units)
 {
-    xxxRecord  *pxxx=(xxxRecord *)paddr->precord;
-
-    strncpy(units,pxxx->egu,sizeof(pxxx->egu));
-    return(0);
+    xxxRecord *pxxx = (xxxRecord *)paddr->precord;
+    
+    strncpy(units, pxxx->egu, sizeof(pxxx->egu));
+    return 0;
 }
 
 static long get_graphic_double(DBADDR *paddr,
     struct dbr_grDouble *pgd)
 {
-    xxxRecord  *pxxx=(xxxRecord *)paddr->precord;
-    int   fieldIndex = dbGetFieldIndex(paddr);
-
-    if(fieldIndex == xxxRecordVAL) {
+    xxxRecord *pxxx=(xxxRecord *)paddr->precord;
+    int fieldIndex = dbGetFieldIndex(paddr);
+    
+    if (fieldIndex == xxxRecordVAL) {
         pgd->upper_disp_limit = pxxx->hopr;
         pgd->lower_disp_limit = pxxx->lopr;
-    } else recGblGetGraphicDouble(paddr,pgd);
-    return(0);
+    }
+    else
+        recGblGetGraphicDouble(paddr, pgd);
+    
+    return 0;
 }
+
 /* similar routines would be provided for */
 /* get_control_double and get_alarm_double*/
 \end{lstlisting}
@@ -376,47 +386,45 @@ static void checkAlarms(xxxRecord *pxxx)
     double        val;
     float         hyst,lalm,hihi,high,low,lolo;
     unsigned short hhsv,llsv,hsv,lsv;
-
-    if(pxxx->udf == TRUE ){
-        recGblSetSevr(pxxx,UDF_ALARM,VALID_ALARM);
+    
+    if (pxxx->udf) {
+        recGblSetSevr(pxxx, UDF_ALARM, VALID_ALARM);
         return;
     }
-
-    hihi=pxxx->hihi; lolo=pxxx->lolo;
-    high=pxxx->high; low=pxxx->low;
-    hhsv=pxxx->hhsv; llsv=pxxx->llsv;
-    hsv=pxxx->hsv; lsv=pxxx->lsv;
-    val=pxxx->val; hyst=pxxx->hyst; lalm=pxxx->lalm;
+    
+    hihi = pxxx->hihi; lolo = pxxx->lolo;
+    high = pxxx->high; low = pxxx->low;
+    hhsv = pxxx->hhsv; llsv = pxxx->llsv;
+    hsv = pxxx->hsv; lsv = pxxx->lsv;
+    val = pxxx->val; hyst = pxxx->hyst;
+    lalm = pxxx->lalm;
 
     /* alarm condition hihi */
-    if (hhsv && (val >= hihi 
-    || ((lalm==hihi) && (val >= hihi-hyst)))) {
-        if(recGblSetSevr(pxxx,HIHI_ALARM,pxxx->hhsv)
+    if (hhsv && (val >= hihi || ((lalm==hihi) && (val >= hihi-hyst)))) {
+        if (recGblSetSevr(pxxx,HIHI_ALARM,pxxx->hhsv)
             pxxx->lalm = hihi;
         return;
     }
     /* alarm condition lolo */
-    if (llsv && (val <= lolo 
-    || ((lalm==lolo) && (val <= lolo+hyst)))) {
-        if(recGblSetSevr(pxxx,LOLO_ALARM,pxxx->llsv))
+    if (llsv && (val <= lolo || ((lalm==lolo) && (val <= lolo+hyst)))) {
+        if (recGblSetSevr(pxxx,LOLO_ALARM,pxxx->llsv))
             pxxx->lalm = lolo;
         return;
     }
     /* alarm condition high */
-    if (hsv && (val >= high 
-    || ((lalm==high) && (val >= high-hyst)))) {
-        if(recGblSetSevr(pxxx,HIGH_ALARM,pxxx->hsv))
+    if (hsv && (val >= high || ((lalm==high) && (val >= high-hyst)))) {
+        if (recGblSetSevr(pxxx,HIGH_ALARM,pxxx->hsv))
             pxxx->lalm = high;
         return;
     }
     /* alarm condition low */
-    if (lsv && (val <= low 
-    || (lalm==low) && (val <= low+hyst)))) {
-        if(recGblSetSevr(pxxx,LOW_ALARM,pxxx->lsv))
+    if (lsv && (val <= low || (lalm==low) && (val <= low+hyst)))) {
+        if (recGblSetSevr(pxxx,LOW_ALARM,pxxx->lsv))
             pxxx->lalm = low;
-    return;
+        return;
     }
-    /*we get here only if val is out of alarm by at least hyst*/
+    
+    /* We get here only if val is out of alarm by at least hyst */
     pxxx->lalm=val;
     return;
 }
@@ -560,31 +568,34 @@ Any routine that does not apply to a specific record type must be declared \verb
 \subsection{Generate Report of Each Field in Record}
 
 \begin{lstlisting}[language=C]
-report(void *precord);   /* addr of record*/
+static long report(void *precord);   /* addr of record*/
 \end{lstlisting}
 
-\index{report - Record Support Routine}This routine is not used by most record types.
+\index{report - Record Support Routine}
+This routine is not used by most record types.
 Any action is record type specific.
 
 \subsection{Initialize Record Processing}
 
 \begin{lstlisting}[language=C]
-initialize(void);
+static long init(void);
 \end{lstlisting}
 
-\index{init - Record Support Routine}This routine is called once at IOC initialization time.
+\index{init - Record Support Routine}
+This routine is called once at IOC initialization time.
 Any action is record type specific.
 Most record types do not need this routine.
 
 \subsection{Initialize Specific Record}
 
 \begin{lstlisting}[language=C]
-init_record(
+static long init_record(
     void *precord,   /* addr of record*/
     int     pass);
 \end{lstlisting}
 
-\index{init\_record - record support routine}\verb|iocInit| calls this routine twice (pass=0 and pass=1) for each database record of the type handled by this routine.
+\index{init\_record - record support routine}
+\verb|iocInit| calls this routine twice (pass=0 and pass=1) for each database record of the type handled by this routine.
 It must perform the following functions:
 
 \begin{itemize}
@@ -601,15 +612,16 @@ It must perform the following functions:
 \subsection{Process Record}
 
 \begin{lstlisting}[language=C]
-process(void *precord);   /* addr of record*/
+static long process(void *precord);   /* addr of record*/
 \end{lstlisting}
 
-\index{process - Record Support Routine}This routine must follow the guidelines specified previously.
+\index{process - Record Support Routine}
+This routine must follow the guidelines specified previously.
 
 \subsection{Special Processing}
 
 \begin{lstlisting}[language=C]
-special(
+static long special(
     struct dbAddr   *paddr,
     int   after);/*(FALSE,TRUE)=>(Before,After)Processing*/
 \end{lstlisting}

@@ -1488,7 +1488,7 @@ were used, any variables \verb|$(a)|, \verb|$(b)|, \verb|$(c)| in the database f
 
 \index{dbLoadRecords}
 \begin{lstlisting}[language=C]
-dbLoadRecords(char* dbfile, char* substitutions)
+int dbLoadRecords(char* dbfile, char* substitutions);
 \end{lstlisting}
 
 This IOC command loads a file containing record instances, record aliases and/or breakpoint tables.
@@ -1530,7 +1530,7 @@ record(stringout, "TESTtestrec3") {
 
 \index{dbLoadTemplate}
 \begin{lstlisting}[language=C]
-dbLoadTemplate(char *subfile, char *substitutions)
+int dbLoadTemplate(char *subfile, char *substitutions);
 \end{lstlisting}
 
 This IOC command reads a template substitutions file which provides instructions for loading database instance files and gives values for the \verb|$(xxx)| macros they may contain.
