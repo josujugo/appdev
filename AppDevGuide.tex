@@ -57,7 +57,22 @@
 \renewcommand{\labelitemiv}{\labelitemi}
 
 % format and indent code listings
-\lstset{basicstyle=\ttfamily,xleftmargin=\leftmargini}
+\lstset{basicstyle=\ttfamily,%
+xleftmargin=\leftmargini,%
+stringstyle=\textit,%
+showstringspaces=false}
+
+\lstdefinelanguage{dbd}{%
+ morekeywords={path,addpath,include,%
+  record,recordtype,field,info,alias,%
+  asl,initial,promptgroup,prompt,special,pp,interest,base,size,extra,prop,%
+  menu,choice,breaktable,%
+  driver,device,registrar,variable},%
+ sensitive=true,%
+ morecomment=[l]{\#},%
+ morecomment=[l]{\%},%
+ morestring=[b]"%
+}
 
 \begin{document}
 

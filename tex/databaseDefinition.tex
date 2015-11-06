@@ -40,7 +40,7 @@ Any combination of definitions can appear in a single file or in a set of files 
 \index{Database Format -- Summary}
 The following summarizes the Database Definition syntax:
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 path "path"
 addpath "path"
 include "filename"
@@ -85,11 +85,11 @@ breaktable(name) {
     raw_value eng_value
     ...
 }
-\end{verbatim}
+\end{lstlisting}
 
 The Following defines a Record Instance
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 record(record_type, record_name) {
     include "filename"
     field(field_name, "value")
@@ -98,7 +98,7 @@ record(record_type, record_name) {
     ...
 }
 alias(record_name,alias_name)
-\end{verbatim}
+\end{lstlisting}
 
 \section{General Rules for Database Definition}
 
@@ -124,7 +124,7 @@ The following are keywords, i.e. they may not be used as values unless they are 
 \index{grecord}
 \index{info}
 \index{alias}
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 path
 addpath
 include
@@ -142,7 +142,7 @@ record
 grecord
 info
 alias
-\end{verbatim}
+\end{lstlisting}
 
 \subsection{Unquoted Strings}
 
@@ -150,9 +150,9 @@ alias
 In the summary section, some values are shown as quoted strings and some unquoted.
 The actual rule is that any string consisting of only the following characters does not need to be quoted unless it contains one of the above keywords:
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 a-z A-Z 0-9 _ - : . [ ] < > ;
-\end{verbatim}
+\end{lstlisting}
 
 These are also the legal characters for process variable names.
 Thus in many cases quotes are not needed.
@@ -170,37 +170,37 @@ For example \verb|"\""| is a quoted string containing a single double-quote char
 Macro substitutions are permitted inside quoted strings.
 Macro instances take the form:
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 $(name)
-\end{verbatim}
+\end{lstlisting}
 
 or
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 ${name}
-\end{verbatim}
+\end{lstlisting}
 
 There is no distinction between the use of parentheses or braces for delimiters, although the opening and closing characters must match for each macro instance.
 A macro name can be constructed using other macros, for example:
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 $(name_$(sel))
-\end{verbatim}
+\end{lstlisting}
 
 A macro instance can also provide a default value that is used when no macro with the given name has been defined.
 The default value can itself be defined in terms of other macros if desired, but may not contain any unescaped comma characters.
 The syntax for specifying a default value is as follows:
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 $(name=default)
-\end{verbatim}
+\end{lstlisting}
 
 Finally macro instances can also set the values of other macros which may (temporarily) override any existing values for those macros, but the new values are in scope only for the duration of the expansion of this particular macro instance.
 These definitions consist of \verb|name=value| sequences separated by commas, for example:
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 $(abcd=$(a)$(b)$(c)$(d),a=A,b=B,c=C,d=D)
-\end{verbatim}
+\end{lstlisting}
 
 \subsection{Escape Sequences}
 \label{subsec:Escape Sequences}
@@ -209,9 +209,9 @@ $(abcd=$(a)$(b)$(c)$(d),a=A,b=B,c=C,d=D)
 The database routines translate standard C escape sequences inside database field value strings only.
 The standard C escape sequences supported are:
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 \a \b \f \n \r \t \v \\ \' \" \ooo \xhh
-\end{verbatim}
+\end{lstlisting}
 
 \verb|\ooo| represents an octal number with 1, 2, or 3 digits.
 \verb|\xhh| represents a hexadecimal number which may have any number of hex digits, although only the last 2 will be represented in the character generated.
@@ -261,10 +261,10 @@ By convention:
 \index{addpath -- Database Definitions}
 \subsubsection{Format}
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 path "dir:dir...:dir"
 addpath "dir:dir...:dir
-\end{verbatim}
+\end{lstlisting}
 
 The path string follows the standard convention for the operating system, i.e. directory names are separated by a colon ``\verb|:|'' on Unix
 and a semicolon ``\verb|;|'' on Windows.
@@ -275,11 +275,11 @@ The path is used to locate the initial database file and included files.
 An empty path component at the beginning, middle, or end of a non-empty path string means search the current directory.
 For example:
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 nnn::mmm    # Current directory is between nnn and mmm
 :nnn        # Current directory is first
 nnn:        # Current directory is last
-\end{verbatim}
+\end{lstlisting}
 
 Utilities which load database files (\verb|dbExpand|, \verb|dbLoadDatabase|, etc.) allow the user to specify an initial path.
 The \verb|path| and \verb|addpath| commands can be used to change or extend that initial path.
@@ -304,9 +304,9 @@ The first instance of the specified filename is used.
 \index{include -- Database Definitions}
 \subsubsection{Format}
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 include "filename"
-\end{verbatim}
+\end{lstlisting}
 
 An include statement can appear at any place shown in the summary.
 It uses the search path as described above to locate the named file.
@@ -316,12 +316,12 @@ It uses the search path as described above to locate the named file.
 
 \subsubsection{Format}
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 menu(name) {
     choice(choice_name, "choice_string")
     ...
 }
-\end{verbatim}
+\end{lstlisting}
 
 \subsubsection{Definitions}
 
@@ -337,19 +337,19 @@ This must be a legal C/C++ identifier.
 
 \subsubsection{Example}
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 menu(menuYesNo) {
     choice(menuYesNoNO, "NO")
     choice(menuYesNoYES, "YES")
 }
-\end{verbatim}
+\end{lstlisting}
 
 \subsection{\texttt{recordtype} -- Record Type Definition}
 \index{record type -- Database Definitions}
 
 \subsubsection{Format}
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 recordtype(record_type) {}
 
 recordtype(record_type) {
@@ -370,7 +370,7 @@ recordtype(record_type) {
     %C_declaration
     ...
 }
-\end{verbatim}
+\end{lstlisting}
 
 \index{record type declaration}
 A record type statement that provides no field descriptions is a declaration, analagous to a function declaration (prototype) or forward definition in C.
@@ -582,7 +582,7 @@ The definition must end with the fieldname in lower case.
 
 The following is the definition of the event record type:
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 recordtype(event) {
     include "dbCommon.dbd" 
     field(VAL,DBF_USHORT) {
@@ -620,16 +620,16 @@ recordtype(event) {
         menu(menuAlarmSevr)
     }
 }
-\end{verbatim}
+\end{lstlisting}
 
 \subsection{\texttt{device} -- Device Support Declaration}
 
 \index{device -- Database Definitions}
 \subsubsection{Format}
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 device(record_type, link_type, dset_name, "choice_string")
-\end{verbatim}
+\end{lstlisting}
 
 \subsubsection{Definitions}
 
@@ -666,19 +666,19 @@ A \verb|choice_string| value may be reused for different record types, but must 
 
 \subsubsection{Examples}
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 device(ai,CONSTANT,devAiSoft,"Soft Channel")
 device(ai,VME_IO,devAiXy566Se,"XYCOM-566 SE Scanned")
-\end{verbatim}
+\end{lstlisting}
 
 \subsection{\texttt{driver} -- Driver Declaration}
 
 \index{driver -- database definition}
 \subsubsection{Format}
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 driver(drvet_name)
-\end{verbatim}
+\end{lstlisting}
 
 \subsubsection{Definitions}
 
@@ -690,19 +690,19 @@ driver(drvet_name)
 
 \subsubsection{Examples}
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 driver(drvVxi)
 driver(drvXy210)
-\end{verbatim}
+\end{lstlisting}
 
 \subsection{\texttt{registrar} -- Registrar Declaration}
 
 \index{registrar -- Database Defintions}
 \subsubsection{Format}
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 registrar(function_name)
-\end{verbatim}
+\end{lstlisting}
 
 \subsubsection{Definitions}
 
@@ -712,10 +712,10 @@ registrar(function_name)
 its source file with an \index{epicsExportRegistrar}\verb|epicsExportRegistrar| declaration, e.g.
 \end{description}
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 static void myRegistrar(void);
 epicsExportRegistrar(myRegistrar);
-\end{verbatim}
+\end{lstlisting}
 
 This can be used to register functions for use by subroutine records or that can be invoked from iocsh. The example 
 application described in Section \ref{Example IOC Application}, ``Example IOC Application'' on page \pageref{Example IOC Application}
@@ -723,18 +723,18 @@ gives an example of how to register functions for subroutine records.
 
 \subsubsection{Example}
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 registrar(myRegistrar)
-\end{verbatim}
+\end{lstlisting}
 
 \subsection{\texttt{variable} -- Variable Declaration}
 
 \index{variable -- Database Definitions}
 \subsubsection{Format}
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 variable(variable_name[, type])
-\end{verbatim}
+\end{lstlisting}
 
 \subsubsection{Definitions}
 
@@ -767,18 +767,18 @@ epicsExportAddress(double, myParameter);
 
 In an application database definition file:
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 variable(myParameter, double)
-\end{verbatim}
+\end{lstlisting}
 
 \subsection{\texttt{function} -- Function Declaration}
 
 \index{function -- Database Definitions}
 \subsubsection{Format}
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 function(function_name)
-\end{verbatim}
+\end{lstlisting}
 
 \subsubsection{Definitions}
 
@@ -806,9 +806,9 @@ epicsRegisterFunction(myFunction);
 
 In an application database definition file:
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 function(myFunction)
-\end{verbatim}
+\end{lstlisting}
 
 \subsection{\texttt{breaktable} -- Breakpoint Table}
 
@@ -816,12 +816,12 @@ function(myFunction)
 \index{breaktable}
 \subsubsection{Format}
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 breaktable(name) {
     raw_value eng_value
     ...
 }
-\end{verbatim}
+\end{lstlisting}
 
 \subsubsection{Definitions}
 
@@ -839,7 +839,7 @@ If duplicates are specified the first is used.
 
 \subsubsection{Example}
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 breaktable(typeJdegC) {
     0.000000 0.000000
     365.023224 67.000000
@@ -849,7 +849,7 @@ breaktable(typeJdegC) {
     4042.988281 692.000000
     4101.488281 701.000000
 }
-\end{verbatim}
+\end{lstlisting}
 
 \subsection{\texttt{record} -- Record Instance}
 
@@ -857,7 +857,7 @@ breaktable(typeJdegC) {
 \index{record}
 \subsubsection{Format}
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 record(record_type, record_name) {
     alias(alias_name)
     field(field_name, "field_value")
@@ -865,7 +865,7 @@ record(record_type, record_name) {
     ...
 }
 alias(record_name, alias_name)
-\end{verbatim}
+\end{lstlisting}
 
 \subsubsection{Definitions}
 
@@ -877,9 +877,9 @@ alias(record_name, alias_name)
 \item [record\_name] The record name.
 This must be composed out of only the following characters:
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 a-z A-Z 0-9 _ - + : [ ] < > ;
-\end{verbatim}
+\end{lstlisting}
 
 NOTE: If macro substitutions are used the name must be quoted.
 
@@ -936,9 +936,9 @@ A numeric literal, valid for the field type it is to be read into.
 \index{PV\_LINK -- link field value}
 A value of the form:
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 record.field process maximize
-\end{verbatim}
+\end{lstlisting}
 
 \verb|record| is the name of a record that exists in this or another IOC.
 
@@ -1061,7 +1061,7 @@ IOC applications using this information item may place additional restrictions o
 
 \subsubsection{Examples}
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 record(ai,STS_AbAiMaS0) {
     field(SCAN,".1 second")
     field(DTYP,"AB-1771IFE-4to20MA")
@@ -1094,7 +1094,7 @@ record(bi,STS_AbDiA0C0S0) {
     field(ZNAM,"Off")
     field(ONAM,"On")
 }
-\end{verbatim}
+\end{lstlisting}
 
 \section{Record Information Item}
 \label{Record Information Item}
@@ -1172,11 +1172,11 @@ A tool \index{makeBpt}\verb|makeBpt| is provided to convert such data to a break
 
 The format for generating a breakpoint table from a data table of raw values corresponding to equally spaced engineering values is:
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 !comment line
 <header line>
 <data table>
-\end{verbatim}
+\end{lstlisting}
 
 The header line contains the following information:
 
@@ -1194,25 +1194,25 @@ The header line contains the following information:
 
  An example definition is:
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 "TypeKdegF" 32 0 1832 4095 1.0 -454 2500 1
 <data table>
-\end{verbatim}
+\end{lstlisting}
 
 The breakpoint table can be generated by executing
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 makeBpt bptXXX.data
-\end{verbatim}
+\end{lstlisting}
 
 The input file must have the extension of data.
 The output filename is the same as the input filename with the extension of \verb|.dbd|.
 
 Another way to create the breakpoint table is to include the following definition in a \verb|Makefile|:
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 BPTS += bptXXX.dbd
-\end{verbatim}
+\end{lstlisting}
 
 NOTE: This requires the naming convention that all data tables are of the form \verb|bpt<name>.data| and a breakpoint table \verb|bpt<name>.dbd|.
 
@@ -1254,9 +1254,9 @@ Consult the chapter on the EPICS Build Facility for details.
 \index{dbdToMenuH.pl}
 This tool is executed as follows:
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 dbdToMenuH.pl [-D] [-I dir] [-o menu.h] menu.dbd [menu.h]
-\end{verbatim}
+\end{lstlisting}
 
 It reads in the input file \verb|menu.dbd| and generates a C/C++ header file containing enumerated type definitions for the menus found in the input file.
 
@@ -1267,13 +1267,13 @@ The \verb|-D| option causes the program to output Makefile dependency informatio
 
 For example \verb|menuPriority.dbd|, which contains the definitions for processing priority contains:
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 menu(menuPriority) {
     choice(menuPriorityLOW,"LOW")
     choice(menuPriorityMEDIUM,"MEDIUM")
     choice(menuPriorityHIGH,"HIGH")
 }
-\end{verbatim}
+\end{lstlisting}
 
 The include file \verb|menuPriority.h| that is generated contains:
 
@@ -1300,9 +1300,9 @@ Any code that needs the priority menu values should include this file and make u
 \index{dbdToRecordtypeH.pl}
 This tool is executed as follows:
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 dbdTorecordtypeH.pl [-D] [-I dir] [-o xRecord.h] xRecord.dbd [xRecord.h]
-\end{verbatim}
+\end{lstlisting}
 
 It reads in the input file \verb|xRecord.dhd| and generates a C/C++ header file which defines the in-memory structure of the given record type and provides other associated information for the compiler.
 If the input file contains any menu definitions, they will also be converted into enumerated type definitions in the output file.
@@ -1314,7 +1314,7 @@ The \verb|-D| option causes the program to output Makefile dependency informatio
 
 For example \verb|aoRecord.dbd|, which contains the definitions for the analog output record contains:
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 menu(aoOIF) {
     choice(aoOIF_Full,"Full")
     choice(aoOIF_Incremental,"Incremental")
@@ -1332,7 +1332,7 @@ recordtype(ao) {
     }
     ... /* many more field definitions */
 }
-\end{verbatim}
+\end{lstlisting}
 
 The include file \verb|aoRecord.h| that is generated contains:
 
@@ -1442,9 +1442,9 @@ The \verb|epicsExportRegistrar| statement ensures that the record registration c
 \section{dbdExpand.pl}
 
 \index{dbdExpand.pl}
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 dbdExpand.pl [-D] [-I dir] [-S mac=sub] [-o out.dbd] in.dbd ...
-\end{verbatim}
+\end{lstlisting}
 
 This program reads and combines the database definition from all the input files, then writes a single output file containing all information from the 
 input files.
@@ -1471,16 +1471,16 @@ Note that \verb|dbLoadDatabase| should only used to load Database Definition (\v
 
 As each line of the file is read, the substitutions specified in \verb|substitutions| are performed. Substitutions are specified as follows:
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 "var1=sub1,var2=sub3,..."
-\end{verbatim}
+\end{lstlisting}
 
 Variables are used in the file with the syntax \verb|$(var)| or \verb|${var}|.
 If the substitution string
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 "a=1,b=2,c=\"this is a test\""
-\end{verbatim}
+\end{lstlisting}
 
 were used, any variables \verb|$(a)|, \verb|$(b)|, \verb|$(c)| in the database file would have the appropriate values substituted during parsing.
 
@@ -1500,31 +1500,31 @@ Note that \verb|dbLoadRecords| should only used to load Record Instance (\verb|.
 
 For example, let the file \verb|test.db| contain:
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 record(ai, "$(pre)testrec1")
 record(ai, "$(pre)testrec2")
 record(stringout, "$(pre)testrec3") {
     field(VAL, "$(STR)")
     field(SCAN, "$(SCAN)")
 }
-\end{verbatim}
+\end{lstlisting}
 
 Then issuing the command:
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 dbLoadRecords("test.db", "pre=TEST,STR=test,SCAN=Passive")
-\end{verbatim}
+\end{lstlisting}
 
 gives the same results as loading:
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 record(ai, "TESTtestrec1")
 record(ai, "TESTtestrec2")
 record(stringout, "TESTtestrec3") {
     field(VAL, "test")
     field(SCAN, "Passive")
 }
-\end{verbatim}
+\end{lstlisting}
 
 \section{dbLoadTemplate}
 
@@ -1548,7 +1548,7 @@ The MSI program can be used to expand templates at build-time instead of using t
 \index{substitution file}
 The template substitution file syntax is described in the following Extended Backus-Naur Form grammar:
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 substitution-file ::= ( global-defs | template-subs )+
 
 global-defs ::= 'global' '{' variable-defs? '}'
@@ -1580,7 +1580,7 @@ value-char ::= [a-zA-Z0-9_+:;./\<>[] | '-' | ']'
 variable-name-start ::= [a-zA-Z_]
 variable-name-char ::= [a-zA-Z0-9_]
 file-name-char ::= [a-zA-Z0-9_+:;./\] | '-'
-\end{verbatim}
+\end{lstlisting}
 
 Note that the current implementation may accept a wider range of characters for the last three definitions than those listed here, but future releases may restrict the characters to those given above.
 
@@ -1591,32 +1591,32 @@ Any record instance file names must appear inside quotation marks if the name co
 Two different template formats are supported by the syntax rules given above.
 The format is either:
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 file name.template {
     { var1=sub1_for_set1, var2=sub2_for_set1, var3=sub3_for_set1, ... }
     { var1=sub1_for_set2, var2=sub2_for_set2, var3=sub3_for_set2, ... }
     { var1=sub1_for_set3, var2=sub2_for_set3, var3=sub3_for_set3, ... }
 }
-\end{verbatim}
+\end{lstlisting}
 
 or:
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 file name.template {
 pattern { var1, var2, var3, ... }
     { sub1_for_set1, sub2_for_set1, sub3_for_set1, ... }
     { sub1_for_set2, sub2_for_set2, sub3_for_set2, ... }
     { sub1_for_set3, sub2_for_set3, sub3_for_set3, ... }
 }
-\end{verbatim}
+\end{lstlisting}
 
 The first line (\verb|file name.template|) specifies the record instance input file. The file name may appear inside double
 quotation marks; these are required if the name contains any characters that are not in the following set, or if it contains
 environment variable macros of the form \verb|${VAR_NAME}| which must be expanded to generate the file name:
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 a-z A-Z 0-9 _ + - . / \ : ; [ ] < >
-\end{verbatim}
+\end{lstlisting}
 
 Each set of definitions enclosed in \verb|{}| is variable substitution for the input file. The input file has each set applied to it to
 produce one composite file with all the completed substitutions in it. Version 1 should be obvious. In version 2, the
@@ -1628,7 +1628,7 @@ lines contains sets which match up with the \verb|pattern{}| line.
 Two simple template file examples are shown below. The examples specify the same substitutions to perform: 
 \verb|this=sub1| and \verb|that=sub2| for a first set, and \verb|this=sub3| and \verb|that=sub4| for a second set. 
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 file test.template {
     { this=sub1,that=sub2 }
     { this=sub3,that=sub4 }
@@ -1639,22 +1639,22 @@ file test.template {
     {sub1,sub2}
     {sub3,sub4 }
 }
-\end{verbatim}
+\end{lstlisting}
 
 Assume that the file \verb|test.template| contains:
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 record(ai,"$(this)record") {
     field(DESC,"this = $(this)")
 }
 record(ai,"$(that)record") {
     field(DESC,"this = $(that)")
 }
-\end{verbatim}
+\end{lstlisting}
 
 Using \verb|dbLoadTemplate| with either input is the same as defining the records:
 
-\begin{verbatim}
+\begin{lstlisting}[language=dbd]
 record(ai,"sub1record") {
     field(DESC,"this = sub1")
 }
@@ -1668,4 +1668,4 @@ record(ai,"sub3record") {
 record(ai,"sub4record") {
     field(DESC,"this = sub4")
 }
-\end{verbatim}
+\end{lstlisting}
