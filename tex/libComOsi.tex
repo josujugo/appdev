@@ -2045,14 +2045,13 @@ and operation splitting/combining optimizations by the compiler and CPU.
 
 \section{ Device Support Library}
 
-NOTE: EPICS Base only provides vxWorks and RTEMS back-end implementations of these routines. Versions of the 
-back-end routines for other operating systems can be added in a support or IOC application.
+NOTE: EPICS Base only provides vxWorks and RTEMS back-end implementations of these routines.
+Versions of the back-end routines for other operating systems can be added in a support module or IOC application.
 
 \subsection{Overview}
 
-\verb|devLib.h| provides definitions for a library of routines useful for device and driver modules, which are primarily 
-indended for accessing VME devices. If all VME drivers register with these routines  then  addressing conflicts caused by 
-multiple device/drivers trying to use the same VME addresses will be detected.
+\verb|devLib.h| provides definitions for a library of routines useful for device and driver modules, which are primarily indended for accessing VME devices.
+If all VME drivers register with these routines  then  addressing conflicts caused by multiple device/drivers trying to use the same VME addresses will be detected.
 
 \subsection{Location Probing}
 
@@ -2065,8 +2064,9 @@ long  devReadProbe(
     void *pValueRead);
 \end{lstlisting}
 
-\index{devReadProbe}Performs a bus-error-safe atomic read operation width \verb|wordSize| bytes from the \verb|ptr| location, placing the value read (if 
-successful) at \verb|pValueRead|. The routine returns a failure status (non-zero) if a bus error occurred during the read cycle.
+\index{devReadProbe}
+Performs a bus-error-safe atomic read operation width \verb|wordSize| bytes from the \verb|ptr| location, placing the value read (if successful) at \verb|pValueRead|.
+The routine returns a failure status (non-zero) if a bus error occurred during the read cycle.
 
 \subsubsection{Write Probe}
 
@@ -2077,8 +2077,9 @@ long  devWriteProbe(
     const void *pValueWritten);
 \end{lstlisting}
 
-\index{devWriteProbe}Performs a bus-error-safe atomic write operation width \verb|wordSize| which copies the value from \verb|pValueWritten| to the 
-\verb|ptr| location. The routine returns a failure status (non-zero) if a bus error occurred during the write cycle.
+\index{devWriteProbe}
+Performs a bus-error-safe atomic write operation width \verb|wordSize| which copies the value from \verb|pValueWritten| to the \verb|ptr| location.
+The routine returns a failure status (non-zero) if a bus error occurred during the write cycle.
 
 \subsubsection{No Response Probe}
 
@@ -2173,7 +2174,8 @@ long  devConnectInterruptVME(
     void  *parameter);
 \end{lstlisting}
 
-\index{devConnectInterruptVME}Connect ISR \verb|pFunction| up to the VME interrupt \verb|vectorNumber|.
+\index{devConnectInterruptVME}
+Connect ISR \verb|pFunction| up to the VME interrupt \verb|vectorNumber|.
 
 \subsubsection{Disconnect}
 
@@ -2183,9 +2185,10 @@ long  devDisconnectInterruptVME(
     void (*pFunction)(void *));
 \end{lstlisting}
 
-\index{devDisconnectInterruptVME}Disconnects an ISR from its VME interrupt vector. The parameter \verb|pFunction| should be set to the C function pointer 
-that was connected. It is used as a key to prevent a driver from inadvertently removing an interrupt handler that it didn't 
-install.
+\index{devDisconnectInterruptVME}
+Disconnects an ISR from its VME interrupt vector.
+The parameter \verb|pFunction| should be set to the C function pointer that was connected.
+It is used as a key to prevent a driver from inadvertently removing an interrupt handler that it didn't install.
 
 \subsubsection{Check If Used}
 
@@ -2194,7 +2197,8 @@ int devInterruptInUseVME(
     unsigned vectorNumber);
 \end{lstlisting}
 
-\index{devInterruptInUseVME}Determines if a VME interrupt vector is in use, returning a boolean value.
+\index{devInterruptInUseVME}
+Determines if a VME interrupt vector is in use, returning a boolean value.
 
 \subsubsection{Enable}
 
@@ -2203,7 +2207,8 @@ long devEnableInterruptLevelVME(
     unsigned level);
 \end{lstlisting}
 
-\index{devEnableInterruptLevelVME}Enable the given VME interrupt level onto the CPU.
+\index{devEnableInterruptLevelVME}
+Enable the given VME interrupt level onto the CPU.
 
 \subsubsection{Disable}
 
@@ -2225,14 +2230,16 @@ whether any other active drivers are still making use of a particular interrupt 
     (((double)(DIGITAL))/devCreateMask(NBITS))
 \end{lstlisting}
 
-\index{devCreateMask}\subsubsection{Convert Normalized Double Value to a Digital Value}
+\index{devCreateMask}
+\subsubsection{Convert Normalized Double Value to a Digital Value}
 
 \begin{lstlisting}[language=C]
 #define devNmlToDig(NORMAL,NBITS) \
     (((long)(NORMAL)) * devCreateMask(NBITS))
 \end{lstlisting}
 
-\index{devNmlToDig}\subsection{Deprecated Interrupt Routines}
+\index{devNmlToDig}
+\subsection{Deprecated Interrupt Routines}
 
 \subsubsection{Definitions of Interrupt Types (deprecated)}
 
@@ -2240,7 +2247,8 @@ whether any other active drivers are still making use of a particular interrupt 
 typedef enum {intCPU, intVME, intVXI} epicsInterruptType;
 \end{lstlisting}
 
-\index{epicsInterruptType}The routines that use this typedef have all been deprecated, and currently only exist for backwards compatibility purposes. 
+\index{epicsInterruptType}
+The routines that use this typedef have all been deprecated, and currently only exist for backwards compatibility purposes.
 The typedef will be removed in a future release, along with those routines.
 
 \subsubsection{Connect (deprecated)}
@@ -2253,9 +2261,10 @@ long  devConnectInterrupt(
     void  *parameter);
 \end{lstlisting}
 
-\index{devConnectInterrupt}This routine has been deprecated, and currently only exists for backwards compatibility purposes. Uses of this routine 
-should be converted to call \verb|devConnectInterruptVME| or related routines instead. This routine will be removed in a 
-future release.
+\index{devConnectInterrupt}
+This routine has been deprecated, and currently only exists for backwards compatibility purposes.
+Uses of this routine should be converted to call \verb|devConnectInterruptVME| or related routines instead.
+This routine will be removed in a future release.
 
 \subsubsection{Disconnect (deprecated)}
 
@@ -2265,9 +2274,10 @@ long  devDisconnectInterrupt(
     unsigned  vectorNumber);
 \end{lstlisting}
 
-\index{devDisconnectInterrupt}This routine has been deprecated, and currently only exists for backwards compatibility purposes. Uses of this routine 
-should be converted to call \verb|devDisconnectInterruptVME| or related routines instead. This routine will be removed 
-in a future release.
+\index{devDisconnectInterrupt}
+This routine has been deprecated, and currently only exists for backwards compatibility purposes.
+Uses of this routine should be converted to call \verb|devDisconnectInterruptVME| or related routines instead.
+This routine will be removed in a future release.
 
 \subsubsection{Enable Level (deprecated)}
 
@@ -2277,9 +2287,10 @@ long  devEnableInterruptLevel(
     unsigned  level);
 \end{lstlisting}
 
-\index{devEnableInterruptLevel}This routine has been deprecated, and currently only exists for backwards compatibility purposes. Uses of this routine 
-should be converted to call \verb|devEnableInterruptLevelVME| or related routines instead. This routine will be removed 
-in a future release.
+\index{devEnableInterruptLevel}
+This routine has been deprecated, and currently only exists for backwards compatibility purposes.
+Uses of this routine should be converted to call \verb|devEnableInterruptLevelVME| or related routines instead.
+This routine will be removed in a future release.
 
 \subsubsection{Disable Level (deprecated)}
 
@@ -2289,9 +2300,10 @@ long  devDisableInterruptLevel(
     unsigned  level);
 \end{lstlisting}
 
-\index{devDisableInterruptLevel}This routine has been deprecated, and currently only exists for backwards compatibility purposes. Uses of this routine 
-should be converted to call \verb|devDisableInterruptLevelVME| or related routines instead. This routine will be 
-removed in a future release.
+\index{devDisableInterruptLevel}
+This routine has been deprecated, and currently only exists for backwards compatibility purposes.
+Uses of this routine should be converted to call \verb|devDisableInterruptLevelVME| or related routines instead.
+This routine will be removed in a future release.
 
 \section{vxWorks Specific routines and Headers}
 
