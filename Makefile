@@ -2,14 +2,12 @@
 # and the Channel Access Protocol Specification
 # Requires:
 #   AppDevGuide:
-#       latex2html and pdflatex
+#       tex4ht, inkscape, and pdflatex
 #   CAproto:
 #       asciidoc and dia
 
 # Target installation directory
-
 INSTALL_DIR = /net/epics/Public/epics/base/R3-15/2-docs
-
 
 #### Application Developers Guide
 
@@ -85,17 +83,13 @@ DIA_SRCS += $(DIA_DIR)/repeater.dia
 # Diagrams converted from dia
 PNGS = $(patsubst $(DIA_DIR)/%.dia,$(CAP_DIR)/%.png,$(DIA_SRCS))
 
+#
+SVGS = $(EPS_SRCS:$(EPS_DIR)/%.eps=$(ADG_DIR)/%.svg)
+
 
 #### Generator options
 
-# Options for latex2html:
-L2H_OPTS += -split +1
-L2H_OPTS += -link 2
-L2H_OPTS += -toc_depth 3
-L2H_OPTS += -show_section_numbers
-L2H_OPTS += -local_icons
-L2H_OPTS += -info 0
-
+tex4ht_OPT = "xhtml,2"
 # Options for asciidoc
 ASC_OPTS += -a numbered
 
@@ -136,13 +130,22 @@ $(ADG_PDF): $(TEX_SRCS) $(DIAGS)
 	makeindex $(basename $@).idx
 	pdflatex $(basename $@) > pdflatex-3.out
 
-$(ADG_DIR)/index.html: $(TEX_SRCS) $(EPS_SRCS)
-	@rm -f latex2html*.out $(ADG_DIR)/img*.png
-	latex2html $< $(L2H_OPTS) > latex2html.out
-	@echo '.'
+$(ADG_DIR)/index.html: $(TEX_SRCS) $(EPS_SRCS) $(SVGS)
+	mkdir -p $(ADG_DIR)
+	@rm -f $(ADG_DIR)/mk4ht-*.out
+	cd $(ADG_DIR) && TEXINPUTS=.:..: mk4ht htlatex AppDevGuide.tex $(tex4ht_OPT) > mk4ht-1.out
+	cd $(ADG_DIR) && TEXINPUTS=.:..: tex '\def\filename{{AppDevGuide}{idx}{4dx}{ind}} \input  idxmake.4ht'
+	cd $(ADG_DIR) && makeindex -o AppDevGuide.ind AppDevGuide.4dx
+	cd $(ADG_DIR) && TEXINPUTS=.:..: mk4ht htlatex AppDevGuide.tex $(tex4ht_OPT) > mk4ht-2.out
+	mv $(ADG_DIR)/AppDevGuide.html $@
 
-$(DIAGS_DIR)/%.pdf: $(EPS_DIR)/%.eps $(DIAGS_DIR)
+$(DIAGS_DIR)/%.pdf: $(EPS_DIR)/%.eps
+	mkdir -p $(DIAGS_DIR)
 	epstopdf $< -o=$@
+
+$(ADG_DIR)/%.svg: $(EPS_DIR)/%.eps
+	mkdir -p $(ADG_DIR)
+	inkscape -z -l $@ $<
 
 $(DIAGS_DIR):
 	mkdir -p $@
@@ -157,7 +160,8 @@ $(DIAGS_DIR):
 $(CAP_DIR)/index.html: $(ASC_SRC) $(PNGS)
 	asciidoc $(ASC_OPTS) -o $@ $<
 
-$(CAP_DIR)/%.png: $(DIA_DIR)/%.dia $(CAP_DIR)
+$(CAP_DIR)/%.png: $(DIA_DIR)/%.dia
+	mkdir -p $(CAP_DIR)
 	dia -t png -e $@ $<
 
 $(CAP_DIR):
@@ -167,6 +171,7 @@ $(CAP_DIR):
 #### Clean Rules etc.
 
 clean: cleanidx
+	rm -rf html
 	rm -rf $(ADG_DIR) $(DIAGS_DIR)
 	rm -rf $(CAP_DIR)
 

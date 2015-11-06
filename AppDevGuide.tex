@@ -36,12 +36,16 @@
 \usepackage{makeidx}
 \makeindex
 
-% This causes an error from latex2html but is required for the
-% title page to be rendered correctly as a PNG image.
+\ifx\HCode\undefined
 \usepackage{graphicx}
 
 % directories containing images
 \graphicspath{ {diags/}{eps/} }
+\else
+\newcommand\includegraphics[1]{%
+\Picture[#1.svg]{#1.svg}%
+}%
+\fi
 
 % numbersubsubsections, reduce TOC depth
 \setcounter{secnumdepth}{3}
